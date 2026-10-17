@@ -1,0 +1,18 @@
+{
+  "product-uid": "CE-DR-582",
+  "creation-date": "2026-10-01",
+  "price": 36,
+  "available": {
+    "$oval": {
+      "$medium": {
+        "S": 3,
+        "M": 5,
+        "L": 2
+      }
+    }
+  },
+  "featured": {
+    "from": "2026-10-01",
+    "for": 365
+  }
+}

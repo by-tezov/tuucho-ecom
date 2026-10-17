@@ -1,0 +1,310 @@
+.section {
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding: 40px var(--page-padding-x) 20px;
+}
+
+.heading {
+  margin: 0 0 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+}
+
+.sub {
+  color: var(--color-muted);
+  font-size: clamp(0.8125rem, 2.4vw, 0.9375rem);
+}
+
+.fieldCaret {
+  color: var(--color-muted);
+}
+
+.shapeOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.shapeOption {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  text-align: left;
+}
+
+.shapeOption:hover {
+  background: var(--color-accent-soft);
+}
+
+.shapeOptionActive {
+  color: var(--color-accent);
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}
+
+.hero {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin: 0 0 20px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-card);
+}
+
+.heroTrack {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+  transition: transform 300ms ease;
+}
+
+.heroSlide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-photo-control);
+  color: var(--color-cream-bright);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow:hover {
+  background: var(--color-photo-control-hover);
+}
+
+.arrow:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.arrowPrev {
+  left: 10px;
+}
+
+.arrowNext {
+  right: 10px;
+}
+
+/* Overlay strip along the carousel's top edge. The shape trigger is
+   flush with the hero's left and top edges (no inset, and only its
+   bottom-right corner is rounded), so the rest of the strip is free for
+   the dots. */
+.heroBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-right: 10px;
+}
+
+.heroShapeTrigger {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 60%;
+  padding: 10px 14px;
+  border-radius: 0 0 var(--radius-md) 0;
+  background: var(--color-photo-control);
+  color: var(--color-cream-bright);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.heroShapeTrigger > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.heroShapeTrigger:hover:not(:disabled) {
+  background: var(--color-photo-control-hover);
+}
+
+.heroShapeTrigger .fieldCaret {
+  color: inherit;
+}
+
+.dots {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  filter: drop-shadow(0 1px 2px rgba(43, 38, 32, 0.6));
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 253, 247, 0.9);
+  border: 1px solid rgba(43, 38, 32, 0.35);
+}
+
+.dotActive {
+  width: 16px;
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+}
+
+.tableBlock {
+  margin-top: 32px;
+}
+
+.tableTitle {
+  font-size: clamp(1.375rem, 2.6vw, 1.75rem);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.tableScroll {
+  overflow-x: auto;
+  cursor: grab;
+  /* Press-drag scrolls (mouse only, see onTableScrollPointer* in the
+     component); without this the browser selects table text instead —
+     same contract as ModalShell's .body. */
+  user-select: none;
+  -webkit-user-select: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tableScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.tableScroll:active {
+  cursor: grabbing;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.theadRow {
+  background: var(--color-surface-inverse);
+  color: var(--color-cream-bright);
+}
+
+.th {
+  text-align: left;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 14px 20px;
+}
+
+.thRight {
+  text-align: right;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 14px 20px;
+}
+
+.row {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.rowName {
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  padding: 10px 20px;
+  white-space: nowrap;
+}
+
+.value {
+  text-align: right;
+  font-weight: 600;
+  color: var(--color-ink);
+  padding: 10px 20px;
+  white-space: nowrap;
+}
+
+/* Same visual system as ModalShell's vertical scroll chevrons
+   (--color-scroll-hint/-fg/-track), rotated: a strip below the table
+   instead of an overlay on it, since overlaying table columns would hide
+   data. Plain flex row rather than the vertical version's absolute
+   from/to-edge positioning — there's no shared content to overlay, so the
+   bar is just the flexible middle sibling between the two arrows. */
+.tableScrollControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tableScrollArrow {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--scroll-hint-size);
+  height: var(--scroll-hint-size);
+  border-radius: 50%;
+  background: var(--color-scroll-hint);
+  color: var(--color-scroll-hint-fg);
+}
+
+.tableScrollArrow:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tableScrollBar {
+  flex: 1 1 auto;
+  max-width: 120px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-scroll-hint-track);
+}
+
+.note {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.noteLink {
+  color: inherit;
+  text-decoration: underline;
+}

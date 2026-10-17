@@ -1,0 +1,55 @@
+/* Desktop-only — mobile's Panier tab (MobileTabBar.tsx) is always on screen
+   there, so this reminder is redundant below the same 1024px breakpoint
+   MobileTabBar/Header/MobileNav already split on. */
+.banner {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .banner {
+    width: min(calc(100% - 48px), var(--container-max));
+    box-sizing: border-box;
+    margin: 22px auto 0;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    background: var(--color-accent-shine);
+    color: var(--color-ink-strong);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.messageText {
+  min-width: 0;
+}
+
+.earnAmount {
+  color: var(--color-success);
+  font-weight: 800;
+}
+
+.reminderIcon {
+  flex-shrink: 0;
+  display: flex;
+  color: var(--color-accent);
+}
+
+.cta {
+  flex-shrink: 0;
+  color: var(--color-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

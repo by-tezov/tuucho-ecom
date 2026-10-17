@@ -1,0 +1,718 @@
+.listRow,
+.card {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+}
+
+.adminFilter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.simpleListRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 13px 16px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.simpleListRow:hover {
+  background: var(--color-cream);
+}
+
+.simpleListRow:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+.simpleListIdentity {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.simpleListIdentity strong,
+.simpleListIdentity span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.simpleListIdentity strong {
+  font-size: 0.9375rem;
+}
+
+.simpleListIdentity span,
+.simpleListRow time {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.simpleListTags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+/* No tag for this user: drop the box instead of leaving an empty line. */
+.simpleListTags:empty {
+  display: none;
+}
+
+/* Pinned to the last column so it stays right-aligned with or without tags. */
+.simpleListRow time {
+  grid-row: 1;
+  grid-column: -2 / -1;
+  justify-self: end;
+  white-space: nowrap;
+}
+
+.listRow {
+  display: grid;
+  grid-template-columns: minmax(11rem, 1fr) minmax(18rem, 1.25fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 15px 16px;
+}
+
+.activityPlain > span:first-child,
+.activityButton > span:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.orderMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0;
+}
+
+.orderMetrics > div {
+  min-width: 0;
+  border-left: 1px solid var(--border-soft);
+  padding-left: 8px;
+}
+
+.orderMetrics dt,
+.orderOverview dt {
+  color: var(--color-muted);
+  font-size: 0.65625rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.accountControl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.activeStatus,
+.lockedStatus,
+.pendingStatus,
+.adminStatus,
+.unverifiedStatus {
+  border-radius: var(--radius-pill);
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+.activeStatus {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+.lockedStatus {
+  background: var(--color-danger-bg-hover);
+  color: var(--color-danger);
+}
+.pendingStatus {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+.adminStatus {
+  background: var(--color-info-soft);
+  color: var(--color-info);
+}
+.unverifiedStatus {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.actionHint {
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.activityLinks {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.activityLinks button,
+.backButton {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 7px 10px;
+}
+
+.activityLinks button:hover,
+.backButton:hover {
+  background: var(--color-control-subtle);
+}
+
+.activityLinks button span {
+  display: inline-grid;
+  min-width: 1.25rem;
+  place-items: center;
+  margin-left: 4px;
+  border-radius: 1rem;
+  background: var(--color-accent-shine);
+  color: var(--color-accent);
+}
+
+.card {
+  display: grid;
+  gap: 14px;
+  padding: 17px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tags span {
+  border-radius: var(--radius-pill);
+  background: var(--color-control-subtle);
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  padding: 4px 8px;
+}
+
+.orderMetrics > div {
+  padding: 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-control-subtle);
+}
+
+.orderMetrics dd {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 7px 0 0;
+}
+
+.orderMetrics dd strong {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+}
+.orderMetrics dd span {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.unavailable {
+  margin: -4px 0 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.matchNote,
+.modalEmpty {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+.matchNote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 9px;
+}
+.backfilledNote {
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+.modalError {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.activityList,
+.orderItems {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.activityList {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.activityList li + li {
+  border-top: 1px solid var(--border-soft);
+}
+
+.activityButton,
+.activityPlain {
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 12px;
+  text-align: left;
+}
+
+.activityButton {
+  border: 0;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  cursor: pointer;
+  font: inherit;
+}
+.activityButton:hover {
+  background: var(--color-control-subtle);
+}
+
+.activityButton > span:last-child,
+.activityPlain > span:nth-child(2) {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  text-align: right;
+}
+
+.activityList strong {
+  font-size: 0.8125rem;
+}
+.activityList small {
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+}
+.activityList em {
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  font-style: normal;
+}
+.activityPlain p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.modalPagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.modalPagination button {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  font: inherit;
+  padding: 7px 10px;
+}
+.modalPagination button:disabled {
+  opacity: 0.45;
+}
+.modalPageSize {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+.modalPageSize select {
+  min-height: 34px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  font: inherit;
+}
+
+.orderDetail {
+  display: grid;
+  gap: 14px;
+}
+.backButton {
+  justify-self: start;
+}
+.orderHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.orderHeading strong {
+  font-family: ui-monospace, monospace;
+  font-size: 1.05rem;
+}
+.orderHeading span {
+  border-radius: var(--radius-pill);
+  background: var(--color-control-subtle);
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  padding: 4px 8px;
+}
+.orderOverview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+.orderOverview div,
+.orderSection {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 11px;
+}
+.orderOverview dd {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+.orderSection h3 {
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+}
+.orderSection p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+.orderSection p + p {
+  margin-top: 7px;
+}
+.orderItems {
+  display: grid;
+  gap: 8px;
+}
+.orderItems li {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+.orderItems img,
+.itemPlaceholder {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: var(--radius-sm);
+  background: var(--color-control-subtle);
+  object-fit: cover;
+}
+.orderItems li > span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.orderItems small {
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  .simpleListRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .simpleListTags {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+  .listRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .orderMetrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+.modalField {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.modalField span {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.modalField input,
+.modalField textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  font: inherit;
+}
+
+.roleField {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.fieldHint {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.modalField textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.modalPrimary {
+  width: 100%;
+  margin-top: 4px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-cream-bright);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  padding: 12px 16px;
+}
+
+.modalPrimary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.lockModalMessage {
+  margin: 0 0 12px;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.lockModalConfirm {
+  background: var(--color-danger-solid);
+}
+
+.lockDetail {
+  display: grid;
+  gap: 10px;
+  margin: 0 16px 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg-card));
+}
+
+.lockDetail div {
+  display: grid;
+  gap: 4px;
+}
+
+.lockDetail dt {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+}
+
+.lockDetail dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+}
+
+.lockReasonRow dd {
+  white-space: pre-wrap;
+}
+
+.detailBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--color-overlay-modal);
+}
+
+.detailPanel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 92vh;
+  overflow: hidden;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.detailHeader {
+  composes: header from '../components/ui/ModalChrome.module.css';
+}
+
+.detailTitle {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.detailClose {
+  composes: closeButton from '../components/ui/ModalChrome.module.css';
+}
+
+.detailClose:hover:not(:disabled) {
+  background: var(--color-accent-shine);
+}
+
+/* The shared close button tints on any hover; a disabled one must not. */
+.detailClose:disabled:hover {
+  background: var(--color-bg-card);
+}
+
+.detailClose:disabled {
+  opacity: 0.55;
+}
+
+.detailToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.detailEmail {
+  margin: 0;
+  min-width: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.detailPanel .tags,
+.detailPanel .orderMetrics,
+.detailPanel .activityLinks,
+.detailPanel .unavailable {
+  margin-top: 14px;
+}
+
+@media (min-width: 1024px) {
+  .detailBackdrop {
+    align-items: center;
+    padding: 16px;
+  }
+
+  .detailPanel {
+    max-width: 560px;
+    max-height: 88vh;
+    border-radius: var(--radius-xl);
+  }
+}
+
+/* Lock confirmation: a centered dialog at every width, inset from the
+   viewport edges (same shell as the unlock ConfirmModal variant="dialog"),
+   never a bottom sheet. Compound selectors so the detail shell above,
+   which shares these elements, cannot win on source order. */
+.detailBackdrop.lockModalBackdrop {
+  align-items: center;
+  padding: 16px;
+}
+
+.detailPanel.lockModalPanel {
+  width: min(480px, 100%);
+  max-width: min(480px, 100%);
+  max-height: 88vh;
+  border-radius: var(--radius-xl);
+}
+
+/* Role change confirmation: removed / added / resulting roles as chips. The
+   dialog's message block keeps line breaks (pre-line); reset it here. */
+.roleChange {
+  display: grid;
+  gap: 14px;
+  text-align: left;
+  white-space: normal;
+}
+
+.roleChangeRow {
+  display: grid;
+  gap: 6px;
+}
+
+.roleChangeLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.roleChangeChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.roleChangeChip {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.roleChangeNote {
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}

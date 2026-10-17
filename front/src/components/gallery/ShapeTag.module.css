@@ -1,0 +1,109 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Same pill look the badge always had — sized 1.15x the original for mobile
+   tap clarity, unchanged from before this became a single tag. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-card);
+  color: var(--color-ink-strong);
+  font-size: 0.79rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-card);
+}
+
+/* Product zoom modal: same selected-chip look the shape row used before
+   the single-tag picker (Chip.chipActive + the modal's enlarged footprint). */
+.tagChip {
+  background: var(--color-accent);
+  color: var(--color-bg);
+  box-shadow: none;
+}
+
+button.tag {
+  cursor: pointer;
+}
+
+.menuPlus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.menuPlus svg {
+  display: block;
+}
+
+/* Portaled to document.body (see useFloatingMenuRect) and positioned with
+   `position: fixed` from a measured viewport rect. The gallery card clips
+   its own rounded corners with overflow: hidden, so an absolutely-positioned
+   menu anchored inside it would be cut off there. Which side it opens on,
+   and whether it aligns to the tag's left or right edge, come from the
+   inline style; only the static box styling lives here. */
+/* Full-viewport dim so the floating list reads clearly above a busy gallery
+   grid instead of blending into the neighbouring cards — same overlay token
+   as ModalShell's own backdrop. Sits one z-index below .menu; clicking it
+   closes (the document-level pointerdown listener already would, but this
+   also stops the click reaching whatever card sits underneath).
+   z-index sits above PhotoLightbox (1000) so the picker stays usable when
+   the tag is opened from the product zoom modal; below SizeRequestModal
+   (1100). */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: var(--color-overlay-modal);
+}
+
+.menu {
+  position: fixed;
+  min-width: 140px;
+  max-width: calc(100vw - 32px);
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  gap: 2px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-popover);
+  z-index: 1051;
+}
+
+.menu[hidden] {
+  display: none;
+}
+
+.option {
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.option:hover {
+  background: var(--color-accent-soft);
+}
+
+.optionActive {
+  color: var(--color-accent);
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}
+
+@media (max-width: 1023px) {
+  /* 1.1x smaller on mobile compact cards, same ratio as before. */
+  .tag {
+    padding: 6.4px 10.9px;
+    font-size: 0.718rem;
+  }
+}

@@ -1,0 +1,12 @@
+.vscode/
+.idea/
+.DS_Store
+node_modules/
+dist/
+build/
+.bundle-check/
+playwright-report/
+test-results/
+.env/.private.env
+.env/*/.private.env
+.claude/settings.local.json

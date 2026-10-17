@@ -1,0 +1,25 @@
+RewriteEngine On
+
+# Apache strips the Authorization header before CGI/FPM sees it unless it is
+# copied into the environment explicitly. Both forms are here because which
+# one fires depends on whether this vhost is served by Litespeed or Apache.
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+RewriteCond %{HTTP:Authorization} ^(.+)$
+RewriteRule ^ - [E=HTTP_AUTHORIZATION:%1]
+
+# Everything that is not a real file on disk is the gateway. index.php answers
+# 404 for unknown paths itself, so a stray directory under this document root
+# can never be listed or served.
+#
+# The original path is handed over explicitly in __ops_path because this host
+# serves PHP through LiteSpeed, which rewrites REQUEST_URI to the target script
+# — so by the time index.php runs, the requested path is otherwise lost. QSA
+# keeps the caller's own query string alongside it.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php?__ops_path=/$1 [L,QSA]
+
+Options -Indexes
+
+# This document root holds one PHP script. It is never a Passenger app, and
+# inheriting one from a parent .htaccess would shadow the gateway entirely.
+PassengerEnabled off

@@ -1,0 +1,267 @@
+/* Centered dialog on every viewport — same shell as ConfirmModal
+   variant="dialog" / SectionUnlockPrompt, not a bottom sheet. */
+.backdrop {
+  composes: backdropCentered from '../ui/ModalChrome.module.css';
+}
+
+.panel {
+  width: 100%;
+  max-width: 420px;
+  max-height: 88vh;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: fadeScaleIn 160ms ease;
+}
+
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
+
+.header {
+  composes: header from '../ui/ModalChrome.module.css';
+}
+
+/* Inset from the panel's own edges — same separator treatment as
+   ConfirmModal / auth unlock dialogs. */
+
+.title {
+  composes: dialogTitle from '../ui/Typography.module.css';
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.closeButton:hover {
+  background: var(--color-accent-shine);
+}
+
+.body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Create / merge choice tiles — title row is radio + label; nested
+   body (name field, cart grid) is full-bleed within tile padding. */
+.optionTile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 10px 12px 10px 8px;
+  background: var(--color-bg-card);
+}
+
+.optionTileSelected {
+  border-color: var(--color-accent);
+  background: var(--color-accent-faint);
+}
+
+.optionMain {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  line-height: 1.4;
+}
+
+.optionMain input {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Smaller circle × than .closeButton — sits inside the name input
+   (AuthForm .inputActionWrapper supplies the right padding). */
+.clearButton {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.clearButton:hover {
+  background: var(--color-accent-shine);
+}
+
+.clearButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.cartGridWrap {
+  position: relative;
+}
+
+/* ~2.5 rows of tiles then scroll — row = tile min-height + gap. Grid (not
+   flex-wrap) so every card, on every row, is exactly the same width (equal
+   1fr tracks) — including a lone trailing card, which simply leaves its
+   second column empty rather than stretching to fill it. */
+.cartGrid {
+  /* Name + item count + right-aligned price (3 lines). */
+  --cart-tile-min-h: 5.25rem;
+  --cart-tile-gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: stretch;
+  gap: var(--cart-tile-gap);
+  max-height: calc(2.5 * (var(--cart-tile-min-h) + var(--cart-tile-gap)) - var(--cart-tile-gap));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Only reserved while actually scrollable (see scrollHint.up/down in the
+   component) — otherwise this was a permanent dead column on the right
+   even when every tile already fit with no scrolling at all. */
+.cartGridScrollable {
+  /* Clear scroll-hint chevron + track on the right (CartControl / FilterSheet). */
+  padding-right: calc(var(--scroll-hint-inset-x) + var(--scroll-hint-size) + 6px);
+}
+
+.cartGrid::-webkit-scrollbar {
+  display: none;
+}
+
+.cartGrid:active {
+  cursor: grabbing;
+}
+
+/* Click-to-select tiles — soft background only when selected (no radio,
+   no accent border). */
+.cartTile {
+  display: block;
+  min-height: var(--cart-tile-min-h);
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.cartTileSelected {
+  background: var(--color-accent-faint);
+}
+
+/* Stack: name, item count, then price on its own right-aligned line. */
+.cartTileBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cartTileName {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  color: var(--color-ink);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cartTileMeta {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  line-height: 1.35;
+}
+
+.cartTileTotal {
+  display: block;
+  width: 100%;
+  text-align: right;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  line-height: 1.35;
+}
+
+.scrollHintUp {
+  composes: scrollHintUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintDown {
+  composes: scrollHintDown from '../ui/ModalChrome.module.css';
+}
+
+/* Vertical track aligned with the chevron centers — same as FilterSheet. */
+.scrollHintBar {
+  composes: scrollHintBar from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarFromUp {
+  composes: scrollHintBarFromUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarToDown {
+  composes: scrollHintBarToDown from '../ui/ModalChrome.module.css';
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}

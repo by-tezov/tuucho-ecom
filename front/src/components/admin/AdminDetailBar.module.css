@@ -1,0 +1,91 @@
+/* Pinned under AdminLayout's sticky top bar (--admin-topbar-h is set on the
+   admin shell). Bleeds to the screen edge so it reads as a toolbar. */
+.bar {
+  position: sticky;
+  top: var(--admin-topbar-h, 0px);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -16px calc(-1 * var(--page-padding-x)) 14px;
+  padding: 8px var(--page-padding-x);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 12px 0 6px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.84375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.back:hover:not(:disabled) {
+  border-color: var(--color-accent);
+}
+
+.back:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.backLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stepper {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.position {
+  margin-right: 4px;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.step {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-medium);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.step:hover:not(:disabled) {
+  border-color: var(--color-accent);
+}
+
+.step:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (min-width: 1024px) {
+  .bar {
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+}

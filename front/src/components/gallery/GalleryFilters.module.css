@@ -1,0 +1,124 @@
+/* One row (Filtres / Favoris / Mes créations), same at every breakpoint —
+   desktop no longer gets its own bordered card, mobile no longer gets its
+   own duplicate row in GalleryPage.tsx. */
+.summaryRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.filtersButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  padding: 9px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.filtersButton:hover {
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+/* Tint, not the solid fill favoritesButtonActive uses — this reads as "some
+   filter is set" rather than a toggled-on state, since the button itself
+   isn't a binary switch. */
+.filtersButtonActive {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  color: var(--color-accent);
+}
+
+.favoritesButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  padding: 9px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.favoritesButton:hover {
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+.favoritesButtonActive {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-bg-card);
+}
+
+/* :hover's extra specificity otherwise beats .favoritesButtonActive alone,
+   so without this the pale .favoritesButton:hover tint (meant for the
+   inactive resting state) silently overrode the active background while
+   the cream text stayed — invisible text on a near-white hover state. */
+.favoritesButtonActive:hover {
+  background: color-mix(in srgb, var(--color-accent) 85%, black);
+  border-color: color-mix(in srgb, var(--color-accent) 85%, black);
+}
+
+/* Solid gold border for every control here — source order matters: this
+   must come after .filtersButton/.favoritesButton to win at equal
+   (single-class) specificity. Harmless where already gold (…Active states
+   already set this same color). */
+.filterGoldBorder {
+  border-color: var(--color-accent);
+}
+
+/* Result count (left) + reset link (right, pushed there by its own
+   margin-left: auto), same at every breakpoint. */
+.filterResetRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+  max-width: 100%;
+}
+
+.resultLabel {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.filterResetBottom {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.filterResetBottom:hover {
+  opacity: 0.8;
+}
+
+/* Closing boundary for the filters section, every breakpoint now — desktop
+   no longer has its own card border to serve that purpose instead. Bottom
+   margin restores the breathing room before the grid that desktop's old
+   .filterCard used to provide via its own margin-bottom: 16px. */
+.filterSeparator {
+  margin: 6px 0 16px;
+  border: none;
+  border-top: 1px solid var(--border-medium);
+}

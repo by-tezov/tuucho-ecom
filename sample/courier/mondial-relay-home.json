@@ -1,0 +1,63 @@
+{
+  "code": "mondial-relay-home",
+  "name": {
+    "en": "Mondial Relay Home",
+    "es": "Mondial Relay Home",
+    "fr": "Mondial Relay Home",
+    "it": "Mondial Relay Home",
+    "nl": "Mondial Relay Home",
+    "pt": "Mondial Relay Home",
+    "th": "Mondial Relay Home"
+  },
+  "description": {
+    "fr": "Livraison directement à votre domicile.",
+    "en": "Delivery directly to your home.",
+    "th": "จัดส่งถึงบ้านของคุณโดยตรง",
+    "es": "Entrega directamente en tu domicilio.",
+    "it": "Consegna direttamente a casa tua.",
+    "nl": "Rechtstreeks bij je thuis bezorgd.",
+    "pt": "Entrega diretamente na sua morada."
+  },
+  "enabled": false,
+  "sortOrder": 2,
+  "countries": {
+    "default": false,
+    "FR": true,
+    "BE": true
+  },
+  "trackingAvailable": true,
+  "networks": [
+    "$home"
+  ],
+  "deliveryTime": {
+    "default": { "min": 3, "max": 5 },
+    "BE": { "min": 3, "max": 6 }
+  },
+  "packets": [
+    {
+      "key": "solo",
+      "maxQuantity": 1,
+      "price": 4.99
+    },
+    {
+      "key": "duo",
+      "maxQuantity": 2,
+      "price": 5.45
+    },
+    {
+      "key": "trio",
+      "maxQuantity": 3,
+      "price": 5.99
+    },
+    {
+      "key": "moyen",
+      "maxQuantity": 5,
+      "price": 6.35
+    },
+    {
+      "key": "grand",
+      "maxQuantity": 9,
+      "price": 7.45
+    }
+  ]
+}

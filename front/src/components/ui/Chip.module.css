@@ -1,0 +1,49 @@
+.chip {
+  /* Reset a <button>'s native styling — a no-op when rendered as a plain
+     <span> (the non-clickable case). */
+  border: none;
+  font: inherit;
+  font-size: 0.6875rem;
+  color: var(--color-accent);
+  background: var(--color-control-subtle);
+  border-radius: var(--radius-pill);
+  padding: 3px 9px;
+  /* occasion/shape/color are stored lowercase (the canonical/matching
+     value) — capitalize purely for display, same idea as .selectValue in
+     GalleryFilters.module.css. */
+  text-transform: capitalize;
+}
+
+button.chip {
+  cursor: pointer;
+}
+
+.chipActive {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+/* Out of stock but still clickable, so its text keeps a readable contrast
+   (no opacity fade, RGAA 3.2) and the strike, not the colour, carries the
+   meaning (RGAA 3.1). Callers pass Chip's `srState` for screen readers. */
+.chipMuted {
+  text-decoration: line-through;
+}
+
+/* Outlined on the panel background, where the muted text colour is gated at
+   4.5:1 (scripts/checkThemeContrast.mjs), rather than on the chip tint. */
+.chipMuted:not(.chipActive) {
+  color: var(--color-muted);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--border-input);
+}
+
+.chipMuted.chipCurrent:not(.chipActive) {
+  box-shadow: inset 0 0 0 1.5px var(--color-accent);
+}
+
+/* Marks "the option already in the cart" inside a picker — inset so it never
+   shifts layout, and stacks fine with .chipActive's filled background. */
+.chipCurrent {
+  box-shadow: inset 0 0 0 1.5px var(--color-accent);
+}

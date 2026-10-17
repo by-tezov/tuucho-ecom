@@ -1,0 +1,119 @@
+/* Fixed footprint shared by select and stepper modes so the cart /
+ * lightbox layout does not jump when switching. Sized to the previous
+ * − / value / + chrome: 4 + 34 + 10 + ~2ch + 10 + 34 + 4. */
+.root {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-shrink: 0;
+  width: 7.5rem;
+  height: 2.625rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  background: var(--color-bg-card);
+  color: inherit;
+  font: inherit;
+}
+
+.button {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--color-control-subtle);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.button:hover:not(:disabled) {
+  background: var(--color-accent-shine);
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--color-control-subtle);
+}
+
+.value {
+  min-width: 2ch;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-ink);
+  line-height: 1;
+}
+
+/* Select face: value left, chevron pinned right (PC + mobile). */
+.selectRoot {
+  justify-content: space-between;
+  gap: 0;
+  padding: 4px 12px 4px 14px;
+  cursor: pointer;
+}
+
+.selectRoot:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.selectRoot:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.chevron {
+  color: var(--color-accent);
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+/* Desktop-only anchored list (mobile keeps FilterSheet). Portal + fixed
+   coords from the trigger; visual language matches filter option rows. */
+.dropdown {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(20, 17, 13, 0.14);
+  scrollbar-width: thin;
+}
+
+.option {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.option:hover,
+.option:focus-visible {
+  background: var(--color-accent-subtle);
+  outline: none;
+}
+
+.optionActive {
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}

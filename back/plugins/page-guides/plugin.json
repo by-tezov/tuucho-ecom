@@ -1,0 +1,19 @@
+{
+  "id": "page-guides",
+  "name": "Guides",
+  "version": "1.0.0",
+  "kind": "page",
+  "description": "Size, shape and care guides.",
+  "defaultEnabled": true,
+  "provides": [
+    "StorefrontPage"
+  ],
+  "route": "/sizes",
+  "nav": {
+    "key": "guide",
+    "order": 30
+  },
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

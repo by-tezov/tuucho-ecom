@@ -1,0 +1,66 @@
+/* Columns follow the space the links actually get (container, not
+   viewport): 4 in a row when they fit, otherwise 2 per row, and one per row
+   on a narrow phone. Never a lone card left on a row of 3. */
+.cardsFrame {
+  container-type: inline-size;
+  width: 100%;
+}
+
+.cardsRow {
+  display: grid;
+  grid-template-columns: var(--platform-cols-narrow);
+  gap: 14px;
+  justify-content: center;
+}
+
+@container (min-width: 400px) {
+  .cardsRow {
+    grid-template-columns: var(--platform-cols-mid);
+  }
+}
+
+@container (min-width: 780px) {
+  .cardsRow {
+    grid-template-columns: var(--platform-cols-wide);
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  background: var(--color-bg);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 14px 20px;
+  min-width: 170px;
+  /* Cards in one column share its width. */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.card:hover {
+  text-decoration: none;
+  border-color: var(--border-strong);
+  background: var(--color-bg-card);
+}
+
+.cardText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cardName {
+  font-weight: 700;
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+}
+
+.cardHandle {
+  color: var(--color-accent);
+  font-size: 0.7813rem;
+}

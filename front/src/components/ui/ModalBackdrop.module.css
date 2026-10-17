@@ -1,0 +1,39 @@
+.root {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  /* The <dialog> element's UA stylesheet gives it 1em of padding by
+     default — every panel here supplies its own (.header/.body/.footer
+     etc.), so left uncleared this insets every modal/sheet from the
+     backdrop's true edges on all sides, most visibly at a bottom sheet's
+     sides and bottom. */
+  padding: 0;
+  color: inherit;
+}
+
+.dismiss {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.root > :not(.dismiss):not(.description) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Screen-reader-only `description` (aria-describedby of the dialog). */
+.description {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

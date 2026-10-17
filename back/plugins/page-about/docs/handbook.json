@@ -1,0 +1,15 @@
+{
+  "title": "About",
+  "summary": "Storefront About page. Enable equals the About menu entry.",
+  "configure": "No dedicated form. Disable the plugin to hide the menu and route.",
+  "preferences": "None.",
+  "openingsUsed": [
+    "storefront.bootstrap menus"
+  ],
+  "openingsProvided": [
+    "StorefrontPage"
+  ],
+  "cart": "None.",
+  "orders": "None.",
+  "profile": "None."
+}

@@ -1,0 +1,23 @@
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-muted);
+}
+
+.text {
+  font-size: 1.0625rem;
+  margin: 0 0 16px;
+}
+
+.resetButton {
+  background: var(--color-surface-inverse);
+  color: var(--color-cream-bright);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: var(--radius-pill);
+}
+
+.resetButton:hover {
+  opacity: 0.92;
+}

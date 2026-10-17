@@ -1,0 +1,48 @@
+/* Photo to the left of the current lines, same pairing as CartLine's own
+   .photoCol next to .variantList. */
+.linesWithPhoto {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+/* Soft warning: quantity will shrink, nothing to fix — light gray, not the
+   red used for a genuine blocker (see .errorNotice below). Sits right under
+   its .variantRow (CartFeature.module.css), same spot the out-of-stock
+   notice occupies on the real cart line. */
+.reducedNotice {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+/* Hard blocker: this line's size has zero stock under the candidate, and a
+   replacement must be picked below before Nouvel article/Remplacer enable. */
+.errorNotice {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+/* 1.25x the base Chip (0.6875rem / 3px 9px) — this picker is the main
+   decision point of the modal, sized up from the plain-text chip look used
+   elsewhere. */
+.axisOptionChip {
+  font-size: 0.859375rem;
+  padding: 3.75px 11.25px;
+}
+
+.replacementGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.sizeGuideLink.sizeGuideLink {
+  display: block;
+  width: fit-content;
+  margin: 12px 0 0 auto;
+}

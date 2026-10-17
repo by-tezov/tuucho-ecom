@@ -1,0 +1,36 @@
+.root {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 32px var(--page-padding-x);
+}
+
+.card {
+  width: min(100%, 34rem);
+  padding: 32px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+.card h1 {
+  margin: 0;
+}
+
+.card p {
+  margin: 12px 0 0;
+}
+
+.retry {
+  margin-top: 24px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-cream-bright);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+}

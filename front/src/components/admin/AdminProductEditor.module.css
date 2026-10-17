@@ -1,0 +1,291 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.formatInBar {
+  flex: 0 0 auto;
+}
+
+.formatButton,
+.photoRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.formatButton {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-medium);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+}
+
+.formatButton:hover:not(:disabled),
+.photoOpen:focus-visible,
+.formatButton:focus-visible {
+  border-color: var(--color-accent);
+}
+
+.formatButton:disabled,
+.photoOpen:disabled,
+.photoRemove:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.formatButton:focus-visible,
+.photoOpen:focus-visible,
+.photoRemove:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.jsonInput {
+  width: 100%;
+  min-height: 240px;
+  margin-top: 8px;
+  resize: vertical;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  padding: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
+
+.jsonInput:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.jsonInput:disabled {
+  opacity: 0.7;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+}
+
+.photos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.photoStrip {
+  --photo-size: 132px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.photoCard {
+  flex: 0 0 auto;
+  width: var(--photo-size);
+}
+
+.photoCardDraggable {
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.photoCardDraggable:active {
+  cursor: grabbing;
+}
+
+.photoCardDraggable .photoOpen {
+  cursor: grab;
+}
+
+.photoDragging {
+  opacity: 0.45;
+}
+
+.photoDragOver .photoFrame {
+  box-shadow:
+    0 0 0 2.5px var(--color-control-subtle),
+    0 0 0 5px var(--color-accent-bright);
+}
+
+.photoGhost {
+  position: fixed;
+  z-index: var(--z-modal-top);
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  box-shadow: var(--shadow-popover);
+  pointer-events: none;
+}
+
+.photoFrame {
+  position: relative;
+  width: var(--photo-size);
+  height: var(--photo-size);
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.photoOpen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.photoThumb,
+.photoMissing {
+  width: 100%;
+  height: 100%;
+  background: var(--color-bg);
+}
+
+.photoThumb {
+  object-fit: cover;
+}
+
+.photoFrame:has(.photoMissing) {
+  border-style: dashed;
+}
+
+/* Corner tab, top-right. Trash stays danger-red. The card background
+   follows light and dark. The gold edge is the inner corner only. 34px is
+   1.5× smaller than the previous 51px tab. */
+.photoRemove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-left: 1px solid var(--color-accent);
+  border-bottom: 1px solid var(--color-accent);
+  border-radius: 0 0 0 var(--radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-danger);
+}
+
+.photoRemove:hover:not(:disabled) {
+  background: var(--color-accent-faint);
+  border-color: var(--color-accent);
+}
+
+.photoRemove:focus-visible {
+  outline: 2px solid var(--color-danger);
+  outline-offset: -3px;
+}
+
+.photoName {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.6875rem;
+  color: var(--color-muted);
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.photoAdd {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--photo-size);
+  height: var(--photo-size);
+  border: 1px dashed var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.photoAdd:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.photoAdd:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.photoAdd:has(input:disabled) {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.actions {
+  position: sticky;
+  bottom: var(--admin-bottomnav-h, 0px);
+  z-index: 20;
+  display: flex;
+  gap: 8px;
+  margin: 0 calc(-1 * var(--page-padding-x));
+  padding: 10px var(--page-padding-x);
+  background: var(--color-bg);
+  border-top: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-bar);
+}
+
+.actions > * {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .jsonInput {
+    min-height: 320px;
+    font-size: 0.8125rem;
+  }
+
+  .actions {
+    margin: 0;
+    padding: 12px 0;
+    box-shadow: none;
+  }
+
+  .actions > * {
+    flex: 0 0 auto;
+  }
+}

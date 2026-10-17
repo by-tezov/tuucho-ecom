@@ -1,0 +1,182 @@
+.section {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: var(--home-section-pad-y) var(--page-padding-x);
+}
+
+.heading {
+  margin-bottom: 24px;
+}
+
+/* Phones and tablets: a vertical timeline, number on the left and the text
+   left-aligned beside it so lines break naturally at full width. */
+.steps {
+  list-style: none;
+  margin: 0 0 32px;
+  padding: 0;
+  display: grid;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  column-gap: 16px;
+  padding-bottom: 24px;
+}
+
+.step:last-child {
+  padding-bottom: 0;
+}
+
+/* Connector between two numbers. */
+.step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 21px;
+  top: 52px;
+  bottom: 8px;
+  width: 1.5px;
+  background: var(--border-medium);
+}
+
+.stepNum {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: var(--color-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding-top: 8px;
+}
+
+.stepTitle {
+  font-size: 1.3125rem;
+}
+
+.stepDesc {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  margin-top: 6px;
+  max-width: none;
+}
+
+/* Desktop: four cards in a row, number above the text, links pinned to the
+   bottom so they line up across cards. */
+@media (min-width: 1024px) {
+  .steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .step {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 16px;
+    align-content: start;
+    padding: 24px 22px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+  }
+
+  .step:last-child {
+    padding-bottom: 24px;
+  }
+
+  .step:not(:last-child)::before {
+    content: none;
+  }
+
+  .stepBody {
+    padding-top: 0;
+    height: 100%;
+  }
+
+  .stepBody > .guideLink {
+    margin-top: auto;
+    padding-top: 12px;
+  }
+}
+
+.guideLink {
+  display: inline-block;
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.guideLink:hover {
+  text-decoration: underline;
+}
+
+.platformCards {
+  display: grid;
+  gap: 22px;
+}
+
+/* Social block sits on the left of the shop block once there is room,
+   taking two thirds of the row (the shop block gets the last third). */
+@media (min-width: 1024px) {
+  .platformCards {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .socialCard {
+    grid-column: span 2;
+  }
+}
+
+.shopCard {
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  padding: 28px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Side by side, the blocks share a height: pin the platform cards to the
+   bottom so they line up whatever the title/subtitle length. */
+.shopCard > :last-child {
+  margin-top: auto;
+}
+
+/* The shop card (Vinted) has fewer links than the social card beside it:
+   its link sits in the middle of the free space instead of at the bottom. */
+.shopCard:not(.socialCard) > :last-child {
+  margin-bottom: auto;
+}
+
+.shopTitle {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.shopSub {
+  color: var(--color-muted);
+  font-size: 0.9063rem;
+  margin: 0 0 22px;
+  /* Full card width; wrap only when the line actually overflows — do not
+     use text-wrap:pretty/balance (those break early for aesthetics). */
+  max-width: none;
+  width: 100%;
+  text-wrap: wrap;
+  overflow-wrap: normal;
+  word-break: normal;
+}

@@ -1,0 +1,686 @@
+/* Desktop-only, same breakpoint as .desktopNav (Header.module.css). Mobile's
+   cart entry point is either MobileTabBar or the route-scoped FAB below. */
+.wrap {
+  display: none;
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .wrap {
+    display: block;
+    margin-left: -8px;
+  }
+
+  /* Same soft attention wave as the mobile FAB — only when any cart still
+     holds items (header is display:none below 1024px; FAB owns mobile). */
+  .triggerHasItems {
+    animation: fabWave 3.2s ease-in-out infinite alternate;
+  }
+
+  .triggerHasItems:hover {
+    background: var(--color-accent-shine);
+    color: var(--color-ink);
+    animation: none;
+  }
+}
+
+.trigger {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+}
+
+.trigger:hover {
+  background: var(--color-accent-shine);
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 15px;
+  text-align: center;
+}
+
+/* Mobile floating cart for pages where MobileTabBar is intentionally hidden.
+   It is shown only when the cart contains items (see CartControl.tsx). */
+.fab {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    right: 16px;
+    /* --fab-lift (set from CartControl.tsx, tracking the footer's scroll
+       position) pushes the button up once the footer scrolls into view, so
+       it never sits on top of the footer's content. */
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px) + var(--fab-lift, 0px));
+    z-index: 60;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--color-accent);
+    border-radius: 50%;
+    background: var(--color-bg-card);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-popover);
+    animation: fabWave 3.2s ease-in-out infinite alternate;
+  }
+
+  .fab:hover {
+    background: var(--color-accent-shine);
+    color: var(--color-ink);
+    animation: none;
+  }
+
+  .fab .badge {
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.6875rem;
+    line-height: 18px;
+    top: -4px;
+    right: -4px;
+  }
+}
+
+@keyframes fabWave {
+  from {
+    background-color: var(--color-bg-card);
+    color: var(--color-ink);
+  }
+  to {
+    background-color: var(--color-accent-shine);
+    color: var(--color-accent);
+  }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: reduce) {
+  .fab {
+    animation: none;
+  }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .triggerHasItems {
+    animation: none;
+  }
+}
+
+/* Right-hand panel, not a centered popup. Native <dialog> UA styles
+   (fit-content, margin: auto, padding: 1em, max-width calc(100% - 2em))
+   center the sheet on Android Chrome unless every one of them is reset.
+   [open] raises specificity above `dialog` / `dialog:open`. z-index 1100
+   sits above PhotoLightbox (1000), same ladder as SizeRequestModal. */
+.drawerBackdrop,
+.drawerBackdrop[open] {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  color: inherit;
+  z-index: var(--z-modal-raised);
+  background: var(--color-overlay-modal);
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+}
+
+.drawerDismiss {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.drawerBackdrop > :not(.drawerDismiss) {
+  position: relative;
+  z-index: 1;
+}
+
+.drawer {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-drawer);
+  transform: translateX(100%);
+  transition: transform 260ms ease;
+}
+
+.drawerEntered {
+  transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+  .drawer {
+    max-width: 400px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer {
+    transition: none;
+  }
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  position: relative;
+}
+
+/* Inset from the drawer's own edges, matching every other sheet/dialog
+   header on the site — a full-width line reads as flush with the drawer
+   edge, not as a separator under the title row. */
+.drawerHeader::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.drawerTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.drawerBadge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+}
+
+.drawerCloseButton {
+  composes: closeButton from '../ui/ModalChrome.module.css';
+}
+
+.drawerNotice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 20px 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-success) 14%, transparent);
+  color: var(--color-ink-strong);
+  font-size: 0.875rem;
+}
+
+.drawerNotice svg {
+  flex-shrink: 0;
+  color: var(--color-success);
+}
+
+.drawerNoticeError {
+  background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+}
+
+.drawerNoticeError svg {
+  color: var(--color-danger);
+}
+
+/* While the add is in flight: neutral, with the loading spinner. */
+.drawerNoticePending {
+  background: var(--color-control-subtle);
+}
+
+.drawerNoticeSpinner,
+.drawerListLoading {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border-soft);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: drawerSpin 0.7s linear infinite;
+}
+
+/* The list's own placeholder while its products load. */
+.drawerListLoading {
+  align-self: center;
+  width: 24px;
+  height: 24px;
+  margin: 32px auto;
+}
+
+@keyframes drawerSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.drawerEmpty {
+  padding: 24px 20px;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.drawerListWrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.drawerScroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 40px 4px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  cursor: grab;
+  /* Same drag-to-scroll pattern as PhotoLightbox's .scrollArea — without
+     this, a press-drag (onListPointerDown below) selects text instead of
+     scrolling. */
+  user-select: none;
+  -webkit-user-select: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.drawerScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.drawerScroll:active {
+  cursor: grabbing;
+}
+
+.drawerList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawerOffersSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.drawerOffersList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  /* Gold L-frame follows the rounded corners (per-item borders stay square). */
+  box-shadow:
+    inset -3px 0 0 0 var(--color-accent-bright),
+    inset 0 -3px 0 0 var(--color-accent-bright);
+  overflow: visible;
+}
+
+.drawerOffersList > li {
+  /* Same CartRulesProgress / gift rows — keep drawer padding, never invent new copy. */
+  padding: 12px 10px;
+  position: relative;
+}
+
+.drawerLine {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: start;
+  padding: 14px 10px;
+}
+
+/* A composed set: the ten-finger mosaic (84px) spans the usual 52px photo
+   column plus a 22px one, so the heading sits right of it while the
+   quantity × size row still starts where a catalogue line's does. */
+.drawerLineComposition {
+  grid-template-columns: 52px 22px minmax(0, 1fr);
+  row-gap: 10px;
+}
+
+.drawerCompositionPicture {
+  grid-column: 1 / span 2;
+  width: 84px;
+}
+
+.drawerLineComposition > .drawerLineHead {
+  grid-column: 3;
+}
+
+.drawerCompositionVariants {
+  grid-column: 2 / -1;
+}
+
+.drawerCompositionWarning {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: var(--color-danger);
+}
+
+.drawerLineGift {
+  /* List inset shadow supplies the gold frame; room for vertical OFFERT. */
+  position: relative;
+  padding-right: 14px;
+  border: none;
+  background: transparent;
+}
+
+.drawerOffersList > li:not(:last-child) {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.drawerRulesProgress {
+  /* Drawer chrome only — gold frame comes from `.drawerOffersList`, not cart `.lineOffer`. */
+  display: block;
+  margin: 0;
+  padding: 12px 10px;
+  border: none;
+  background: transparent;
+}
+
+.drawerGiftBadge {
+  position: absolute;
+  top: 12px;
+  right: 0;
+  z-index: 2;
+  transform: translateX(50%);
+  margin: 0;
+  padding: 6px 0;
+  border: none;
+  background: var(--color-bg-card);
+  color: var(--color-accent);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.drawerVariantFree {
+  margin-left: auto;
+  color: var(--color-success);
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+.drawerList > .drawerLine:not(:last-child) {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.scrollHintUp {
+  composes: scrollHintUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintDown {
+  composes: scrollHintDown from '../ui/ModalChrome.module.css';
+}
+
+/* Same vertical track as FilterSheet / ColorFilterModal / PhotoLightbox. */
+.scrollHintBar {
+  composes: scrollHintBar from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarFromUp {
+  composes: scrollHintBarFromUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarToDown {
+  composes: scrollHintBarToDown from '../ui/ModalChrome.module.css';
+}
+
+.drawerPhotoCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 52px;
+}
+
+/* Same weight/size/color the shape tag always had here, just left-aligned
+   under Réf. now instead of centered above the photo. */
+.drawerShapeLength {
+  margin: 2px 0 0;
+  color: var(--color-ink);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawerLinePhoto {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+
+.drawerLineBody {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.drawerLineHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.drawerLineHeading {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: calc(100% - 4.5rem);
+}
+
+.drawerLineTitle {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+.drawerLineUnitPrice {
+  flex-shrink: 0;
+  margin-left: auto;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  padding-top: 2px;
+}
+
+.drawerItemRefUnderTitle {
+  margin: -0.15em 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.15;
+  color: color-mix(in srgb, var(--color-muted) 62%, var(--color-bg-card));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawerVariantList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.drawerVariantRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.drawerVariantRow:not(:first-child) {
+  padding-top: 6px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--color-accent-line) 0,
+    var(--color-accent-line) 2px,
+    transparent 2px,
+    transparent 12px
+  );
+  background-position: top;
+  background-size: 100% 1px;
+  background-repeat: repeat-x;
+}
+
+.drawerVariantText {
+  /* Not flex-grow: this used to fill the row's remaining space, pushing the
+     size Chip that follows it all the way over next to the price instead of
+     sitting right after "{quantity} ×" — the Chip needs to stay adjacent so
+     margin-left: auto on .drawerVariantPrice/.drawerVariantFree is the only
+     thing pushing content to the right edge. */
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  white-space: normal;
+}
+
+.drawerGiftQty {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.drawerVariantChip {
+  font-weight: 700;
+}
+
+.drawerVariantPrice {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.drawerVariantRemove {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-danger-border);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-danger);
+}
+
+.drawerVariantRemove:hover {
+  background: var(--color-danger-bg-hover);
+  color: var(--color-danger);
+}
+
+.drawerFooter {
+  flex: 0 0 auto;
+  padding: 8px 20px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border-soft);
+}
+
+.drawerSubtotalRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-ink-strong);
+}
+
+.drawerShippingNote {
+  margin-top: 6px;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.drawerPrimaryButton {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.drawerContinueLink {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 12px auto 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.drawerContinueLink:hover {
+  color: var(--color-ink);
+}

@@ -1,0 +1,15 @@
+{
+  "title": "Email journal",
+  "summary": "Admin e-mail journal. Complements journal-api.",
+  "configure": "Admin, Email journal.",
+  "preferences": "None.",
+  "openingsUsed": [
+    "journal-api service"
+  ],
+  "openingsProvided": [
+    "AdminPage"
+  ],
+  "cart": "None.",
+  "orders": "None.",
+  "profile": "None."
+}

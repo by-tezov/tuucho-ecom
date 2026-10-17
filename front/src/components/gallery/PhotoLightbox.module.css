@@ -1,0 +1,885 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(20, 17, 13, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.dialog {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transform: scale(0.05);
+  opacity: 0;
+  transition:
+    transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease;
+}
+
+/* Programmatic initial focus lands here (tabIndex=-1), not on the ×.
+   Global :focus-visible must not draw a ring around the whole sheet. */
+.dialog:focus {
+  outline: none;
+}
+
+.dialogOpen {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Left/top: the photo carousel/slider — pan/pinch/wheel zoom, unchanged. */
+.photoArea {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 17, 13, 0.92);
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+}
+
+.track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 300ms ease;
+}
+
+.slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: transform 200ms ease;
+}
+
+/* Overlay chrome: zoom hint + close. Desktop places them absolutely
+   (hint bottom-left of the card / photo column, close top-right over the
+   panel). Mobile switches to a flex header so long hint text wraps. */
+.chromeTop {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.chromeTop > * {
+  pointer-events: auto;
+}
+
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.closeButton:hover {
+  background: var(--color-accent-shine);
+}
+
+.controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.controls > * {
+  pointer-events: auto;
+}
+
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  /* Same dark circle as PhotoCarousel's in-card arrows. */
+  background: var(--color-photo-control);
+  color: var(--color-cream-bright);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navButton:hover {
+  background: var(--color-photo-control-hover);
+}
+
+.navButton:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.navPrev {
+  left: 0;
+}
+
+.navNext {
+  right: 0;
+}
+
+/* Photo caption — "photo 2/3 · scroll or double-click to zoom". */
+.counter {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  background: var(--color-overlay-modal);
+  color: var(--color-muted-on-dark);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.zoomHintMobile {
+  display: none;
+}
+
+/* Right/bottom: the product panel — shape, title, reference, price,
+   description, trust badges in the scroll zone; quantity then size +
+   add-to-cart stay in a sticky footer so the purchase action is never
+   scrolled away. */
+.panel {
+  flex: 0 0 auto;
+  max-height: 42%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  color: var(--color-ink-strong);
+}
+
+.scrollAreaWrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.scrollArea {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px 20px 12px;
+  cursor: grab;
+  /* Without this, a press-drag (onScrollAreaPointerDown below) or a touch
+     drag over the text content triggers the browser's native text
+     selection instead of just scrolling. */
+  user-select: none;
+  -webkit-user-select: none;
+  /* Native scroll (touch/wheel) stays; only the visual scrollbar track is
+     hidden — the .scrollHintUp/.scrollHintDown chevrons take over as the
+     "more content" cue. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollArea::-webkit-scrollbar {
+  display: none;
+}
+
+/* Makes this wrapper's measured height include its descendants' margins.
+   The mobile transform sheet uses that intrinsic height to stop at exactly
+   the point where all of the product content is visible. */
+.scrollContent {
+  display: flow-root;
+}
+
+.scrollArea:active {
+  cursor: grabbing;
+}
+
+.scrollHintUp {
+  composes: scrollHintUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintDown {
+  composes: scrollHintDown from '../ui/ModalChrome.module.css';
+}
+
+/* Same vertical track as FilterSheet / ColorFilterModal scroll hints. */
+.scrollHintBar {
+  composes: scrollHintBar from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarFromUp {
+  top: var(--scroll-hint-bar-offset);
+}
+
+.scrollHintBarToDown {
+  bottom: var(--scroll-hint-bar-offset);
+}
+
+.scrollHintBarToDown:not(.scrollHintBarFromUp) {
+  top: var(--scroll-hint-inset-y);
+}
+
+.scrollHintBarFromUp:not(.scrollHintBarToDown) {
+  bottom: var(--scroll-hint-inset-y);
+}
+
+.purchaseFooter {
+  flex: 0 0 auto;
+  padding: 12px 20px calc(8px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border-soft);
+  background: var(--color-bg-card);
+}
+
+.shapeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.shapeTags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.headingRow {
+  display: block;
+}
+
+.headingText {
+  min-width: 0;
+}
+
+.itemTitle {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  margin-top: 10px;
+}
+
+.metaRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+  /* Clear the scroll-hint chevron + track on the right
+     (--scroll-hint-inset-x + --scroll-hint-size + gap). */
+  padding-right: 40px;
+}
+
+.sizeGuideLink {
+  display: inline-block;
+  align-self: flex-end;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.sizeGuideLink:hover {
+  opacity: 0.8;
+}
+
+/* Mobile-only: shapes overlaid on the photo (see max-width block). Size
+   guide moved into .sizeSection, alongside the size selector, instead of
+   floating here as its own badge. */
+.shapeRowOverlay {
+  display: none;
+}
+
+/* Flush bottom-right of the photo itself — same corner-tab treatment as
+   FavoriteButton's .floating top-left tab (GalleryCard/ProductPage), just
+   mirrored to this corner: the inner corner (top-left, facing into the
+   photo) is rounded, the outer one stays square against the edge. Anchored
+   to .photoArea specifically, not .chromeTop (which spans the whole dialog
+   including the desktop side panel, where this would land over the product
+   panel instead of the photo). Mobile raises it above .shapeRowOverlay's
+   own bottom-12px chip row instead of sharing its baseline (see the
+   max-width block below). */
+.shareButton {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  /* 51px × 1.35, including the stronger gold photo-facing frame. The
+     doubled selector deliberately wins over ShareButton's generic
+     `border: none` regardless of CSS chunk order. */
+  width: 69px;
+  height: 69px;
+  border: 0;
+  border-top: 3px solid var(--color-accent-bright);
+  border-left: 3px solid var(--color-accent-bright);
+  border-radius: var(--radius-md) 0 0 0;
+}
+
+.shareButton.shareButton svg {
+  width: 31px;
+  height: 31px;
+}
+
+.reference {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.itemPrice {
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.desc {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+/* Label above the control, in the scrollable content on every screen
+   (only the add button stays in the pinned footer). */
+.quantityRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 0 2px;
+}
+
+.quantityLabel {
+  composes: microLabel from '../ui/Typography.module.css';
+}
+
+/* Row so lastOneNotice sits inline beside the (disabled, stuck-at-1)
+   control below, instead of .quantityRow's own column stack. */
+.quantityControlRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.lastOneNotice {
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* Wraps the size selector/out-of-stock block — mobile-only in JSX terms
+   (desktop's own size row in .purchaseFooter isn't wrapped in this), but
+   the label/chip styling below is shared by both (see .sizeSelector).
+   padding-right clears the scroll-hint chevron + track on the right, same
+   value/reasoning as .metaRow above — without it the last size chip (L)
+   sits right under the floating chevron instead of beside it. Only needed
+   here (mobile scroll content); desktop's own row is in the sticky footer,
+   never under the chevron, so .sizeSelector itself stays unpadded. */
+.sizeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding-right: 12px;
+}
+
+.sizeSectionLabel {
+  composes: microLabel from '../ui/Typography.module.css';
+}
+
+/* Full-width equal pills, bordered when inactive, solid dark fill when
+   active — shared by both the mobile scroll-content size section and
+   desktop's sticky-footer size row (previously two separately-scoped,
+   differently-styled rules; unified since both now want the same look).
+   Grid with a hardcoded 4 columns (SIZES is always exactly XS/S/M/L), not
+   flex — each chip is a fixed 25% of the row no matter how many are
+   actually in stock, instead of stretching to fill whatever's left. */
+.sizeSelector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.sizeSelector > * {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 6px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink-strong);
+}
+
+.sizeSelector > *[aria-pressed='true'] {
+  border-color: var(--color-ink-strong);
+  background: var(--color-ink-strong);
+  color: var(--color-bg-card);
+}
+
+.sizeSelector > *[aria-pressed='true'].sizeChipUnavailable::after {
+  background: linear-gradient(
+    to top left,
+    transparent calc(50% - 1.5px),
+    var(--color-bg-card) calc(50% - 0.5px),
+    var(--color-bg-card) calc(50% + 0.5px),
+    transparent calc(50% + 1.5px)
+  );
+}
+
+/* "Not in stock for this shape/length" — a true corner-to-corner diagonal
+   across the chip (bottom-left to top-right), slightly overflowing its own
+   edges. The chip itself keeps its normal (non-muted) look — no
+   Chip.module.css .chipMuted opacity here, the strike alone carries the
+   meaning. Scoped to this size picker only — the cart's own size picker
+   (SelectionPickerModal) still uses Chip's plain muted look, since a
+   sold-out size means something different there (it's the one place
+   clicking it still does something built for exactly that size).
+
+   The gradient keyword is what matters here — it's a corner target, not a
+   fixed angle: the browser recalculates the actual angle from this box's
+   own width and height so the line always lands exactly on the (inset)
+   corners, at any chip width the grid gives it. A fixed `rotate(-28deg)`
+   line looked right only at the one width it was tuned for — narrower
+   chips left it short of the corners, wider ones ran it past them.
+   Counter-intuitively "to top left" is the one that draws bottom-left →
+   top-right: the visible split line sits *perpendicular* to the keyword's
+   own pointing direction, not along it.
+
+   z-index: 0 here (not just position: relative) is what actually matters
+   for stacking the size label above the line below — it opens a stacking
+   context of its own, so the pseudo-element's negative z-index stays
+   contained to this chip instead of sinking behind unrelated content
+   elsewhere on the page. */
+.sizeChipUnavailable {
+  position: relative;
+  z-index: 0;
+}
+
+.sizeChipUnavailable::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -4px;
+  /* var(--color-muted), not --border-input — the latter looks gray in a
+     1px border but is actually the same warm gold as the rest of the
+     accent palette (rgba(140, 110, 60, ...)) once it's a solid 2px line.
+     The transition is a soft ~1px fade on each side rather than a hard cut
+     at calc(50% ± 1px) — an instant edge is what was reading as a
+     "stepped"/jagged line on this non-45°, box-size-dependent angle;
+     fading it lets the browser anti-alias the edge instead of drawing it
+     pixel-hard. */
+  background: linear-gradient(
+    to top left,
+    transparent calc(50% - 1.5px),
+    var(--color-muted) calc(50% - 0.5px),
+    var(--color-muted) calc(50% + 0.5px),
+    transparent calc(50% + 1.5px)
+  );
+  pointer-events: none;
+}
+
+.outOfStockBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.outOfStock {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  text-align: left;
+}
+
+/* Same accent-underline as the size-guide link in this panel, so the offer
+   reads as a link rather than a second call-to-action next to Ajouter. */
+.sizeRequestButton {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.sizeRequestButton:hover {
+  opacity: 0.8;
+}
+
+.purchaseRow {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.quantityControl {
+  margin-left: 0;
+}
+
+/* Only 1 unit left means the control is disabled (see PhotoLightbox.tsx)
+   but not because anything's wrong — unlike QuantityControl's other
+   disabled states (e.g. genuinely 0 in stock), it shouldn't read as
+   inactive/faded. Doubled class for specificity: needs to beat
+   QuantityControl.module.css's own .selectRoot:disabled opacity rule,
+   which is the same (0,2,0) specificity and in a different stylesheet, so
+   source order between the two modules isn't something to rely on. */
+.quantityControlLastOne.quantityControlLastOne:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.addToCartButton {
+  width: fit-content;
+  gap: 8px;
+}
+
+/* Override global svg { max-width: 100% } so the icon can't collapse
+   inside the narrow mobile purchase row. */
+.addToCartIcon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  max-width: none;
+}
+
+.trustRow {
+  justify-content: center;
+  margin-top: 8px;
+}
+
+/* Desktop: a compact, content-sized card (photo | panel side by side)
+   instead of the mobile sheet's full-viewport stack — the photo is a
+   square sized from its own width, not stretched to fill the screen. */
+@media (min-width: 1024px) {
+  .dialog {
+    flex-direction: row;
+    /* A definite width (not shrink-to-fit) so the 1/1 aspect-ratio below
+       has something concrete to resolve its height against. The height is
+       the photo square's for every gallery (sets and compose-a-set open the
+       same modal): the panel's content scrolls, only the add button is
+       pinned below it. */
+    width: min(90vw, 900px);
+    height: min(88vh, calc(min(90vw, 900px) / 2));
+    max-height: 88vh;
+  }
+
+  .photoArea {
+    flex: 1 1 50%;
+    aspect-ratio: 1 / 1;
+    max-height: 88vh;
+  }
+
+  .panel {
+    flex: 1 1 50%;
+    max-height: 88vh;
+  }
+
+  .scrollArea {
+    padding: 28px 32px 12px;
+  }
+
+  /* The close control sits on the panel's top-right. The up chevron and the
+     track must start below it, or they draw underneath the button.
+     The child selector beats the composed chrome `top`. */
+  .scrollAreaWrap > .scrollHintUp {
+    top: 60px;
+  }
+
+  .scrollHintBarFromUp {
+    top: calc(60px + var(--scroll-hint-size) + var(--scroll-hint-bar-gap));
+  }
+
+  .scrollHintBarToDown:not(.scrollHintBarFromUp) {
+    top: 60px;
+  }
+
+  .purchaseFooter {
+    padding: 14px 32px 12px;
+  }
+}
+
+/* Mobile: true full-screen sheet, edge to edge — no backdrop margin or
+   rounded corners eating into the already-tight viewport. Nav arrows and the
+   photo counter stay overlaid on the picture itself (same as desktop, via
+   the base .controls/.navButton/.counter rules above) rather than eating
+   into the limited vertical space with a static row. Photo ~3/5, panel ~2/5. */
+@media (max-width: 1023px) {
+  .backdrop {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    /* JS supplies the live iOS visual viewport height. `dvh` is the safe
+       fallback for every other mobile browser and the first paint. */
+    height: var(--lightbox-visual-viewport-height, 100dvh);
+    padding: 0;
+  }
+
+  .dialog {
+    border-radius: 0;
+  }
+
+  /* The photo stays at 3/5 of the dialog. The opaque sheet below is always
+     physically 7/10 high, then composited upward over the lower part of the
+     photo as it opens. This preserves the exact visible 3/5 → 1.5/5 effect
+     without recalculating flex layout or re-rasterising the image on every
+     touchmove. */
+  .dialog {
+    --lightbox-panel-offset: 0%;
+    --lightbox-footer-offset: 0px;
+    --lightbox-photo-overlay-offset: 0px;
+    --lightbox-photo-nav-offset: 0px;
+  }
+
+  .photoArea {
+    flex: 0 0 60%;
+    min-height: 0;
+  }
+
+  /* object-fit: cover (the base rule) crops the image to this box's own
+     layout size *before* the pinch/pan transform runs — a transform only
+     scales/moves whatever was already painted, so anything object-fit
+     cropped away here can never be panned back into view. Mobile's short,
+     wide box (60% of full viewport height) crops a portrait product photo
+     top and bottom far more than desktop's 1:1 box does, making this the
+     one place the loss is actually visible. Fix: let the image keep its
+     full intrinsic height (never cropped) and center it in the flex row —
+     .imageWrap's overflow: hidden still clips it identically at rest
+     (scale 1, no pan), but now the clipped top/bottom actually exist in the
+     DOM and the zoom/pan transform can reveal them. */
+  .image {
+    height: auto;
+    align-self: center;
+    object-fit: unset;
+  }
+
+  .controls {
+    z-index: 3;
+    transform: translate3d(0, var(--lightbox-photo-nav-offset), 0);
+    will-change: transform;
+  }
+
+  /* scrollAreaWrap is physically taller than the visible portion while the
+     sheet is collapsed. Its bottom cue follows the footer's counter-motion
+     so it remains visible immediately above the purchase row. */
+  .scrollHintDown {
+    transform: translate3d(0, var(--lightbox-footer-offset), 0);
+  }
+
+  .scrollHintBarToDown {
+    bottom: calc(var(--scroll-hint-bar-offset) - var(--lightbox-footer-offset));
+  }
+
+  .panel {
+    position: absolute;
+    z-index: 2;
+    top: 60%;
+    right: 0;
+    left: 0;
+    height: 70%;
+    max-height: none;
+    min-height: 0;
+    background: var(--color-bg-card);
+    transform: translate3d(0, var(--lightbox-panel-offset), 0);
+    will-change: transform;
+  }
+
+  .sheetCollapsed .scrollArea {
+    overflow-y: hidden;
+    touch-action: none;
+  }
+
+  .sheetExpanded .scrollArea {
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .purchaseFooter {
+    position: relative;
+    z-index: 1;
+    transform: translate3d(0, var(--lightbox-footer-offset), 0);
+    will-change: transform;
+  }
+
+  /* The photo controls need to follow the sheet's visual boundary while the
+     photo itself stays fixed behind it. */
+  .shapeRowOverlay,
+  .shareButton {
+    z-index: 3;
+    transform: translate3d(0, var(--lightbox-photo-overlay-offset), 0);
+    will-change: transform;
+  }
+
+  .sheetSnap .panel,
+  .sheetSnap .purchaseFooter,
+  .sheetSnap .shapeRowOverlay,
+  .sheetSnap .shareButton,
+  .sheetSnap .controls {
+    transition: transform 220ms ease;
+  }
+
+  /* Mobile header row: hint wraps; close keeps a fixed size with an 8px
+     gap so they never overlap. Uses the same semantic close treatment as
+     ModalShell / FilterSheet — no hardcoded light tints that vanish in
+     dark mode. */
+  .closeButton {
+    position: static;
+    margin-left: auto;
+  }
+  .chromeTop {
+    inset: auto;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .counter {
+    position: static;
+    /* Sized to its own content (not stretched to fill the header row) —
+       only shrinks, and wraps, if it's ever too long to fit next to the
+       close button. */
+    flex: 0 1 auto;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.35;
+    font-size: 0.6875rem;
+  }
+
+  .zoomHintDesktop {
+    display: none;
+  }
+
+  .zoomHintMobile {
+    display: inline;
+  }
+
+  /* Shapes live on the photo overlay on mobile — hide the panel copy. */
+  .shapeRow {
+    display: none;
+  }
+
+  .shapeRowOverlay {
+    display: flex;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    column-gap: 10px;
+    row-gap: 6px;
+    pointer-events: auto;
+  }
+
+  .shapeRowOverlay .shapeTags {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  /* Stays flush at the photo's own bottom-right edge, same as desktop —
+     only shrinks, same as FavoriteButton's .floating gets on GalleryCard.
+     It can sit over .shapeRowOverlay's chip row here; edge-flush wins. */
+  .shareButton {
+    /* 44px × 1.35; the gold border above stays inside this hit target. */
+    width: 59px;
+    height: 59px;
+  }
+
+  .shareButton.shareButton svg {
+    width: 27px;
+    height: 27px;
+  }
+
+  /* Title + price on one row; ref sits under the title (metaRow). */
+  .headingRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 0;
+    padding-right: 40px;
+  }
+
+  .itemTitle {
+    margin-top: 0;
+  }
+
+  .metaRow {
+    display: flex;
+    /* Size guide is photo-overlay on mobile — only the ref remains here. */
+    justify-content: flex-start;
+    padding-right: 0;
+  }
+
+  .itemPrice {
+    margin-top: 0;
+    margin-left: auto;
+    flex-shrink: 0;
+    /* Optically align with the title line (1.25rem / 1.2). */
+    line-height: 1.2;
+    padding-top: 0.125em;
+  }
+
+  .purchaseRow {
+    justify-content: flex-end;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  /* Fills the pinned bar instead of shrinking to fit its own label. */
+  .addToCartButton {
+    width: 100%;
+    justify-content: center;
+    padding: 16px 20px;
+  }
+}

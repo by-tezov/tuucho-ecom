@@ -1,0 +1,23 @@
+.item {
+  border-bottom: 1px solid var(--border-medium);
+  padding: 16px 0;
+}
+
+.summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-weight: 600;
+  font-size: 0.9688rem;
+  color: var(--color-ink);
+}
+
+.icon {
+  color: var(--color-accent);
+}
+
+.answer {
+  color: var(--color-muted);
+  font-size: 0.9063rem;
+  margin-top: 12px;
+}

@@ -1,0 +1,101 @@
+/* Full card width under the item, link on the right: the card is a flex row
+   (photo | body), so it wraps onto its own line. */
+.lineWithComment {
+  flex-wrap: wrap;
+}
+
+.comment {
+  flex: 1 0 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.textLink {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.textLink:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.field {
+  align-self: stretch;
+}
+
+.fieldHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 72px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.875rem;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  resize: vertical;
+}
+
+/* 0.875rem (14px) is under iOS Safari's 16px auto-zoom-on-focus threshold. */
+@media (max-width: 1023px) {
+  .textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
+.textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+/* Read-only note (order page, admin order screen): kept as typed, line breaks included. */
+.commentText {
+  align-self: stretch;
+  margin: 6px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.commentLabel {
+  align-self: stretch;
+  margin: 0;
+}
+
+/* "n/max" under a comment field, same look as the gift message counter. */
+.charCount {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  text-align: right;
+}

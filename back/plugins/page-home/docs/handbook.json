@@ -1,0 +1,15 @@
+{
+  "title": "Home",
+  "summary": "Required landing page. Enable equals the Home menu entry; it cannot be disabled.",
+  "configure": "No Configure form. Home content is the dedicated React route /home.",
+  "preferences": "None.",
+  "openingsUsed": [
+    "storefront.bootstrap menus"
+  ],
+  "openingsProvided": [
+    "StorefrontPage"
+  ],
+  "cart": "None.",
+  "orders": "None.",
+  "profile": "None."
+}

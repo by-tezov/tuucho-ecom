@@ -1,0 +1,316 @@
+/* List/detail screen built like the cron and API journals (list rows with a
+   chevron, full-page detail with back buttons); the create trigger, status
+   chip and form field are the cart rules screen's. Only the role-specific
+   pieces (meta line, system note, permission matrix) are new here. */
+
+.section {
+  composes: section from './AdminCronLogsPage.module.css';
+}
+
+.title {
+  composes: title from './AdminCronLogsPage.module.css';
+}
+
+.note {
+  composes: note from './AdminCronLogsPage.module.css';
+}
+
+.list {
+  composes: list from './AdminCronLogsPage.module.css';
+}
+
+.item {
+  composes: item from './AdminCronLogsPage.module.css';
+}
+
+.header {
+  composes: header from './AdminCronLogsPage.module.css';
+}
+
+.headerText {
+  composes: headerText from './AdminCronLogsPage.module.css';
+}
+
+.hint {
+  composes: hint from './AdminCronLogsPage.module.css';
+}
+
+.topBar {
+  composes: topBar from './AdminCronLogsPage.module.css';
+}
+
+.bottomBar {
+  composes: bottomBar from './AdminCronLogsPage.module.css';
+}
+
+.error {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.notice {
+  margin: 0;
+  color: var(--color-success);
+}
+
+.createTrigger {
+  composes: createTrigger from './AdminCartRulesPage.module.css';
+  margin: 0;
+}
+
+.status {
+  composes: status from './AdminCartRulesPage.module.css';
+}
+
+.statusOff {
+  composes: statusOff from './AdminCartRulesPage.module.css';
+}
+
+.field {
+  composes: field from './AdminCartRulesPage.module.css';
+}
+
+.nameLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: -8px 0 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.roleCode {
+  font-family: ui-monospace, monospace;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.systemNote {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.matrix {
+  min-width: 0;
+  margin: 0;
+  padding: 4px 16px 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+}
+
+.matrixLegend {
+  padding: 0 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.matrixGroup + .matrixGroup {
+  margin-top: 8px;
+}
+
+.matrixGroupLabel {
+  margin: 12px 0 4px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.parentsField {
+  display: grid;
+  gap: 6px;
+}
+
+.permissionRow {
+  composes: toggleRow from './AdminPreferencesPage.module.css';
+  flex-wrap: wrap;
+}
+
+.permissionText {
+  composes: toggleText from './AdminPreferencesPage.module.css';
+  display: grid;
+  gap: 2px;
+  min-width: 12rem;
+}
+
+/* Right column of a row: the switches, then the resulting access below. */
+.permissionSide {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.permissionControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.switchField {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.resultOn,
+.resultOff {
+  justify-self: end;
+  composes: status from './AdminCartRulesPage.module.css';
+}
+
+.resultOn {
+  composes: statusOn from './AdminCartRulesPage.module.css';
+}
+
+.resultOff {
+  composes: statusOff from './AdminCartRulesPage.module.css';
+}
+
+/* What a row inherits from parent roles: one small chip per contributing
+   grant, green for access, red for refusal. */
+.inheritedLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin-top: 4px;
+}
+
+.inheritedLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+
+.inheritedEmpty {
+  font-size: 0.71875rem;
+  color: var(--color-muted);
+}
+
+.inheritedOn,
+.inheritedOff {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.71875rem;
+  font-weight: 600;
+}
+
+.inheritedOn {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.inheritedOff {
+  background: var(--color-danger-bg-hover);
+  color: var(--color-danger);
+}
+
+/* Delete confirmation: the question, then what the role is detached from. */
+.deleteImpact {
+  display: grid;
+  gap: 10px;
+  white-space: normal;
+}
+
+.deleteImpactList {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-warning-soft);
+  color: var(--color-ink);
+  font-size: 0.875rem;
+}
+
+.deleteImpactNote {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+/* "Rôles des comptes": e-mail search, then one row per account with its
+   roles field (the same field as on a user card). */
+.accounts {
+  display: grid;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.accountsTitle {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.accountsSearch {
+  display: grid;
+  gap: 10px;
+  align-items: end;
+}
+
+@media (min-width: 600px) {
+  .accountsSearch {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+.accountRow {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+/* A list row of "Attribution des rôles": name and explanation, then the
+   selector with the Dominant switch on its right, then what is inherited and
+   the result, each on its own line. */
+.listRow {
+  display: grid;
+  gap: 8px;
+  padding: 13px 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+.listRow > strong {
+  font-size: 0.875rem;
+}
+
+.listControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.listSelect {
+  flex: 1 1 16rem;
+  min-width: 0;
+}

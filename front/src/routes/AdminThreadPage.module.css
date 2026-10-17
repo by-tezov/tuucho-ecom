@@ -1,0 +1,211 @@
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: clamp(1.625rem, 4vw, 2.25rem);
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+.empty {
+  composes: empty from '../components/admin/AdminList.module.css';
+}
+
+.cardGrid {
+  composes: list from '../components/admin/AdminList.module.css';
+}
+
+.threadCard {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: 13px 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.threadCard:hover {
+  border-color: var(--border-medium);
+}
+
+.avatar {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--color-cream);
+  color: var(--color-accent);
+  font-weight: 800;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.threadCardMain {
+  composes: rowMain from '../components/admin/AdminList.module.css';
+}
+
+.threadCardMain strong {
+  font-size: 0.90625rem;
+}
+
+.threadCardPreview {
+  font-size: 0.78125rem;
+  color: var(--color-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detailOnly {
+  width: 100%;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detailHeader h2 {
+  margin: 8px 0 3px;
+  font-size: 1.625rem;
+}
+
+.detailMeta {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65625rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  padding: 4px 10px;
+  border-radius: 13px;
+  white-space: nowrap;
+  background: var(--color-cream);
+  color: var(--color-accent);
+}
+
+.tone_open {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.tone_closed {
+  background: var(--color-neutral-soft);
+  color: var(--color-neutral);
+}
+
+.loadingNotice,
+.successNotice {
+  margin: 0 !important;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.loadingNotice {
+  background: var(--color-warning-soft);
+  color: var(--color-accent);
+}
+
+.successNotice {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actions button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-inverse);
+  color: var(--color-cream-bright);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.actions button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.ghostAction {
+  background: none !important;
+  border: 1.5px solid var(--border-medium) !important;
+  color: var(--color-ink) !important;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8125rem;
+}
+
+.readOnly {
+  margin: 0;
+  padding: 13px 14px;
+  border-left: 2px solid var(--color-accent-bright);
+  background: var(--color-cream);
+  border-radius: 0 8px 8px 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+@media (min-width: 1024px) {
+  .detailOnly {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+}
+
+/* Inbox filters: the journal's filter card, search field and selectors. */
+.filters {
+  composes: filters from './AdminActivityPage.module.css';
+  margin-bottom: 12px;
+}
+
+.filtersRow {
+  composes: filtersRow from './AdminActivityPage.module.css';
+}
+
+.searchField {
+  composes: searchField from './AdminActivityPage.module.css';
+}
+
+.threadCardDate {
+  font-size: 0.71875rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+/* Three controls here, not the journal's four. */
+@media (min-width: 1100px) {
+  .filters .filtersRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

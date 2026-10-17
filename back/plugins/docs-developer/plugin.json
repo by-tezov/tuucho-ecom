@@ -1,0 +1,14 @@
+{
+  "id": "docs-developer",
+  "name": "Documentation",
+  "version": "1.0.0",
+  "kind": "docs",
+  "description": "Developer guide inside admin: create a plugin, APIs, database, and three sample walkthroughs.",
+  "defaultEnabled": true,
+  "provides": [
+    "AdminPage"
+  ],
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

@@ -1,0 +1,41 @@
+/* Axis name, then the tag. The tag and its menu come from ShapeTag.module.css. */
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+
+.axis {
+  composes: microLabel from '../ui/Typography.module.css';
+}
+
+.trigger {
+  gap: 6px;
+  padding-left: 5px;
+}
+
+.trigger:disabled {
+  cursor: default;
+}
+
+.thumb {
+  flex: none;
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--color-control-subtle);
+  box-shadow: 0 0 0 1px var(--border-medium);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.optionLabel {
+  flex: 1;
+}

@@ -1,0 +1,51 @@
+.button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Inner corner only — the card's overflow:hidden + radius clips the
+     outer edges so the tab reads as part of the card corner. */
+  border-radius: 0 0 var(--radius-md) 0;
+  background: var(--color-photo-control);
+  color: var(--color-cream-bright);
+}
+
+.button:hover {
+  background: var(--color-photo-control-hover);
+}
+
+/* Corner-flush card control (GalleryCard / NewArrivalCard): edge-to-edge
+   with the photo's top-left, 1.5× the flush tab. Gold gradient, translucent
+   enough that the photo underneath still reads through it. */
+.floating {
+  top: 0;
+  left: 0;
+  width: 51px;
+  height: 51px;
+  border: none;
+  border-radius: 0 0 var(--radius-md) 0;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-accent-bright) 50%, transparent),
+    color-mix(in srgb, var(--color-accent-shine) 35%, transparent)
+  );
+  color: var(--color-ink);
+  box-shadow: none;
+}
+
+.floating:hover {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-accent-bright) 68%, transparent),
+    color-mix(in srgb, var(--color-accent-shine) 52%, transparent)
+  );
+}
+
+.active {
+  color: var(--color-danger);
+}

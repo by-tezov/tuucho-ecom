@@ -1,0 +1,100 @@
+.section {
+  max-width: 720px;
+  margin-inline: auto;
+  padding: 28px var(--page-padding-x) 90px;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+}
+
+.subtitle,
+.hint,
+.notice {
+  margin: 0 0 20px;
+  color: var(--color-muted);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pinBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pinPair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.pinField {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md, 12px);
+  background: var(--color-bg-card);
+}
+
+.list {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.card {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md, 12px);
+  padding: 12px 14px;
+  background: var(--color-bg-card);
+}
+
+.banner {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-medium);
+}
+
+.qr {
+  width: min(220px, 100%);
+  height: auto;
+  display: block;
+  margin: 12px 0;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding-top: 40px;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+}

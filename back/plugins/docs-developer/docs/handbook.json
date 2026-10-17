@@ -1,0 +1,32 @@
+{
+  "title": "Documentation plugin",
+  "summary": "In-admin developer handbook. This plugin registers the Documentation admin site and loads articles from every plugin docs/ folder, including its own.",
+  "configure": "Admin, Documentation. Configure on the plugins list deep-links here. There is no settings form.",
+  "preferences": "None. Use this site, not a Preferences dump.",
+  "openingsUsed": [
+    "GET /admin/docs",
+    "plugin docs/articles.json and docs/handbook.json"
+  ],
+  "openingsProvided": [
+    "AdminPage"
+  ],
+  "cart": "None.",
+  "orders": "None.",
+  "profile": "None.",
+  "sections": [
+    {
+      "heading": "How this plugin registers the docs site",
+      "paragraphs": [
+        "kind is docs. provides AdminPage. adminNav item pluginId docs-developer, group standalone (top of the sidebar, above Accueil, no group label). Front route /admin/docs (and /admin/docs/:articleId) gates with usePluginEnabled(\"docs-developer\"). GET /admin/docs requires the same plugin effectively on, else 404 plugin_disabled.",
+        "The page is a small website: sticky nav, search, grouped articles. It is not a markdown dump in a modal."
+      ]
+    },
+    {
+      "heading": "How other plugins contribute articles",
+      "paragraphs": [
+        "Drop docs/handbook.json in the plugin folder (identity, Configure, openings, cart/order/profile). Optional docs/articles.json adds extra pages with group \"core\", \"examples\", or \"plugin:<id>\". buildDocsSite reads every installed plugin folder. Disable a plugin and its group stays listed but marked disabled.",
+        "This plugin contributes the Core handbook and Worked examples via docs/articles.json, plus this page via handbook.json."
+      ]
+    }
+  ]
+}

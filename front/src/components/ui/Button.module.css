@@ -1,0 +1,62 @@
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  padding: 15px 28px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.base:hover {
+  text-decoration: none;
+}
+
+.base:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.primary {
+  background: var(--color-surface-inverse);
+  color: var(--color-cream-bright);
+  border: 1px solid var(--color-accent);
+}
+
+.primary:hover {
+  opacity: 0.92;
+}
+
+.ghost {
+  background: none;
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-accent);
+}
+
+.ghost:hover {
+  background: var(--color-accent-faint);
+}
+
+/* Destructive ghost — used by ConfirmModal / FavoriteOrRemoveModal delete. */
+.ghostDanger {
+  background: none;
+  color: var(--color-danger);
+  border: 1.5px solid var(--color-danger-border);
+}
+
+.ghostDanger:hover {
+  background: var(--color-danger-bg-hover);
+  color: var(--color-danger);
+}
+
+.ghostOnDark {
+  background: none;
+  color: var(--color-cream-bright);
+  border: 1.5px solid var(--border-dark-medium);
+}
+
+.ghostOnDark:hover {
+  background: color-mix(in srgb, var(--color-cream-bright) 6%, transparent);
+}

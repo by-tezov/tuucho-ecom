@@ -1,0 +1,132 @@
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 16px;
+  margin: 0 0 20px;
+}
+
+.metrics div {
+  padding: 14px 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+}
+
+.metrics dt {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.metrics dd {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+.burnNotice {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--color-warning) 45%, var(--border-soft));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-warning) 12%, var(--color-bg-card));
+  color: var(--color-warning);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.muted {
+  margin: 0 0 16px;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.error {
+  margin: 0 0 16px;
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
+.ordersLinkWrap {
+  margin: 0 0 24px;
+}
+
+.ordersLink {
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.ledgerTitle {
+  margin: 8px 0 12px;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.ledger {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-card);
+}
+
+@media (max-width: 1023px) {
+  /* Final content block before Retour — section flex owns the gap above it. */
+  .ledger,
+  .muted:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.ledger li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  padding: 12px 14px;
+  font-size: 0.875rem;
+}
+
+.ledger li + li {
+  border-top: 1px solid var(--border-soft);
+}
+
+.ledgerKind {
+  font-weight: 600;
+}
+
+.ledgerAmount {
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger li time {
+  grid-column: 1 / -1;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.ledgerOrder {
+  grid-column: 1 / -1;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.ledgerOrder:hover {
+  text-decoration: underline;
+}
+
+.ledgerReason {
+  grid-column: 1 / -1;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}

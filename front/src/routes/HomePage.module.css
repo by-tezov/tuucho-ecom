@@ -1,0 +1,18 @@
+/* Hero.module.css's .inner has its own 28px top padding, independent of
+   the back link above it — without this, that 28px stacks on top of
+   LegalPageBackLink's own 6px margin, making the visible "link to title"
+   gap 34px here versus 6px on pages without a hero-style banner (Contact,
+   the account pages). Cancelled down to the same 6px everywhere else.
+   Scoped to LegalPageBackLink's own breakpoint so desktop (no back link)
+   keeps Hero's normal, unmodified padding. */
+@media (max-width: 1023px) {
+  .heroWrap {
+    margin-top: -22px;
+  }
+
+  /* Same idea for the bottom link: ContactFaq.module.css's own bottom
+     padding is --home-section-pad-y, independent of the back link below it. */
+  .contactFaqWrap {
+    margin-bottom: calc(6px - var(--home-section-pad-y));
+  }
+}

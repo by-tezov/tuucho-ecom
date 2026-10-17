@@ -1,0 +1,59 @@
+{
+  "title": {
+    "fr": "Plateau Harbor",
+    "en": "Harbor Tray",
+    "th": "ถาดฮาร์เบอร์",
+    "es": "Bandeja Harbor",
+    "it": "Vassoio Harbor",
+    "nl": "Harbor dienblad",
+    "pt": "Bandeja Harbor"
+  },
+  "desc": {
+    "fr": "Plateau $shape.attributive en chene huile, bords francs.",
+    "en": "$Shape.title oiled-oak tray with square edges.",
+    "th": "ถาด$shape.attributiveไม้โอ๊กน้ำมันขอบตรง",
+    "es": "Bandeja $shape.attributive de roble aceitado, bordes rectos.",
+    "it": "Vassoio $shape.attributive in rovere oliato, bordi netti.",
+    "nl": "$Shape.attributive dienblad van geoliede eik, strakke randen.",
+    "pt": "Bandeja $shape.attributive em carvalho oleado, bordos retos."
+  },
+  "alt": {
+    "fr": "Plateau $shape.attributive en chene huile, bords francs.",
+    "en": "$Shape.title oiled-oak tray with square edges.",
+    "th": "ถาด$shape.attributiveไม้โอ๊กน้ำมันขอบตรง",
+    "es": "Bandeja $shape.attributive de roble aceitado, bordes rectos.",
+    "it": "Vassoio $shape.attributive in rovere oliato, bordi netti.",
+    "nl": "$Shape.attributive dienblad van geoliede eik, strakke randen.",
+    "pt": "Bandeja $shape.attributive em carvalho oleado, bordos retos."
+  },
+  "occasion": {
+    "fr": "atelier",
+    "en": "studio",
+    "th": "สตูดิโอ",
+    "es": "taller",
+    "it": "atelier",
+    "nl": "atelier",
+    "pt": "atelier"
+  },
+  "color-main": [
+    "$brown",
+    "$green"
+  ],
+  "color-secondary": [
+    "$black"
+  ],
+  "photos": {
+    "$oval": {
+      "$short": [
+        {
+          "photo": "1",
+          "hash": "eb01fa6979ed5231ef940ba4ecc540efb6e9e69fc61f4cee25e97ddc579add3d"
+        },
+        {
+          "photo": "2",
+          "hash": "eb01fa6979ed5231ef940ba4ecc540efb6e9e69fc61f4cee25e97ddc579add3d"
+        }
+      ]
+    }
+  }
+}

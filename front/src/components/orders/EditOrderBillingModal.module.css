@@ -1,0 +1,325 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: var(--color-overlay-modal);
+}
+
+.dialog {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  max-height: min(92vh, 720px);
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior: contain;
+  padding: 0 24px 24px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--shadow-modal);
+  animation: slideUp 220ms ease;
+}
+
+.dialog::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0 12px;
+  position: relative;
+  margin: 0 -4px 0 0;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: -4px;
+  bottom: 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.title {
+  composes: dialogTitle from '../ui/Typography.module.css';
+}
+
+.closeButton {
+  composes: closeButton from '../ui/ModalChrome.module.css';
+}
+
+.sameAsRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.sameAsRow input {
+  margin-top: 2px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  margin-bottom: 10px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.addButton {
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.addButton:hover {
+  text-decoration: underline;
+}
+
+.addressList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.addressRow {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
+.addressRowSelected {
+  border-color: var(--color-accent);
+  background: var(--color-accent-faint);
+}
+
+/* Marks the address currently used by the order even when the customer has
+   selected another compatible address to save. .addressRowSelected follows
+   this rule, so the pending selection remains the stronger visual state. */
+.addressRowCurrent {
+  border-color: var(--border-strong);
+}
+
+/* The same mark in words: a border alone does not tell a screen reader, or
+   anyone who cannot see the difference, which address is the current one. */
+.addressCurrentTag {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 1px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-ink);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.addressOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.addressOption input {
+  margin-top: 3px;
+}
+
+.addressName {
+  display: block;
+  font-weight: 600;
+}
+
+/* Recipient/company, when the customer's own name for the address already
+   holds the line above it. */
+.addressIdentity {
+  display: block;
+  font-weight: 600;
+}
+
+.addressDetail {
+  display: block;
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+
+.addressDetail > span {
+  display: block;
+}
+
+/* Pickup point's own name, first line of a relay address. */
+.addressPickupPoint {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.countryLine {
+  display: flex !important;
+  align-items: center;
+  gap: 5px;
+}
+
+.countryFlag {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.notice {
+  margin: 10px 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  line-height: 1.4;
+}
+
+.error {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  justify-content: stretch;
+  margin-top: 20px;
+}
+
+.actions button {
+  width: 100%;
+}
+
+.scrollHintUp,
+.scrollHintDown {
+  position: fixed;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--scroll-hint-size);
+  height: var(--scroll-hint-size);
+  border-radius: 50%;
+  background: var(--color-scroll-hint);
+  color: var(--color-scroll-hint-fg);
+  pointer-events: none;
+}
+
+.scrollHintUp {
+  top: calc(50% - 42px);
+}
+.scrollHintDown {
+  bottom: calc(50% - 42px);
+}
+
+.scrollHintBar {
+  position: fixed;
+  right: calc(14px + (var(--scroll-hint-size) / 2) - 1px);
+  width: 2px;
+  border-radius: 1px;
+  background: var(--color-scroll-hint-track);
+  pointer-events: none;
+}
+
+.scrollHintBarFromUp {
+  top: calc(50% - 28px);
+}
+.scrollHintBarToDown {
+  bottom: calc(50% - 28px);
+}
+.scrollHintBarToDown:not(.scrollHintBarFromUp) {
+  top: 50%;
+}
+.scrollHintBarFromUp:not(.scrollHintBarToDown) {
+  bottom: 50%;
+}
+
+.chevronUp,
+.chevronDown {
+  width: 8px;
+  height: 8px;
+  border-left: 1.4px solid currentColor;
+  border-top: 1.4px solid currentColor;
+}
+
+.chevronUp {
+  transform: translateY(2px) rotate(45deg);
+}
+.chevronDown {
+  transform: translateY(-2px) rotate(225deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog {
+    animation: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .backdrop {
+    align-items: center;
+  }
+  .dialog {
+    max-width: 480px;
+    max-height: 88vh;
+    border-radius: var(--radius-xl);
+    animation: fadeScaleIn 160ms ease;
+  }
+}
+
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.loading {
+  margin-top: 18px;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}

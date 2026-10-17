@@ -1,0 +1,555 @@
+.card {
+  position: relative;
+  container-type: inline-size;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 5 / 3;
+  background: var(--card-bg);
+  color: var(--card-ink);
+  overflow: hidden;
+  box-shadow: var(--shadow-popover);
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.nailmark {
+  position: absolute;
+  top: var(--nail-top);
+  right: var(--nail-right);
+  bottom: var(--nail-bottom);
+  left: var(--nail-left);
+  width: var(--nail-w);
+  height: var(--nail-h);
+  color: var(--card-accent);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.nailmark svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.body {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 4cqw;
+  padding: var(--card-pad);
+  box-sizing: border-box;
+}
+
+.qrLeft .body {
+  flex-direction: row-reverse;
+}
+
+.layout_spread,
+.layout_hangTag,
+.layout_celeste {
+  /* named layout hooks used by GiftShareCardFace */
+}
+
+.layout_hangTag .brand {
+  position: absolute;
+  left: 3cqw;
+  top: 2.2cqw;
+  max-width: none;
+  letter-spacing: 0.22em;
+  white-space: nowrap;
+  margin-top: 0;
+}
+
+.brandPinTopRight .brand {
+  position: absolute;
+  top: var(--brand-pin-top);
+  right: calc(var(--nail-right) + var(--nail-w) + 0.8cqw);
+  max-width: none;
+  letter-spacing: 0.22em;
+  text-align: right;
+  white-space: nowrap;
+  z-index: 2;
+  margin-top: 0;
+}
+
+.brandPinTopLeft .brand {
+  position: absolute;
+  top: var(--brand-pin-top);
+  left: var(--pad-l);
+  max-width: none;
+  letter-spacing: 0.22em;
+  text-align: left;
+  white-space: nowrap;
+  z-index: 2;
+  margin-top: 0;
+}
+
+.nameWrap .textCol {
+  overflow: visible;
+  z-index: 2;
+}
+
+.nameWrap .copyGrow {
+  overflow: visible;
+}
+
+.nameWrap .name {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  overflow-wrap: break-word;
+  width: calc(100cqw - var(--pad-l) - var(--pad-r));
+  max-width: none;
+  position: relative;
+  z-index: 1;
+}
+
+.nameWrap .qrCol,
+.nameWrap .hangCol {
+  z-index: 1;
+}
+
+.nameAboveQr .textCol {
+  overflow: visible;
+}
+
+.nameAboveQr .name {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  overflow-wrap: break-word;
+  width: calc(100cqw - var(--pad-l) - var(--pad-r));
+  max-width: none;
+  position: relative;
+  z-index: 2;
+}
+
+.nameAboveQr .qrCol {
+  z-index: 1;
+}
+
+.layout_hangTag .textCol {
+  justify-content: flex-start;
+  overflow: visible;
+}
+
+.layout_hangTag .copyGrow {
+  overflow: visible;
+}
+
+.layout_packEnd .body {
+  align-items: flex-end;
+}
+
+.textCol {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.layout_spread .textCol,
+.layout_stack .textCol {
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.nameWrap .textCol {
+  overflow: visible;
+}
+
+.nameAboveQr .textCol {
+  overflow: visible;
+}
+
+.layout_packEnd .textCol {
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.layout_celeste .textCol {
+  justify-content: flex-start;
+}
+
+.alignRight .textCol {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.brand {
+  font-family: var(--font-body);
+  font-size: 2.15cqw;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--card-accent);
+  flex: 0 0 auto;
+  max-width: 100%;
+  white-space: nowrap;
+  margin-top: var(--brand-nudge);
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+}
+
+.copyGrow {
+  flex: 1 1 0;
+  min-height: 0;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.copyGrow .msg {
+  min-height: 0;
+  flex: 0 0 auto;
+}
+
+.occasionScript {
+  display: block;
+  font-family: 'Pinyon Script', cursive;
+  font-size: 3.7cqw;
+  color: var(--card-accent);
+  line-height: 1.1;
+  flex: 0 0 auto;
+}
+
+.occasionCinzel {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 4cqw;
+  letter-spacing: 0.14em;
+  color: var(--card-accent);
+  flex: 0 0 auto;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: 8cqw;
+  font-weight: 600;
+  line-height: 1.12;
+  color: var(--card-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding-bottom: 0.06em;
+  flex: 0 0 auto;
+}
+
+.nameSans {
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 7.6cqw;
+  line-height: 1.2;
+}
+
+.nameScript {
+  font-family: 'Pinyon Script', cursive;
+  font-size: 9cqw;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.nameCinzel {
+  font-family: 'Cinzel', serif;
+  font-size: 6.8cqw;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.ruleLine {
+  display: block;
+  width: 14cqw;
+  height: 1px;
+  background: color-mix(in srgb, var(--card-accent) 55%, transparent);
+  margin: 1.4cqw 0;
+  flex: 0 0 auto;
+}
+
+.alignRight .ruleLine {
+  margin-left: auto;
+}
+
+.msg {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 3.35cqw;
+  line-height: 1.38;
+  color: var(--card-msg);
+  margin: 1.4cqw 0 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  overflow: hidden;
+  max-height: calc(1.38em * 6);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 4;
+}
+
+.msgSans {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 2.5cqw;
+}
+
+.sig {
+  font-family: var(--font-display);
+  font-size: 2.8cqw;
+  color: var(--card-accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  flex: 0 0 auto;
+  margin-top: 1.4cqw;
+}
+
+.layout_spread .sig,
+.layout_hangTag .sig,
+.layout_stack .sig {
+  margin-top: 0;
+}
+
+.sigSans {
+  font-family: var(--font-body);
+  font-size: 2.4cqw;
+  font-weight: 600;
+}
+
+.placeholder {
+  opacity: 0.45;
+}
+
+.qrCol {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.1cqw;
+}
+
+.layout_celeste .qrCol {
+  margin-top: auto;
+}
+
+.layout_stack .qrCol {
+  justify-content: flex-start;
+}
+
+.qrFrame {
+  display: block;
+  width: 25cqw;
+  height: 25cqw;
+  padding: 0.7cqw;
+  box-sizing: border-box;
+  background: var(--card-qr-light);
+  outline: 1px solid color-mix(in srgb, var(--card-accent) 45%, transparent);
+}
+
+.qr {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.qrCap {
+  font-family: var(--font-body);
+  font-size: 1.55cqw;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: var(--card-cap);
+  text-align: center;
+  white-space: pre-line;
+  line-height: 1.2;
+  max-width: 28cqw;
+}
+
+.hangCol {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.hangString {
+  display: block;
+  width: 0.5cqw;
+  height: 4cqw;
+  background: color-mix(in srgb, var(--card-accent) 60%, transparent);
+}
+
+.hangTag {
+  position: relative;
+  background: var(--card-qr-light);
+  border-radius: 1.4cqw;
+  padding: 3.2cqw 1.8cqw 1.6cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9cqw;
+  box-shadow: 0 1cqw 2.4cqw -1.4cqw rgb(0 0 0 / 0.6);
+}
+
+.hangHole {
+  position: absolute;
+  top: 1.2cqw;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.5cqw;
+  height: 1.5cqw;
+  border-radius: 50%;
+  background: var(--card-qr-dark);
+}
+
+.hangTag .qr {
+  width: 25cqw;
+  height: 25cqw;
+}
+
+.hangTag .qrCap {
+  color: var(--card-cap);
+}
+
+.swatches {
+  display: none;
+}
+
+.selectTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-input);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.selectTrigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.selectTriggerValue {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectTriggerChevron {
+  flex: 0 0 auto;
+  color: var(--color-accent);
+}
+
+@media (min-width: 1024px) {
+  .selectTrigger {
+    display: none;
+  }
+
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px;
+  border-radius: 11px;
+  border: 1.5px solid var(--border-soft);
+  background: var(--color-control-subtle);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.swatchActive {
+  border-color: var(--color-ink);
+  background: var(--color-callout-start);
+}
+
+.chip {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 3;
+  border-radius: 4px;
+  background: var(--card-bg);
+  overflow: hidden;
+}
+
+.chipArt {
+  position: absolute;
+  inset: 0;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.chipArt svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.chipQr {
+  position: absolute;
+  right: 6%;
+  bottom: 10%;
+  display: block;
+  width: 22%;
+  aspect-ratio: 1;
+  background: var(--card-qr-light);
+  outline: 1px solid color-mix(in srgb, var(--card-accent) 40%, transparent);
+}
+
+.swatchName {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.swatchActive .swatchName {
+  font-weight: 700;
+  color: var(--color-ink);
+}

@@ -1,0 +1,150 @@
+.section {
+  position: relative;
+  overflow: hidden;
+  background: var(
+    --intro-surface-background,
+    linear-gradient(160deg, var(--color-bg-card) 0%, var(--color-cream) 100%)
+  );
+}
+
+.texture {
+  position: absolute;
+  inset: 0;
+  background-image: var(
+    --intro-surface-texture,
+    repeating-linear-gradient(
+      115deg,
+      color-mix(in srgb, var(--color-accent) 10%, transparent) 0px,
+      color-mix(in srgb, var(--color-accent) 10%, transparent) 1px,
+      transparent 1px,
+      transparent 26px
+    )
+  );
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: 28px var(--page-padding-x) var(--home-section-pad-y);
+  display: grid;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    padding-block: 39px var(--home-section-pad-y);
+  }
+}
+
+.copy {
+  animation: rise 0.6s ease both;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 18px;
+  font-weight: 700;
+}
+
+.title {
+  font-size: clamp(2.25rem, 8vw, 4.25rem);
+  color: var(--color-ink);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  max-width: 220px;
+}
+
+.dividerLine {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, var(--color-accent));
+}
+
+.dividerLineEnd {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, var(--color-accent), transparent);
+}
+
+.dividerStar {
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+}
+
+.sub {
+  font-size: 1.125rem;
+  color: var(--color-muted);
+  max-width: 30em;
+  margin: 22px 0 32px;
+}
+
+.ctaRow {
+  display: flex;
+  gap: 14px;
+  flex-wrap: nowrap;
+}
+
+/* Keep both CTAs on one line on small screens: split the row evenly and trim
+   the button padding so the labels stay inline instead of stacking. */
+@media (max-width: 560px) {
+  .ctaRow > * {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-left: 14px;
+    padding-right: 14px;
+    font-size: 0.875rem;
+    justify-content: center;
+  }
+}
+
+.stats {
+  display: flex;
+  gap: 26px;
+  margin-top: 36px;
+  flex-wrap: wrap;
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-size: 1.875rem;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.statLabel {
+  font-size: 0.7813rem;
+  color: var(--color-muted);
+}
+
+.statDivider {
+  width: 1px;
+  background: var(--border-medium);
+}
+
+.imageWrap {
+  animation: rise 0.7s 0.1s ease both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

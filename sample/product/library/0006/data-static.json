@@ -1,0 +1,19 @@
+{
+  "product-uid": "AT-BX-917",
+  "creation-date": "2026-10-01",
+  "price": 47,
+  "available": {
+    "$square": {
+      "$medium": {
+        "XS": 1,
+        "S": 2,
+        "M": 3,
+        "L": 1
+      }
+    }
+  },
+  "featured": {
+    "from": "2026-10-01",
+    "for": 365
+  }
+}

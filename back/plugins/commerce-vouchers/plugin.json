@@ -1,0 +1,21 @@
+{
+  "id": "commerce-vouchers",
+  "name": "Vouchers",
+  "version": "1.0.0",
+  "kind": "commerce",
+  "description": "Promo codes at checkout and the Vouchers admin page. Disable to hide both.",
+  "defaultEnabled": true,
+  "provides": [
+    "CheckoutAlteration",
+    "AdminPage"
+  ],
+  "permissions": [
+    {
+      "code": "vouchers",
+      "label": "Vouchers"
+    }
+  ],
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

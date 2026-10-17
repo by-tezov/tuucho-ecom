@@ -1,0 +1,16 @@
+.idea/
+output/
+node_modules/
+.env/.private.env
+.env/*/.private.env
+.env/**/AuthKey_*.p8
+.env/**/*.p8
+dist/
+var/
+test-node/
+*.log
+.claude/settings.local.json
+coverage/
+
+# Node compile cache written by src/boot.ts next to itself (dev: src/, release: dist/vX/)
+.compile-cache/

@@ -1,0 +1,206 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: var(--color-overlay-modal);
+}
+
+.dialog {
+  position: relative;
+  width: 100%;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--shadow-modal);
+  animation: slideUp 220ms ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.header {
+  composes: header from '../ui/ModalChrome.module.css';
+}
+
+.closeButton {
+  composes: closeButton from '../ui/ModalChrome.module.css';
+}
+
+.title {
+  composes: dialogTitle from '../ui/Typography.module.css';
+}
+
+.scrollArea {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 40px 20px 20px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollArea::-webkit-scrollbar {
+  display: none;
+}
+
+.list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.scrollHintUp,
+.scrollHintDown {
+  position: absolute;
+  right: var(--scroll-hint-inset-x);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--scroll-hint-size);
+  height: var(--scroll-hint-size);
+  border-radius: 50%;
+  background: var(--color-scroll-hint);
+  color: var(--color-scroll-hint-fg);
+  pointer-events: none;
+}
+
+.scrollHintUp {
+  top: calc(var(--scroll-hint-inset-y) + 60px);
+}
+.scrollHintDown {
+  bottom: var(--scroll-hint-inset-y);
+}
+
+.scrollHintBar {
+  position: absolute;
+  right: calc(var(--scroll-hint-inset-x) + (var(--scroll-hint-size) / 2) - 1px);
+  width: 2px;
+  border-radius: 1px;
+  background: var(--color-scroll-hint-track);
+  pointer-events: none;
+}
+
+.scrollHintBarFromUp {
+  top: calc(var(--scroll-hint-bar-offset) + 60px);
+}
+.scrollHintBarToDown {
+  bottom: var(--scroll-hint-bar-offset);
+}
+.scrollHintBarToDown:not(.scrollHintBarFromUp) {
+  top: 60px;
+}
+.scrollHintBarFromUp:not(.scrollHintBarToDown) {
+  bottom: var(--scroll-hint-inset-y);
+}
+
+.item {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.itemHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 12px;
+  margin-bottom: 8px;
+}
+
+.kind {
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.date {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.change {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+.addressBlock {
+  margin-top: 6px;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+
+.integrity {
+  margin: 10px 0 0;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  max-width: 100%;
+  white-space: normal;
+}
+
+.integrityToken {
+  white-space: nowrap;
+}
+
+.status {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  line-height: 1.45;
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog {
+    animation: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .backdrop {
+    align-items: center;
+    padding: 24px;
+  }
+  .dialog {
+    max-width: 480px;
+    max-height: 88vh;
+    border-radius: var(--radius-xl);
+    animation: fadeScaleIn 160ms ease;
+  }
+}
+
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

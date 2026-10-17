@@ -1,0 +1,53 @@
+.root {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 38px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.track {
+  position: absolute;
+  inset: 0;
+  background: var(--border-medium);
+  border-radius: 999px;
+  transition: background-color 0.15s ease;
+}
+
+.track::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-cream-bright);
+  box-shadow: var(--shadow-control-active);
+  transition: transform 0.15s ease;
+}
+
+.root[data-checked='true'] .track {
+  background: var(--color-accent);
+}
+
+.root[data-checked='true'] .track::before {
+  transform: translateX(16px);
+}
+
+.root:focus-visible .track {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.root:disabled {
+  cursor: default;
+}
+
+.root:disabled .track {
+  opacity: 0.55;
+}

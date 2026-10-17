@@ -1,0 +1,51 @@
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.trigger:hover {
+  background: var(--color-accent-subtle);
+}
+
+/* Same gold accent as the mobile tab / hamburger "Se connecter" CTA. */
+.triggerLogin {
+  color: var(--color-accent);
+}
+
+.triggerLogin:hover {
+  background: var(--color-accent-shine);
+}
+
+/* Bootstrap-only profile glyph — quieter than the cart circle (no fill/border). */
+.iconTrigger {
+  box-sizing: border-box;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.iconTrigger:hover {
+  background: var(--color-accent-subtle);
+  color: var(--color-ink);
+}
+
+.iconTrigger svg {
+  display: block;
+  flex-shrink: 0;
+}

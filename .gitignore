@@ -1,0 +1,14 @@
+node_modules/
+installed.lock
+.env/.private.env
+.env/*/.private.env
+**/.env/.private.env
+**/.env/*/.private.env
+front/node_modules/
+back/node_modules/
+front/dist/
+back/dist/
+back/output/
+**/*.log
+.idea/
+.DS_Store

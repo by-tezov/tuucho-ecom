@@ -1,0 +1,8 @@
+.stage {
+  position: relative;
+  width: 100%;
+  /* Fill the viewport under the sticky chrome so the motion reads as the
+     page body; footer stays below (may sit under the fold on short phones). */
+  min-height: calc(var(--layout-vh) - var(--chrome-height, var(--header-height)));
+  overflow: hidden;
+}

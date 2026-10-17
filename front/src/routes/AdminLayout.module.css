@@ -1,0 +1,412 @@
+/* Heights of the sticky chrome, read by the admin pages' own sticky bars
+   (AdminDetailBar, the order action bar) so they stack under/over it. */
+.shell {
+  --admin-topbar-h: 61px;
+  --admin-bottomnav-h: calc(64px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: flex-start;
+  min-height: var(--layout-vh);
+  background: var(--color-bg);
+}
+
+/* ---- Desktop sidebar ---- */
+.sidebar {
+  display: none;
+  flex: 0 0 240px;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--color-surface-inverse);
+  color: var(--color-muted-on-dark);
+  padding: 20px 14px;
+  height: var(--layout-vh);
+  overflow-y: auto;
+}
+
+/* Same on-dark focus ring as the footer (RGAA 10.7, 3:1). */
+.sidebar :focus-visible {
+  outline-color: var(--color-accent-bright);
+}
+
+.brand {
+  padding: 0 8px 18px;
+}
+
+.brandName {
+  font-family: var(--font-display);
+  font-size: 1.4375rem;
+  font-weight: 600;
+  color: var(--color-cream-bright);
+}
+
+.brandKicker {
+  font-size: 8.5px;
+  letter-spacing: 3px;
+  color: var(--color-accent-bright);
+  margin-top: 2px;
+}
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 14px;
+}
+
+.navGroupLabel {
+  padding: 0 11px 4px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-accent-bright);
+  opacity: 0.8;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 11px;
+  border: none;
+  border-radius: 9px;
+  font-size: 0.84375rem;
+  font-weight: 500;
+  color: var(--color-muted-on-dark);
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: var(--color-cream-bright);
+  text-decoration: none;
+}
+
+.navLinkActive {
+  background: var(--color-accent-bright);
+  color: var(--color-surface-inverse);
+  font-weight: 700;
+}
+
+.navLinkActive:hover {
+  color: var(--color-surface-inverse);
+}
+
+.navIcon {
+  flex: 0 0 auto;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.navLabel {
+  flex: 1;
+}
+
+.badge {
+  flex: 0 0 auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: var(--color-danger-solid);
+  color: var(--color-cream-bright);
+  font-size: 0.65625rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navLinkActive .badge {
+  background: var(--color-surface-inverse);
+}
+
+/* ---- Main column ---- */
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topBar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--color-cream);
+  border-bottom: 1px solid var(--border-medium);
+}
+
+.topBarInner {
+  box-sizing: border-box;
+  height: 60px;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--page-padding-x);
+  display: flex;
+  align-items: center;
+}
+
+.topBrandGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Same brand mark as the public site's Header.tsx/.module.css .brand —
+   kept in sync deliberately, only the link target differs. */
+.topBrand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
+}
+
+.topBrandName {
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--color-ink);
+}
+
+.topBrandSuffix {
+  font-size: 0.625rem;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-top: 2px;
+}
+
+.topBarFiller {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  /* Keep theme taps clear of the exit control (same idea as the public
+     header’s gap before the burger). */
+  padding-inline: 16px 20px;
+  gap: 8px;
+}
+
+.themeControl {
+  flex-shrink: 0;
+}
+
+.exitButton {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  border: 1px solid var(--border-medium);
+  background: var(--color-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink);
+}
+
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 16px var(--page-padding-x) calc(var(--admin-bottomnav-h) + 32px);
+}
+
+/* ---- Mobile bottom nav ---- */
+.bottomNav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: var(--color-bg-card);
+  border-top: 1px solid var(--border-medium);
+  display: flex;
+  box-sizing: border-box;
+  height: var(--admin-bottomnav-h);
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+  box-shadow: var(--shadow-bar);
+}
+
+.tab {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 2px;
+  border: none;
+  background: none;
+  border-radius: 10px;
+  color: var(--color-muted);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tab:hover {
+  text-decoration: none;
+}
+
+.tabActive {
+  color: var(--color-ink);
+  font-weight: 700;
+  background: var(--color-accent-faint);
+}
+
+.tabIcon {
+  position: relative;
+  line-height: 1;
+  display: flex;
+}
+
+.tabIcon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.tabIcon .badge {
+  position: absolute;
+  top: -4px;
+  right: -9px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 0.59375rem;
+}
+
+.tabLabel {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.65625rem;
+  font-weight: 600;
+}
+
+/* ---- "Plus" sheet: grouped two-column tiles ---- */
+.moreGroups {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.moreGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.moreGroupLabel {
+  margin: 0;
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.moreGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.moreTile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 84px;
+  padding: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.moreTile:hover {
+  border-color: var(--color-accent);
+  text-decoration: none;
+}
+
+.moreTileActive {
+  border-color: var(--color-accent);
+  background: var(--color-accent-faint);
+}
+
+.moreIcon {
+  display: flex;
+  color: var(--color-accent);
+}
+
+.moreIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.moreLabel {
+  font-size: 0.84375rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.moreTile .badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+@media (min-width: 1024px) {
+  .shell {
+    --admin-bottomnav-h: 0px;
+    display: block;
+  }
+
+  .sidebar {
+    display: flex;
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 60;
+    height: var(--layout-vh);
+  }
+
+  .main {
+    width: calc(100% - 240px);
+    margin-left: 240px;
+  }
+
+  .bottomNav {
+    display: none;
+  }
+
+  .content {
+    padding-bottom: 32px;
+  }
+}
+
+/* The role's access could not be loaded: nothing of the admin area renders. */
+.accessError {
+  margin: 48px var(--page-padding-x);
+  color: var(--color-danger);
+  text-align: center;
+}

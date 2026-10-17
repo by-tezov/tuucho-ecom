@@ -1,0 +1,140 @@
+.layout {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: 20px var(--page-padding-x) 90px;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.sidebarWrap {
+  min-width: 0;
+}
+
+.sidebar {
+  position: sticky;
+  top: 24px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  padding: 18px 12px;
+}
+
+.eyebrow {
+  padding: 0 10px 12px;
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.link:hover {
+  background: var(--color-accent-subtle);
+  text-decoration: none;
+}
+
+.linkActive {
+  background: var(--color-accent-shine);
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+.linkActive:hover {
+  background: var(--color-accent-shine);
+}
+
+.icon {
+  color: var(--color-accent);
+  font-size: 0.625rem;
+}
+
+.logout {
+  margin-top: 8px;
+  color: var(--color-danger);
+}
+
+.separator {
+  border: none;
+  border-top: 1px solid var(--border-soft);
+  margin: 6px 0;
+}
+
+.content {
+  min-width: 0;
+  container-type: inline-size;
+}
+
+/* Direction matches the clicked tab's position relative to the one just
+   left — forward (a tab further right) slides the new page in from the
+   right, backward slides it in from the left, mirroring which way the
+   customer's eye/finger just moved along the tab bar. Entrance only: the
+   outgoing page unmounts immediately (React Router swaps it), there's no
+   animation library here to keep it around for a matching exit. */
+.contentForward {
+  animation: accountContentSlideFromRight 0.26s ease both;
+}
+
+.contentBackward {
+  animation: accountContentSlideFromLeft 0.26s ease both;
+}
+
+@keyframes accountContentSlideFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes accountContentSlideFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 1023px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 0;
+    /* LegalPageBackLink is visible at this breakpoint. 6px outer gap matches
+       the link's inner-side margin so top/bottom placement stay symmetric. */
+    padding: 6px 16px 6px;
+  }
+
+  /* Account navigation lives in the hamburger menu on mobile instead
+     (MobileNav.tsx's "Mon compte" group) — this sidebar/tab strip was
+     desktop-only chrome wearing a mobile costume; removed rather than kept
+     around unreachable. */
+  .sidebarWrap {
+    display: none;
+  }
+}

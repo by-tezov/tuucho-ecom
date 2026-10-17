@@ -1,0 +1,11 @@
+/* Virtualized rows are absolutely positioned wrappers, not `li`, so they
+   carry their own divider. The last logical row omits it — `:last-child`
+   cannot be used, because the last *rendered* row is rarely the last row
+   in the list. */
+.row {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.rowLast {
+  border-bottom: none;
+}

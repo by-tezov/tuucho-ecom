@@ -1,0 +1,53 @@
+/* Top-right twin of FavoriteButton's .floating (GalleryCard). Parent
+   overflow+radius clips the outer edges; left and bottom gold borders
+   stay visible — same inner-edge frame as the card zoom tab. */
+.mark {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 51px;
+  height: 51px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  border: 0;
+  border-left: 2px solid var(--color-accent);
+  border-bottom: 2px solid var(--color-accent);
+  border-radius: 0 0 0 var(--radius-md);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-accent-bright) 50%, transparent),
+    color-mix(in srgb, var(--color-accent-shine) 35%, transparent)
+  );
+  color: var(--color-accent);
+}
+
+@supports (color: color-mix(in srgb, red, transparent)) {
+  .mark {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-accent-bright) 50%, transparent),
+      color-mix(in srgb, var(--color-accent-shine) 35%, transparent)
+    );
+  }
+}
+
+.compact {
+  width: 35.2px;
+  height: 35.2px;
+}
+
+@media (max-width: 1023px) {
+  .mark:not(.compact) {
+    width: 44px;
+    height: 44px;
+  }
+
+  .mark:not(.compact) svg {
+    width: 20px;
+    height: 20px;
+  }
+}

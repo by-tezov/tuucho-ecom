@@ -1,0 +1,83 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-top);
+  background: rgba(20, 14, 10, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  padding: 20px;
+  animation: fade 180ms ease;
+}
+
+.dialog {
+  position: relative;
+  outline: none;
+  /* Bounded by the viewport the backdrop already padded, not by a fixed
+     width: a tall phone otherwise left most of the screen unused while the
+     photo sat letterboxed inside a 520px square. */
+  display: flex;
+  max-width: min(1100px, 100%);
+  max-height: 100%;
+}
+
+.closeButton {
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-photo-control);
+  color: var(--color-cream-bright);
+  /* Same three lines every other round close button in the app carries
+     (see ModalShell.module.css). Without them the glyph sits on the text
+     baseline instead of the centre of the circle. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop {
+    animation: none;
+  }
+}
+
+/* The image's own ratio drives the box; it just may not exceed the dialog. */
+.image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+  user-select: none;
+  -webkit-user-drag: none;
+  cursor: zoom-out;
+}
+
+/* Wraps .image only so the second dismiss path (clicking the photo itself)
+   is a real control — the photo's own box still drives the layout. */
+.imageButton {
+  display: flex;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-out;
+}

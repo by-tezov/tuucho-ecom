@@ -1,0 +1,99 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.trigger:hover {
+  background: var(--color-accent-subtle);
+}
+
+.triggerActive {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* Non-color cue for the active section (RGAA 3.1 / WCAG 1.4.1). */
+.triggerActive::after {
+  content: '';
+  position: absolute;
+  left: var(--nav-pad, 12px);
+  right: var(--nav-pad, 12px);
+  bottom: 1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+.caret {
+  font-size: calc(0.75rem * 2.5 / 1.5);
+  line-height: 1;
+  margin-top: -0.16em;
+  margin-left: -0.12em;
+  color: inherit;
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  /* Sized to its own longest label rather than a fixed minimum shared across
+     every dropdown — Guide/Infos' short one-word children (Contact, À
+     propos) would otherwise sit in a box wide enough for My Account's
+     "Se déconnecter" instead of their own content. */
+  width: max-content;
+  max-width: 260px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 2px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-popover);
+  z-index: 110;
+}
+
+.menu[hidden] {
+  display: none;
+}
+
+.link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.link:hover {
+  background: var(--color-accent-soft);
+  text-decoration: none;
+}
+
+.linkActive {
+  color: var(--color-accent);
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 var(--color-accent);
+  padding-left: 15px;
+}

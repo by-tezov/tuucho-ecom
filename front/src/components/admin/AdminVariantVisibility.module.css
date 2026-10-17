@@ -1,0 +1,79 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  overflow: hidden;
+}
+
+.row,
+.shapeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 14px;
+}
+
+.row + .row,
+.row + .shapeRow {
+  border-top: 1px solid var(--border-soft);
+}
+
+.rowText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rowLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+.statusOff {
+  color: var(--color-muted);
+}
+
+.shapeRow {
+  background: var(--color-cream);
+}
+
+.shapeHint {
+  min-width: 0;
+  font-size: 0.78125rem;
+  color: var(--color-muted);
+}
+
+.shapeAction {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1.5px solid var(--color-accent);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.shapeAction:hover:not(:disabled) {
+  background: var(--color-accent-faint);
+}
+
+.shapeAction:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

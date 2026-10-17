@@ -1,0 +1,255 @@
+.backdrop {
+  composes: backdropResponsive from '../ui/ModalChrome.module.css';
+}
+
+.panel {
+  width: 100%;
+  max-height: 92vh;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 220ms ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .panel {
+    max-width: 480px;
+    max-height: 88vh;
+    border-radius: var(--radius-xl);
+    animation: fadeScaleIn 160ms ease;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 8px 12px 10px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Inset from the panel's own edges, rather than a border-bottom on the
+   full-width header — a full-width line reads as flush with the panel
+   border, not as a separator specifically under the title/close row. */
+.header::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 8px;
+  bottom: 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  color: var(--color-ink);
+}
+
+.closeButton {
+  composes: closeButton from '../ui/ModalChrome.module.css';
+}
+
+.bodyWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Extra right padding so fields clear the chevron + vertical track. */
+  padding: 18px 20px calc(20px + env(safe-area-inset-bottom, 0px)) 10px;
+  cursor: grab;
+  /* Native scroll stays; only the visual scrollbar is hidden — same cue as
+     FilterSheet / AddressFormModal. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.body::-webkit-scrollbar {
+  display: none;
+}
+
+.body:active {
+  cursor: grabbing;
+}
+
+.body :is(input, select, textarea) {
+  cursor: text;
+}
+
+/* Merchant-side chrome around name + Payment Element. Stripe AccordionItem /
+   Block borders stay `none` in stripeAddCardAppearance. */
+.paymentBlock {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 12px 8px;
+  background: var(--color-bg-card);
+}
+
+/* Left/right insets align with the PE card-number field. Slightly tighter on
+   the left so the camouflaged accordion icon stays fully under the opaque
+   name control. Opaque bg + z-index keep the negative-margin PE header under
+   the name control (iframe would otherwise steal clicks). */
+.cardholderNameField {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 15px 0 14px;
+  padding-bottom: 4px;
+  background: var(--color-bg-card);
+}
+
+.cardholderNameLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--color-ink);
+}
+
+/* Match Stripe's compact input geometry while following the site theme. */
+.cardholderNameInput {
+  box-sizing: border-box;
+  width: 100%;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.25;
+  padding: 9px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border-input);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+}
+
+.cardholderNameInput::placeholder {
+  color: var(--color-muted);
+}
+
+.cardholderNameInput:focus-visible {
+  outline: none;
+  border-color: var(--color-info);
+  box-shadow: 0 0 0 1px var(--color-info);
+}
+
+.cardholderNameInput[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.cardholderNameInput[aria-invalid='true']:focus-visible {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 1px var(--color-danger);
+}
+
+.fieldError {
+  composes: fieldError from '../ui/Typography.module.css';
+}
+
+/* Tuck the camouflaged accordion header under the name field so the blue
+   carte icon sits in the left gutter beside the input (best-effort — icon
+   lives in Stripe’s iframe). Pulled so icon mid-aligns with the name input. */
+.paymentElement {
+  margin-top: -55px;
+}
+
+.body :is(button, a, label) {
+  cursor: pointer;
+}
+
+.scrollHintUp {
+  composes: scrollHintUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintDown {
+  composes: scrollHintDown from '../ui/ModalChrome.module.css';
+}
+
+/* Vertical track aligned with the chevron centers. Spans:
+   - down alone → from the top edge down to the bottom chevron
+   - up alone   → from below the top chevron to the bottom edge
+   - both       → between the two chevrons
+   - neither    → not rendered */
+.scrollHintBar {
+  composes: scrollHintBar from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarFromUp {
+  composes: scrollHintBarFromUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarToDown {
+  composes: scrollHintBarToDown from '../ui/ModalChrome.module.css';
+}
+
+/* Separates the card block from the remember + submit zone. Inset from the
+   panel edges like .header::after — a full-bleed rule would read as a panel
+   border rather than a separator for this row. */
+.rememberRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 0.875rem;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.rememberRow input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.buttonRow > * {
+  min-width: min(100%, 220px);
+}
+
+.error {
+  color: var(--color-danger);
+  margin-top: 12px;
+  font-size: 0.9rem;
+}

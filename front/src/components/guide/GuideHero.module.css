@@ -1,0 +1,52 @@
+.section {
+  position: relative;
+  overflow: hidden;
+  background: var(
+    --intro-surface-background,
+    linear-gradient(160deg, var(--color-bg-card) 0%, var(--color-cream) 100%)
+  );
+}
+
+.texture {
+  position: absolute;
+  inset: 0;
+  background-image: var(
+    --intro-surface-texture,
+    repeating-linear-gradient(
+      115deg,
+      color-mix(in srgb, var(--color-accent) 10%, transparent) 0px,
+      color-mix(in srgb, var(--color-accent) 10%, transparent) 1px,
+      transparent 1px,
+      transparent 26px
+    )
+  );
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  /* Match the Home/Gallery heading gutter on wide screens. */
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: 36px var(--page-padding-x) 20px;
+  animation: rise 0.6s ease both;
+}
+
+.eyebrow {
+  composes: eyebrow from '../ui/Typography.module.css';
+}
+
+.title {
+  font-size: clamp(2rem, 4.6vw, 3.375rem);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

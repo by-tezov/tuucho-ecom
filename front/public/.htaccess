@@ -1,0 +1,389 @@
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  # HSTS only meaningful over HTTPS (prod/preprod)
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  # CSP: self + Stripe + Mondial Relay (jQuery/Leaflet CDNs) + API hosts +
+  # Google Identity Services (Sign in with Google button) + Sign in with Apple.
+  # Fonts are self-hosted via @fontsource; Google Fonts kept for safety.
+  # 'unsafe-eval' is required by jQuery's globalEval, which the Mondial Relay
+  # ParcelShopPicker plugin relies on; without it the widget never initializes.
+  # accounts.google.com is required for GIS; appleid.cdn-apple.com / appleid.apple.com
+  # for Sign in with Apple; connect.facebook.net / facebook.com
+  # for Facebook Login SDK + dialog. unpkg is in connect-src so DevTools can fetch Leaflet's .js.map.
+  # and XHR — without it the browser blocks the load and Google sign-in never
+  # paints (see loadGoogleIdentityScript.ts).
+  # __API_ORIGIN__ is substituted by scripts/version-dist.mjs with the origin of
+  # THIS build's VITE_API_BASE_URL, so preprod's policy never names prod's API
+  # host (nor the reverse) — the environments share no allowlist entry. The
+  # build fails outright if the placeholder is still here afterwards.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://appleid.cdn-apple.com https://connect.facebook.net https://js.stripe.com https://*.mondialrelay.com https://ajax.googleapis.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://accounts.google.com https://fonts.googleapis.com https://*.mondialrelay.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' __API_ORIGIN__ https://accounts.google.com https://appleid.apple.com https://connect.facebook.net https://graph.facebook.com https://api.stripe.com https://*.stripe.com https://*.mondialrelay.com https://unpkg.com; frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://web.facebook.com https://staticxx.facebook.com https://js.stripe.com https://*.stripe.com https://*.mondialrelay.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'"
+</IfModule>
+
+# Transfer compression. Deliberately NOT mod_deflate: this host's edge
+# ("fastestcache") strips Accept-Encoding before the request reaches Apache.
+# mod_deflate and mod_filter are both loaded here, but %{HTTP:Accept-Encoding}
+# arrives empty, so no output filter ever fires and nothing that negotiates on
+# that header can work — AddOutputFilterByType, SetOutputFilter and a
+# RewriteCond on Accept-Encoding were all verified to be silent no-ops on this
+# server. Pre-compressed .gz siblings written by scripts/version-dist.mjs are
+# served instead; see the rewrite block below.
+#
+# That premise holds only while the domain is on the Varnish edge with its
+# cache OFF. Both of this host's cache engines compress responses themselves,
+# so with either one active the .gz siblings stop being the only compression.
+#
+# WARNING: do NOT enable "Fastest Cache" (Varnish) on a domain serving this
+# build. Handed a response that already declares the Content-Encoding: gzip
+# this file forces on a .gz sibling, that edge answers 503 to any client whose
+# Accept-Encoding includes br, which is every browser: every JS and CSS bundle
+# fails and the site renders blank. Measured on preprod against both engines
+# on the same release. Use "LiteSpeed LsCache" instead: it serves the .gz
+# siblings correctly (verified 200 for "gzip, deflate, br, zstd") and is the
+# engine the LsCache policy block further down is written for. `npm run
+# edge-cache -- probe --preprod|--prod` in pamsurin-back carries a
+# `compression` check that catches exactly this regression.
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  # Hashed filenames (assets/index-C_wP7RRe.js) can never change content
+  # under the same name, so they're safe to cache permanently.
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  # Product photos are stable but do get re-uploaded — a month, not a year.
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType image/avif "access plus 1 month"
+  # The prerendered HTML is what a deploy replaces; it must not be pinned in
+  # a visitor's cache, or they keep seeing the previous release.
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2|svg)(\.gz)?$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # The .gz siblings are served under the original URL by the rewrite below,
+  # so they must announce their own encoding and real type — the request that
+  # reaches them still says "…/foo.js", and without ForceType Apache would
+  # label them application/x-gzip. Setting Content-Encoding unconditionally is
+  # safe here despite the stripped request header: the edge still negotiates on
+  # the *response* side, passing the gzip stream through to a client that sent
+  # "Accept-Encoding: gzip" and transparently decompressing it for one that did
+  # not. Both paths were verified against the real vendor bundle.
+  <FilesMatch "\.js\.gz$">
+    ForceType application/javascript
+    Header set Content-Encoding "gzip"
+  </FilesMatch>
+  <FilesMatch "\.css\.gz$">
+    ForceType text/css
+    Header set Content-Encoding "gzip"
+  </FilesMatch>
+  <FilesMatch "\.(jpg|jpeg|png|webp|avif)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType application/ld+json .jsonld
+  AddType image/avif .avif
+  AddType image/webp .webp
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+
+  # The language roots (/fr, /en/, ...) are the SPA's own entry, the same
+  # splash as `/` (App.tsx's index route under each language). Each is also
+  # a real folder of this build, so without this rule Apache's DirectorySlash
+  # answered /fr with a 301 to the internal /prod/current/fr/ path, which then
+  # failed with a 403 (that folder has no index).
+  RewriteRule ^(?:fr|en|th|es|it|nl|pt)/?$ index.html [L]
+
+  # A trailing slash on anything that is not a real folder: one 301 to the
+  # same URL without it, so every page answers at a single address. Before
+  # this, /fr/about/ looped on the prerendered-page rule below until Apache
+  # gave up with a 500. The target is built from THE_REQUEST, the request
+  # line the client sent: by the time this file runs, REQUEST_URI has been
+  # rewritten into the internal /prod/current/ folder, and a redirect built
+  # from it would expose that path (see the canonical-host note further
+  # down). GET/HEAD only, so no form post is ever turned into a GET.
+  RewriteCond %{REQUEST_METHOD} ^(?:GET|HEAD)$
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{THE_REQUEST} ^\S+\s(/[^?\s]*[^/?\s])/+[?\s]
+  RewriteRule /$ https://%{HTTP_HOST}%1 [NE,R=301,L]
+
+  # Sign in with Apple posts its authorization response to the registered
+  # Return URL. The PHP bridge copies the form body into sessionStorage, then
+  # hands the request to the SPA's AppleReturnPage. GET requests must fall
+  # through to the SPA route so a direct visit cannot loop.
+  RewriteCond %{REQUEST_METHOD} =POST
+  RewriteRule ^auth/apple-return/?$ apple-return.php [END]
+
+  # Link-preview bots (WhatsApp/iMessage/Facebook/Telegram/...) never execute
+  # JS, so neither the SPA's client-side /gallery?product=<uid> deep link
+  # (productGalleryDeepLinkPath, src/utils/productUrl.ts) nor /creations/<slug>
+  # (ProductPage.tsx) renders anything useful for them — and this site has no
+  # build-time prerendering to fall back on (the catalogue changes constantly
+  # and nobody redeploys the front on every product edit). Redirect ONLY
+  # matching bot user-agents straight to pamsurin-back's live, database-backed
+  # /gallery/set/:uid/preview endpoint (see that route's own doc comment);
+  # every other visitor — including one of these bots' own eventual
+  # click-through, via that endpoint's <meta refresh> — reaches the real page
+  # untouched. Deliberately scoped to link-preview bots, not general search
+  # crawlers: Googlebot/Bingbot already execute JS and render both URLs fine
+  # today, so redirecting them to a different origin would only risk
+  # confusing which URL they treat as canonical.
+  # Every token in the UA list below must be a *scraper-specific* string,
+  # never an app name.
+  # WeChat, Snapchat, Viber, LINE and KakaoTalk all ship in-app browsers whose
+  # UA carries the bare app name, so matching "MicroMessenger" or "Snapchat"
+  # would bounce real humans mid-browse to the API preview page. Use the
+  # fetcher's own token instead: LINE is line-poker, KakaoTalk is
+  # kakaotalk-scrap, Bluesky is Cardyb, Viber is ViberUrlDownloader. A token
+  # that turns out to be wrong is harmless (it just never matches); a token
+  # that is too broad breaks browsing for that app's users.
+  # Apple is deliberately absent: Applebot is a search crawler (Siri/Spotlight),
+  # so it falls under the no-search-crawlers rule above, and Messages' own
+  # preview fetch already sends a facebookexternalhit UA.
+  # The redirect always passes `lang`: a leftover unprefixed share URL is
+  # treated as French, while a locale-prefixed URL (including `/fr/`) supplies
+  # its own language. That makes the preview text follow the shared URL rather
+  # than the preview bot's device locale.
+  # NOTE: %1 is a back-reference into the LAST RewriteCond that matched, so
+  # the product= condition has to be the one immediately above the rule --
+  # putting the HTTP_HOST test last (it captures nothing) silently expands
+  # %1 to the empty string. The destination query string replaces the
+  # incoming ?product=... query string.
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?preprod\.pamsurin\.fr$ [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)product=([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:&|$) [NC]
+  RewriteRule ^(?:[0-9]{6}/)?gallery/?$ https://preprod-api.pamsurin.fr/gallery/set/%1/preview?lang=fr [NE,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?preprod\.pamsurin\.fr$ [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)product=([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:&|$) [NC]
+  RewriteRule ^(?:[0-9]{6}/)?(fr|en|th|es|it|nl|pt)/gallery/?$ https://preprod-api.pamsurin.fr/gallery/set/%1/preview?lang=$1 [NE,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)product=([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:&|$) [NC]
+  RewriteRule ^gallery/?$ https://api.pamsurin.fr/gallery/set/%1/preview?lang=fr [NE,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)product=([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:&|$) [NC]
+  RewriteRule ^(fr|en|th|es|it|nl|pt)/gallery/?$ https://api.pamsurin.fr/gallery/set/%1/preview?lang=$1 [NE,R=302,L]
+
+  # Same bot list, for /creations/<uid> (productPath in productUrl.ts, what
+  # GalleryCard links to) and the older /creations/<title>-<uid> form that
+  # shared links may still carry (see uidFromSlug).
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?preprod\.pamsurin\.fr$ [NC]
+  RewriteRule ^(?:[0-9]{6}/)?creations/(?:.*-)?([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})/?$ https://preprod-api.pamsurin.fr/gallery/set/$1/preview?lang=fr [NC,NE,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?preprod\.pamsurin\.fr$ [NC]
+  RewriteRule ^(?:[0-9]{6}/)?(fr|en|th|es|it|nl|pt)/creations/(?:.*-)?([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})/?$ https://preprod-api.pamsurin.fr/gallery/set/$2/preview?lang=$1 [NC,NE,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteRule ^creations/(?:.*-)?([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})/?$ https://api.pamsurin.fr/gallery/set/$1/preview?lang=fr [NC,NE,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteRule ^(fr|en|th|es|it|nl|pt)/creations/(?:.*-)?([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})/?$ https://api.pamsurin.fr/gallery/set/$2/preview?lang=$1 [NC,NE,R=302,L]
+
+  # Same bot list, for a single nail of the compose-a-set gallery: its share
+  # link /gallery-nail?product=<uid>[&variation=<option>]
+  # (nailGalleryDeepLinkPath, query kept by QSA) and its page
+  # /nail/<uid>[/<option>] (NailProductPage.tsx) both go to
+  # pamsurin-back's /gallery/nail/:uid/preview, which previews that option as
+  # its own product. Same %1 ordering rule as above.
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?preprod\.pamsurin\.fr$ [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)product=([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:&|$) [NC]
+  RewriteRule ^(?:[0-9]{6}/)?gallery-nail/?$ https://preprod-api.pamsurin.fr/gallery/nail/%1/preview?lang=fr [NE,QSA,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?preprod\.pamsurin\.fr$ [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)product=([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:&|$) [NC]
+  RewriteRule ^(?:[0-9]{6}/)?(fr|en|th|es|it|nl|pt)/gallery-nail/?$ https://preprod-api.pamsurin.fr/gallery/nail/%1/preview?lang=$1 [NE,QSA,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)product=([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:&|$) [NC]
+  RewriteRule ^gallery-nail/?$ https://api.pamsurin.fr/gallery/nail/%1/preview?lang=fr [NE,QSA,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)product=([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:&|$) [NC]
+  RewriteRule ^(fr|en|th|es|it|nl|pt)/gallery-nail/?$ https://api.pamsurin.fr/gallery/nail/%1/preview?lang=$1 [NE,QSA,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?preprod\.pamsurin\.fr$ [NC]
+  RewriteRule ^(?:[0-9]{6}/)?nail/(?:.*-)?([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:/([a-z0-9-]+))?/?$ https://preprod-api.pamsurin.fr/gallery/nail/$1/preview?lang=fr&variation=$2 [NC,NE,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?preprod\.pamsurin\.fr$ [NC]
+  RewriteRule ^(?:[0-9]{6}/)?(fr|en|th|es|it|nl|pt)/nail/(?:.*-)?([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:/([a-z0-9-]+))?/?$ https://preprod-api.pamsurin.fr/gallery/nail/$2/preview?lang=$1&variation=$3 [NC,NE,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteRule ^nail/(?:.*-)?([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:/([a-z0-9-]+))?/?$ https://api.pamsurin.fr/gallery/nail/$1/preview?lang=fr&variation=$2 [NC,NE,R=302,L]
+
+  RewriteCond %{HTTP_USER_AGENT} (?:facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Iframely|Embedly|line-poker|kakaotalk-scrap|Cardyb|Mastodon|ViberUrlDownloader) [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteRule ^(fr|en|th|es|it|nl|pt)/nail/(?:.*-)?([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:/([a-z0-9-]+))?/?$ https://api.pamsurin.fr/gallery/nail/$2/preview?lang=$1&variation=$3 [NC,NE,R=302,L]
+
+  # LiteSpeed LsCache policy.
+  #
+  # This host offers two edge caches and only one can be active per domain.
+  # Fastest Cache is a Varnish whose cPanel plugin stores nothing but an on/off
+  # flag and a wordpress|prestashop profile per domain: no paths, no TTL, no
+  # exclusions, so there is no way to tell it what to leave alone. LsCache
+  # takes its rules from here instead, which is why this project uses it: the
+  # cache policy ships with the release and is reviewed like any other code.
+  #
+  # The block is inert unless LiteSpeed is the active engine, so it is safe to
+  # ship to a domain still running Varnish (check the `edge-cache-engine`
+  # response header to see which is live).
+  #
+  # LsCache stores NOTHING unless a request sets the Cache-Control env var, so
+  # what follows is an opt-in list, not an exclusion list. Keep it that way: a
+  # new route stays uncached until someone adds it here, which is the safe
+  # default for a shop whose account, cart, checkout, gift and admin routes all
+  # share one SPA shell with the public pages. Nothing below opts in a URL
+  # whose response depends on a request header.
+  #
+  # Verify any change with `npm run edge-cache -- probe --preprod` in
+  # pamsurin-back, which measures what is actually stored rather than what this
+  # file asks for.
+  <IfModule LiteSpeed>
+    CacheLookup on
+
+    # Prerendered marketing and legal pages: one static file per (path,
+    # language), byte-identical for every visitor, replaced only by a deploy.
+    RewriteRule ^(?:[0-9]{6}/)?(?:fr|en|th|es|it|nl|pt)/(?:home|about|contact|pose|pose-colle|pose-patch|sizes|legal|privacy|terms|sales-terms|sitemap)/?$ - [E=Cache-Control:max-age=300]
+
+    # /gallery is prerendered too, but only without a product deep link. The
+    # ?product= form is redirected per User-Agent to the API preview endpoint
+    # (the share-bot rules above), and a URL-keyed cache cannot hold both
+    # answers: measured under Varnish, a browser received the bot's 302 and a
+    # bot received the browser's 200 in the same run. Deliberately placed after
+    # those redirect rules, so a request that already exited with [L] never
+    # reaches this and a redirect can never be stored.
+    RewriteCond %{QUERY_STRING} !(?:^|&)product=
+    RewriteRule ^(?:[0-9]{6}/)?(?:fr|en|th|es|it|nl|pt)/gallery/?$ - [E=Cache-Control:max-age=300]
+
+    # /gallery-nail, same reason and same exclusion (its ?product= share link
+    # is redirected per User-Agent).
+    RewriteCond %{QUERY_STRING} !(?:^|&)product=
+    RewriteRule ^(?:[0-9]{6}/)?(?:fr|en|th|es|it|nl|pt)/gallery-nail/?$ - [E=Cache-Control:max-age=300]
+
+    # Product pages, served by the SSR relay below. Same five minutes the
+    # relay's own file cache and the API's Cache-Control use, so the three
+    # layers expire together rather than pinning a sold-out set for longer
+    # than the shop intends.
+    RewriteRule ^(?:[0-9]{6}/)?(?:fr|en|th|es|it|nl|pt)/creations/[A-Za-z0-9-]+/?$ - [E=Cache-Control:max-age=300]
+    RewriteRule ^(?:[0-9]{6}/)?(?:fr|en|th|es|it|nl|pt)/nail/[A-Za-z0-9-]+(?:/[a-z0-9-]+)?/?$ - [E=Cache-Control:max-age=300]
+
+    # Content-hashed build output: the name changes whenever the bytes do, so
+    # a stored copy can never go stale and a deploy invalidates by renaming.
+    RewriteRule ^(?:[0-9]{6}/)?assets/ - [E=Cache-Control:max-age=31536000]
+  </IfModule>
+
+  # Server-side rendering for the two database-backed surfaces.
+  #
+  # /gallery and /creations/<slug> (and their single-nail counterparts,
+  # /gallery-nail and /nail/<slug>) are the public pages scripts/
+  # prerender.mjs cannot snapshot, so both used to fall through to the
+  # SPA-fallback rule at the bottom of this file. That rule serves the
+  # prerendered `/` splash, which ships `<meta name="robots"
+  # content="noindex">` by design — and Google honours a noindex found in the
+  # served HTML and never renders the page, so every product URL on the site
+  # was excluded from the index no matter what Seo.tsx did on hydration.
+  #
+  # ssr.php fills the placeholder shell prerender.mjs writes beside it from
+  # pamsurin-back's /seo/* routes. Everyone gets the same document: this is
+  # not a crawler-only path, because serving different markup by user agent is
+  # cloaking. It deliberately runs AFTER the LsCache block so those rules
+  # still tag the response, and BEFORE the .html and SPA-fallback rules that
+  # would otherwise answer first.
+  #
+  # Prod only, by host, exactly like the share-bot rules above: ssr.php is
+  # removed from a preprod build (scripts/version-dist.mjs), and the head it
+  # would serve declares `index, follow`, which must never be true of preprod.
+  #
+  # QSD is what keeps a filter deep link working: the rewrite is internal, so
+  # the browser URL and therefore the SPA's own location.search still carry
+  # ?occasion=..., while PHP sees only the two parameters named here.
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteRule ^(?:[0-9]{6}/)?(fr|en|th|es|it|nl|pt)/gallery/?$ ssr.php?ssr=gallery&lang=$1 [QSD,L]
+
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteRule ^(?:[0-9]{6}/)?(fr|en|th|es|it|nl|pt)/creations/(?:.*-)?([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})/?$ ssr.php?ssr=product&lang=$1&uid=$2 [NC,QSD,L]
+
+  # The compose-a-set gallery and each single nail's page, same relay.
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteRule ^(?:[0-9]{6}/)?(fr|en|th|es|it|nl|pt)/gallery-nail/?$ ssr.php?ssr=gallery-nail&lang=$1 [QSD,L]
+
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?pamsurin\.fr$ [NC]
+  RewriteRule ^(?:[0-9]{6}/)?(fr|en|th|es|it|nl|pt)/nail/(?:.*-)?([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{3})(?:/([a-z0-9-]+))?/?$ ssr.php?ssr=nail&lang=$1&uid=$2&variation=$3 [NC,QSD,L]
+
+  # Serve the pre-compressed sibling under the original URL whenever one
+  # exists (see the compression note at the top of this file for why this is
+  # unconditional rather than gated on Accept-Encoding). A file with no .gz
+  # sibling falls through untouched, so this is safe for anything the build
+  # does not compress. Cannot loop: the rewritten path ends in .gz, whose own
+  # .gz.gz sibling never exists.
+  RewriteCond %{REQUEST_FILENAME} \.(js|css)$
+  RewriteCond %{REQUEST_FILENAME}.gz -f
+  RewriteRule ^(.*)$ $1.gz [L]
+
+  # The canonical-host (www -> apex) 301 deliberately does NOT live here.
+  # This file ends up as the *version* .htaccess, nested at
+  # public_html/prod/vX.Y.Z/ with a rewritten RewriteBase — by the time a
+  # request reaches it, the URL has already been internally rewritten into
+  # that folder, so an external redirect built from it would leak the
+  # internal /prod/vX.Y.Z/ path into the visitor's address bar. It belongs
+  # at the apex docroot instead: see dist/root.htaccess, written by
+  # scripts/version-dist.mjs.
+
+  # Prerendered snapshots: each route in entry-server.tsx's `pages` and
+  # `headOnlyPages` is built as its own <lang>/<page>.html (scripts/
+  # prerender.mjs) — serve that file for the clean URL. The pattern stops at
+  # one segment after the language on purpose: Apache resolves
+  # REQUEST_FILENAME for /fr/gift/<token> to .../fr/gift, so an open pattern
+  # rewrote it to fr/gift/<token>.html, matched again on the next pass, and
+  # looped into a 500 (what /fr/about/x and /fr/home/ used to answer).
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^((?:fr|en|th|es|it|nl|pt)/[a-z0-9-]+)$ $1.html [L]
+
+  # A missing file is a 404, not the SPA shell: an asset URL from an older
+  # build, or a probe such as /favicon.ico, must not answer 200 with the
+  # splash page's HTML.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule \.(?:js|mjs|css|map|json|txt|xml|ico|png|jpe?g|gif|webp|avif|svg|woff2?|ttf|webmanifest|php|html?)$ - [R=404,L]
+
+  # Any other unmatched path (client-side routing, unknown URLs) falls back
+  # to index.html so the app's own router can take over — react-router then
+  # shows the 404 page (noindex) for URLs that match no route.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>

@@ -1,0 +1,47 @@
+/* Same corner-tab construction as FavoriteButton's .floating (gold
+   gradient, translucent enough the photo reads through), just built for
+   whichever corner the consumer flushes it against via its own CSS module —
+   positioning is entirely owned by the consumer. */
+.button {
+  width: 51px;
+  height: 51px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  /* Fallback for Safari versions before 16.2, which do not support
+     color-mix(). */
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-accent-bright) 50%, transparent),
+    color-mix(in srgb, var(--color-accent-shine) 35%, transparent)
+  );
+  color: var(--color-ink);
+  box-shadow: none;
+}
+
+.button:hover {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-accent-bright) 68%, transparent),
+    color-mix(in srgb, var(--color-accent-shine) 52%, transparent)
+  );
+}
+
+@supports (color: color-mix(in srgb, red, transparent)) {
+  .button {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-accent-bright) 50%, transparent),
+      color-mix(in srgb, var(--color-accent-shine) 35%, transparent)
+    );
+  }
+
+  .button:hover {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-accent-bright) 68%, transparent),
+      color-mix(in srgb, var(--color-accent-shine) 52%, transparent)
+    );
+  }
+}

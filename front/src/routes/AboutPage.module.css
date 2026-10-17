@@ -1,0 +1,15 @@
+/* Same cancellation as HomePage.module.css — see its comment.
+   PageHero.module.css's .inner has its own 36px top padding;
+   Atelier.module.css's .section has its own 48px (--section-padding-y)
+   bottom padding — both independent of the back link next to them.
+   Cancelled down to the same 6px LegalPageBackLink's own margin uses
+   everywhere else. */
+@media (max-width: 1023px) {
+  .heroWrap {
+    margin-top: -30px;
+  }
+
+  .lastSectionWrap {
+    margin-bottom: -42px;
+  }
+}

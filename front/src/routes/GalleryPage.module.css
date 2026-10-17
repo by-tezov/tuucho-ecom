@@ -1,0 +1,31 @@
+.section {
+  max-width: 1240px;
+  margin-inline: auto;
+  /* Halved from 28px (was matching Hero.inner's offset). */
+  padding: 14px var(--page-padding-x) 90px;
+}
+
+.heading {
+  max-width: 44em;
+  margin-bottom: 16px;
+}
+
+.eyebrow {
+  composes: eyebrow from '../components/ui/Typography.module.css';
+}
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.title {
+  font-size: clamp(1.875rem, 4.4vw, 3.25rem);
+}
+
+.sub {
+  color: var(--color-muted);
+  margin-top: 12px;
+}

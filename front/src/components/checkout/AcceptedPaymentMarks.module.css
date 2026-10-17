@@ -1,0 +1,31 @@
+/* Zero specificity: the caller's className owns spacing and alignment. */
+:where(.list) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Brand marks are drawn for a white ground (scheme guidelines), so the card
+   stays white in both themes and pins its own color-scheme: CardBrandMark's
+   light-dark() colors then resolve to their light variant. */
+.card {
+  color-scheme: light;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #ffffff;
+}
+
+.card img {
+  display: block;
+  width: auto;
+  max-height: 16px;
+}

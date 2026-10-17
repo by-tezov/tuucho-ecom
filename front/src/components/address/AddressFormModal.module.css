@@ -1,0 +1,440 @@
+.backdrop {
+  composes: backdropResponsive from '../ui/ModalChrome.module.css';
+}
+
+.panel {
+  width: 100%;
+  /* `vh` can include mobile browser chrome, letting the sheet's top (and
+     therefore its header/close button) slip above the visible viewport when
+     the optional remembered-address label appears. Keep it as a fallback,
+     then cap against the live visible viewport so the flexible body shrinks
+     and scrolls instead. */
+  max-height: 92vh;
+  max-height: 92dvh;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 220ms ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .panel {
+    max-width: 480px;
+    max-height: 88vh;
+    border-radius: var(--radius-xl);
+    animation: fadeScaleIn 160ms ease;
+  }
+}
+
+.header {
+  composes: header from '../ui/ModalChrome.module.css';
+}
+
+/* Inset from the panel's own edges, rather than a border-bottom on the
+   full-width header — a full-width line reads as flush with the panel
+   border, not as a separator specifically under the title/close row. */
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  color: var(--color-ink);
+}
+
+.closeButton {
+  composes: closeButton from '../ui/ModalChrome.module.css';
+}
+
+.bodyWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.scrollArea {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Extra right padding so fields clear the chevron + vertical track. */
+  padding: 18px 40px 20px 20px;
+  cursor: grab;
+  /* Native scroll stays; only the visual scrollbar is hidden — same cue as
+     FilterSheet / ColorFilterModal / PhotoLightbox. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.body::-webkit-scrollbar {
+  display: none;
+}
+
+.body:active {
+  cursor: grabbing;
+}
+
+.body :is(input, textarea) {
+  cursor: text;
+}
+
+.body textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.body select {
+  cursor: pointer;
+  /* Drop native OS chrome so the field matches text inputs (ink + card bg). */
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--color-bg-card);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%236e5420' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  color: var(--color-ink);
+  padding-right: 36px;
+}
+
+.body :is(button, a) {
+  cursor: pointer;
+}
+
+.scrollHintUp {
+  composes: scrollHintUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintDown {
+  composes: scrollHintDown from '../ui/ModalChrome.module.css';
+}
+
+/* Vertical track aligned with the chevron centers. Spans:
+   - down alone → from the top edge down to the bottom chevron
+   - up alone   → from below the top chevron to the bottom edge
+   - both       → between the two chevrons
+   - neither    → not rendered */
+.scrollHintBar {
+  composes: scrollHintBar from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarFromUp {
+  composes: scrollHintBarFromUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarToDown {
+  composes: scrollHintBarToDown from '../ui/ModalChrome.module.css';
+}
+
+.formRow {
+  display: grid;
+  /* Postal code ~1/3, city ~2/3 — minmax(0, …) keeps inputs inside the
+     scroll-hint padding instead of overflowing onto the vertical track. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 14px;
+}
+
+.formRow > * {
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+/* Address-name combobox: a plain text field (any name is allowed) with a
+   suggestion list for the handful of names nearly everyone uses. Same
+   surface as the other floating lists in the app — Mondial Relay's city
+   suggestions and QuantityControl's dropdown. */
+.labelField {
+  /* Keeps the open list above the fields underneath it. */
+  position: relative;
+  z-index: 2;
+}
+
+.labelCombo {
+  position: relative;
+}
+
+.labelComboInput {
+  width: 100%;
+  /* Room for the chevron, matching the country select's own padding-right. */
+  padding-right: 36px;
+}
+
+.labelComboToggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+}
+
+.labelComboChevronOpen {
+  transform: rotate(180deg);
+}
+
+.labelComboList {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 3;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 208px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-shine);
+  box-shadow: var(--shadow-popover);
+  scrollbar-width: thin;
+}
+
+/* Separate suggestions without drawing a hard rule from one list edge to
+   the other; the small inset keeps the list feeling like a single surface. */
+.labelComboList li {
+  position: relative;
+}
+
+.labelComboList li + li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8px;
+  right: 8px;
+  border-top: 1px solid var(--border-medium);
+  pointer-events: none;
+}
+
+/* In checkout, the label moves into the sticky remember-address footer.
+   Opening its suggestions downward puts them behind the software keyboard
+   (and the submit controls) on short phones. There is much more usable room
+   above this field, so open upward and let the list itself scroll if the
+   visible viewport is especially short. */
+.rememberSection .labelComboList {
+  top: auto;
+  bottom: calc(100% + 4px);
+  max-height: min(208px, 35dvh);
+}
+
+.labelComboOption {
+  display: block;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-align: left;
+}
+
+.labelComboOption:hover,
+.labelComboOptionActive {
+  background: var(--color-accent-soft);
+}
+
+.fieldError {
+  composes: fieldError from '../ui/Typography.module.css';
+}
+
+.body :is(input, select)[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.staticAddress {
+  margin: 6px 0 0;
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+/* Pickup point's own name, first line of its read-only address. */
+.pickupPointName {
+  font-weight: 600;
+}
+
+.countryLine {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.countryFlag {
+  flex-shrink: 0;
+  line-height: 1;
+  font-size: 1.05em;
+}
+
+.textLink {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.fieldHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fieldHeader .textLink {
+  margin-bottom: 0;
+}
+
+.deliveryType {
+  border: 0;
+  margin: 0 0 14px;
+  padding: 0;
+}
+
+.deliveryTypeOptions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.deliveryTypeOption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.deliveryTypeOptionActive {
+  border-color: var(--color-ink);
+  background: var(--color-accent-subtle);
+}
+
+/* Wraps the optional address-name field (shown here, above the checkbox,
+   only once "remember this address" is checked — an unsaved one-time
+   address has nothing to later recognize it by) and the checkbox itself.
+   Carries the horizontal padding + top divider that used to live directly
+   on .rememberRow, since that row is no longer always this section's only
+   child. */
+.rememberSection {
+  position: relative;
+  flex-shrink: 0;
+  padding: 12px 20px 0;
+  background: var(--color-bg-card);
+}
+
+/* Marks the top edge of the sticky footer (name field + checkbox +
+   submit), inset like .header::after rather than edge to edge. Absolutely
+   positioned on purpose: a border-top here would push the footer taller
+   and eat scroll area. */
+.rememberSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.rememberRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.rememberRow input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.buttonRow {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--color-bg-card);
+}
+
+.buttonRow > * {
+  min-width: min(100%, 220px);
+}
+
+.courierLogo {
+  width: 30px;
+  height: 30px;
+  font-size: 0.6875rem;
+}

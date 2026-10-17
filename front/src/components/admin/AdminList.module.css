@@ -1,0 +1,27 @@
+/*
+  List pieces repeated across the admin pages. Compose
+  rather than copy (same cascade caveat as ui/ModalChrome.module.css).
+*/
+
+.list {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.empty {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.rowMain {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+}

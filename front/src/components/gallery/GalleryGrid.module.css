@@ -1,0 +1,60 @@
+.viewport {
+  position: relative;
+  /* Rows are intentionally mounted, measured and recycled as the window
+     virtualizer learns their real image/card heights. Native scroll
+     anchoring treats those changes as content inserted above the viewport
+     and can repeatedly move the window while a customer is trying to press
+     a card control, eventually recycling that very card. The virtualizer is
+     already responsible for the layout, so opt this one region out. */
+  overflow-anchor: none;
+}
+
+.grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  /* Half the desktop gap on mobile — keep in sync with ROW_GAP_* in
+     GalleryGrid.tsx (row padding-bottom for the virtualizer). */
+  gap: 11px;
+}
+
+@media (min-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    gap: 22px;
+  }
+}
+
+/* Always mounted, never virtualized away — exists purely so
+   useGridColumnCount can keep tracking auto-fill's real resolved column
+   count regardless of scroll position (see GalleryGrid.tsx). Zero height +
+   hidden so it never affects visible layout. */
+.measureProbe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Positioned via an inline transform (virtualizer.getVirtualItems()'s
+   `start`, see GalleryGrid.tsx) — row-to-row spacing is an inline
+   padding-bottom there too (same value as .grid's own column gap), since
+   a margin wouldn't be included in the virtualizer's own element
+   measurement. */
+.row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}

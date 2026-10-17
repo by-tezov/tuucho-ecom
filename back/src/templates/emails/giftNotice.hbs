@@ -1,0 +1,14 @@
+{{> header}}
+<h1 style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:normal;color:#121212;margin:0 0 16px;line-height:1.2;">{{title}}</h1>
+{{#each paragraphs}}
+<p style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#1a1a1a;line-height:1.65;margin:0 0 14px;">{{this}}</p>
+{{/each}}
+{{#if ctaUrl}}
+<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:18px auto;"><tr>
+<td align="center" style="background:#121212;border-radius:28px;">
+<a href="{{ctaUrl}}" style="display:inline-block;padding:14px 32px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:28px;">{{ctaLabel}}</a>
+</td></tr></table>
+<p style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#5c5c5c;line-height:1.65;margin:0 0 8px;">{{ctaFallbackHint}}</p>
+<p style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#5c5c5c;line-height:1.6;margin:0 0 6px;word-break:break-all;">{{ctaUrl}}</p>
+{{/if}}
+{{> footer}}

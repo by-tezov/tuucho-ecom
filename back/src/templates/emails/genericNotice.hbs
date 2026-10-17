@@ -1,0 +1,36 @@
+{{> header}}
+<h1 style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:normal;color:#121212;margin:0 0 16px;line-height:1.2;">{{title}}</h1>
+{{#each paragraphs}}
+<p style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#1a1a1a;line-height:1.65;margin:0 0 14px;">{{this}}</p>
+{{/each}}
+{{#if ctaUrl}}
+<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:18px auto;"><tr>
+<td align="center" style="background:#121212;border-radius:28px;">
+<a href="{{ctaUrl}}" style="display:inline-block;padding:14px 32px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:28px;">{{ctaLabel}}</a>
+</td></tr></table>
+{{/if}}
+{{#if ctaUrl}}
+{{#if ctaFallbackHint}}
+<p style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#5c5c5c;line-height:1.65;margin:0 0 14px;">{{ctaFallbackHint}}</p>
+{{/if}}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 22px;"><tr><td style="border-top:1px solid #e1e1e1;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+<p style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#5c5c5c;line-height:1.6;margin:0 0 6px;word-break:break-all;">{{ctaUrl}}</p>
+{{/if}}
+{{#if otp}}
+<div style="text-align:center;margin:22px 0 4px;">
+  <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#5c5c5c;margin-bottom:10px;">{{otpHint}}</div>
+  <div style="display:inline-block;background:#f6f6f6;border:1px solid #e1e1e1;border-radius:10px;padding:14px 26px;font-family:'Courier New',Courier,monospace;font-size:30px;letter-spacing:.25em;font-weight:bold;color:#121212;">{{otp}}</div>
+</div>
+{{/if}}
+{{#if secondaryCtaUrl}}
+<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:18px auto;"><tr>
+<td align="center" style="background:#121212;border-radius:28px;">
+<a href="{{secondaryCtaUrl}}" style="display:inline-block;padding:14px 32px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:28px;">{{secondaryCtaLabel}}</a>
+</td></tr></table>
+{{#if secondaryCtaFallbackHint}}
+<p style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#5c5c5c;line-height:1.65;margin:0 0 14px;">{{secondaryCtaFallbackHint}}</p>
+{{/if}}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 22px;"><tr><td style="border-top:1px solid #e1e1e1;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+<p style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#5c5c5c;line-height:1.6;margin:0 0 6px;word-break:break-all;">{{secondaryCtaUrl}}</p>
+{{/if}}
+{{> footer}}

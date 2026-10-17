@@ -1,0 +1,138 @@
+.section {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: 40px var(--page-padding-x) 90px;
+}
+
+/* LegalPageBackLink's own breakpoint (it is display:none above this) — on
+   these pages it is the section's first and last child, so the section's
+   generous desktop padding landed entirely on the outer side of each link:
+   stranded from the content it belongs to, and pushed far from the page
+   edge. Top offset matches GalleryPage.module.css's 28px, then the link
+   carries its own gap to the content. */
+@media (max-width: 1023px) {
+  .section {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .section > [data-placement='top'] {
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+
+  .section > [data-placement='bottom'] {
+    margin-top: 20px;
+    margin-bottom: 0;
+  }
+}
+
+.eyebrow {
+  composes: eyebrow from '../components/ui/Typography.module.css';
+}
+
+.title {
+  font-size: clamp(1.875rem, 4.4vw, 3.25rem);
+}
+
+.intro {
+  color: var(--color-muted);
+  margin-top: 12px;
+  max-width: 60em;
+}
+
+.updated {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  margin-top: 8px;
+}
+
+.block {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.block:first-of-type {
+  margin-top: 36px;
+}
+
+.blockTitle {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  color: var(--color-ink-strong);
+  margin-bottom: 14px;
+}
+
+.dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 20px;
+}
+
+.dt {
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.dd {
+  margin: 0;
+}
+
+.p {
+  color: var(--color-ink);
+  max-width: 60em;
+}
+
+.p + .p {
+  margin-top: 12px;
+}
+
+/* A real bulleted list (the reset strips list markers everywhere). */
+.bulletList {
+  list-style: disc;
+  margin: 12px 0 0;
+  padding: 0 0 0 1.25em;
+}
+
+.bulletList + .p,
+.p + .bulletList {
+  margin-top: 12px;
+}
+
+.dlSpaced {
+  margin-top: 12px;
+}
+
+/* A link inside running text needs more than colour to stand out from it
+   (RGAA 10.6): the global reset strips the underline from every link. */
+.p a,
+.dd a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.sitemapList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sitemapList > li {
+  font-weight: 600;
+}
+
+.sitemapSubList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0 0 0 18px;
+  font-weight: 400;
+}

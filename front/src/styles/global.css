@@ -1,0 +1,230 @@
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sticky footer: #root is Layout.tsx's actual DOM parent (it renders a
+   bare fragment — header/banners/main/footer are direct siblings here, no
+   wrapper div). On a short page (e.g. Payment methods/Addresses/Orders
+   with few or zero rows), main growing to fill any leftover viewport
+   height is what pushes the footer down to the bottom instead of leaving
+   it stranded right under the content. Long pages are unaffected — main
+   already exceeds the viewport there regardless. */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+#root > main {
+  flex: 1 0 auto;
+}
+
+/* Programmatic focus on landmarks / shells must not draw a ring;
+   keyboard users still get :focus-visible when they Tab. */
+#root > main:focus:not(:focus-visible),
+[role='dialog']:focus:not(:focus-visible),
+[aria-modal='true']:focus:not(:focus-visible),
+[tabindex='-1']:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* A dialog shell parked on at opening (useFocusTrap) is not a control: no
+   ring even after a keyboard opening; the next Tab lands on a real control. */
+[data-focus-shell]:focus {
+  outline: none;
+}
+
+@media (max-width: 1023px) {
+  /* The footer is supplementary navigation, not part of a page's first
+     viewport. Even on a very short page, keep its first pixel just below
+     the fold so reaching it is a deliberate scroll; longer pages already
+     exceed this naturally. Use the stable small viewport (--layout-vh /
+     100svh), not 100dvh: dynamic height grows when the URL bar hides on
+     scroll and stretches the page so the footer stays out of reach.
+     `main` must remain a block: making it a flex column makes centered,
+     max-width mobile sections shrink to their min-content width, which
+     crushes auth/confirmation copy vertically. */
+  #root > main {
+    min-height: calc(var(--layout-vh) - var(--chrome-height, var(--header-height)) + 1px);
+  }
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.08;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.skipLink {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 200;
+  background: var(--color-surface-inverse);
+  color: var(--color-cream-bright);
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  transition: top 0.18s var(--ease-standard);
+}
+
+.skipLink:focus {
+  top: 12px;
+  text-decoration: none;
+}
+
+.container {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--page-padding-x);
+}
+
+.containerNarrow {
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding-inline: var(--page-padding-x);
+}
+
+/* Wraps LegalPageBackLink (mobile-only itself, display:none above 1023px —
+   see LegalPageBackLink.module.css) on pages built from a bare sequence of
+   full-bleed section components with no shared padded container of their
+   own (Home, Guide/sizes, Pose, About). Scoped to the same breakpoint so
+   desktop never reserves space for a link it isn't showing. Pages that
+   already have their own padded .section wrapper (Gallery, Contact, the
+   legal pages) don't need these — the link drops in directly there. */
+@media (max-width: 1023px) {
+  /* Horizontal page padding only: the vertical gaps all live in
+     LegalPageBackLink.module.css, so these wrappers never add a few extra
+     pixels on top of them for the handful of pages that need a wrapper. */
+  .backLinkTop.backLinkTop {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: 0 var(--page-padding-x);
+    /* No vertical padding left to block it, so keep the link's own margin
+       inside the wrapper instead of letting it collapse out into the page. */
+    display: flow-root;
+    box-sizing: border-box;
+    /* Pages with a hero-style component right after (Home/Guide/Pose/About)
+       pull it up with a negative margin to cancel its own internal padding
+       (HomePage.module.css etc.) — that hero has an opaque background, and
+       without this, its later DOM position painted that background over
+       the link in the now-overlapping region, hiding it entirely. */
+    position: relative;
+    /* Hero-style blocks can overlap this wrapper on mobile (for example the
+       sizes page pulls its hero up with a negative margin). Keep the back
+       action above that later-painted surface so it remains clickable. */
+    z-index: 2;
+  }
+
+  .backLinkBottom {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: 0 var(--page-padding-x);
+    /* No vertical padding left to block it, so keep the link's own margin
+       inside the wrapper instead of letting it collapse out into the page. */
+    display: flow-root;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.section {
+  padding-block: var(--section-padding-y);
+}
+
+.gleam {
+  background: linear-gradient(
+    90deg,
+    var(--color-accent) 0%,
+    var(--color-accent) 40%,
+    var(--color-accent-shine) 50%,
+    var(--color-accent) 60%,
+    var(--color-accent) 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gleam 5s ease-in-out infinite;
+}
+
+/* Decorative gradients and transparent glyphs can become ambiguous in the
+   enhanced palette; keep the information as ordinary, solid text. */
+:root[data-contrast='more'] .gleam {
+  background: none;
+  color: var(--color-accent);
+  animation: none;
+}
+
+@media (forced-colors: active) {
+  .gleam {
+    background: none;
+    color: LinkText;
+    animation: none;
+  }
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes gleam {
+  0% {
+    background-position: -120% 0;
+  }
+  60%,
+  100% {
+    background-position: 220% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

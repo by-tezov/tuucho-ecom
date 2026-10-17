@@ -1,0 +1,59 @@
+{
+  "title": {
+    "fr": "Bol Solstice",
+    "en": "Solstice Bowl",
+    "th": "ชามซอลสทิส",
+    "es": "Cuenco Solstice",
+    "it": "Ciotola Solstice",
+    "nl": "Solstice kom",
+    "pt": "Tigela Solstice"
+  },
+  "desc": {
+    "fr": "Bol $shape.attributive, engobe miel et pied nu.",
+    "en": "$Shape.title bowl with honey slip and a bare foot.",
+    "th": "ชาม$shape.attributiveเคลือบน้ำผึ้งฐานดิบ",
+    "es": "Cuenco $shape.attributive, engobe miel y pie crudo.",
+    "it": "Ciotola $shape.attributive, ingobbio miele e piede nudo.",
+    "nl": "$Shape.attributive kom met honingengobe en kale voet.",
+    "pt": "Tigela $shape.attributive, engobe mel e pe nu."
+  },
+  "alt": {
+    "fr": "Bol $shape.attributive, engobe miel et pied nu.",
+    "en": "$Shape.title bowl with honey slip and a bare foot.",
+    "th": "ชาม$shape.attributiveเคลือบน้ำผึ้งฐานดิบ",
+    "es": "Cuenco $shape.attributive, engobe miel y pie crudo.",
+    "it": "Ciotola $shape.attributive, ingobbio miele e piede nudo.",
+    "nl": "$Shape.attributive kom met honingengobe en kale voet.",
+    "pt": "Tigela $shape.attributive, engobe mel e pe nu."
+  },
+  "occasion": {
+    "fr": "table",
+    "en": "table",
+    "th": "โต๊ะ",
+    "es": "mesa",
+    "it": "tavola",
+    "nl": "tafel",
+    "pt": "mesa"
+  },
+  "color-main": [
+    "$gold",
+    "$brown"
+  ],
+  "color-secondary": [
+    "$white"
+  ],
+  "photos": {
+    "$almond": {
+      "$medium": [
+        {
+          "photo": "1",
+          "hash": "04b1ea898b3954b3c565e0dde13f02e577a79e6bec926a22122d3a4e694ec6d7"
+        },
+        {
+          "photo": "2",
+          "hash": "04b1ea898b3954b3c565e0dde13f02e577a79e6bec926a22122d3a4e694ec6d7"
+        }
+      ]
+    }
+  }
+}

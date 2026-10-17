@@ -1,0 +1,42 @@
+{
+  "almond": {
+    "short": {
+      "base": 17,
+      "variation": 2
+    },
+    "medium": {
+      "base": 23,
+      "variation": 3
+    }
+  },
+  "oval": {
+    "short": {
+      "base": 15,
+      "variation": 3
+    },
+    "medium": {
+      "base": 22,
+      "variation": 2
+    }
+  },
+  "square": {
+    "short": {
+      "base": 14,
+      "variation": 2
+    },
+    "medium": {
+      "base": 22,
+      "variation": 2
+    }
+  },
+  "coffin": {
+    "short": {
+      "base": 16,
+      "variation": 2
+    },
+    "medium": {
+      "base": 23,
+      "variation": 2
+    }
+  }
+}

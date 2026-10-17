@@ -1,0 +1,15 @@
+{
+  "title": "Expedition cron",
+  "summary": "Scheduled shipment tracking. Complements both shipping plugins.",
+  "configure": "No form. Disable to stop expedition cron work.",
+  "preferences": "Cron log toggles stay on Admin, Préférences when journal-cron is on.",
+  "openingsUsed": [
+    "dependsOn shipping-home and shipping-mondial-relay"
+  ],
+  "openingsProvided": [
+    "CronJob"
+  ],
+  "cart": "None directly. Tracking runs after a shipping plugin created a shipment.",
+  "orders": "Updates expedition state on orders that already have a courier.",
+  "profile": "None."
+}

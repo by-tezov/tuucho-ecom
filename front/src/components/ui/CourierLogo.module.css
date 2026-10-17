@@ -1,0 +1,27 @@
+/* Shared shell for both renderings (image and initials badge) so a courier
+   with a logo and one without occupy exactly the same box. Dimensions stay
+   with the calling surface — only what fills the box lives here. */
+.box {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  line-height: 1;
+  /* Only takes effect on <img>; harmless on the badge span. */
+  object-fit: contain;
+}
+
+.row {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Overflow chip: reads as "and N more carriers", so it stays neutral rather
+   than borrowing one courier's palette entry. */
+.more {
+  background: var(--color-accent-soft);
+  color: var(--color-muted);
+}

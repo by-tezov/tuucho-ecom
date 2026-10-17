@@ -1,0 +1,19 @@
+{
+  "product-uid": "LU-MN-763",
+  "creation-date": "2026-10-01",
+  "price": 28,
+  "available": {
+    "$square": {
+      "$short": {
+        "XS": 4,
+        "S": 4,
+        "M": 4,
+        "L": 4
+      }
+    }
+  },
+  "featured": {
+    "from": "2026-10-01",
+    "for": 365
+  }
+}

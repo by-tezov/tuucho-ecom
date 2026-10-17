@@ -1,0 +1,478 @@
+{
+  "shape": {
+    "almond": {
+      "title": {
+        "en": "elongated oval",
+        "es": "óvalo alargado",
+        "fr": "ovale allongé",
+        "it": "ovale allungato",
+        "nl": "lang ovaal",
+        "pt": "oval alongado",
+        "th": "ทรงรียาว"
+      },
+      "gender": {
+        "en": "",
+        "es": "f",
+        "fr": "f",
+        "it": "f",
+        "nl": "c",
+        "pt": "f",
+        "th": ""
+      },
+      "attributive": {
+        "en": "elongated oval",
+        "es": "ovaladas alargadas",
+        "fr": "ovale allongé",
+        "it": "ovale allungato",
+        "nl": "lang ovale",
+        "pt": "ovais alongadas",
+        "th": "ทรงรียาว"
+      },
+      "length": [
+        "$long",
+        "$medium",
+        "$short"
+      ]
+    },
+    "oval": {
+      "title": {
+        "en": "oval",
+        "es": "ovalada",
+        "fr": "ovale",
+        "it": "ovale",
+        "nl": "ovaal",
+        "pt": "oval",
+        "th": "ทรงรี"
+      },
+      "gender": {
+        "en": "",
+        "es": "f",
+        "fr": "m",
+        "it": "m",
+        "nl": "n",
+        "pt": "m",
+        "th": ""
+      },
+      "attributive": {
+        "en": "oval",
+        "es": "ovaladas",
+        "fr": "ovales",
+        "it": "ovali",
+        "nl": "ovale",
+        "pt": "ovais",
+        "th": "ทรงโอวัล"
+      },
+      "length": [
+        "$medium",
+        "$short"
+      ]
+    },
+    "square": {
+      "title": {
+        "en": "square",
+        "es": "cuadrada",
+        "fr": "carré",
+        "it": "squadrata",
+        "nl": "vierkant",
+        "pt": "quadrada",
+        "th": "ทรงเหลี่ยม"
+      },
+      "gender": {
+        "en": "",
+        "es": "f",
+        "fr": "m",
+        "it": "f",
+        "nl": "n",
+        "pt": "f",
+        "th": ""
+      },
+      "attributive": {
+        "en": "square",
+        "es": "cuadradas",
+        "fr": "carrés",
+        "it": "quadrate",
+        "nl": "vierkante",
+        "pt": "quadradas",
+        "th": "ทรงสี่เหลี่ยม"
+      },
+      "length": [
+        "$medium",
+        "$short"
+      ]
+    },
+    "ballerina": {
+      "title": {
+        "en": "flared",
+        "es": "acampanada",
+        "fr": "évasé",
+        "it": "svasato",
+        "nl": "uitlopend",
+        "pt": "evasado",
+        "th": "ทรงบาน"
+      },
+      "gender": {
+        "en": "",
+        "es": "f",
+        "fr": "f",
+        "it": "f",
+        "nl": "c",
+        "pt": "f",
+        "th": ""
+      },
+      "attributive": {
+        "en": "flared",
+        "es": "acampanada",
+        "fr": "évasé",
+        "it": "svasato",
+        "nl": "uitlopende",
+        "pt": "evasado",
+        "th": "ทรงบาน"
+      },
+      "length": [
+        "$medium",
+        "$short"
+      ]
+    },
+    "stiletto": {
+      "title": {
+        "en": "tapered",
+        "es": "afilada",
+        "fr": "effilé",
+        "it": "affusolato",
+        "nl": "toelopend",
+        "pt": "afunilado",
+        "th": "ทรงเรียว"
+      },
+      "gender": {
+        "en": "",
+        "es": "m",
+        "fr": "m",
+        "it": "m",
+        "nl": "c",
+        "pt": "m",
+        "th": ""
+      },
+      "attributive": {
+        "en": "tapered",
+        "es": "afilada",
+        "fr": "effilé",
+        "it": "affusolato",
+        "nl": "toelopende",
+        "pt": "afunilado",
+        "th": "ทรงเรียว"
+      },
+      "length": [
+        "$long",
+        "$medium"
+      ]
+    },
+    "coffin": {
+      "title": {
+        "en": "trapezoid",
+        "es": "trapecio",
+        "fr": "trapèze",
+        "it": "trapezio",
+        "nl": "trapezium",
+        "pt": "trapézio",
+        "th": "ทรงสี่เหลี่ยมคางหมู"
+      },
+      "gender": {
+        "en": "",
+        "es": "m",
+        "fr": "m",
+        "it": "f",
+        "nl": "c",
+        "pt": "m",
+        "th": ""
+      },
+      "attributive": {
+        "en": "trapezoid",
+        "es": "coffin",
+        "fr": "trapèze",
+        "it": "trapezio",
+        "nl": "trapeziumvormige",
+        "pt": "coffin",
+        "th": "ทรงคอฟฟิน"
+      },
+      "length": [
+        "$long",
+        "$medium",
+        "$short"
+      ]
+    }
+  },
+  "length": {
+    "long": {
+      "value": "",
+      "title": {
+        "en": "long",
+        "es": "largo",
+        "fr": "long",
+        "it": "lungo",
+        "nl": "lang",
+        "pt": "longo",
+        "th": "ยาว"
+      },
+      "gender": {
+        "en": "",
+        "es": "m",
+        "fr": "m",
+        "it": "m",
+        "nl": "",
+        "pt": "m",
+        "th": ""
+      }
+    },
+    "medium": {
+      "value": "",
+      "title": {
+        "en": "medium",
+        "es": "medio",
+        "fr": "medium",
+        "it": "medio",
+        "nl": "middel",
+        "pt": "médio",
+        "th": "กลาง"
+      },
+      "gender": {
+        "en": "",
+        "es": "m",
+        "fr": "m",
+        "it": "m",
+        "nl": "",
+        "pt": "m",
+        "th": ""
+      }
+    },
+    "short": {
+      "value": "",
+      "title": {
+        "en": "short",
+        "es": "corto",
+        "fr": "court",
+        "it": "corto",
+        "nl": "kort",
+        "pt": "curto",
+        "th": "สั้น"
+      },
+      "gender": {
+        "en": "",
+        "es": "m",
+        "fr": "m",
+        "it": "m",
+        "nl": "",
+        "pt": "m",
+        "th": ""
+      }
+    }
+  },
+  "color": {
+    "yellow": {
+      "en": "yellow",
+      "es": "amarillo",
+      "fr": "jaune",
+      "it": "giallo",
+      "nl": "geel",
+      "pt": "amarelo",
+      "th": "เหลือง"
+    },
+    "pink": {
+      "en": "pink",
+      "es": "rosa",
+      "fr": "rose",
+      "it": "rosa",
+      "nl": "roze",
+      "pt": "rosa",
+      "th": "ชมพู"
+    },
+    "blue": {
+      "en": "blue",
+      "es": "azul",
+      "fr": "bleu",
+      "it": "blu",
+      "nl": "blauw",
+      "pt": "azul",
+      "th": "ฟ้า"
+    },
+    "white": {
+      "en": "white",
+      "es": "blanco",
+      "fr": "blanc",
+      "it": "bianco",
+      "nl": "wit",
+      "pt": "branco",
+      "th": "ขาว"
+    },
+    "coral": {
+      "en": "coral",
+      "es": "coral",
+      "fr": "corail",
+      "it": "corallo",
+      "nl": "koraal",
+      "pt": "coral",
+      "th": "ส้มปะการัง"
+    },
+    "red": {
+      "en": "red",
+      "es": "rojo",
+      "fr": "rouge",
+      "it": "rosso",
+      "nl": "rood",
+      "pt": "vermelho",
+      "th": "แดง"
+    },
+    "burgundy": {
+      "en": "burgundy",
+      "es": "burdeos",
+      "fr": "bordeaux",
+      "it": "bordeaux",
+      "nl": "bordeauxrood",
+      "pt": "bordô",
+      "th": "แดงเบอร์กันดี"
+    },
+    "nude": {
+      "en": "nude",
+      "es": "nude",
+      "fr": "nude",
+      "it": "nude",
+      "nl": "nude",
+      "pt": "nude",
+      "th": "นู้ด"
+    },
+    "black": {
+      "en": "black",
+      "es": "negro",
+      "fr": "noir",
+      "it": "nero",
+      "nl": "zwart",
+      "pt": "preto",
+      "th": "ดำ"
+    },
+    "brown": {
+      "en": "brown",
+      "es": "marrón",
+      "fr": "marron",
+      "it": "marrone",
+      "nl": "bruin",
+      "pt": "castanho",
+      "th": "น้ำตาล"
+    },
+    "turquoise": {
+      "en": "turquoise",
+      "es": "turquesa",
+      "fr": "turquoise",
+      "it": "turchese",
+      "nl": "turkoois",
+      "pt": "turquesa",
+      "th": "เขียวฟ้าเทอร์ควอยซ์"
+    },
+    "multicolor": {
+      "en": "multicolour",
+      "es": "multicolor",
+      "fr": "multicolore",
+      "it": "multicolore",
+      "nl": "meerkleurig",
+      "pt": "multicolorido",
+      "th": "หลากสี"
+    },
+    "purple": {
+      "en": "purple",
+      "es": "violeta",
+      "fr": "violet",
+      "it": "viola",
+      "nl": "paars",
+      "pt": "violeta",
+      "th": "ม่วง"
+    },
+    "mauve": {
+      "en": "mauve",
+      "es": "malva",
+      "fr": "mauve",
+      "it": "malva",
+      "nl": "mauve",
+      "pt": "malva",
+      "th": "ม่วงอ่อน"
+    },
+    "green": {
+      "en": "green",
+      "es": "verde",
+      "fr": "vert",
+      "it": "verde",
+      "nl": "groen",
+      "pt": "verde",
+      "th": "เขียว"
+    },
+    "gray": {
+      "en": "grey",
+      "es": "gris",
+      "fr": "gris",
+      "it": "grigio",
+      "nl": "grijs",
+      "pt": "cinza",
+      "th": "เทา"
+    },
+    "gold": {
+      "en": "gold",
+      "es": "dorado",
+      "fr": "doré",
+      "it": "dorato",
+      "nl": "goudkleurig",
+      "pt": "dourado",
+      "th": "ทอง"
+    },
+    "orange": {
+      "en": "orange",
+      "es": "naranja",
+      "fr": "orange",
+      "it": "arancione",
+      "nl": "oranje",
+      "pt": "laranja",
+      "th": "ส้ม"
+    },
+    "silver": {
+      "en": "silver",
+      "es": "plateado",
+      "fr": "argenté",
+      "it": "argentato",
+      "nl": "zilver",
+      "pt": "prateado",
+      "th": "สีเงิน"
+    },
+    "olive": {
+      "en": "olive green",
+      "es": "verde oliva",
+      "fr": "vert olive",
+      "it": "verde oliva",
+      "nl": "olijfgroen",
+      "pt": "verde oliva",
+      "th": "เขียวมะกอก"
+    },
+    "caramel": {
+      "en": "honey caramel",
+      "es": "caramelo miel",
+      "fr": "caramel miel",
+      "it": "caramello al miele",
+      "nl": "honingkaramel",
+      "pt": "caramelo mel",
+      "th": "คาราเมลน้ำผึ้ง"
+    },
+    "muted-coral": {
+      "en": "dusty coral",
+      "es": "coral rosado",
+      "fr": "corail rosé",
+      "it": "corallo rosato",
+      "nl": "roze koraal",
+      "pt": "coral rosado",
+      "th": "ปะการังอมชมพู"
+    },
+    "rosy-mocha": {
+      "en": "rosy brown",
+      "es": "marrón rosado",
+      "fr": "brun rosé",
+      "it": "marrone rosato",
+      "nl": "rozebruin",
+      "pt": "castanho rosado",
+      "th": "น้ำตาลอมชมพู"
+    }
+  }
+}

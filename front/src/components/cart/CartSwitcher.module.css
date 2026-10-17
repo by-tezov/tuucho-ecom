@@ -1,0 +1,413 @@
+.section {
+  margin-bottom: 28px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  margin-bottom: 12px;
+  /* Block h2 defaults to full width; keep the label content-sized. */
+  width: fit-content;
+  max-width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.tile {
+  position: relative;
+  /* Equal grid cells: fill the track width and stretch to row height. */
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  min-height: 110px;
+  box-sizing: border-box;
+}
+
+.tileActivate {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  /* Same horizontal content box as .tileActions (tile padding inset). */
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tileActivate:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.tile:hover {
+  border-color: var(--color-accent);
+}
+
+.tileGift {
+  overflow: hidden;
+}
+
+.tileCreate {
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-style: dashed;
+  color: var(--color-accent);
+  font-weight: 600;
+  text-align: center;
+  white-space: normal;
+}
+
+.tileCreate:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-faint);
+  color: var(--color-accent);
+}
+
+/* Same circled + as AccountAddressesPage's add-address card. */
+.createIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  color: var(--color-accent);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* Clear the flush trash tab with padding (float + -webkit-box don't mix).
+   useFitTitle scales 10–14px across 2 lines; clamp/ellipsis only if still overflow. */
+.tileName {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.3;
+  padding-right: 36px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.tileMeta {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  line-height: 1.4;
+}
+
+/* Right-aligned lines total — same role as RebuyCartDialog .cartTileTotal. */
+.tileTotal {
+  display: block;
+  width: 100%;
+  text-align: right;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  line-height: 1.35;
+}
+
+.deletePreview {
+  line-height: 1.5;
+}
+
+.deletePreviewName {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.mergePreview {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+}
+
+.mergePreviewBlock {
+  min-width: 0;
+}
+
+/* Inset between source / target panels — same soft rule as ConfirmModal /
+   auth title separators, not edge-to-edge across the message. */
+.mergePreviewSeparator {
+  border: none;
+  border-top: 1px solid var(--border-soft);
+  margin: 14px 12px;
+}
+
+.mergePreviewLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 4px;
+}
+
+.tileActions {
+  display: flex;
+  /* First/last icons at the text column edges (after tile padding). */
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.iconButton {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-medium);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.iconButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.iconButtonEdit {
+  border-color: var(--color-info-border);
+  color: var(--color-info);
+}
+
+.iconButtonEdit:hover {
+  background: var(--color-info-bg-hover);
+  color: var(--color-info);
+}
+
+/* Pill: icon + localized "Merge" — keep round border, widen for label.
+   .mergeCompact (fit-based) collapses to the same 32px circle as edit. */
+.iconButtonMerge {
+  width: auto;
+  min-width: 32px;
+  padding: 0 10px 0 8px;
+  gap: 5px;
+  border-radius: 999px;
+  border-color: var(--border-medium);
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.iconButtonMerge:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent-shine);
+  color: var(--color-accent);
+}
+
+.iconButtonMerge.mergeCompact {
+  width: 32px;
+  min-width: 32px;
+  padding: 0;
+  gap: 0;
+  border-radius: 50%;
+}
+
+.iconButtonMerge.mergeCompact span {
+  display: none;
+}
+
+.iconButtonDanger {
+  border-color: var(--color-danger-border);
+  color: var(--color-danger);
+}
+
+.iconButtonDanger:hover {
+  background: var(--color-danger-bg-hover);
+  color: var(--color-danger);
+}
+
+/* Flush top-right corner tab on all breakpoints — same as CartPage
+   .deleteIconButton mobile / address delete. Edit+merge stay in .tileActions. */
+.tileDeleteButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: 35.2px;
+  height: 35.2px;
+  border-top: none;
+  border-right: none;
+  border-radius: 0 0 0 var(--radius-md);
+  background: transparent;
+}
+
+.tileDeleteButton:hover {
+  background: transparent;
+  border-color: var(--color-danger);
+}
+
+.tileDeleteButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Tighter tile inset + spacing on phone widths; desktop gap/padding unchanged.
+   Merge label visibility is fit-based (.mergeCompact), not viewport-based. */
+@media (max-width: 1023px) {
+  .grid {
+    gap: 6px;
+  }
+
+  .tile {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.renameBackdrop {
+  composes: backdropCentered from '../ui/ModalChrome.module.css';
+}
+
+.renameDialog {
+  width: 100%;
+  max-width: 360px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-modal);
+  overflow: hidden;
+}
+
+.renameHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 12px 20px;
+  position: relative;
+}
+
+/* Inset separator under the title — same as RebuyCartDialog / ConfirmModal. */
+.renameHeader::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 16px;
+  bottom: 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.renameTitle {
+  composes: dialogTitle from '../ui/Typography.module.css';
+}
+
+.renameClose {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.renameClose:hover {
+  background: var(--color-accent-shine);
+}
+
+.renameClose:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.renameBody {
+  padding: 18px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Same circled × as RebuyCartDialog — sits inside AuthForm .inputActionWrapper. */
+.clearButton {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.clearButton:hover:not(:disabled) {
+  background: var(--color-accent-shine);
+}
+
+.clearButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.clearButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.renameActions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.error {
+  margin-top: 10px;
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}

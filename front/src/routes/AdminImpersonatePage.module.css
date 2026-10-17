@@ -1,0 +1,78 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  max-width: 520px;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-size: clamp(1.625rem, 4vw, 2.25rem);
+}
+
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+}
+
+.description {
+  margin: 0 0 16px;
+  font-size: 0.84375rem;
+  color: var(--color-ink);
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field {
+  display: block;
+}
+
+.field span {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-bottom: 6px;
+}
+
+.field input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 13px 14px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  font: inherit;
+  color: var(--color-ink);
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.submit {
+  width: 100%;
+  background: var(--color-surface-inverse);
+  color: var(--color-cream-bright);
+  border: none;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  padding: 15px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

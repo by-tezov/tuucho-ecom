@@ -1,0 +1,26 @@
+{
+  "id": "journal-email",
+  "name": "Email journal",
+  "version": "1.0.0",
+  "kind": "generic",
+  "description": "Admin e-mail journal. Complements Journal API.",
+  "defaultEnabled": true,
+  "dependsOn": [
+    {
+      "id": "journal-api",
+      "version": ">=1.0.0"
+    }
+  ],
+  "provides": [
+    "AdminPage"
+  ],
+  "permissions": [
+    {
+      "code": "email_log",
+      "label": "Email journal"
+    }
+  ],
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

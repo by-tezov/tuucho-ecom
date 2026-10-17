@@ -1,0 +1,42 @@
+/* Mobile-only — desktop keeps normal site chrome / browser back. */
+.backLink {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  /* Matches the site's one mobile-chrome breakpoint (hamburger nav /
+     bottom tab bar switch at 1024px — Header/MobileNav/MobileTabBar/
+     CartControl/useIsDesktopNav all agree on it). A back link is a
+     chrome-level affordance, so it appears exactly when the rest of
+     the chrome goes mobile.
+     The single source of truth for back-link spacing — every page that uses
+     this component (top and/or bottom) gets the exact same gaps, so nothing
+     needs its own page-level margin/padding override to "fix" the spacing.
+     The two gaps are deliberately different: 16px on the page-edge side (above
+     a top link, below a bottom link) detaches it from the chrome, while the
+     6px content side keeps it visually attached to the page it goes back
+     from. */
+  .backLink {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    gap: 4px;
+    margin: 16px 0 6px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-accent);
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .backLink:hover {
+    text-decoration: underline;
+  }
+
+  .backLink.bottom {
+    margin: 6px 0 16px;
+  }
+}

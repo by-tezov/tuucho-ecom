@@ -1,0 +1,22 @@
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+  padding: 10px var(--page-padding-x);
+  background: var(--color-bg-card);
+  border-bottom: 1px solid var(--border-medium);
+}
+
+.lead,
+.meta {
+  margin: 0;
+}
+
+.lead {
+  font-weight: 600;
+}
+
+.meta {
+  color: var(--color-muted);
+}

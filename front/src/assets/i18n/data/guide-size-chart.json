@@ -1,0 +1,20 @@
+{
+  "sets": {
+    "XS": { "thumb": 15, "index": 12, "middle": 13, "ring": 11, "pinky": 9 },
+    "S": { "thumb": 16, "index": 13, "middle": 14, "ring": 12, "pinky": 9 },
+    "M": { "thumb": 17, "index": 13, "middle": 14, "ring": 12, "pinky": 10 },
+    "L": { "thumb": 18, "index": 14, "middle": 15, "ring": 13, "pinky": 11 }
+  },
+  "chart": {
+    "0": 18,
+    "1": 17,
+    "2": 16,
+    "3": 15,
+    "4": 14,
+    "5": 13,
+    "6": 12,
+    "7": 11,
+    "8": 10,
+    "9": 9
+  }
+}

@@ -1,0 +1,163 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.pickButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.pickButton:hover:not(:disabled) {
+  background: var(--color-accent-shine);
+}
+
+.pickButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+}
+
+.thumb {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+}
+
+.name {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove {
+  border: 0;
+  padding: 0 4px;
+  background: none;
+  color: var(--color-muted);
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.remove:hover:not(:disabled) {
+  color: var(--color-ink);
+}
+
+@media (max-width: 1023px) {
+  /* Matches the site's one chrome/mobile breakpoint (see
+     LegalPageBackLink.module.css) rather than an independent one.
+     Skip the constraints hint by default to save vertical space — it still
+     appears once the user actually hits one of those constraints. */
+  .hintOptional {
+    display: none;
+  }
+
+  /* Compact picker tray: thumbnails only, side by side, scrollable in one
+     row instead of a full-width row per file — the filename isn't worth
+     the vertical space it costs on a small screen. */
+  .list {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+  }
+
+  .item {
+    position: relative;
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    box-sizing: border-box;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .thumb {
+    width: 100%;
+    height: 100%;
+  }
+
+  .name {
+    display: none;
+  }
+
+  .remove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(20, 17, 13, 0.6);
+    color: #fff;
+    font-size: 0.875rem;
+  }
+}

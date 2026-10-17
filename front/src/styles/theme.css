@@ -1,0 +1,362 @@
+/*
+  Semantic colour and elevation contract.
+
+  Components consume these role-based tokens and never choose a palette.
+  `light-dark()` keeps the light and dark value for a role together, so adding
+  or reviewing a theme cannot leave a second selector map out of sync.
+
+  The unpinned root follows the operating-system preference. The bootstrap in
+  index.html pins an explicit saved preference before CSS paints; the runtime
+  controller in theme/themePreference.ts keeps it current afterwards.
+*/
+
+:root {
+  color-scheme: light dark;
+
+  /* First-install starter: Shopify-like white/near-black in light, the same
+     system grayed darker in dark. Not a second colourful palette. Merchant
+     Configure may overlay hex tokens later. */
+  --color-bg: light-dark(#ffffff, #1a1a1a);
+  --color-bg-card: light-dark(#ffffff, #242424);
+  --color-ink: light-dark(#1a1a1a, #f2f2f2);
+  --color-ink-strong: light-dark(#121212, #ffffff);
+  --color-surface-inverse: light-dark(#121212, #111111);
+  --color-muted: light-dark(#5c5c5c, #c4c4c4);
+  --color-muted-on-dark: light-dark(#d0d0d0, #d0d0d0);
+  --color-cream: light-dark(#f6f6f6, #2a2a2a);
+  --color-cream-bright: #ffffff;
+  --color-control-subtle: light-dark(#f4f4f4, #2e2e2e);
+
+  /* Brand and decorative surfaces */
+  --color-accent: light-dark(#121212, #f2f2f2);
+  --color-accent-bright: light-dark(#f5f5f5, #ffffff);
+  --color-accent-shine: light-dark(#e8e8e8, #3a3a3a);
+  --color-accent-faint: light-dark(rgba(18, 18, 18, 0.04), rgba(255, 255, 255, 0.04));
+  --color-accent-subtle: light-dark(rgba(18, 18, 18, 0.06), rgba(255, 255, 255, 0.06));
+  --color-accent-soft: light-dark(rgba(18, 18, 18, 0.08), rgba(255, 255, 255, 0.08));
+  --color-accent-medium: light-dark(rgba(18, 18, 18, 0.12), rgba(255, 255, 255, 0.12));
+  --color-accent-line: light-dark(rgba(18, 18, 18, 0.65), rgba(255, 255, 255, 0.65));
+  --color-callout-start: light-dark(#f6f6f6, #2a2a2a);
+  --color-callout-end: light-dark(#eeeeee, #333333);
+  --color-hero-start: light-dark(#ffffff, #1f1f1f);
+  --color-hero-end: light-dark(#f6f6f6, #1a1a1a);
+
+  /* Environment chrome and overlays */
+  --color-header-bg: light-dark(rgba(255, 255, 255, 0.92), rgba(26, 26, 26, 0.92));
+  --color-header-dev-bg: light-dark(#e8e8e8, #2e2e2e);
+  --color-header-preprod-bg: light-dark(#f0f0f0, #252525);
+  --color-overlay-modal: light-dark(rgba(18, 18, 18, 0.72), rgba(8, 8, 8, 0.78));
+  --color-photo-control: light-dark(rgba(18, 18, 18, 0.78), rgba(16, 16, 16, 0.88));
+  --color-photo-control-hover: light-dark(rgba(18, 18, 18, 0.92), rgba(8, 8, 8, 0.94));
+  --color-scroll-hint: light-dark(rgba(18, 18, 18, 0.55), rgba(242, 242, 242, 0.88));
+  --color-scroll-hint-fg: light-dark(#ffffff, #1a1a1a);
+  --color-scroll-hint-track: light-dark(rgba(18, 18, 18, 0.35), rgba(242, 242, 242, 0.72));
+  /* Cart rules / franco progress rail + cold→hot fill (decorative, grayscale) */
+  --color-progress-track: light-dark(#e1e1e1, #3a3a3a);
+  --color-progress-track-end: light-dark(#ececec, #2a2a2a);
+  --color-progress-fill-start: light-dark(#9a9a9a, #7a7a7a);
+  --color-progress-fill-mid: light-dark(#6e6e6e, #9a9a9a);
+  --color-progress-fill-warm: light-dark(#3d3d3d, #c4c4c4);
+  --color-progress-fill-gold: light-dark(#121212, #f2f2f2);
+
+  /* Semantic state tones */
+  --color-danger: light-dark(#b3413a, #f08b82);
+  --color-danger-border: light-dark(rgba(179, 65, 58, 0.3), rgba(240, 139, 130, 0.42));
+  --color-danger-bg-hover: light-dark(rgba(179, 65, 58, 0.1), rgba(240, 139, 130, 0.16));
+  --color-danger-soft: light-dark(#fbe7d8, #432b1d);
+  /* Dark solid keeps cream text AA; soft status chips use the lighter danger. */
+  --color-danger-solid: light-dark(#b42318, #c43a30);
+  /* Compose-a-set hands: bare finger and a finger wearing a nail. */
+  --color-hand-skin: light-dark(#ecd6c1, #5b4a3c);
+  --color-nail-polish: light-dark(#b0323f, #e0707c);
+  --color-info: light-dark(#2f5a94, #91c3ff);
+  --color-info-border: light-dark(rgba(58, 110, 179, 0.3), rgba(145, 195, 255, 0.42));
+  --color-info-bg-hover: light-dark(rgba(58, 110, 179, 0.1), rgba(145, 195, 255, 0.16));
+  --color-info-soft: light-dark(#e0eef7, #243a51);
+  --color-success: light-dark(#2f6b3a, #91dda3);
+  --color-success-soft: light-dark(#e7f3ea, #213a29);
+  --color-warning: light-dark(#7a5c14, #f0cb75);
+  --color-warning-soft: light-dark(#fbf0d8, #423719);
+  --color-alert: light-dark(#8f4824, #f5ae7f);
+  --color-alert-soft: light-dark(#fbe7d8, #432b1d);
+  --color-violet: light-dark(#4b2e83, #c7adf4);
+  --color-violet-soft: light-dark(#e6e0f2, #34284c);
+  --color-neutral: light-dark(#5f5a54, #d3cbc0);
+  --color-neutral-soft: light-dark(#eceae7, #322e28);
+
+  /* Borders */
+  --border-soft: light-dark(rgba(18, 18, 18, 0.12), rgba(255, 255, 255, 0.12));
+  --border-medium: light-dark(rgba(18, 18, 18, 0.22), rgba(255, 255, 255, 0.22));
+  --border-strong: light-dark(rgba(18, 18, 18, 0.4), rgba(255, 255, 255, 0.4));
+  /* Form-control boundaries need >= 3:1 against the field background. */
+  --border-input: light-dark(#6b6b6b, #a8a8a8);
+  --border-dark-soft: light-dark(rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.22));
+  --border-dark-medium: light-dark(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4));
+
+  /* Elevation */
+  --shadow-control-active: 0 1px 4px light-dark(rgba(18, 18, 18, 0.18), rgba(0, 0, 0, 0.5));
+  --shadow-card: 0 2px 6px light-dark(rgba(18, 18, 18, 0.16), rgba(0, 0, 0, 0.42));
+  --shadow-popover: 0 18px 34px -20px light-dark(rgba(18, 18, 18, 0.28), rgba(0, 0, 0, 0.72));
+  --shadow-modal: 0 20px 50px -20px light-dark(rgba(18, 18, 18, 0.4), rgba(0, 0, 0, 0.76));
+  /* Upward-facing elevation: a bottom sheet rising from the viewport edge,
+     a sticky bottom bar, and a drawer sliding in from the right. */
+  --shadow-sheet: 0 -12px 40px light-dark(rgba(18, 18, 18, 0.2), rgba(0, 0, 0, 0.7));
+  --shadow-bar: 0 -2px 10px light-dark(rgba(18, 18, 18, 0.08), rgba(0, 0, 0, 0.5));
+  --shadow-drawer: -12px 0 40px -20px light-dark(rgba(18, 18, 18, 0.4), rgba(0, 0, 0, 0.76));
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* Enhanced contrast is an independent accessibility dimension: it can be
+   combined with either colour scheme. Every semantic token is repeated here
+   deliberately, and the static theme check enforces that this contract stays
+   complete when a new token is introduced. */
+:root[data-theme='light'][data-contrast='more'] {
+  /* Content and surfaces */
+  --color-bg: #ffffff;
+  --color-bg-card: #ffffff;
+  --color-ink: #000000;
+  --color-ink-strong: #000000;
+  --color-surface-inverse: #000000;
+  --color-muted: #333333;
+  --color-muted-on-dark: #ffffff;
+  --color-cream: #ffffff;
+  --color-cream-bright: #ffffff;
+  --color-control-subtle: #e6e6e6;
+
+  /* Brand and decorative surfaces */
+  --color-accent: #003366;
+  --color-accent-bright: #ffdf00;
+  --color-accent-shine: #fff1a8;
+  --color-accent-faint: #f0f6ff;
+  --color-accent-subtle: #e5efff;
+  --color-accent-soft: #dbeaff;
+  --color-accent-medium: #cce0fa;
+  --color-accent-line: #003366;
+  --color-callout-start: #ffffff;
+  --color-callout-end: #e5efff;
+  --color-hero-start: #ffffff;
+  --color-hero-end: #e5efff;
+
+  /* Environment chrome and overlays */
+  --color-header-bg: #ffffff;
+  --color-header-dev-bg: #e6e6e6;
+  --color-header-preprod-bg: #f2f2f2;
+  --color-overlay-modal: #000000;
+  --color-photo-control: #000000;
+  --color-photo-control-hover: #000000;
+  --color-scroll-hint: #000000;
+  --color-scroll-hint-fg: #ffffff;
+  --color-scroll-hint-track: #333333;
+  --color-progress-track: #d8dce3;
+  --color-progress-track-end: #e4e7ec;
+  --color-progress-fill-start: #9aa3b0;
+  --color-progress-fill-mid: #b8c0cc;
+  --color-progress-fill-warm: #c9b896;
+  --color-progress-fill-gold: #d4af37;
+
+  /* Semantic state tones */
+  --color-danger: #8b0000;
+  --color-danger-border: #8b0000;
+  --color-danger-bg-hover: #fff0f0;
+  --color-danger-soft: #ffffff;
+  --color-danger-solid: #8b0000;
+  --color-hand-skin: #d9c2ad;
+  --color-nail-polish: #8b0000;
+  --color-info: #003366;
+  --color-info-border: #003366;
+  --color-info-bg-hover: #e5efff;
+  --color-info-soft: #ffffff;
+  --color-success: #005a24;
+  --color-success-soft: #ffffff;
+  --color-warning: #5a3d00;
+  --color-warning-soft: #ffffff;
+  --color-alert: #713000;
+  --color-alert-soft: #ffffff;
+  --color-violet: #35106f;
+  --color-violet-soft: #ffffff;
+  --color-neutral: #333333;
+  --color-neutral-soft: #ffffff;
+
+  /* Borders and elevation */
+  --border-soft: #000000;
+  --border-medium: #000000;
+  --border-strong: #000000;
+  --border-input: #000000;
+  --border-dark-soft: #ffffff;
+  --border-dark-medium: #ffffff;
+  --shadow-control-active: none;
+  --shadow-card: none;
+  --shadow-popover: none;
+  --shadow-modal: none;
+  --shadow-sheet: none;
+  --shadow-bar: none;
+  --shadow-drawer: none;
+}
+
+:root[data-theme='dark'][data-contrast='more'] {
+  /* Content and surfaces */
+  --color-bg: #000000;
+  --color-bg-card: #000000;
+  --color-ink: #ffffff;
+  --color-ink-strong: #ffffff;
+  --color-surface-inverse: #ffffff;
+  --color-muted: #e6e6e6;
+  --color-muted-on-dark: #000000;
+  --color-cream: #000000;
+  --color-cream-bright: #000000;
+  --color-control-subtle: #1a1a1a;
+
+  /* Brand and decorative surfaces */
+  --color-accent: #ffdf00;
+  --color-accent-bright: #003366;
+  --color-accent-shine: #2a2400;
+  --color-accent-faint: #171400;
+  --color-accent-subtle: #211d00;
+  --color-accent-soft: #2a2400;
+  --color-accent-medium: #332c00;
+  --color-accent-line: #ffdf00;
+  --color-callout-start: #000000;
+  --color-callout-end: #211d00;
+  --color-hero-start: #000000;
+  --color-hero-end: #211d00;
+
+  /* Environment chrome and overlays */
+  --color-header-bg: #000000;
+  --color-header-dev-bg: #1a1a1a;
+  --color-header-preprod-bg: #111111;
+  --color-overlay-modal: #000000;
+  --color-photo-control: #ffffff;
+  --color-photo-control-hover: #ffffff;
+  --color-scroll-hint: #ffffff;
+  --color-scroll-hint-fg: #000000;
+  --color-scroll-hint-track: #e6e6e6;
+  --color-progress-track: #333333;
+  --color-progress-track-end: #1a1a1a;
+  --color-progress-fill-start: #666666;
+  --color-progress-fill-mid: #999999;
+  --color-progress-fill-warm: #cccc66;
+  --color-progress-fill-gold: #ffdf00;
+
+  /* Semantic state tones */
+  --color-danger: #ff8a8a;
+  --color-danger-border: #ff8a8a;
+  --color-danger-bg-hover: #300000;
+  --color-danger-soft: #000000;
+  --color-danger-solid: #ff8a8a;
+  --color-hand-skin: #6b5848;
+  --color-nail-polish: #ff8a8a;
+  --color-info: #8dccff;
+  --color-info-border: #8dccff;
+  --color-info-bg-hover: #001c33;
+  --color-info-soft: #000000;
+  --color-success: #82ff9f;
+  --color-success-soft: #000000;
+  --color-warning: #ffe066;
+  --color-warning-soft: #000000;
+  --color-alert: #ffb080;
+  --color-alert-soft: #000000;
+  --color-violet: #d8baff;
+  --color-violet-soft: #000000;
+  --color-neutral: #e6e6e6;
+  --color-neutral-soft: #000000;
+
+  /* Borders and elevation */
+  --border-soft: #ffffff;
+  --border-medium: #ffffff;
+  --border-strong: #ffffff;
+  --border-input: #ffffff;
+  --border-dark-soft: #000000;
+  --border-dark-medium: #000000;
+  --shadow-control-active: none;
+  --shadow-card: none;
+  --shadow-popover: none;
+  --shadow-modal: none;
+  --shadow-sheet: none;
+  --shadow-bar: none;
+  --shadow-drawer: none;
+}
+
+/* Windows High Contrast and equivalent forced-colour modes remain the final
+   authority, above both explicit and OS-derived shop preferences. */
+@media (forced-colors: active) {
+  :root {
+    --color-bg: Canvas;
+    --color-bg-card: Canvas;
+    --color-ink: CanvasText;
+    --color-ink-strong: CanvasText;
+    --color-surface-inverse: CanvasText;
+    --color-muted: GrayText;
+    --color-muted-on-dark: Canvas;
+    --color-cream: Canvas;
+    --color-cream-bright: Canvas;
+    --color-control-subtle: ButtonFace;
+    --color-accent: LinkText;
+    --color-accent-bright: Highlight;
+    --color-accent-shine: ButtonFace;
+    --color-accent-faint: Canvas;
+    --color-accent-subtle: ButtonFace;
+    --color-accent-soft: ButtonFace;
+    --color-accent-medium: ButtonFace;
+    --color-accent-line: LinkText;
+    --color-callout-start: Canvas;
+    --color-callout-end: Canvas;
+    --color-hero-start: Canvas;
+    --color-hero-end: Canvas;
+    --color-header-bg: Canvas;
+    --color-header-dev-bg: Canvas;
+    --color-header-preprod-bg: Canvas;
+    --color-overlay-modal: CanvasText;
+    --color-photo-control: ButtonFace;
+    --color-photo-control-hover: Highlight;
+    --color-scroll-hint: ButtonFace;
+    --color-scroll-hint-fg: ButtonText;
+    --color-scroll-hint-track: ButtonText;
+    --color-progress-track: GrayText;
+    --color-progress-track-end: GrayText;
+    --color-progress-fill-start: Highlight;
+    --color-progress-fill-mid: Highlight;
+    --color-progress-fill-warm: Highlight;
+    --color-progress-fill-gold: Highlight;
+    --color-danger: MarkText;
+    --color-danger-border: MarkText;
+    --color-danger-bg-hover: Mark;
+    --color-danger-soft: Canvas;
+    --color-danger-solid: Mark;
+    --color-hand-skin: ButtonFace;
+    --color-nail-polish: Highlight;
+    --color-info: LinkText;
+    --color-info-border: LinkText;
+    --color-info-bg-hover: ButtonFace;
+    --color-info-soft: Canvas;
+    --color-success: CanvasText;
+    --color-success-soft: Canvas;
+    --color-warning: CanvasText;
+    --color-warning-soft: Canvas;
+    --color-alert: CanvasText;
+    --color-alert-soft: Canvas;
+    --color-violet: LinkText;
+    --color-violet-soft: Canvas;
+    --color-neutral: CanvasText;
+    --color-neutral-soft: Canvas;
+    --border-soft: CanvasText;
+    --border-medium: CanvasText;
+    --border-strong: CanvasText;
+    --border-input: CanvasText;
+    --border-dark-soft: Canvas;
+    --border-dark-medium: Canvas;
+    --shadow-control-active: none;
+    --shadow-card: none;
+    --shadow-popover: none;
+    --shadow-modal: none;
+    --shadow-sheet: none;
+    --shadow-bar: none;
+    --shadow-drawer: none;
+  }
+}

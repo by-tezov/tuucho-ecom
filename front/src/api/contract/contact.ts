@@ -1,0 +1,45 @@
+/**
+ * Generated from the API contract. Do not edit here.
+ *
+ * Source of truth: pamsurin-back `src/contract/contact.ts`.
+ * Regenerate the front copy with `npm run sync:contract` in pamsurin-back.
+ */
+import type { Size } from './cart';
+
+export interface AnonymousContactMessage {
+  email: string;
+  identity: string;
+  message: string;
+  images?: File[];
+}
+
+/** "Make this sold-out size for me" — see the cart page's size picker
+ * (SelectionPickerModal). The backend resolves the product's reference and
+ * title itself, so only its id and the variant travel here. */
+export interface ProductRequest {
+  productId: string;
+  shapeKey: string;
+  lengthKey: string;
+  size: Size;
+  /** How many the customer wants made. Only the gallery's "request your
+   * size" dialog asks; the cart's entry points send the line's own count
+   * or 1. */
+  quantity: number;
+  /** Optional note for the workshop. Omitted when empty. */
+  comment?: string;
+}
+
+/** A composed set asking for a size that is not offered on every nail.
+ * The server decides which nails are actually missing that size. */
+export interface CompositionSizeRequest {
+  size: Size;
+  quantity: number;
+  comment?: string;
+  nails: Array<{
+    productId: string;
+    shapeKey: string;
+    lengthKey: string;
+    variationKey?: string;
+    finger: string;
+  }>;
+}

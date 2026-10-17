@@ -1,0 +1,78 @@
+{
+  "code": "chronopost-home",
+  "name": {
+    "fr": "Chronopost",
+    "en": "Chronopost",
+    "th": "Chronopost",
+    "es": "Chronopost",
+    "it": "Chronopost",
+    "nl": "Chronopost",
+    "pt": "Chronopost"
+  },
+  "description": {
+    "fr": "Livraison directement à votre domicile.",
+    "en": "Delivery directly to your home.",
+    "th": "จัดส่งถึงบ้านของคุณโดยตรง",
+    "es": "Entrega directamente en tu domicilio.",
+    "it": "Consegna direttamente a casa tua.",
+    "nl": "Rechtstreeks bij je thuis bezorgd.",
+    "pt": "Entrega diretamente na sua morada."
+  },
+  "enabled": false,
+  "sortOrder": 3,
+  "countries": {
+    "default": false,
+    "FR": true,
+    "BE": true
+  },
+  "trackingAvailable": false,
+  "networks": [
+    "$home"
+  ],
+  "deliveryTime": {
+    "default": { "min": 2, "max": 4 },
+    "BE": { "min": 3, "max": 5 }
+  },
+  "packets": [
+    {
+      "key": "solo",
+      "maxQuantity": 1,
+      "price": {
+        "BE": 11.99,
+        "FR": 5.99
+      }
+    },
+    {
+      "key": "duo",
+      "maxQuantity": 2,
+      "price": {
+        "BE": 11.99,
+        "FR": 5.99
+      }
+    },
+    {
+      "key": "trio",
+      "maxQuantity": 3,
+      "price": {
+        "BE": 11.99,
+        "FR": 5.99
+      }
+    },
+    {
+      "key": "moyen",
+      "maxQuantity": 5,
+      "price": {
+        "BE": 11.99,
+        "FR": 5.99
+      }
+    },
+    {
+      "key": "grand",
+      "maxQuantity": 9,
+      "price": {
+        "BE": 11.99,
+        "FR": 5.99
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "title": "Default theme",
+  "summary": "Required theme plugin. First-install is white/near-black (light) and the same system grayed darker (dark). Configure overlays merchant hexes.",
+  "configure": "Admin, Plugins, Default theme, Configure. Swatches start at white, near-black ink, black accent. Save writes store.theme via PATCH /admin/store. Empty tokens keep CSS light-dark() as the shipped default.",
+  "preferences": "No Preferences entry. Theme tokens are not Boutique fields.",
+  "openingsUsed": [
+    "GET /admin/store",
+    "PATCH /admin/store theme"
+  ],
+  "openingsProvided": [
+    "Theme"
+  ],
+  "cart": "No cart impact. Layout chrome (header, burger, bottom bar) consumes CSS variables.",
+  "orders": "No order impact.",
+  "profile": "No profile entry.",
+  "sections": [
+    {
+      "heading": "How pages consume it",
+      "paragraphs": [
+        "ThemeTokens in the shop applies bootstrap.theme.tokens only when the merchant saved Configure hexes. An empty token map leaves CSS light-dark() in charge, so light and dark both work. Product pages do not hard-code brand colours. Only one theme should be enabled."
+      ]
+    }
+  ]
+}

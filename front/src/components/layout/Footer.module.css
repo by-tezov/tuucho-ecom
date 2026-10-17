@@ -1,0 +1,318 @@
+.footer {
+  background: var(--color-surface-inverse);
+  color: var(--color-muted-on-dark);
+  padding: 32px var(--page-padding-x) calc(32px + var(--tab-bar-height, 0px));
+  /* --tab-bar-height (0 on desktop, MobileTabBar.tsx) keeps the legal-links
+     row from sitting under the fixed mobile bottom bar on short pages. */
+}
+
+/* The global ring uses --color-accent, about 2.3:1 on this dark surface in
+   the light theme; a focus indicator needs 3:1 (RGAA 10.7). */
+.footer :focus-visible {
+  outline-color: var(--color-accent-bright);
+}
+
+/* Desktop: brand column | vertical rule | menu over legal links. */
+.inner {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.brandBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 64px;
+  border-right: 1px solid var(--border-dark-soft);
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  color: var(--color-cream-bright);
+  font-weight: 600;
+}
+
+.brandTagline {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-muted-on-dark);
+}
+
+.copyright {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted-on-dark);
+}
+
+/* Second grid row across both columns, below the brand column's rule. */
+.paymentMarks {
+  grid-column: 1 / -1;
+  margin-top: 20px;
+}
+
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 0;
+  padding-left: 64px;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  /* Optical alignment of the menu text with the brand name's cap height. */
+  padding-top: 6px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-dark-soft);
+}
+
+/* Legal links over the accessibility statement, the contrast control
+   pushed to the right and centred on those two lines. */
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 18px;
+}
+
+.bottomText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+}
+
+.navList {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 8px 26px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navGroup {
+  display: flex;
+}
+
+.navGroupDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.navGroupLabel {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-cream-bright);
+  user-select: none;
+}
+
+.navGroupLabel:hover {
+  color: var(--color-cream-bright);
+}
+
+/* Only lit up while the current page is one of this group's own children
+   (see Footer.tsx's isNavItemActive(item, ...) call) — not decorated with
+   the active leaf link's dashes (see .navLinkActive below), since the
+   group heading itself is never "the current page". */
+.navGroupLabelActive {
+  color: var(--color-cream-bright);
+}
+
+.navGroupLabel::-webkit-details-marker {
+  display: none;
+}
+
+.navGroupLabel::after {
+  content: '⌄';
+  font-size: 0.75em;
+  color: var(--color-muted-on-dark);
+  transition: transform 0.15s ease;
+}
+
+.navGroupDetails[open] > .navGroupLabel::after {
+  transform: rotate(180deg);
+}
+
+.navGroupList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.navLink {
+  font-size: 0.875rem;
+  color: var(--color-cream-bright);
+}
+
+.navLink:hover {
+  color: var(--color-cream-bright);
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+/* The current page only: the underline is a non-color cue (RGAA 3.1 / WCAG
+   1.4.1) in addition to the colour change, same spirit as the header's own
+   active-page underline (see Header.module.css's .navButtonActive::after). */
+.navLinkActive {
+  color: var(--color-cream-bright);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 6px;
+}
+
+.navLinkActive:hover {
+  text-decoration: underline;
+}
+
+.accessibilityControl {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+/* Underlined, not told apart by colour alone (RGAA 10.6). */
+.accessibilityLink {
+  font-size: 0.8125rem;
+  color: var(--color-muted-on-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.accessibilityLink:hover {
+  color: var(--color-cream-bright);
+}
+
+.legalNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  justify-content: flex-start;
+}
+
+.legalLink {
+  font-size: 0.8125rem;
+  color: var(--color-muted-on-dark);
+  display: inline-flex;
+  align-items: center;
+}
+
+.legalLink:hover {
+  color: var(--color-cream-bright);
+  text-decoration: none;
+}
+
+.legalIcon {
+  display: none;
+}
+
+/* Mobile: compact footer. The brand, tagline and menu are hidden (the header
+   and the tab bar already carry them); the wrappers dissolve so the copyright,
+   the accessibility link and the legal icons stack in the middle column with
+   the contrast control on the right. */
+@media (max-width: 1023px) {
+  .footer {
+    /* Most routes show the fixed MobileTabBar. Keep the compact footer's
+       legal links above it as well; accueil is one of the routes that hides
+       the bar, where the published height is simply 0px. */
+    padding: 12px var(--page-padding-x) calc(20px + var(--tab-bar-height, 0px));
+  }
+
+  .inner {
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
+    grid-template-areas:
+      '. copyright contrast'
+      '. a11y contrast'
+      '. links contrast'
+      '. marks .';
+    gap: 3px 0;
+    align-items: center;
+  }
+
+  .brandBlock,
+  .mainColumn,
+  .topRow,
+  .bottomRow,
+  .bottomText {
+    display: contents;
+  }
+
+  .brand,
+  .brandTagline,
+  .nav {
+    display: none;
+  }
+
+  .copyright {
+    grid-area: copyright;
+    margin: 0;
+    font-size: 0.7813rem;
+    text-align: center;
+  }
+
+  .accessibilityLink {
+    grid-area: a11y;
+    justify-self: center;
+    font-size: 0.7813rem;
+  }
+
+  .accessibilityControl {
+    grid-area: contrast;
+    align-self: center;
+    justify-self: center;
+  }
+
+  .paymentMarks {
+    grid-area: marks;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .legalNav {
+    grid-area: links;
+    gap: 4px;
+    justify-content: center;
+  }
+
+  .legalLink {
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    border-radius: 8px;
+  }
+
+  .legalLink:hover {
+    background: color-mix(in srgb, var(--color-cream-bright) 6%, transparent);
+  }
+
+  .legalLinkText {
+    display: none;
+  }
+
+  .legalIcon {
+    display: block;
+  }
+}

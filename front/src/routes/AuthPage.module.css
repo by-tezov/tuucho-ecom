@@ -1,0 +1,149 @@
+.section {
+  container-type: inline-size;
+  max-width: 440px;
+  margin-inline: auto;
+  padding: 40px var(--page-padding-x) 90px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  margin-bottom: 24px;
+}
+
+/* Title + inset rules (+ welcome on login/register) — stays at the
+ * top of the auth page; fields remain in normal flow in the form below. */
+.loginTitleBlock,
+.confirmTitleBlock {
+  margin-bottom: 24px;
+}
+
+.loginTitleBlock .title,
+.confirmTitleBlock .title {
+  margin: 0;
+  padding-bottom: 12px;
+  position: relative;
+}
+
+/* Inset from the section edges (ConfirmModal header rule pattern), not
+ * edge-to-edge under the title. */
+.loginTitleBlock .title::after,
+.confirmTitleBlock .title::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.authWelcome {
+  margin: 12px 0 0;
+  padding-bottom: 12px;
+  position: relative;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+}
+
+/* Same inset rule as under the title — closes the welcome block. */
+.authWelcome::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.authWelcome p {
+  margin: 0;
+}
+
+.authWelcome p + p {
+  margin-top: 0.45em;
+}
+
+.authWelcome strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.authWelcomeLast {
+  text-align: right;
+}
+
+.registerSuccessBody {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+.registerSuccessBody p {
+  margin: 0;
+}
+
+.registerSuccessBody p + p {
+  margin-top: 0.75em;
+  color: var(--color-muted);
+}
+
+.registerDoneActions {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.registerDone {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(
+    var(--layout-vh) - var(--chrome-height, var(--header-height)) - var(--tab-bar-height, 0px)
+  );
+}
+
+.registerDone .registerDoneActions {
+  margin-top: auto;
+  flex-shrink: 0;
+  padding-top: 12px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Mobile login/register: fill the first screen below the header
+ * (stable --layout-vh, not 100dvh) so the form can pin its action cluster
+ * to the bottom while fields stay in flow. */
+@media (max-width: 1023px) {
+  .loginSection,
+  .confirmSection {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(
+      var(--layout-vh) - var(--chrome-height, var(--header-height)) - var(--tab-bar-height, 0px)
+    );
+    /* The standalone mobile auth pages sit directly below the header: halve
+       the usual 40px page inset so their title starts closer to the chrome. */
+    padding-top: 20px;
+    /* Actions carry safe-area padding; keep a modest bottom inset here. */
+    padding-bottom: 24px;
+  }
+
+  .loginSection .loginTitleBlock,
+  .confirmSection .confirmTitleBlock {
+    flex-shrink: 0;
+    /* Space between welcome-bottom separator and fields (normal flow). */
+    margin-bottom: 24px;
+  }
+
+  /* Keep the short registration-success screen to the visible area. The
+     parent main area intentionally extends by one pixel so the footer stays
+     below the fold; this prevents the bottom-pinned action from following it
+     out of view. */
+  .registerDone {
+    flex: 0 0 auto;
+    /* Keep the success action at the viewport edge; the parent main area
+       extends by one pixel to keep the footer just below the fold. */
+    min-height: calc(var(--layout-vh) - var(--chrome-height, var(--header-height)) - 1px);
+  }
+}

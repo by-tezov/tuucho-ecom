@@ -1,0 +1,17 @@
+{
+  "title": "Cart rules",
+  "summary": "Thresholds, gifts and other cart alterations.",
+  "configure": "Admin, Cart rules.",
+  "preferences": "None.",
+  "openingsUsed": [
+    "checkout priceCheckout",
+    "gallery cart-rules preview"
+  ],
+  "openingsProvided": [
+    "CheckoutAlteration",
+    "AdminPage"
+  ],
+  "cart": "listCartRules returns empty when the plugin is off, so checkout and the gallery preview stop applying rules.",
+  "orders": "Rule gifts that locked on the order stay as order lines. New checkouts ignore rules while the plugin is off.",
+  "profile": "None."
+}

@@ -1,0 +1,33 @@
+{
+  "id": "page-studio-note",
+  "name": "Studio note",
+  "version": "1.0.0",
+  "kind": "page",
+  "description": "Sample extra page. Copy this folder to add your own page plugin.",
+  "defaultEnabled": true,
+  "provides": [
+    "StorefrontPage"
+  ],
+  "route": "/studio-note",
+  "nav": {
+    "key": "studio-note",
+    "order": 45
+  },
+  "defaultSettings": {
+    "title": "Studio note",
+    "body": "This page comes from a drop-in plugin under back/plugins/page-studio-note. Open Admin, Plugins to edit the title and body, or copy this folder, rename the id, and scan."
+  },
+  "settingsSchema": {
+    "title": {
+      "type": "string",
+      "label": "Title"
+    },
+    "body": {
+      "type": "text",
+      "label": "Body"
+    }
+  },
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

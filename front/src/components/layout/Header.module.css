@@ -1,0 +1,505 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: var(--color-header-bg);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-medium);
+  /* Shop pages (gallery, home, cart) use a 1240px column. The header matches
+     that, not --container-max (1200px), so the language switch lines up with
+     the page eyebrow and the cart with the right edge of the content. */
+  --header-bar: 1240px;
+}
+
+/* Soft cue while `/` entry splash runs — `inert` on the header already
+   blocks clicks/focus; opacity only signals that chrome is decorative. */
+.headerInert .inner {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+/* Env-specific tint (dev/preprod only — prod keeps .header's own background
+   above) so it's visually obvious which deployment you're looking at,
+   e.g. two tabs open side by side. See __APP_TARGET__ in vite.config.ts. */
+.headerDev {
+  background: var(--color-header-dev-bg);
+}
+
+.headerPreprod {
+  background: var(--color-header-preprod-bg);
+}
+
+.inner {
+  max-width: var(--header-bar);
+  margin-inline: auto;
+  padding: 14px var(--page-padding-x);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.brandGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.brandName {
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--color-ink);
+}
+
+.brandSuffix {
+  font-size: 0.625rem;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-top: 2px;
+}
+
+.desktopNav {
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.desktopMenu {
+  display: none;
+}
+
+.navButton {
+  position: relative;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.navButton:hover {
+  background: var(--color-accent-subtle);
+  text-decoration: none;
+}
+
+.navButtonActive {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* Non-color cue for the current page (RGAA 3.1 / WCAG 1.4.1): an underline bar
+   in addition to the colour + weight change. */
+.navButtonActive::after {
+  content: '';
+  position: absolute;
+  left: var(--nav-pad, 12px);
+  right: var(--nav-pad, 12px);
+  bottom: 1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+/* Gift CTA: bordered in the header on every breakpoint so it stays visible
+   next to the burger on mobile, and equally marked in the desktop nav. */
+.navButtonOffer {
+  border: 1px solid var(--color-accent);
+  font-weight: 600;
+}
+
+.navButtonOffer:hover {
+  background: var(--color-accent-shine);
+  text-decoration: none;
+}
+
+.offerControl {
+  flex-shrink: 0;
+}
+
+/* The language picker now sits beside the brand (see .brandGroup) — no
+   margin of its own needed, brandGroup's gap handles the spacing. */
+.langControl {
+  margin-left: 0;
+}
+
+/* Account navigation belongs in the mobile drawer; it remains a header
+   control only alongside the desktop navigation. */
+.accountControl {
+  display: none;
+}
+
+/* Theme, contrast, cart and burger share the trailing cluster. Cart is already
+   desktop-only; mobile keeps separate 40px contrast/menu targets with enough
+   visual space to distinguish them. */
+.trailingControls {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  gap: 8px;
+}
+
+.themeControl {
+  flex-shrink: 0;
+}
+
+/* Theme + contrast move into the burger panel below 1024px; keep the cluster
+   for desktop only. */
+.appearanceControls {
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.contrastControl {
+  flex-shrink: 0;
+}
+
+.mobileToggle {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  transform: rotate(0deg);
+  transition: transform 0.3s ease;
+}
+
+.mobileToggleOpen {
+  transform: rotate(-90deg);
+}
+
+.mobileToggle:hover {
+  background: var(--color-accent-subtle);
+}
+
+.mobileToggleBar {
+  width: 20px;
+  height: 2px;
+  background: var(--color-ink);
+  border-radius: 2px;
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 16px;
+  }
+
+  .brandGroup {
+    flex: 0 0 auto;
+  }
+
+  .desktopMenu {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    gap: 0;
+    --nav-font: 1.125rem;
+    --nav-pad: 12px;
+  }
+
+  .navDot {
+    position: relative;
+    flex: 0 0 0;
+    width: 0;
+    height: 1em;
+    align-self: center;
+    pointer-events: none;
+  }
+
+  .navDot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-ink);
+    transform: translate(-50%, -50%);
+  }
+
+  .desktopNav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    max-width: 100%;
+    gap: 0;
+  }
+
+  .desktopNav .navButton,
+  .desktopNav button,
+  .accountControl {
+    font-size: var(--nav-font);
+    padding-inline: var(--nav-pad);
+  }
+
+  /* Tighter box around Offrir, clear of the neighbouring dots. The border is
+     drawn inset on ::before so the item keeps the pad useFitGroupFont sizes
+     it with: half the pad sits outside the box, half inside. */
+  .desktopNav .navButtonOffer {
+    border-color: transparent;
+    isolation: isolate;
+  }
+
+  .desktopNav .navButtonOffer::before {
+    content: '';
+    position: absolute;
+    inset: 4px calc(var(--nav-pad) / 2);
+    z-index: -1;
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+  }
+
+  .desktopNav .navButtonOffer:hover {
+    background: transparent;
+  }
+
+  .desktopNav .navButtonOffer:hover::before {
+    background: var(--color-accent-shine);
+  }
+
+  .desktopNav button::after {
+    left: var(--nav-pad);
+    right: var(--nav-pad);
+  }
+
+  .accountControl {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+  }
+
+  .trailingControls {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: min-content;
+    margin-left: 0;
+    gap: 8px;
+  }
+
+  .appearanceControls {
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: center;
+    min-width: min-content;
+    gap: 4px;
+  }
+
+  .trailingControls .cartControl {
+    flex: 0 0 auto;
+    /* CartControl's own negative margin pulls the icon onto the contrast
+       switch. The flex gap above is the clearance, and it stays positive. */
+    margin-left: 0;
+  }
+
+  .mobileToggle {
+    display: none;
+  }
+
+  .offerControl {
+    display: none;
+  }
+}
+
+/* Administration stays out of the menu. The slot is the left margin. The
+   control is pinned to the language switch (the negative margin cancels the
+   bar's own left padding). The word shows only when that margin can hold it. */
+.adminSlot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: center;
+  min-width: 0;
+  padding-left: var(--page-padding-x);
+}
+
+.adminProbe {
+  position: absolute;
+  visibility: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+}
+
+.adminControl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--color-danger);
+  border-radius: 50%;
+  color: var(--color-danger);
+  background: var(--color-bg-card);
+  text-decoration: none;
+}
+
+.adminControl:hover {
+  background: var(--color-danger-bg-hover);
+  text-decoration: none;
+}
+
+.adminControlActive {
+  color: var(--color-danger);
+  background: var(--color-danger-bg-hover);
+}
+
+.adminLabel {
+  display: none;
+}
+
+.adminIcon {
+  display: block;
+}
+
+.adminControl.adminAsText {
+  position: relative;
+  width: auto;
+  height: auto;
+  padding: 8px 12px;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.adminControl.adminAsText .adminIcon {
+  display: none;
+}
+
+.adminControl.adminAsText .adminLabel {
+  display: inline;
+}
+
+.adminControl.adminAsText:hover {
+  background: var(--color-danger-bg-hover);
+}
+
+.adminControl.adminAsText.adminControlActive {
+  color: var(--color-ink);
+  font-weight: 700;
+  background: none;
+}
+
+.adminControl.adminAsText.adminControlActive::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-danger);
+}
+
+@media (max-width: 1023px) {
+  .header:has(.adminSlot) {
+    display: flex;
+    align-items: center;
+  }
+
+  .adminSlot {
+    flex: 0 0 auto;
+  }
+
+  .header:has(.adminSlot) .inner {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    margin-inline: 0;
+    padding-left: 8px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header:has(.adminSlot) {
+    display: grid;
+    /* Minimum is the round icon. A narrower window keeps that icon and
+       shrinks the bar, instead of letting the icon cover the language switch. */
+    grid-template-columns:
+      minmax(calc(38px + 12px + var(--page-padding-x)), 1fr) minmax(0, var(--header-bar))
+      minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .header:has(.adminSlot) .adminSlot {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: stretch;
+    /* The word sits 4px from the language switch. The bar's left padding
+       stays, so the switch keeps its alignment with the page. */
+    margin-right: calc(4px - var(--page-padding-x));
+  }
+
+  /* The round icon needs more air than the word. 12px here plus the 4px
+     above leaves 16px before the language switch. */
+  .header:has(.adminSlot) .adminControl:not(.adminAsText) {
+    margin-right: 12px;
+  }
+
+  .header:has(.adminSlot) .inner {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+  }
+}
+
+/* Narrow phones cannot fit the full language label plus the four mobile
+   header controls. The switcher remains labelled for assistive technology and
+   opens the same language menu; only its visible code/caret are compacted. */
+@media (max-width: 389px) {
+  .inner {
+    gap: 4px;
+  }
+
+  .brandGroup {
+    gap: 6px;
+  }
+
+  .brandName {
+    font-size: 1.25rem;
+  }
+
+  .navButtonOffer {
+    padding: 6px 8px;
+    font-size: 0.8125rem;
+  }
+}

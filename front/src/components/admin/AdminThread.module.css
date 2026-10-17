@@ -1,0 +1,163 @@
+.messages {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  min-height: 200px;
+  max-height: 46vh;
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-cream);
+}
+
+.client,
+.admin {
+  display: grid;
+  gap: 6px;
+  max-width: 86%;
+  padding: 10px 13px;
+  border-radius: 12px;
+  font-size: 0.84375rem;
+}
+
+.client {
+  justify-self: start;
+  border: 1px solid var(--border-soft);
+  background: var(--color-bg-card);
+  border-radius: 12px 12px 12px 3px;
+}
+
+.admin {
+  justify-self: end;
+  background: var(--color-accent-shine);
+  border-radius: 12px 12px 3px 12px;
+}
+
+.client p,
+.admin p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.attachment {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.composerRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.composerFieldWrap {
+  position: relative;
+  min-width: 0;
+}
+
+.composer textarea {
+  box-sizing: border-box;
+  width: 100%;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  font: inherit;
+}
+
+.composerButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attachButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--border-medium);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.attachButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sendLabel {
+  display: inline;
+}
+
+.sendIcon {
+  display: none;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8125rem;
+}
+
+.readOnly {
+  margin: 0;
+  padding: 13px 14px;
+  border-left: 2px solid var(--color-accent-bright);
+  background: var(--color-cream);
+  border-radius: 0 8px 8px 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+@media (max-width: 1023px) {
+  .pickerRow {
+    display: none;
+  }
+
+  .attachButton {
+    display: inline-flex;
+  }
+
+  .composerButtons :global(button) {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .sendLabel {
+    display: none;
+  }
+
+  .sendIcon {
+    display: inline-flex;
+  }
+}

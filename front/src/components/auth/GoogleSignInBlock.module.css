@@ -1,0 +1,118 @@
+.googleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Fills leftover auth chrome height so the decline control pins bottom-left
+ * and the checkbox + Accept cluster can sit vertically centred. */
+.googleConsentStep {
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 0;
+}
+
+.consentLead {
+  margin: 0 0 14px;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+
+.consentSeparator {
+  flex-shrink: 0;
+  height: 1px;
+  margin: 0 0 14px;
+  background: var(--border-soft);
+}
+
+.consentMiddle {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  min-height: 0;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-medium);
+}
+
+.buttonHost {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+}
+
+/* GIS renderButton injects a cross-origin iframe — programmatic .click() on
+ * [role="button"] never reaches it. Overlay the iframe invisibly so user
+ * taps hit Google's button while our styled label shows underneath. */
+.hiddenGoogleButtonHost {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0.001;
+  cursor: pointer;
+}
+
+.hiddenGoogleButtonHost iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 44px;
+  margin: 0 !important;
+}
+
+.hiddenGoogleButtonHostDisabled {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.customGoogleButton {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Covers the GIS iframe so Continue with Google can't open until CGU is
+ * ticked (consentUpfront). Click shows the consent error instead. */
+.consentGate {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.consentActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.consentDecline {
+  margin-top: auto;
+  flex-shrink: 0;
+  padding-top: 20px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

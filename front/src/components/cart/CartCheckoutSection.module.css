@@ -1,0 +1,657 @@
+.section {
+  margin-top: 0;
+}
+
+.headingRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-bottom: 10px;
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Muted hint inlined beside "Paiement" for authorize-then-capture
+   methods (card / PayPal / wallets). Hidden for free carts and for
+   direct-capture methods (Bancontact). */
+.headingNotice {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  margin: 14px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-medium);
+}
+
+.methodList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+/* A payment option in its own right visually, but deliberately outside the
+   radio group: activating it opens Stripe's add-card flow rather than
+   selecting a payment method. */
+.addCardTile {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.addCardTile:hover {
+  background: var(--color-accent-faint);
+}
+
+.addCardTile:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.addCardTile:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.addCardTileMain {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.addCardPlus {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-bg-card);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.addCardCopy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.addCardLabel {
+  color: var(--color-accent);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.addCardSecureNotice {
+  display: flex;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.cardBrands {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.visaBrand {
+  /* Official Visa navy on light; white wordmark on dark surfaces. */
+  color: light-dark(#1a1f71, #ffffff);
+  font-family: Arial, sans-serif;
+  font-size: 0.6875rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.mastercardBrand {
+  position: relative;
+  width: 23px;
+  height: 15px;
+  display: block;
+}
+
+.mastercardBrand i {
+  position: absolute;
+  top: 0;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+}
+
+.mastercardBrand i:first-child {
+  left: 0;
+  background: #eb001b;
+}
+
+.mastercardBrand i:last-child {
+  right: 0;
+  background: #f79e1b;
+  mix-blend-mode: multiply;
+}
+
+.methodRowTrailing {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Official PayPal wordmark (acceptance mark). */
+.paypalBrand {
+  display: block;
+  width: 62px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* Official Bancontact mark (wordmark + ribbon). */
+.bancontactBrand {
+  display: block;
+  width: 53px;
+  height: 35px;
+  object-fit: contain;
+}
+
+/* Official Google Pay logo (gstatic instantbuy light mark) — multicolor G. */
+.googlePayBrand {
+  display: block;
+  width: 41px;
+  height: 17px;
+  object-fit: contain;
+}
+
+/* Official Apple Pay acceptance mark (Apple marketing artwork). */
+.applePayBrand {
+  display: block;
+  width: 41px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.methodRow {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 0.875rem;
+}
+
+.methodRowSelected {
+  border-color: var(--color-accent);
+  background: var(--color-accent-faint);
+}
+
+.methodRowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.methodRowMain {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.methodRowActions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.methodIconButton {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-medium);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.methodIconButton:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.methodIconButtonDelete {
+  border-color: var(--color-danger-border);
+  color: var(--color-danger);
+}
+
+.methodIconButtonDelete:hover {
+  background: var(--color-danger-bg-hover);
+  color: var(--color-danger);
+}
+
+/* Mobile: flush top-right corner tab, same treatment as the address card's
+   own .addressDeleteButton (see CartPage.module.css) — there's only ever
+   one action here (no edit button to stack alongside), so this can go
+   straight to an absolute corner tab instead of address's column layout. */
+@media (max-width: 1023px) {
+  .methodRow {
+    padding-right: 44px;
+  }
+
+  .methodRowActions {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .methodIconButtonDelete {
+    width: 35.2px;
+    height: 35.2px;
+    border-top: none;
+    border-right: none;
+    border-radius: 0 0 0 var(--radius-md);
+    background: transparent;
+  }
+
+  .methodIconButtonDelete:hover {
+    background: transparent;
+    border-color: var(--color-danger);
+  }
+
+  .methodIconButtonDelete svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.cardLines {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardNickname {
+  font-weight: 600;
+}
+
+.cardBrandMuted {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.defaultBadge {
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-bottom: 1px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-medium);
+  color: var(--color-accent);
+  padding: 4px 9px;
+  font-size: 0.625rem;
+  font-weight: 700;
+}
+
+.notice {
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+}
+
+.confirmBackdrop {
+  composes: backdropResponsive from '../ui/ModalChrome.module.css';
+  z-index: var(--z-modal-raised);
+}
+
+.confirmDialog {
+  width: 100%;
+  min-height: 0;
+  max-height: 86vh;
+  max-height: 86dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-bg-card);
+  padding: 16px 0 0;
+  box-shadow: var(--shadow-modal);
+  animation: confirmSheetSlideUp 220ms ease;
+}
+
+@keyframes confirmSheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes confirmDialogFadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirmDialog {
+    animation: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .confirmDialog {
+    width: min(100%, 480px);
+    max-height: 88vh;
+    max-height: 88dvh;
+    border-radius: var(--radius-xl);
+    animation: confirmDialogFadeScaleIn 160ms ease;
+  }
+}
+
+.confirmHeader {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  /* Right inset clears the scroll-hint chevron + track (same budget as
+   * .confirmScrollBody). */
+  padding: 0 calc(var(--scroll-hint-inset-x) + var(--scroll-hint-size) + 8px) 12px 20px;
+  position: relative;
+}
+
+/* Inset separator under the title/close row — same cue as AddressFormModal /
+   AddCardModal headers. */
+.confirmHeader::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: calc(var(--scroll-hint-inset-x) + var(--scroll-hint-size) + 8px);
+  bottom: 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.confirmTitle {
+  composes: dialogTitle from '../ui/Typography.module.css';
+}
+
+.confirmCloseButton {
+  composes: closeButton from '../ui/ModalChrome.module.css';
+}
+
+/* Overrides ModalShell .body padding so the payment confirm sheet matches
+ * the header inset while staying inside ModalScrollBody. Extra right
+ * padding keeps the order summary and card fields clear of the scroll-
+ * hint track (16px used to sit flush against it). */
+.confirmDialog .confirmScrollBody {
+  padding: 0 calc(var(--scroll-hint-inset-x) + var(--scroll-hint-size) + 8px) 24px 20px;
+}
+
+.confirmText {
+  margin-top: 14px;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.confirmError {
+  margin-top: 10px;
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
+/* Stock hold about to expire, with its extend action (PaymentReservationNotice). */
+.reservationWarning {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-warning-soft);
+}
+
+.reservationWarningText {
+  margin: 0;
+  color: var(--color-warning);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.confirmSummary {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.confirmSummaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 0.875rem;
+}
+
+.confirmSummaryLabel {
+  color: var(--color-muted);
+}
+
+.confirmSummaryValue {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-weight: 700;
+}
+
+.confirmSummaryEmail {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  text-align: right;
+  max-width: 70%;
+}
+
+/* Same block as OrdersList cancel-order preview — under the totals summary. */
+.confirmDeliveryAddress {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.confirmDeliveryLabel {
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.confirmDeliveryBody {
+  line-height: 1.45;
+  font-size: 0.875rem;
+}
+
+.confirmDeliveryPickupPoint {
+  font-weight: 600;
+}
+
+.confirmDeliveryCountry {
+  color: var(--color-muted);
+}
+
+/* Bancontact billing name — visible before Continuer (Stripe PE often
+   hides name until confirm fails). */
+.confirmNameFields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0 4px;
+}
+
+/* The flex gap already spaces it from the first field. */
+.confirmNameFields .confirmNameNote {
+  margin-bottom: 0;
+}
+
+.confirmNameField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.confirmNameLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--color-ink);
+}
+
+.confirmNameRequired {
+  margin-left: 0.2em;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.confirmNameInput {
+  box-sizing: border-box;
+  width: 100%;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.25;
+  padding: 9px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border-input);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+}
+
+.confirmNameInput:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.confirmNameInput[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.confirmNameError {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+}
+
+/* Cardholder name sits on its own line above the brand/last4 line, not
+   inlined with it. */
+.confirmCardholderName {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.deletePreview {
+  line-height: 1.5;
+}
+
+.deletePreviewName {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.newCardPayForm {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Flush with confirm sheet content. Cardholder reuses .confirmName*
+ * classes; do not reuse AddCardModal accordion gutter padding. */
+.newCardRememberRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 2px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 0.875rem;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.newCardRememberRow input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.confirmActions > * {
+  min-width: min(100%, 220px);
+}
+
+.walletPaySlot {
+  margin-top: 20px;
+  min-height: 44px;
+}
+
+.walletPaySlot[aria-busy='true'] {
+  opacity: 0.5;
+  pointer-events: none;
+}

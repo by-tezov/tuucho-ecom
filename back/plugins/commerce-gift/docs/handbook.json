@@ -1,0 +1,17 @@
+{
+  "title": "Gift orders",
+  "summary": "Cadeau. Create a gift, receiver shop, admin offers.",
+  "configure": "Admin, Gift.",
+  "preferences": "None.",
+  "openingsUsed": [
+    "cart.gifts",
+    "storefront Offer menu"
+  ],
+  "openingsProvided": [
+    "StorefrontPage",
+    "AdminPage"
+  ],
+  "cart": "Gift create and receiver shop are hidden while the plugin is off. Checkout gift lines use the gift module, gated by requirePluginEnabled.",
+  "orders": "Gift orders keep their snapshot. Admin gift queues disappear when the plugin is off (404 plugin_disabled).",
+  "profile": "None."
+}

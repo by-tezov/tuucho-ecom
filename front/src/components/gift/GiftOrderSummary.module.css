@@ -1,0 +1,60 @@
+.card {
+  position: relative;
+  overflow: hidden;
+  padding-right: 60px;
+}
+
+.metaBlock {
+  margin: 0 0 12px;
+}
+
+.metaLabel {
+  margin: 0 0 4px;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metaValue {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 4;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+.remaining {
+  margin: 0 0 8px;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.confirmed {
+  margin: 14px 0 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.emailSeparator {
+  border: none;
+  border-top: 1px solid var(--border-medium);
+  width: calc(100% - 48px);
+  margin: 16px auto 0;
+}
+
+.emailField {
+  margin: 8px 0 0;
+}
+
+.confirmButton {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 14px;
+  margin-inline: auto;
+}

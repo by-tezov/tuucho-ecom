@@ -1,0 +1,16 @@
+{
+  "title": "Customer reviews",
+  "summary": "Avis clientes. Home-page reviews and the Reviews admin page.",
+  "configure": "Admin, Reviews.",
+  "preferences": "None.",
+  "openingsUsed": [
+    "storefront home slot"
+  ],
+  "openingsProvided": [
+    "StorefrontSlot",
+    "AdminPage"
+  ],
+  "cart": "None.",
+  "orders": "None.",
+  "profile": "None."
+}

@@ -1,0 +1,242 @@
+.backdrop {
+  composes: backdropResponsive from '../ui/ModalChrome.module.css';
+}
+
+/* No max-width below the dialog breakpoint — unlike ColorFilterModal's
+   single-column list, this sheet's multi-section chip layout is meant to
+   read edge-to-edge on every phone/tablet width, not letterbox once the
+   viewport passes some fixed cap. */
+.panel {
+  width: 100%;
+  max-height: 82vh;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 220ms ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .panel {
+    max-width: 630px;
+    max-height: 84vh;
+    border-radius: var(--radius-xl);
+    animation: fadeScaleIn 160ms ease;
+  }
+}
+
+.header {
+  composes: header from '../ui/ModalChrome.module.css';
+}
+
+/* Inset from the panel's own edges, rather than a border-bottom on the
+   full-width header — same reasoning as ColorFilterModal's identical rule. */
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--color-ink);
+}
+
+.closeButton {
+  composes: closeButton from '../ui/ModalChrome.module.css';
+}
+
+/* ModalScrollBody's own .body (ModalShell.module.css) carries a generic
+   28/24px inset meant for a single block of dialog content — doubled up
+   with this section's own padding it left a wide blank gutter down the
+   left/right edges instead of the sheet reading full-bleed. Zeroed via the
+   className passed to ModalScrollBody; every horizontal/vertical inset
+   here is this component's own from here down. */
+.scrollBody {
+  padding: 0;
+}
+
+/* No border-top between sections — each one's own SectionHeader line
+   already reads as the divider (same as OrdersList's .itemGroupLabel,
+   which doesn't get one either); a border here on top of that doubled the
+   line right above every title. Top padding trimmed from the original
+   14px: each section's own bottom padding (still 14px) is what actually
+   separates it from the one after, so a matching 14px top on top of that
+   doubled up into more air above every title than intended. */
+.section {
+  padding: 6px 20px 14px;
+}
+
+/* The header already carries its own bottom padding/border (see .header),
+   so the first section needs even less than the 6px the others now get. */
+.section:first-child {
+  padding-top: 4px;
+}
+
+/* Title centered on a line, same "cut line" look as OrdersList's
+   .itemGroupLabel (Nails/Accessories/Gifts headings) — a 1fr/auto/1fr grid
+   instead of that component's ::before/::after pair, since the right side
+   here also needs to hold the "Toutes" link. Equal 1fr columns keep the
+   title dead-center regardless of what's in the right column. */
+.sectionHeader {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sectionHeaderLine {
+  height: 1px;
+  background: var(--border-medium);
+}
+
+/* Left line only — pulled out past .section's own 20px padding so it
+   reaches the panel's true left edge, same full-bleed idea as OrdersList's
+   .itemGroupLabel (its list has no side padding to begin with; this one
+   does, so the line has to escape it explicitly). */
+.sectionHeader > .sectionHeaderLine {
+  margin-left: -20px;
+}
+
+.sectionHeaderEnd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sectionHeaderEnd .sectionHeaderLine {
+  flex: 1 1 auto;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+/* Text link, not a pill — same look as .filterResetBottom in
+   GalleryFilters.module.css (the other "clear this" link in the gallery). */
+.sectionAllLink {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.sectionAllLink:hover {
+  opacity: 0.8;
+}
+
+/* Already the current selection — reads as "you're here" rather than an
+   action still worth taking, same as an active nav link dropping its
+   underline. */
+.sectionAllLinkActive {
+  text-decoration: none;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Bigger than Chip's own default badge size — reads better as a primary tap
+   target in a filter sheet. Element selector (not just the class) to
+   reliably beat Chip.module.css's own .chip padding/font-size regardless of
+   stylesheet bundling order between the two CSS modules. */
+button.filterChip {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+}
+
+/* Resting state: border-only, black text — applied via GalleryFilterSheet's
+   own `active` prop (see the JSX), not a `:not(.chipActive)` CSS selector.
+   CSS Modules scope every class token per-file, including ones only used
+   inside :not() — `.chipActive` written here would compile to a hash local
+   to *this* file, never the one Chip.module.css actually puts on the
+   element, so the exclusion silently never matched and this rule ended up
+   permanently overriding the real selected-state background. Two fully
+   own classes, picked in JS from the same boolean already driving Chip's
+   `active` prop, sidesteps that entirely. */
+button.filterChipInactive {
+  background: none;
+  border: 1.5px solid var(--color-accent);
+  color: var(--color-ink);
+}
+
+/* Selected state: full solid accent fill — redundant with Chip's own
+   .chipActive (which does the same thing) but kept explicit and equally
+   robust rather than depending on that cross-file class again. */
+button.filterChipActive {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+/* Size codes (XS/S/M/L) must keep their exact casing — Chip's base rule
+   capitalizes by default (right for occasion/shape, stored lowercase).
+   Element selector for the same reliable-override reason as .filterChip. */
+button.chipLiteral {
+  text-transform: none;
+}
+
+.footer {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border-soft);
+}
+
+/* Element selector (not just the class) to reliably outweigh Button's own
+   .base padding regardless of stylesheet bundling order — Button.tsx's
+   default 15px vertical / 28px horizontal padding reads oversized for a
+   two-up footer row like this one, and on a narrow phone that horizontal
+   padding plus .base's own white-space: nowrap kept both buttons at their
+   full intrinsic text width — flex items don't shrink past that by default
+   (min-width: auto) — so "Valider" got pushed past the sheet's edge instead
+   of the row actually narrowing. min-width: 0 lets the row shrink for
+   real; smaller horizontal padding plus allowing the label to wrap gives
+   it room to do that without truncating "Réinitialiser tout" invisibly. */
+button.footerButton {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 10px 12px;
+  white-space: normal;
+  text-align: center;
+}

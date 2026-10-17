@@ -1,0 +1,144 @@
+/*
+  Shared visual chrome for dialogs, drawers and sheets.
+
+  Feature modals keep their own React shell and panel layout (see
+  docs/theming.md, "Avoid a universal component based only on similar
+  appearance"); what they share is these leaf pieces. A feature module pulls
+  one in with `composes: closeButton from '../ui/ModalChrome.module.css';`
+  and only declares what genuinely differs.
+
+  CSS Modules prepends this file to every module that composes from it, so a
+  later copy can win the cascade over an earlier module's equal-specificity
+  override. Keep overrides of these classes out of composing modules, or
+  raise their specificity (e.g. `:hover:not(:disabled)`).
+*/
+
+.backdropSheet {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: var(--color-overlay-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* Bottom sheet on mobile, centred dialog from the desktop breakpoint. */
+.backdropResponsive {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: var(--color-overlay-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+@media (min-width: 1024px) {
+  .backdropResponsive {
+    align-items: center;
+  }
+}
+
+.backdropCentered {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: var(--color-overlay-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 12px 20px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 16px;
+  bottom: 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  background: var(--color-accent-shine);
+}
+
+.scrollHintUp,
+.scrollHintDown {
+  position: absolute;
+  right: var(--scroll-hint-inset-x);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--scroll-hint-size);
+  height: var(--scroll-hint-size);
+  border-radius: 50%;
+  background: var(--color-scroll-hint);
+  color: var(--color-scroll-hint-fg);
+  pointer-events: none;
+  animation: hintFade 180ms ease;
+}
+
+.scrollHintUp {
+  top: var(--scroll-hint-inset-y);
+}
+
+.scrollHintDown {
+  bottom: var(--scroll-hint-inset-y);
+}
+
+.scrollHintBar {
+  position: absolute;
+  right: calc(var(--scroll-hint-inset-x) + (var(--scroll-hint-size) / 2) - 1px);
+  width: 2px;
+  border-radius: 1px;
+  background: var(--color-scroll-hint-track);
+  pointer-events: none;
+  animation: hintFade 180ms ease;
+}
+
+.scrollHintBarFromUp {
+  top: var(--scroll-hint-bar-offset);
+}
+
+.scrollHintBarToDown {
+  bottom: var(--scroll-hint-bar-offset);
+}
+
+.scrollHintBarToDown:not(.scrollHintBarFromUp) {
+  top: var(--scroll-hint-inset-y);
+}
+
+.scrollHintBarFromUp:not(.scrollHintBarToDown) {
+  bottom: var(--scroll-hint-inset-y);
+}
+
+@keyframes hintFade {
+  from {
+    opacity: 0;
+  }
+}

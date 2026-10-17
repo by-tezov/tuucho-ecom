@@ -1,0 +1,25 @@
+{
+  "title": "Home address delivery",
+  "summary": "Home couriers: Colissimo, Chronopost, Mondial Relay home. Registers methods on the cart.",
+  "configure": "Admin, Plugins, Home address delivery, Configure. Packet prices (scalar or per-country) edit courier_packets.price.",
+  "preferences": "None.",
+  "openingsUsed": [
+    "cart.shipping.methods",
+    "checkout courier list",
+    "courier_countries.enabled"
+  ],
+  "openingsProvided": [
+    "ShippingMethod"
+  ],
+  "cart": "Checkout shows these couriers when the plugin is on and the delivery country is enabled. Prices come from packet rows on Configure.",
+  "orders": "The chosen courier code is stored on the order. shipping-expedition-cron complements tracking later.",
+  "profile": "Customer addresses are core. This plugin only consumes the delivery address.",
+  "sections": [
+    {
+      "heading": "How a courier plugin registers on the cart",
+      "paragraphs": [
+        "Set courierCodes on the manifest. Core checkout lists enabled couriers whose plugin is effectively on. PATCH /admin/plugins/:id { rates } writes packet prices. See the Courier in cart worked example."
+      ]
+    }
+  ]
+}

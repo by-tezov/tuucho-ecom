@@ -1,0 +1,15 @@
+{
+  "title": "Cron journals",
+  "summary": "Admin cron journals. Complements journal-api.",
+  "configure": "Admin, Crons.",
+  "preferences": "Cron enable toggles on Préférences remain core settings; this plugin only shows the log UI.",
+  "openingsUsed": [
+    "journal-api service"
+  ],
+  "openingsProvided": [
+    "AdminPage"
+  ],
+  "cart": "None.",
+  "orders": "None.",
+  "profile": "None."
+}

@@ -1,0 +1,58 @@
+{{#unless hidePrices}}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:12px 0 8px;">
+<tr>
+<td style="padding:3px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#5c5c5c;">{{subtotalLabel}}</td>
+<td style="padding:3px 0;text-align:right;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#5c5c5c;white-space:nowrap;">{{money subtotal}}</td>
+</tr>
+<tr>
+<td style="padding:3px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#5c5c5c;">{{shippingLabel}}{{#if courierName}} ({{courierName}}{{#if express}}{{expressSuffix}}{{/if}}){{/if}}</td>
+<td style="padding:3px 0;text-align:right;font-family:Arial,Helvetica,sans-serif;font-size:14px;white-space:nowrap;">
+  {{#if shippingIsFree}}
+    <span style="text-decoration:line-through;color:#5c5c5c;margin-right:6px;">{{money shippingListFee}}</span>
+    <span style="color:#38724f;font-weight:bold;">{{freeShippingLabel}}</span>
+  {{else}}
+    <span style="color:#5c5c5c;">{{money shippingFee}}</span>
+  {{/if}}
+</td>
+</tr>
+{{#if rulesItemDiscount}}
+<tr>
+<td style="padding:3px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#38724f;">{{rulesDiscountLabel}}</td>
+<td style="padding:3px 0;text-align:right;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#38724f;white-space:nowrap;">−{{money rulesItemDiscount}}</td>
+</tr>
+{{/if}}
+{{#if voucherCode}}
+<tr>
+<td style="padding:3px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#38724f;">{{voucherCode}}</td>
+<td style="padding:3px 0;text-align:right;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#38724f;white-space:nowrap;">−{{money voucherDiscount}}</td>
+</tr>
+{{/if}}
+{{#if loyaltyCredit}}
+<tr>
+<td style="padding:3px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#38724f;">{{loyaltyCreditLabel}}</td>
+<td style="padding:3px 0;text-align:right;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#38724f;white-space:nowrap;">−{{money loyaltyCredit}}</td>
+</tr>
+{{/if}}
+<tr>
+<td style="padding:10px 0 3px;border-top:1px solid #e1e1e1;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#121212;font-weight:bold;">{{totalLabel}}</td>
+<td style="padding:10px 0 3px;border-top:1px solid #e1e1e1;text-align:right;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#121212;font-weight:bold;white-space:nowrap;">{{money total}}</td>
+</tr>
+{{#if loyaltyEarn}}
+<tr>
+<td colspan="2" style="padding:12px 0 0;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f6f6f6;border:1px solid #e1e1e1;border-radius:8px;">
+    <tr>
+      <td style="padding:12px 14px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#121212;line-height:1.5;">
+        {{loyaltyEarnLabel}}
+        <strong style="display:inline-block;margin:0 4px;color:#38724f;font-size:16px;font-weight:800;">+{{money loyaltyEarn}}</strong>
+        {{#if loyaltyEarnNotice}}
+          <div style="margin-top:4px;font-size:13px;color:#121212;line-height:1.45;">{{loyaltyEarnNotice}}</div>
+        {{/if}}
+      </td>
+    </tr>
+  </table>
+</td>
+</tr>
+{{/if}}
+</table>
+{{/unless}}

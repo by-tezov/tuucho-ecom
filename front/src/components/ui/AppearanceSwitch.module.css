@@ -1,0 +1,37 @@
+.switch {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+}
+
+.option {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition:
+    background-color 160ms var(--ease-standard),
+    color 160ms var(--ease-standard),
+    box-shadow 160ms var(--ease-standard);
+}
+
+.option:hover {
+  color: var(--color-accent);
+}
+
+.optionActive {
+  background: var(--color-bg-card);
+  color: var(--color-accent);
+  box-shadow: var(--shadow-control-active);
+}

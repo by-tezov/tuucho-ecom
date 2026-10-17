@@ -1,0 +1,255 @@
+.section {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: 40px var(--page-padding-x) 90px;
+}
+
+.layout {
+  display: grid;
+  /* minmax(0, …) so the track can shrink below content min-size — otherwise
+     `1fr` (= minmax(auto, 1fr)) lets a wide cart line / summary card force
+     the column past the viewport on mobile and clip on the right. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 414px);
+  gap: 32px;
+  align-items: start;
+}
+
+.mainCol {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.summaryCol {
+  min-width: 0;
+}
+
+/* summaryCol (the <aside>) itself is never fixed — CartPage.tsx measures
+   it on scroll to decide pin/unpin and the footer clamp, which only works
+   if it always reports its true, undisturbed position. summaryStack (a
+   child wrapping GuestCheckoutPrompt + summaryCard together) is what
+   actually pins, so both cards move as one unit instead of summaryCard
+   alone leaving GuestCheckoutPrompt behind to be scrolled over. */
+.summaryStack {
+  display: flex;
+  flex-direction: column;
+}
+
+.summaryStackPinned {
+  position: fixed;
+  z-index: 10;
+  /* CartPage.tsx clamps this below 24px as the left column's bottom
+     (Paiement) approaches, so the stack's bottom tracks that edge and a
+     short viewport can still reveal the recap. No max-height/overflow —
+     that squeezed both cards into the viewport and made Récapitulatif
+     paint over Connectez-vous. */
+  top: var(--summary-top, 24px);
+  left: var(--summary-card-left);
+  width: var(--summary-card-width);
+  box-sizing: border-box;
+}
+
+/* Identification focus (create/link or Accepter les conditions): stack and
+ * page scrim above cart content and the mobile tab bar (z-index 90). */
+.summaryStackFocus {
+  position: relative;
+  z-index: 150;
+}
+
+.summaryStackPinned.summaryStackFocus {
+  position: fixed;
+  z-index: 150;
+}
+
+@media (max-width: 1023px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    /* Match .mainCol's section gap so Récapitulatif isn't spaced farther
+       than courier / address / payment when the sidebar stacks below. */
+    gap: 24px;
+  }
+
+  /* .summaryStackPinned never applies below this width — CartPage.tsx
+     gates pinning to above it, so the summary stays in document flow. */
+}
+
+.titleGroup {
+  margin-bottom: 24px;
+}
+
+.cartNameNote {
+  margin: 0 0 6px;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+}
+
+.titleSubtitle {
+  margin-top: 2px;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.empty {
+  color: var(--color-muted);
+}
+
+.emptyLink {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+@media (max-width: 1023px) {
+  .section {
+    /* Keep the cart title's mobile inset consistent with the auth pages. */
+    padding-top: 20px;
+  }
+}
+
+.sameAsBillingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 0.875rem;
+}
+
+.paymentSection {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+  padding: 12px 20px 20px;
+}
+
+.paymentSection h2,
+.addAccessoriesSection h2 {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.addAccessoriesSection {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+  padding: 12px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+}
+
+/* No added-lines list below — nothing to reserve the bottom padding for,
+   so the carousel itself sits edge-to-edge against the card's bottom too
+   (already edge-to-edge on the sides). */
+.addAccessoriesSectionNoLines {
+  padding-bottom: 0;
+}
+
+.addAccessoriesSection h2 {
+  padding-inline: 20px;
+}
+
+.addAccessoriesLines {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  /* Rows sit flush with the card edges (same as .list) so the trash icon
+     lines up with the main cart lines' trash — the divider (border-top)
+     is edge-to-edge too, matching the section's own 0 side padding. */
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border-medium);
+}
+
+.deletePreview {
+  line-height: 1.5;
+}
+
+.deletePreviewName {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.deletePreviewPhone {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.deletePreviewPhone svg {
+  flex-shrink: 0;
+  color: var(--color-muted);
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: 0.875rem;
+  margin-bottom: 12px;
+}
+
+.confirmButton {
+  width: 100%;
+}
+
+.successCard {
+  text-align: center;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  padding: 40px var(--page-padding-x);
+}
+
+.successOrderNumber {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--color-accent);
+  margin: 8px 0 16px;
+}
+
+/* Same callout chrome as CartOrderSummary — amount must read first. */
+.loyaltyEarnCallout {
+  margin: 16px auto 0;
+  max-width: 28rem;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-faint);
+  border: 1px solid var(--color-accent-medium);
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.loyaltyEarnAmount {
+  color: var(--color-success);
+  font-size: 1.0625rem;
+  font-weight: 800;
+}
+
+.giftNote {
+  margin: 12px auto 0;
+  max-width: 28rem;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.buttonRow {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}

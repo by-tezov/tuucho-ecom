@@ -1,0 +1,59 @@
+.section {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: var(--home-section-pad-y) var(--page-padding-x);
+  display: grid;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+  }
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.title {
+  font-size: clamp(1.875rem, 3.6vw, 2.625rem);
+}
+
+.sub {
+  color: var(--color-muted);
+  margin: 18px 0 26px;
+}
+
+.faqTitle {
+  font-size: 1.625rem;
+  margin-bottom: 8px;
+}
+
+.contactLink {
+  display: inline-block;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.contactLink:hover {
+  text-decoration: underline;
+}
+
+.faqLink {
+  display: inline-block;
+  color: var(--color-accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.faqLink:hover {
+  text-decoration: underline;
+}

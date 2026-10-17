@@ -1,0 +1,135 @@
+/* Mobile-only — desktop keeps its header trigger + top nav (Header.module.css
+   / CartControl.module.css's .wrap, both scoped to min-width: 1024px). */
+.bar {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .bar {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 90;
+    border-top: 1px solid var(--border-soft);
+    background: var(--color-bg-card);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    box-shadow: var(--shadow-bar);
+  }
+
+  .tab {
+    /* One line of text sets the width. Leftover bar space is split evenly,
+       and the pill fills that whole share. */
+    flex: 1 1 auto;
+    min-width: max-content;
+    display: flex;
+    align-items: stretch;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-muted);
+    font: inherit;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .tabActive {
+    color: var(--color-accent);
+    font-weight: 800;
+  }
+
+  /* Signed-out "Se connecter" — same gold accent as the burger login row. */
+  .tabLogin,
+  .tabLogin.tabActive {
+    color: var(--color-accent);
+  }
+
+  /* Icon + label together, so the active pill (below) englobes both instead
+     of just circling the icon. */
+  .tabContent {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    padding: 4px 6px;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+  }
+
+  /* Filled pill behind the active tab's whole content — same "solid accent
+     chip" language as the active Ou/Et and Favori buttons on the gallery
+     filter bar, so "current tab" reads as a clear state change, not just a
+     subtle tint shift between two similarly dark colors. */
+  .tabActive .tabContent {
+    background: var(--color-accent-shine);
+  }
+
+  .tabLogin.tabActive .tabContent {
+    background: var(--color-accent-shine);
+  }
+
+  /* Same soft attention wave as the header trigger / mobile FAB (see
+     CartControl.module.css) — only when the cart still holds items. Its own
+     @keyframes is duplicated below since CSS modules scope keyframe names
+     per file, so the shared name can't be referenced across modules. */
+  .tabHasItems .tabContent {
+    animation: tabBarWave 3.2s ease-in-out infinite alternate;
+  }
+
+  .tabLabel {
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  .tabIconWrap {
+    display: inline-flex;
+  }
+
+  /* Tight wrap around just the cart glyph — keeps the badge anchored to the
+     icon itself regardless of surrounding padding. */
+  .cartIconGlyph {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .badge {
+    position: absolute;
+    top: -5px;
+    right: -6px;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: var(--color-bg);
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 15px;
+    text-align: center;
+  }
+}
+
+/* Deliberately lighter than .tabActive's solid --color-accent-shine fill —
+   this plays while the tab is NOT selected, so its peak must read as a
+   gentle nudge, not as if the tab were already current. */
+@keyframes tabBarWave {
+  from {
+    background-color: var(--color-bg-card); /* #ffffff / #242424 */
+    color: var(--color-ink);
+  }
+  to {
+    background-color: var(--color-accent-medium);
+    color: var(--color-accent);
+  }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: reduce) {
+  .tabHasItems .tabContent {
+    animation: none;
+  }
+}

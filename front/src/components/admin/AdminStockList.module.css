@@ -1,0 +1,477 @@
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-size: clamp(1.625rem, 4vw, 2.25rem);
+}
+
+.search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  margin: 0 0 16px;
+}
+
+.searchField {
+  display: grid;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.searchField input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  font: inherit;
+  color: var(--color-ink);
+}
+
+.search button {
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-inverse);
+  color: var(--color-cream-bright);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.viewBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.error {
+  margin: 0 0 12px;
+  color: var(--color-danger);
+}
+
+.empty {
+  composes: empty from './AdminList.module.css';
+}
+
+/* ---- List view ---- */
+.listRows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.listRows li {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.listRows li:last-child {
+  border-bottom: none;
+}
+
+/* Row shell. The photo and the open-detail button are siblings inside it,
+   so the padding and gap live here rather than on either button. */
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 12px 16px 12px 0;
+  color: inherit;
+  text-align: left;
+}
+
+/* Text and the Modifier link. On narrow screens the link stays on the
+   reference line. From 1024px it sits above the price, in the same right
+   column, so the row stays as tall as the photo. */
+.listRowBody {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 8px;
+}
+
+/* Everything except the photo: opens the detail. */
+.listRowOpen {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.listRowActions {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.editLink {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 2px 12px;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.editLink:hover:not(:disabled) {
+  color: var(--color-ink);
+}
+
+.editLink:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.editLink:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.toolbarRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+button.listRowOpen {
+  cursor: pointer;
+}
+
+.listRow:has(button.listRowOpen:hover) {
+  background: var(--color-cream);
+}
+
+button.listRowOpen:focus-visible,
+.listRowThumbButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* The photo: zooms, never opens the detail. */
+.listRowThumbButton {
+  display: block;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.listRowThumb,
+.listRowThumbMissing {
+  display: block;
+  flex: 0 0 auto;
+  width: 72px;
+  height: 72px;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  object-fit: cover;
+  background: var(--color-cream);
+}
+
+.listRowMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.listRowTop {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.listRowTop strong {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+  color: var(--color-accent);
+}
+
+.listRowTop span {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.listRowSummary {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.listRowPrice {
+  flex: 0 0 auto;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+}
+
+.listRowTrailing {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.listRowPrice strong {
+  font-size: 0.90625rem;
+}
+
+.listRowPrice span {
+  font-size: 0.6875rem;
+  color: var(--color-muted);
+}
+
+@media (min-width: 1024px) {
+  .listRowBody {
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 0;
+  }
+
+  .listRowOpen {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    align-items: center;
+    z-index: 0;
+  }
+
+  .listRowMain {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    align-self: center;
+  }
+
+  .listRowTrailing {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+  }
+
+  .listRowActions {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    align-self: end;
+    z-index: 1;
+  }
+
+  .editLink {
+    padding: 0 2px;
+  }
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+}
+
+.thumbButton {
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.thumb,
+.thumbMissing {
+  display: block;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: var(--color-cream);
+}
+
+.headerText {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.uid {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.metaNote,
+.metaFeatured {
+  flex-basis: 100%;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.metaFeatured {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+@media (min-width: 1024px) {
+  .list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.editBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--color-overlay-modal);
+}
+
+.editPanel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 92vh;
+  overflow: hidden;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.editHeader {
+  composes: header from '../ui/ModalChrome.module.css';
+}
+
+.editTitle {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  color: var(--color-ink);
+}
+
+.editClose {
+  composes: closeButton from '../ui/ModalChrome.module.css';
+}
+
+.editClose:hover:not(:disabled) {
+  background: var(--color-accent-shine);
+}
+
+/* The shared close button tints on any hover; a disabled one must not. */
+.editClose:disabled:hover {
+  background: var(--color-bg-card);
+}
+
+.editClose:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.editIdentity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Secondary product action (see `footerAction`) then Save, sharing the
+   width evenly. */
+.editFooter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 12px 20px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border-soft);
+}
+
+.editFooter > * {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-inline: 16px;
+  white-space: normal;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .editBackdrop {
+    align-items: center;
+    padding: 16px;
+  }
+
+  .editPanel {
+    max-width: 480px;
+    max-height: 88vh;
+    border-radius: var(--radius-xl);
+  }
+}
+
+/* The list switches, directly under the search field. */
+.listFilters {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 0 4px 4px;
+}
+
+.listFilter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}

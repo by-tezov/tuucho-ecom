@@ -1,0 +1,21 @@
+{
+  "id": "commerce-reviews",
+  "name": "Customer reviews",
+  "version": "1.0.0",
+  "kind": "commerce",
+  "description": "Avis clientes on the home page and the Reviews admin page. Disable to hide both.",
+  "defaultEnabled": true,
+  "provides": [
+    "StorefrontSlot",
+    "AdminPage"
+  ],
+  "permissions": [
+    {
+      "code": "reviews",
+      "label": "Customer reviews"
+    }
+  ],
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

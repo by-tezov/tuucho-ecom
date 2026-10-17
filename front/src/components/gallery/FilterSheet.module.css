@@ -1,0 +1,158 @@
+.backdrop {
+  composes: backdropSheet from '../ui/ModalChrome.module.css';
+}
+
+/* Same ladder as SizeRequestModal.module.css / LoadingModal.module.css
+   (1000 base / 1100 / 1200) — opened from a control already above the
+   1000 product zoom modal (e.g. QuantityControl inside
+   SizeRequestModal.aboveLightbox). */
+.backdrop.aboveLightbox {
+  z-index: var(--z-modal-top);
+}
+
+.sheet {
+  width: 100%;
+  /* min-height auto would ignore max-height and let a long option list
+     run off the top of the screen, with the native bar hidden and the
+     chevrons never turning on. */
+  min-height: 0;
+  max-height: 70vh;
+  max-height: 70dvh;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 220ms ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    animation: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sheet {
+    max-width: 560px;
+  }
+}
+
+.header {
+  composes: header from '../ui/ModalChrome.module.css';
+}
+
+/* Inset from the panel's own edges, rather than a border-bottom on the
+   full-width header — a full-width line reads as flush with the panel
+   border, not as a separator specifically under the title/close row. */
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--color-ink);
+}
+
+.closeButton {
+  composes: closeButton from '../ui/ModalChrome.module.css';
+}
+
+/* .listWrap is itself a (column) flex container, and .list below is its
+   flex item with min-height: 0 — a nested flex chain, not a percentage
+   height. Verified live that height: 100% on .list doesn't reliably
+   resolve against .listWrap's own flex-grown (not explicitly sized)
+   height: it rendered at full content height and spilled off-screen
+   instead of capping to the sheet and scrolling internally. Also tried
+   position: absolute + inset: 0 on .list, which is worse — removing it
+   from flow removes the very content height that makes .sheet (which only
+   has a max-height, not a height) actually expand to that cap in the
+   first place, so the sheet collapses to just its header. Flex-in-flex
+   avoids percentage resolution entirely: each level's height comes
+   directly from the flex algorithm. */
+.listWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.list {
+  flex: 1 1 auto;
+  min-height: 0;
+  list-style: none;
+  margin: 0;
+  padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  cursor: grab;
+  /* Native scroll (touch/wheel) stays; only the visual scrollbar track is
+     hidden — the .scrollHintUp/.scrollHintDown chevrons take over as the
+     "more content" cue, same as the header cart drawer. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.list::-webkit-scrollbar {
+  display: none;
+}
+
+.list:active {
+  cursor: grabbing;
+}
+
+.scrollHintUp {
+  composes: scrollHintUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintDown {
+  composes: scrollHintDown from '../ui/ModalChrome.module.css';
+}
+
+/* Vertical track aligned with the chevron centers. Spans:
+   - down alone → from the top edge down to the bottom chevron
+   - up alone   → from below the top chevron to the bottom edge
+   - both       → between the two chevrons
+   - neither    → not rendered */
+.scrollHintBar {
+  composes: scrollHintBar from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarFromUp {
+  composes: scrollHintBarFromUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarToDown {
+  composes: scrollHintBarToDown from '../ui/ModalChrome.module.css';
+}
+
+.option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 13px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+  text-transform: capitalize;
+}
+
+.option:hover {
+  background: var(--color-accent-subtle);
+}
+
+.optionActive {
+  color: var(--color-accent);
+  font-weight: 700;
+  background: var(--color-accent-subtle);
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}

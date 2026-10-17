@@ -1,0 +1,141 @@
+.block {
+  margin-bottom: 28px;
+}
+
+@media (max-width: 1023px) {
+  /* The final notification block sits immediately before Retour. */
+  .block:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  margin: 0 0 12px;
+  color: var(--color-ink);
+}
+
+.groupedCard {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+}
+
+.entry {
+  padding: 14px 16px;
+  position: relative;
+}
+
+/* Inset hairline — same cue as CartSwitcher / ConfirmModal, not edge-to-edge. */
+.entry + .entry::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+.card {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  padding: 14px 16px;
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cardTitle {
+  margin: 0 0 6px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.cardDescription {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+}
+
+.primaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 0.8125rem;
+}
+
+.primaryLabel {
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.primaryEmail {
+  color: var(--color-ink);
+  word-break: break-all;
+}
+
+.badgeVerified,
+.badgeUnverified {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badgeVerified {
+  background: color-mix(in srgb, var(--color-success) 18%, transparent);
+  color: var(--color-success);
+}
+
+.badgeUnverified {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  color: var(--color-accent);
+}
+
+.banner {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-subtle);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+.resendButton {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Outcome of the resend, on its own line rather than after a long dash. */
+.resendResult {
+  display: block;
+  margin-top: 4px;
+}
+
+.loading {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}

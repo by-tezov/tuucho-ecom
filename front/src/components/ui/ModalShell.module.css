@@ -1,0 +1,352 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--color-overlay-modal);
+}
+
+.dialog {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  padding: 28px 24px 24px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-modal);
+}
+
+/* Size-request dialogs grow with the comment field — cap to the viewport
+   and scroll the body with the shared chevron/bar chrome. */
+.dialogScrollable {
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+@media (max-width: 1023px) {
+  .bottomSheetBackdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .bottomSheet {
+    max-width: none;
+    max-height: min(82dvh, 720px);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: var(--shadow-sheet);
+  }
+}
+
+.bodyWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 28px 28px 24px 24px;
+  cursor: grab;
+  /* Press-drag scrolls; without this the browser selects text instead
+     (same contract as CartControl / FilterSheet / PhotoLightbox). */
+  user-select: none;
+  -webkit-user-select: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Under a fixed dialog header with its own separator: keep the gap to the
+   first line of copy the same as `.text`'s margin after `.title` (10px),
+   instead of stacking another full 28px of body padding. */
+.bodyUnderHeader {
+  padding-top: 10px;
+}
+
+.body::-webkit-scrollbar {
+  display: none;
+}
+
+.body:active {
+  cursor: grabbing;
+}
+
+.body :is(input, textarea, select) {
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.body :is(button, a, label) {
+  cursor: pointer;
+}
+
+.scrollHintUp {
+  composes: scrollHintUp from './ModalChrome.module.css';
+}
+
+.scrollHintDown {
+  composes: scrollHintDown from './ModalChrome.module.css';
+}
+
+.scrollHintBar {
+  composes: scrollHintBar from './ModalChrome.module.css';
+}
+
+.scrollHintBarFromUp {
+  composes: scrollHintBarFromUp from './ModalChrome.module.css';
+}
+
+.scrollHintBarToDown {
+  composes: scrollHintBarToDown from './ModalChrome.module.css';
+}
+
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  background: var(--color-accent-shine);
+}
+
+.title {
+  padding-bottom: 14px;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  text-align: center;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+/* Size picker heading swaps between “choose” and “request” without
+   jumping the vignette/title/shape block below. */
+.titleSwap {
+  animation: selectionTitleIn 220ms ease;
+}
+
+@keyframes selectionTitleIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.text {
+  margin-top: 10px;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.pickerGroup {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+/* Made-to-order request step of the size picker — replaces the two apply
+   actions once a sold-out chip is selected (see SelectionPickerModal). */
+.requestBlock {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.requestNotice {
+  color: var(--color-danger);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.requestField {
+  display: block;
+  margin-top: 14px;
+  text-align: left;
+}
+
+.requestFieldLabel {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.fieldHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.fieldHeader .requestFieldLabel {
+  display: inline;
+  margin-bottom: 0;
+}
+
+.textLink {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.fieldHeader .textLink {
+  margin-top: 0;
+}
+
+.requestInput {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.875rem;
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+/* 0.875rem (14px) is under iOS Safari's 16px auto-zoom-on-focus threshold;
+   this class sets its own font-size directly, so the global reset.css
+   floor can't reach it (equal element/class specificity loses to the
+   class here). Keep the smaller desktop size, bump only on mobile. */
+@media (max-width: 1023px) {
+  .requestInput {
+    font-size: max(16px, 1em);
+  }
+}
+
+.requestInput:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.requestTextarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.requestStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.requestSpinner {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  border: 2px solid var(--border-soft);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: selectionPickerSpin 0.7s linear infinite;
+}
+
+@keyframes selectionPickerSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.requestError {
+  margin-top: 14px;
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.previewRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.previewPhoto {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* 1.25× .previewPhoto / 1.5× Chip — default ItemPreviewRow size in modals. */
+.previewPhotoEnlarged {
+  width: 60px;
+  height: 60px;
+}
+
+button.previewChipEnlarged,
+span.previewChipEnlarged {
+  font-size: 1.03125rem;
+  font-weight: 600;
+  padding: 4.5px 13.5px;
+}
+
+.previewBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+.previewDetails {
+  min-width: 0;
+}
+
+.previewTitle {
+  margin-bottom: 7px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 22px;
+}

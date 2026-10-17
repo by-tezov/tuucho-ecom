@@ -1,0 +1,388 @@
+{
+  "articles": [
+    {
+      "id": "welcome",
+      "group": "core",
+      "groupTitle": "Core handbook",
+      "title": "Documentation",
+      "summary": "Developer handbook of tezov-ecommerce. What core guarantees, how plugins talk to it, and how they talk to each other.",
+      "sections": [
+        {
+          "heading": "What this is",
+          "paragraphs": [
+            "This site is the Documentation plugin (docs-developer). Disable it and the admin menu disappears. The same truth is in docs/plugins.md and .cursor/skills/tezov-create-plugin/SKILL.md.",
+            "Core is a kernel plus openings: catalog, cart, checkout, orders, accounts, admin shell, plugin runtime, versioning. Theme, pages, payments, shipping, vouchers, cart rules, gifts, loyalty, product requests, reviews, journals, expedition cron and this guide are plugins. Each preinstalled plugin adds its own pages under Documentation."
+          ]
+        },
+        {
+          "heading": "Start here",
+          "paragraphs": [
+            "Architecture: kernel vs plugin vs complement, and the Te lock (what never leaves core).",
+            "Core openings: every filter, slot and service with name, payload and when it runs.",
+            "Permissions: declare on the manifest, grant in Rôles, check in a route.",
+            "Plugin to plugin: dependsOn, services, never private imports.",
+            "Versioning: core version, plugin version, engines.core. Incompatible plugins cannot enable.",
+            "Worked examples: profile menu, courier on cart, loyalty on cart and order history, permissions."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "group": "core",
+      "groupTitle": "Core handbook",
+      "title": "Architecture",
+      "summary": "Kernel vs plugin vs complement. What core allows and what must stay a plugin.",
+      "sections": [
+        {
+          "heading": "Kernel (always on)",
+          "paragraphs": [
+            "Plugin runtime: scan, enable/disable, dependsOn, engines.core, permission registration, services registry, GET /admin/docs.",
+            "Shop / Boutique including product axes (multilingual labels, Visible, hide-when-single). Vocabulaire. Préférences (plugins may add an entry).",
+            "Roles (plugins register permission codes). Users, impersonate (Usurper un compte).",
+            "Orders, order history, stock, libraries, collection, contact.",
+            "My profile (plugins may add entries). Auth: session, cache, connection. Sign-in methods are a core shell with an opening to add methods.",
+            "Customer addresses. Payment-method shell (stored methods). Notifications (plugins may add entries)."
+          ]
+        },
+        {
+          "heading": "Plugins (enable/disable hides UI and behaviour)",
+          "paragraphs": [
+            "Theme, page plugins, docs-developer. Payment gateways. Shipping methods plus shipping-expedition-cron.",
+            "Vouchers, cart rules, gifts, loyalty, reviews, product requests. Journal family: journal-api plus journal-admin, journal-email, journal-cron.",
+            "Do not move collection, contact, users, orders, stock, roles, vocabulaire, or shop/axes into plugins."
+          ]
+        },
+        {
+          "heading": "Complements",
+          "paragraphs": [
+            "A complement declares dependsOn on a capability plugin. journal-admin depends on journal-api. shipping-expedition-cron depends on both shipping plugins.",
+            "isPluginEffectivelyEnabled(id) is false if the plugin or any ancestor is off. The runtime does not auto-enable dependencies. Scan and enable reject a plugin whose engines.core or dependsOn version does not match."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "core-openings",
+      "group": "core",
+      "groupTitle": "Core handbook",
+      "title": "Core openings",
+      "summary": "Every filter, slot and service core exposes so a plugin can extend the shop without forking the kernel.",
+      "sections": [
+        {
+          "heading": "How to register",
+          "paragraphs": [
+            "Filters live in back/src/modules/plugins/application/hooks.ts. Lower priority runs first (default 10). Core applies them in buildCoreOpenings and on GET /storefront/bootstrap (openings{}).",
+            "Prefer an opening over a blank Configure page when a toggle or a row is enough."
+          ],
+          "code": "import { addFilter } from '../application/hooks.js';\n\naddFilter('core.profile.entries', (entries) => [\n  ...entries,\n  {\n    id: 'studio-profile',\n    pluginId: 'page-studio-note',\n    title: 'Studio note',\n    description: 'Open the studio page',\n    href: '/studio-note',\n  },\n]);"
+        },
+        {
+          "heading": "Preferences, profile, sign-in, notifications",
+          "paragraphs": [
+            "core.preferences.entries: plugin rows on Admin, Préférences. Payload: { id, pluginId, title, description?, href? }. Runs on bootstrap. Product requests keep the size-request toggle here.",
+            "core.profile.entries: extra cards on Account, My profile. Same payload. Use href for a plugin page.",
+            "core.signIn.methods: extra sign-in methods on Préférences and the account sign-in list. Same payload. Add an OAuth method here, not a parallel login screen.",
+            "core.notifications.entries: extra notification rows on Account notifications (and prefs). Participate or add rows."
+          ]
+        },
+        {
+          "heading": "Cart and checkout",
+          "paragraphs": [
+            "cart.shipping.methods: shipping plugins register by putting courierCodes on the manifest. Core checkout lists enabled couriers whose plugin is effectively on. Prices: PATCH /admin/plugins/:id { rates }.",
+            "cart.loyalty.lines: commerce-loyalty injects via priceLoyaltyIfEnabled in priceAuthenticatedCheckout / priceGuestCheckout. When the plugin is off, credit is 0.",
+            "cart.vouchers: commerce-vouchers owns the promo field. previewVoucher refuses codes while the plugin is off.",
+            "cart.gifts: commerce-gift owns gift create and receiver shop.",
+            "Payment-method shell is core. payment-stripe registers methods into that shell. Customer stored cards stay core; the gateway is the plugin."
+          ]
+        },
+        {
+          "heading": "Orders and history",
+          "paragraphs": [
+            "orders.history.entries: extra rows on account order history and admin order detail. Loyalty writes loyalty_credit, loyalty_earn, loyalty_earn_status on the order row at confirm time; the presenter exposes loyaltyCredit. Shipping stores the courier code. Gifts store the gift snapshot.",
+            "History shows what was snapshotted. Turning a plugin off later does not rewrite past orders. It only hides new UI and new writes."
+          ]
+        },
+        {
+          "heading": "Roles, services, journal",
+          "paragraphs": [
+            "Permissions: manifest permissions[]. They join the grantable catalogue while the plugin (and dependsOn parents) is on. Check with requirePermission('code') and, in admin UI, access.permissions.includes('code').",
+            "Services: registerPluginService('your-id', api) and getPluginService('other-id'). Undefined when the other plugin is off. Never import another plugin's http/ or infrastructure/.",
+            "journal-api (when enabled) is the persistence other plugins should call instead of writing their own log tables.",
+            "Also: plugin.enabled.changed action after PATCH enabled, and storefront.bootstrap filter on GET /storefront/bootstrap. That payload includes coreVersion, plugins[].enabled (effective), dependsOn, openings."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "permissions",
+      "group": "core",
+      "groupTitle": "Core handbook",
+      "title": "Permissions",
+      "summary": "Declare a permission, grant it in Rôles, check it in HTTP and in the admin UI.",
+      "sections": [
+        {
+          "heading": "Declare",
+          "paragraphs": [
+            "Put the code on the plugin manifest. Core does not hardcode plugin codes in CORE_PERMISSIONS. The TypeScript union PERMISSIONS in staffPermissions.ts and a row in the permissions vocabulary still need the code so the compiler and the database know it."
+          ],
+          "code": "{\n  \"id\": \"commerce-loyalty\",\n  \"permissions\": [{ \"code\": \"loyalty\", \"label\": \"Loyalty wallet\" }]\n}"
+        },
+        {
+          "heading": "Grant in Rôles",
+          "paragraphs": [
+            "Admin, Rôles lists grantable codes from CORE_PERMISSIONS plus every enabled plugin whose dependsOn parents are on. Disable commerce-loyalty and loyalty disappears from the matrix. Super-admin still holds every code implicitly."
+          ]
+        },
+        {
+          "heading": "Check in a route",
+          "paragraphs": [
+            "Mount requireAuth, then requirePermission with the code, then requirePluginEnabled so a disabled plugin 404s instead of leaking an empty screen."
+          ],
+          "code": "import { requireAuth } from '../../../middleware/requireAuth.js';\nimport { requirePermission } from '../../../middleware/requirePermission.js';\nimport { requirePluginEnabled } from '../../../middleware/requirePluginEnabled.js';\n\nrouter.use(\n  requireAuth,\n  requirePermission('loyalty'),\n  requirePluginEnabled('commerce-loyalty'),\n);"
+        },
+        {
+          "heading": "Check in admin UI",
+          "paragraphs": [
+            "Nav items set pluginId and access. canOpenSection uses access.permissions. The page itself calls usePluginEnabled(id) and returns NotFound when off."
+          ],
+          "code": "if (!access.permissions.includes('loyalty')) return null;\nif (!usePluginEnabled('commerce-loyalty')) return <NotFoundPage />;"
+        }
+      ]
+    },
+    {
+      "id": "plugin-to-plugin",
+      "group": "core",
+      "groupTitle": "Core handbook",
+      "title": "Plugin to plugin",
+      "summary": "dependsOn, services, and the rule that you never import another plugin's private files.",
+      "sections": [
+        {
+          "heading": "dependsOn",
+          "paragraphs": [
+            "List other plugin ids, optionally with a version range. Complements disappear when a parent is off (isPluginEffectivelyEnabled). Scan and enable fail if the parent is missing or its version is outside the range."
+          ],
+          "code": "{\n  \"id\": \"journal-admin\",\n  \"dependsOn\": [{ \"id\": \"journal-api\", \"version\": \">=1.0.0\" }],\n  \"engines\": { \"core\": \">=1.0.0 <2.0.0\" }\n}"
+        },
+        {
+          "heading": "Services",
+          "paragraphs": [
+            "The owner registers a public object. Callers look it up by plugin id. If the owner is off, getPluginService returns undefined. That is the whole contract."
+          ],
+          "code": "import { registerPluginService, getPluginService } from '../application/pluginServices.js';\n\nregisterPluginService('journal-api', { append, query });\n\nconst journal = await getPluginService('journal-api');\nif (!journal) return;\nawait journal.append(event);"
+        },
+        {
+          "heading": "Never private imports",
+          "paragraphs": [
+            "Cross-module imports may reach another module's application/ only, never its http/ or infrastructure/. Do not read another plugin's tables with ad-hoc SQL. Do not import back/plugins/<other-id> TypeScript (there is none to run: manifests and docs live there). Call listPlugins(), isPluginEffectivelyEnabled(id), getPluginService(id), or a documented core application function."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "versioning",
+      "group": "core",
+      "groupTitle": "Core handbook",
+      "title": "Versioning",
+      "summary": "Core semver, plugin semver, engines.core. Incompatible plugins cannot enable.",
+      "sections": [
+        {
+          "heading": "What you see",
+          "paragraphs": [
+            "Admin, Plugins shows Core <version> in the intro (this kernel is 1.0.9) and each row shows the plugin version plus engines.core. An incompatible plugin is labelled and its enable switch is disabled.",
+            "GET /admin/plugins returns { coreVersion, plugins: [{ manifest.version, manifest.engines, compatibility }] }. GET /storefront/bootstrap includes coreVersion."
+          ]
+        },
+        {
+          "heading": "Manifest",
+          "paragraphs": [
+            "version is the plugin's own semver. engines.core is the kernel range it may run on, for example >=1.0.0 <2.0.0. dependsOn may pin another plugin's version the same way."
+          ],
+          "code": "{\n  \"id\": \"commerce-loyalty\",\n  \"version\": \"1.0.0\",\n  \"engines\": { \"core\": \">=1.0.0 <2.0.0\" },\n  \"dependsOn\": []\n}"
+        },
+        {
+          "heading": "Reject on mismatch",
+          "paragraphs": [
+            "POST /admin/plugins/scan inserts new rows, then disables (and lists) plugins whose engines.core or dependsOn range fails. PATCH /admin/plugins/:id { enabled: true } returns 409 plugin_incompatible with a message when the kernel is outside engines.core, a dependsOn plugin is missing, or its version is out of range. Required plugins cannot be disabled; they must keep a compatible engines.core."
+          ]
+        },
+        {
+          "heading": "How to bump",
+          "paragraphs": [
+            "Kernel patch (1.0.9 to 1.0.10): change CORE_VERSION in coreVersion.ts and back/package.json together. Plugins with >=1.0.0 <2.0.0 stay compatible.",
+            "Kernel minor (1.1.0): same, as long as you did not break openings. Kernel major (2.0.0): plugins must raise engines.core (for example >=2.0.0 <3.0.0) or they cannot enable.",
+            "Plugin bump: raise version. If you broke your public service, raise the major and tell dependents to tighten dependsOn. If you only added a filter, a patch is enough."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-plugin",
+      "group": "core",
+      "groupTitle": "Core handbook",
+      "title": "Create a plugin",
+      "summary": "Folder, manifest, kinds, lifecycle, settings, Configure, hooks, storefront and admin pages.",
+      "sections": [
+        {
+          "heading": "Folder layout",
+          "paragraphs": [
+            "Drop back/plugins/<id>/. The folder name is the plugin id. It must match id in plugin.json and use only a-z, 0-9 and hyphen. Minimum file: plugin.json. Add docs/handbook.json so this site can describe you. TypeScript that must run with the API lives under back/src/ (hooks or a dedicated module), not inside the plugin folder."
+          ]
+        },
+        {
+          "heading": "Manifest",
+          "paragraphs": [
+            "Required: id, name, version, kind, description. Optional: required, defaultEnabled, provides, dependsOn, engines, permissions, route, nav, courierCodes, defaultSettings, settingsSchema.",
+            "Kinds: theme (one active), page, payment, shipping, commerce, docs, generic. required: true cannot be disabled (page-home, theme-default)."
+          ]
+        },
+        {
+          "heading": "Lifecycle",
+          "paragraphs": [
+            "Scan (Admin, Plugins) reads every plugin.json, inserts missing rows, and refuses to leave an incompatible plugin enabled. Enable writes plugins.enabled, checks engines.core, and fires plugin.enabled.changed. Page plugins that are on appear in the shop menu. Configure opens a real form or a deep-linked admin page. Empty Configure is hidden."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-plugin-ai",
+      "group": "core",
+      "groupTitle": "Core handbook",
+      "title": "Create a plugin with AI",
+      "summary": "The kernel is built so an AI can add plugins. Use the Cursor skill.",
+      "sections": [
+        {
+          "heading": "Easiest path",
+          "paragraphs": [
+            "Point an agent at .cursor/skills/tezov-create-plugin/SKILL.md inside e-com_white-brand. It contains the Te lock, the manifest, permissions, dependsOn, openings, versioning, admin and storefront recipes, and how to read the database without reaching around the kernel."
+          ]
+        },
+        {
+          "heading": "What the skill will not do",
+          "paragraphs": [
+            "It will not move collection, contact, users, orders, stock, roles, vocabulaire, or shop/axes into a plugin. It will not touch Pam. It will not invent a second plugin runtime."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-profile",
+      "group": "examples",
+      "groupTitle": "Worked examples",
+      "title": "Example: profile menu plugin",
+      "summary": "Add an entry to My profile via core.profile.entries.",
+      "sections": [
+        {
+          "heading": "Goal",
+          "paragraphs": [
+            "A page plugin (copy page-studio-note) should appear as a card on Account, My profile, linking to its storefront route. No extra Configure page."
+          ]
+        },
+        {
+          "heading": "Register the opening",
+          "paragraphs": [
+            "In plugin bootstrap (a module imported from the API process), append to core.profile.entries. OpeningEntries on AccountPage already renders bootstrap.openings.profile."
+          ],
+          "code": "import { addFilter } from '../../plugins/application/hooks.js';\n\naddFilter('core.profile.entries', (entries) => [\n  ...entries,\n  {\n    id: 'studio-profile',\n    pluginId: 'page-studio-note',\n    title: 'Studio note',\n    description: 'A page from the studio-note plugin.',\n    href: '/studio-note',\n  },\n]);"
+        },
+        {
+          "heading": "Gate it",
+          "paragraphs": [
+            "buildCoreOpenings runs filters unconditionally. If you should hide the card while the plugin is off, check isPluginEffectivelyEnabled('page-studio-note') inside the filter and return entries unchanged when false. The shop already hides the menu entry when the page plugin is off."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-courier",
+      "group": "examples",
+      "groupTitle": "Worked examples",
+      "title": "Example: courier on the cart",
+      "summary": "How a shipping plugin registers methods and prices on the cart page.",
+      "sections": [
+        {
+          "heading": "Manifest",
+          "paragraphs": [
+            "kind shipping. provides ShippingMethod. courierCodes lists the courier rows you own. engines.core pins the kernel."
+          ],
+          "code": "{\n  \"id\": \"shipping-home\",\n  \"version\": \"1.0.0\",\n  \"kind\": \"shipping\",\n  \"engines\": { \"core\": \">=1.0.0 <2.0.0\" },\n  \"provides\": [\"ShippingMethod\"],\n  \"courierCodes\": [\"colissimo-home\", \"chronopost-home\", \"mondial-relay-home\"]\n}"
+        },
+        {
+          "heading": "Cart",
+          "paragraphs": [
+            "Checkout asks core for couriers enabled for the delivery country (courier_countries.enabled). Core keeps a courier only while its owning plugin is effectively enabled. Disable shipping-home and home couriers disappear from the cart. Packet prices are edited on Configure (PATCH /admin/plugins/shipping-home { rates }). listCourierPacketPrices / setCourierPacketPrice in delivery/application are the functions to call from HTTP, not from another plugin's infrastructure."
+          ]
+        },
+        {
+          "heading": "Orders",
+          "paragraphs": [
+            "The chosen courier code is stored on the order. shipping-expedition-cron depends on this plugin and shipping-mondial-relay; it does not jam cron into every shipping method."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-loyalty",
+      "group": "examples",
+      "groupTitle": "Worked examples",
+      "title": "Example: fidélité on cart and order history",
+      "summary": "How commerce-loyalty injects into cart totals and how orders plus history store and display the cagnotte.",
+      "sections": [
+        {
+          "heading": "Cart totals",
+          "paragraphs": [
+            "Checkout pricing is server-authoritative. priceAuthenticatedCheckout and priceGuestCheckout call priceLoyaltyIfEnabled (loyalty/application/loyaltyPlugin.ts). That helper returns credit 0 when commerce-loyalty is off. When it is on, buildLoyaltyPricingForCheckout computes loyaltyCredit and loyaltyEarn. The payable total is preLoyaltyTotal minus loyaltyCredit. Front useShopCartPricing hides the wallet field while usePluginEnabled('commerce-loyalty') is false. Never trust a client-sent credit."
+          ],
+          "code": "export async function priceLoyaltyIfEnabled(client, params) {\n  if (!(await isPluginEffectivelyEnabled('commerce-loyalty'))) {\n    return { loyaltyCredit: 0, loyaltyEarn: 0, earnStatus: 'void', incompatibleWithVoucher: Boolean(params.voucherOfferType) };\n  }\n  return buildLoyaltyPricingForCheckout(client, params);\n}"
+        },
+        {
+          "heading": "Order snapshot",
+          "paragraphs": [
+            "confirmAuthenticatedOrder writes loyalty_credit, loyalty_earn and loyalty_earn_status on the orders row. A hold is created when loyaltyCredit > 0. Guest confirm writes the same columns. That snapshot is the history: it does not re-read the wallet later."
+          ]
+        },
+        {
+          "heading": "Order history UI",
+          "paragraphs": [
+            "orderPresenter exposes loyaltyCredit on GET /account/orders and admin order detail. The account order page shows the cagnotte line from that field. Admin, Loyalty is the staff tool (permission loyalty, pluginId commerce-loyalty). Disable the plugin: new checkouts skip credit, the account wallet route 404s plugin_disabled, the sidebar item disappears. Past orders still show the snapshotted credit because it is a column on the order, not a live join."
+          ]
+        },
+        {
+          "heading": "Profile and notifications",
+          "paragraphs": [
+            "Account, Fidélité is the wallet page (core.profile / a dedicated route gated by the plugin). Add a compact card with core.profile.entries if you want it on My profile. Expiry reminders use core.notifications.entries so they sit with the other account notification rows instead of a one-off page."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-permissions",
+      "group": "examples",
+      "groupTitle": "Worked examples",
+      "title": "Example: declare, grant, check a permission",
+      "summary": "Copy-paste path from manifest to Rôles to HTTP.",
+      "sections": [
+        {
+          "heading": "1. Manifest",
+          "paragraphs": [
+            "permissions[] makes the code grantable while the plugin is on."
+          ],
+          "code": "{\n  \"id\": \"commerce-reviews\",\n  \"permissions\": [{ \"code\": \"reviews\", \"label\": \"Customer reviews\" }]\n}"
+        },
+        {
+          "heading": "2. Vocabulary and TypeScript",
+          "paragraphs": [
+            "Add the code to PERMISSIONS in staffPermissions.ts (not CORE_PERMISSIONS). Add a matching row to the permissions vocabulary via migration if it is new. Then Admin, Rôles can grant it."
+          ]
+        },
+        {
+          "heading": "3. HTTP and UI",
+          "paragraphs": [
+            "requirePermission('reviews') plus requirePluginEnabled('commerce-reviews') on the admin router. Front nav: access: 'reviews', pluginId: 'commerce-reviews'. Super-admin sees the section without a stored grant. A staff role sees it only after an owner ticks it on Rôles."
+          ],
+          "code": "adminReviewsRouter.use(\n  requireAuth,\n  requirePermission('reviews'),\n  requirePluginEnabled('commerce-reviews'),\n);"
+        }
+      ]
+    }
+  ]
+}

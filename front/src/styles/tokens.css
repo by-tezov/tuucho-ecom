@@ -1,0 +1,75 @@
+/*
+  Theme-independent design tokens for typography, shape, layout and motion.
+  Semantic colours and elevations live in theme.css so palette work and
+  layout work do not contend in the same file.
+
+  Breakpoints used throughout the app's CSS Modules (custom properties
+  can't be read inside @media conditions, so these are documented here
+  and the literal pixel values are repeated in each @media rule):
+    mobile:  < 1024px  (hamburger, tab bar, back links, stacked layouts)
+    desktop: ≥ 1024px
+*/
+
+:root {
+  /* Typography */
+  --font-display: 'Cormorant Garamond', 'Noto Serif Thai', Georgia, serif;
+  --font-body: 'Manrope', 'Noto Sans Thai', system-ui, sans-serif;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-pill: 30px;
+
+  /* Layout */
+  --container-max: 1200px;
+  --container-narrow: 1000px;
+  --section-padding-y: 36px;
+  /* Home page only: vertical pad on each section. Adjacent sections stack
+     top+bottom, so the visible gap between blocks is 2× this value. Kept
+     tighter than --section-padding-y so home rhythm stays compact and even
+     (including Sur mesure ↔ Comment commander). */
+  --home-section-pad-y: 20px;
+  /* Horizontal page/section gutter — half on mobile so content uses the
+     narrow viewport; restored to 24px from desktop up. */
+  --page-padding-x: 12px;
+  --header-height: 64px;
+  /* Small viewport: visible screen with mobile browser chrome (URL bar)
+     shown. 100dvh tracks that chrome hiding on scroll and stretches short
+     pages so the site footer stays just out of reach; layout fill heights
+     use this instead. Overlays/modals that must fit the live visual
+     viewport should keep using dvh. */
+  --layout-vh: 100svh;
+
+  /* Stacking layers for viewport-level overlays. Local stacking inside a
+     component (0-5) stays literal in its module; anything that must win
+     against another overlay picks one of these. JS-positioned portals
+     (QuantityControl, dropdown menus) keep their own numeric constants. */
+  --z-header: 100;
+  --z-modal: 1000;
+  --z-modal-raised: 1100;
+  --z-modal-top: 1200;
+
+  /* Motion */
+  --ease-standard: ease;
+
+  /* Custom vertical scroll chrome (up/down chevrons + track). Insets are
+     relative to the scroll panel edge; size is the chevron circle diameter.
+     Bar gap is the clearance between a chevron and the track end. */
+  --scroll-hint-inset-y: 2px;
+  --scroll-hint-inset-x: 4px;
+  --scroll-hint-size: 26px;
+  --scroll-hint-bar-gap: 4px;
+  --scroll-hint-bar-offset: calc(
+    var(--scroll-hint-inset-y) + var(--scroll-hint-size) + var(--scroll-hint-bar-gap)
+  );
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --section-padding-y: 64px;
+    --home-section-pad-y: 28px;
+    --page-padding-x: 24px;
+  }
+}

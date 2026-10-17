@@ -1,0 +1,82 @@
+.socialButton {
+  /* Block-level flex, not inline-flex: the account panes drop this straight
+   * into a plain block container, where auto side margins only centre a
+   * block-level box. */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 400px;
+  /* Centred in any container wider than max-width — the account page's
+   * "Connexion sociale" panes are full-block width, where a 400px button
+   * pinned left reads as misaligned. No effect inside the auth forms, which
+   * are narrower than max-width. */
+  margin-inline: auto;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.socialButton:hover:not(:disabled) {
+  background: var(--color-control-subtle);
+}
+
+.socialButton:hover:not(:disabled)[data-provider='facebook'] {
+  background: color-mix(in srgb, var(--color-info) 14%, var(--color-bg-card));
+  border-color: var(--color-info-border);
+}
+
+.socialButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.socialButton img {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.socialButton > svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* Keep the icon at the same x-position in every button. The trailing slot
+ * balances the fixed icon slot so each label remains centred in the button;
+ * the button's outer width, height and full-width behaviour stay unchanged. */
+.socialButton > span {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+}
+
+.socialButton::after {
+  content: '';
+  flex: 0 0 20px;
+}
+
+/* Apple supplies a black brand mark. It disappears against the dark social
+   button surface, so invert the mark only when the resolved appearance is
+   dark; Google and Facebook retain their official multicolour marks. */
+:root[data-theme='dark'] .socialButton[data-provider='apple'] img {
+  filter: invert(1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .socialButton[data-provider='apple'] img {
+    filter: invert(1);
+  }
+}

@@ -1,0 +1,113 @@
+.section {
+  background: var(--color-surface-inverse);
+  color: var(--color-cream-bright);
+}
+
+/* Same on-dark focus ring as the footer (RGAA 10.7, 3:1). */
+.section :focus-visible {
+  outline-color: var(--color-accent-bright);
+}
+
+.inner {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: var(--home-section-pad-y) var(--page-padding-x);
+}
+
+.title {
+  text-align: center;
+  font-size: clamp(1.875rem, 3.6vw, 2.625rem);
+  color: var(--color-cream-bright);
+  margin-bottom: 24px;
+}
+
+.grid {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-dark-soft);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  background: color-mix(in srgb, var(--color-cream-bright) 3%, transparent);
+}
+
+.stars {
+  color: var(--color-accent-bright);
+  font-size: 0.9375rem;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+}
+
+.text {
+  font-size: 1rem;
+  color: var(--color-muted-on-dark);
+  font-style: italic;
+  line-height: 1.55;
+}
+
+.translateToggle {
+  align-self: flex-start;
+  margin-top: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--color-cream-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.caption {
+  /* Pinned to the card bottom (cards share the row height): who, then when
+     on its own line below, at the bottom right. */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 18px;
+  font-size: 0.8125rem;
+  color: var(--color-muted-on-dark);
+}
+
+.name {
+  color: var(--color-cream-bright);
+}
+
+.more {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.moreLink {
+  color: var(--color-cream-bright);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.who {
+  overflow-wrap: anywhere;
+}
+
+.date {
+  align-self: flex-end;
+  white-space: nowrap;
+}

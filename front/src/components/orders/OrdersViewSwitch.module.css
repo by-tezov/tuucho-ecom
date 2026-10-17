@@ -1,0 +1,15 @@
+.wrap {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  /* Left-aligned like the strip it replaces (and like the gallery's own
+     switch), hugging its two labels rather than stretching across the
+     column — a full-width track would leave the fill floating in empty
+     space. */
+  .wrap {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 16px;
+  }
+}

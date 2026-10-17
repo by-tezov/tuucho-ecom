@@ -1,0 +1,17 @@
+{
+  "product-uid": "SO-ST-845",
+  "creation-date": "2026-10-01",
+  "price": 54,
+  "available": {
+    "$almond": {
+      "$medium": {
+        "M": 2,
+        "L": 2
+      }
+    }
+  },
+  "featured": {
+    "from": "2026-10-01",
+    "for": 365
+  }
+}

@@ -1,0 +1,35 @@
+{{#if showBillingAddress}}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 4px;"><tr>
+<td width="50%" style="vertical-align:top;padding-right:10px;">
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#5c5c5c;font-weight:bold;margin-bottom:6px;">{{addressHeading}}</div>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#1a1a1a;line-height:1.6;">
+  {{#if companyName}}{{companyName}}<br>{{/if}}
+  {{#if recipientName}}{{recipientName}}<br>{{/if}}
+  {{line1}}<br>
+  {{#if line2}}{{line2}}<br>{{/if}}
+  {{postalCode}} {{city}}, {{countryCode}}
+</div>
+</td>
+<td width="50%" style="vertical-align:top;padding-left:10px;">
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#5c5c5c;font-weight:bold;margin-bottom:6px;">{{billingAddressHeading}}</div>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#1a1a1a;line-height:1.6;">
+  {{#if billingCompanyName}}{{billingCompanyName}}<br>{{/if}}
+  {{#if billingRecipientName}}{{billingRecipientName}}<br>{{/if}}
+  {{billingLine1}}<br>
+  {{#if billingLine2}}{{billingLine2}}<br>{{/if}}
+  {{billingPostalCode}} {{billingCity}}, {{billingCountryCode}}
+</div>
+</td>
+</tr></table>
+{{else}}
+<div style="margin:6px 0 4px;">
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#5c5c5c;font-weight:bold;margin-bottom:6px;">{{addressHeading}}</div>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#1a1a1a;line-height:1.6;">
+  {{#if companyName}}{{companyName}}<br>{{/if}}
+  {{#if recipientName}}{{recipientName}}<br>{{/if}}
+  {{line1}}<br>
+  {{#if line2}}{{line2}}<br>{{/if}}
+  {{postalCode}} {{city}}, {{countryCode}}
+</div>
+</div>
+{{/if}}

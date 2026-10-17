@@ -1,0 +1,39 @@
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-popover);
+}
+
+.header {
+  background: linear-gradient(135deg, var(--color-surface-inverse), var(--color-ink));
+  padding: 20px;
+  text-align: center;
+  position: relative;
+}
+
+.headerStar {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  color: var(--color-accent-bright);
+  font-size: 0.75rem;
+}
+
+.headerKey {
+  font-family: var(--font-display);
+  font-size: 2.75rem;
+  font-weight: 600;
+  color: var(--color-cream-bright);
+  line-height: 1;
+}
+
+.width {
+  margin: 0;
+  padding: 16px 18px 18px;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}

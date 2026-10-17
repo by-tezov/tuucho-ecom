@@ -1,0 +1,318 @@
+.section {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: 40px var(--page-padding-x) 90px;
+  min-height: 100dvh;
+}
+
+/* Mobile-only back at the top of the page. Desktop cancel sits on the
+   Valider row (see .cancelLink) instead of duplicating this chrome. */
+.backButton {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .backButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0 0 12px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-accent);
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .backButton:hover {
+    text-decoration: underline;
+  }
+
+  /* Keep this mobile-only back link's inset consistent with the other
+     standalone mobile pages (auth pages, cart) — without this, .section's
+     desktop 40px top padding is all that runs above it. */
+  .section {
+    padding-top: 20px;
+  }
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  margin-bottom: 20px;
+}
+
+.searchForm {
+  display: grid;
+  grid-template-columns: 64px minmax(220px, 1fr) 220px;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 20px;
+  /* Same card treatment as the gallery page's filter block. */
+  padding: 16px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+}
+
+.searchLogo {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.locationField {
+  position: relative;
+  min-width: 0;
+}
+
+.locationField .searchLabel input {
+  width: 100%;
+}
+
+.searchLabel {
+  display: grid;
+  gap: 6px;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.searchLabel input,
+.searchLabel select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+}
+
+/* Keep this lookup control in the site's light colour scheme even if the
+   mobile browser is following a dark system preference. This also keeps the
+   browser-owned input/autofill UI aligned with the light soft keyboard. */
+.locationField .searchLabel input {
+  color-scheme: only light;
+}
+
+.countryField {
+  min-width: 0;
+}
+
+@media (max-width: 1000px) {
+  .searchForm {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .searchLogo {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .locationField {
+    grid-column: 2 / -1;
+    grid-row: 1;
+  }
+
+  .countryField {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+.citySuggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 120;
+  display: grid;
+  width: min(260px, 70vw);
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-popover);
+}
+
+.citySuggestions button {
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-size: 0.8125rem;
+  text-align: left;
+}
+
+.citySuggestions button:hover {
+  background: var(--color-accent-soft);
+}
+
+.selection {
+  /* margin-top matters specifically when .openingHours isn't rendered (no
+     point selected yet, or the selected one has no hours to show) — .host
+     (the map/list picker) has no bottom margin of its own, so without
+     this the two sat flush edge-to-edge. When .openingHours *is* present,
+     this collapses against its own margin-bottom (also 20px) rather than
+     stacking, so the gap stays the same either way. */
+  margin: 20px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+}
+
+.selectionTitle {
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+}
+
+.selectionBody {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.selectionActions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.confirmButton {
+  align-self: center;
+}
+
+.cancelLink {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  /* Equal side columns keep Valider on the true horizontal center; Annuler
+     occupies the right column without shifting that button. */
+  .selectionActions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    width: 100%;
+  }
+
+  .confirmButton {
+    grid-column: 2;
+    justify-self: center;
+  }
+
+  .cancelLink {
+    display: inline;
+    grid-column: 3;
+    justify-self: end;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-accent);
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .cancelLink:hover {
+    text-decoration: underline;
+  }
+
+  .cancelLink:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.selectedPoint {
+  display: grid;
+  gap: 2px;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+}
+
+.selectedPoint > span:first-child {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.noSelection {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+}
+
+.selectPointError {
+  width: 100%;
+  margin: 10px 0 0;
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+}
+
+.openingHours {
+  /* Was a small negative top margin tuned for sitting right below
+     .selection — now it follows the map/list picker instead (see
+     MondialRelayPickerPage.tsx), so it needs its own positive gap,
+     matching the page's other block-to-block spacing. */
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+}
+
+.openingHours h2 {
+  margin-bottom: 8px;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+}
+
+.openingHoursToggle {
+  padding: 0;
+  border: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.openingHoursToggle:hover {
+  text-decoration: underline;
+}
+
+.openingHoursList {
+  margin: 0 0 12px;
+}
+
+.openingHoursRow {
+  display: grid;
+  grid-template-columns: minmax(100px, 150px) 1fr;
+  gap: 16px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-medium);
+}
+
+.openingHoursRow dt {
+  font-weight: 700;
+}
+
+.openingHoursRow dd {
+  margin: 0;
+}
+
+.openingHoursPeriods {
+  line-height: 1.35;
+}
+
+.closed {
+  color: var(--color-muted);
+}

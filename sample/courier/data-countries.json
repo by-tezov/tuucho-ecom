@@ -1,0 +1,86 @@
+{
+  "FR": {
+    "enabled": true,
+    "label": {
+      "fr": "France",
+      "en": "France",
+      "th": "ฝรั่งเศส",
+      "es": "Francia",
+      "it": "Francia",
+      "nl": "Frankrijk",
+      "pt": "França"
+    }
+  },
+  "BE": {
+    "enabled": true,
+    "label": {
+      "fr": "Belgique",
+      "en": "Belgium",
+      "th": "เบลเยียม",
+      "es": "Bélgica",
+      "it": "Belgio",
+      "nl": "België",
+      "pt": "Bélgica"
+    }
+  },
+  "LU": {
+    "enabled": false,
+    "label": {
+      "fr": "Luxembourg",
+      "en": "Luxembourg",
+      "th": "ลักเซมเบิร์ก",
+      "es": "Luxemburgo",
+      "it": "Lussemburgo",
+      "nl": "Luxemburg",
+      "pt": "Luxemburgo"
+    }
+  },
+  "NL": {
+    "enabled": false,
+    "label": {
+      "fr": "Pays-Bas",
+      "en": "Netherlands",
+      "th": "เนเธอร์แลนด์",
+      "es": "Países Bajos",
+      "it": "Paesi Bassi",
+      "nl": "Nederland",
+      "pt": "Países Baixos"
+    }
+  },
+  "ES": {
+    "enabled": false,
+    "label": {
+      "fr": "Espagne",
+      "en": "Spain",
+      "th": "สเปน",
+      "es": "España",
+      "it": "Spagna",
+      "nl": "Spanje",
+      "pt": "Espanha"
+    }
+  },
+  "PT": {
+    "enabled": false,
+    "label": {
+      "fr": "Portugal",
+      "en": "Portugal",
+      "th": "โปรตุเกส",
+      "es": "Portugal",
+      "it": "Portogallo",
+      "nl": "Portugal",
+      "pt": "Portugal"
+    }
+  },
+  "IT": {
+    "enabled": false,
+    "label": {
+      "fr": "Italie",
+      "en": "Italy",
+      "th": "อิตาลี",
+      "es": "Italia",
+      "it": "Italia",
+      "nl": "Italië",
+      "pt": "Itália"
+    }
+  }
+}

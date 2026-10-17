@@ -1,0 +1,35 @@
+.surface {
+  display: flow-root;
+  position: relative;
+  isolation: isolate;
+  --intro-surface-background: transparent;
+  --intro-surface-texture: none;
+}
+
+.warm {
+  background: linear-gradient(160deg, var(--color-bg-card) 0%, var(--color-cream) 100%);
+}
+
+.page {
+  background: linear-gradient(160deg, var(--color-hero-start) 0%, var(--color-hero-end) 100%);
+}
+
+.surface::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    115deg,
+    color-mix(in srgb, var(--color-accent) 10%, transparent) 0px,
+    color-mix(in srgb, var(--color-accent) 10%, transparent) 1px,
+    transparent 1px,
+    transparent 26px
+  );
+}
+
+.surface > * {
+  position: relative;
+  z-index: 1;
+}

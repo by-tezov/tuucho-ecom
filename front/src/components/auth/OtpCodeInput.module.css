@@ -1,0 +1,70 @@
+.row {
+  display: flex;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  margin-block: 14px;
+  box-sizing: border-box;
+}
+
+/* Border lives on this wrapper, not the native input. Android Chrome drops
+   input borders when appearance is none, so each digit looked unframed. */
+.cell {
+  box-sizing: border-box;
+  flex: 0 0 2.5rem;
+  width: 2.5rem;
+  min-width: 2.5rem;
+  height: 2.75rem;
+  border: 2px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+}
+
+.cell.invalid {
+  border-color: var(--color-danger);
+}
+
+.cell:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.cell:has(.box:disabled) {
+  background: var(--color-accent-faint);
+}
+
+.box {
+  display: block;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  text-align: center;
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--color-ink);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.box:focus,
+.box:focus-visible {
+  outline: none;
+}
+
+.box:disabled {
+  color: var(--color-muted);
+}
+
+.compact {
+  margin-block: 0;
+  margin-inline: 0;
+  justify-content: flex-start;
+}

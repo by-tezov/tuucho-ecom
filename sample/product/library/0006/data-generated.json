@@ -1,0 +1,59 @@
+{
+  "title": {
+    "fr": "Coffret Atelier",
+    "en": "Atelier Box",
+    "th": "กล่องอาเตอลิเยร์",
+    "es": "Caja Atelier",
+    "it": "Cofanetto Atelier",
+    "nl": "Atelier doos",
+    "pt": "Caixa Atelier"
+  },
+  "desc": {
+    "fr": "Coffret $shape.attributive, cuir vegetal et couture sellier.",
+    "en": "$Shape.title vegetable-tanned leather box, saddle-stitched.",
+    "th": "กล่อง$shape.attributiveหนังฟอกพืชเย็บอานม้า",
+    "es": "Caja $shape.attributive de cuero vegetal, costura de talabartero.",
+    "it": "Cofanetto $shape.attributive in cuoio vegetale, cucitura sellier.",
+    "nl": "$Shape.attributive doos in plantaardig leer, zadelssteek.",
+    "pt": "Caixa $shape.attributive em couro vegetal, costura de seleiro."
+  },
+  "alt": {
+    "fr": "Coffret $shape.attributive, cuir vegetal et couture sellier.",
+    "en": "$Shape.title vegetable-tanned leather box, saddle-stitched.",
+    "th": "กล่อง$shape.attributiveหนังฟอกพืชเย็บอานม้า",
+    "es": "Caja $shape.attributive de cuero vegetal, costura de talabartero.",
+    "it": "Cofanetto $shape.attributive in cuoio vegetale, cucitura sellier.",
+    "nl": "$Shape.attributive doos in plantaardig leer, zadelssteek.",
+    "pt": "Caixa $shape.attributive em couro vegetal, costura de seleiro."
+  },
+  "occasion": {
+    "fr": "cadeau",
+    "en": "gift",
+    "th": "ของขวัญ",
+    "es": "regalo",
+    "it": "regalo",
+    "nl": "cadeau",
+    "pt": "presente"
+  },
+  "color-main": [
+    "$brown",
+    "$black"
+  ],
+  "color-secondary": [
+    "$gold"
+  ],
+  "photos": {
+    "$square": {
+      "$medium": [
+        {
+          "photo": "1",
+          "hash": "b1074f8e7d247b61a5c4c551796cd8d01d79b35faf7d8351f6a3f68b675d000a"
+        },
+        {
+          "photo": "2",
+          "hash": "b1074f8e7d247b61a5c4c551796cd8d01d79b35faf7d8351f6a3f68b675d000a"
+        }
+      ]
+    }
+  }
+}

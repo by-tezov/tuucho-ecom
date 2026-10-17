@@ -1,0 +1,87 @@
+.section {
+  margin-bottom: 28px;
+  padding: 20px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+}
+.section h2 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+.section > p {
+  margin: 0 0 16px;
+  color: var(--color-muted);
+}
+.cards {
+  display: grid;
+  gap: 12px;
+}
+.card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+}
+.card p {
+  margin: 0;
+}
+.codeField {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.codeField legend {
+  margin-bottom: 6px;
+  padding: 0;
+}
+.codeInputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.codeInputs input {
+  width: 4.8rem;
+  min-height: 40px;
+  padding: 8px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.actions button {
+  font: inherit;
+  cursor: pointer;
+}
+.actions button:first-child {
+  padding: 9px 14px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-ink-strong);
+  color: var(--color-bg);
+}
+.actions button:first-child:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.notMine {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  text-decoration: underline;
+}
+.error {
+  color: var(--color-danger);
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Mondial Relay",
+  "summary": "Pickup at a Mondial Relay Point Relais (mondial-relay-point).",
+  "configure": "Admin, Plugins, Mondial Relay, Configure. Packet prices on the same rate form as home delivery.",
+  "preferences": "None.",
+  "openingsUsed": [
+    "cart.shipping.methods",
+    "Point Relais widget"
+  ],
+  "openingsProvided": [
+    "ShippingMethod"
+  ],
+  "cart": "Adds the pickup-point method on cart/checkout while enabled. The widget is core UI fed by this courier code.",
+  "orders": "Stores the pickup point on the order. Expedition cron complements tracking.",
+  "profile": "None."
+}

@@ -1,0 +1,47 @@
+.tipSets {
+  list-style: none;
+  padding: 0;
+  margin: 40px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (min-width: 1024px) {
+  .tipSets {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+
+.tipSetsNote {
+  margin: 14px 0 0;
+  text-align: center;
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.tips {
+  margin: 0;
+  padding: 16px;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-ink);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+/* Long label: wraps and stays centred inside the column instead of
+   overflowing both edges on a phone (Button's base is nowrap). */
+.cta {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}

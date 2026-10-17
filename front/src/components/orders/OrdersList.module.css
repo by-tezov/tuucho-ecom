@@ -1,0 +1,511 @@
+.empty {
+  color: var(--color-muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.order {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  background: var(--color-bg-card);
+  min-width: 0;
+  /* Visible so the vertical OFFERT badge can sit on the right accent border
+     (same idea as CartPage .list). Header tint still clips via its own radius. */
+  overflow: visible;
+}
+
+.orderHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  /* Negative margin cancels .order's own 18px padding on the 3 edges this
+     touches (top/left/right) so the tinted background and the bottom
+     divider both bleed edge-to-edge — matching the card's own rounded top
+     corners so the tint doesn't poke out past them. No bottom margin:
+     .orderDetails padding already spaces the address equally from this
+     divider and from the items divider below. */
+  margin: -18px -18px 0;
+  padding: 14px 18px;
+  background: var(--color-accent-subtle);
+  border-bottom: 1px solid var(--border-soft);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.orderMeta {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.orderNumberRow {
+  display: flex;
+  align-items: baseline;
+  /* Was a single inline space (`{' '}` between the two spans) — wide
+     enough to read as a deliberate label/value pair instead of one run-on
+     phrase. */
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.orderNumberLabel {
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.orderNumber {
+  font-weight: 700;
+}
+
+.orderDateRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  flex-wrap: wrap;
+}
+
+.orderDateLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.statusBadge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-medium);
+  color: var(--color-accent);
+  /* Always top-right of the header — never wraps under the meta block
+     (that's flex/margin-left below); its own text still wraps within that
+     45% cap for long statuses ("Disponible au point relais"), centered
+     rather than hugging the right edge once it's more than one line. */
+  flex: 0 0 auto;
+  margin-left: auto;
+  text-align: center;
+  max-width: 45%;
+}
+
+.status-to_send,
+.status-sent {
+  background: color-mix(in srgb, var(--color-info) 14%, transparent);
+  color: var(--color-info);
+}
+
+.status-disponible,
+.status-received {
+  background: color-mix(in srgb, var(--color-success) 15%, transparent);
+  color: var(--color-success);
+}
+
+.status-cancelled {
+  background: var(--color-danger-bg-hover);
+  color: var(--color-danger);
+}
+
+.status-return_review {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.orderDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px 20px;
+  /* Same edge-to-edge bleed as .orderHead above — negative side margins
+     cancel .order's own 18px padding so the divider spans the full card
+     width, then padding re-insets the actual content to line back up.
+     No bottom margin: first item padding already matches the inset gap
+     used between items (extra margin was pushing the first line away). */
+  margin: 0 -18px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.orderDetails dt {
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.addressDt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Pickup point's own name, first line of a relay order's address. */
+.orderPickupPoint {
+  font-weight: 600;
+}
+
+.orderCountry {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.addressEditButton {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-medium);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.addressEditButton:hover {
+  background: var(--color-accent-shine);
+}
+
+.orderDetails dd {
+  margin: 3px 0 0;
+  font-size: 0.875rem;
+}
+
+.cancelLead {
+  margin: 0 0 12px;
+}
+
+.cancelError {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+}
+
+.deliveryAddress {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-faint);
+}
+
+/* One card per set+shape (see groupOrderItemsByShape) — the photo/shape/
+   title/variant-row styling itself comes from CartFeature.module.css
+   (cartStyles), shared rather than duplicated, same as CartLine.tsx. Only
+   the between-cards separator lives here. Same edge-to-edge bleed as
+   .orderDetails above, separating the whole items block from .orderFoot
+   below (which no longer needs its own top border — this is that line). */
+.itemList {
+  display: flex;
+  flex-direction: column;
+  margin: 0 -18px 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.photoMissing {
+  background: var(--color-accent-subtle);
+  border: 1px dashed var(--border-medium);
+  box-sizing: border-box;
+}
+
+/* Paid lines: description under the ref on desktop only. */
+.orderItemDescDesktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .orderItemDescDesktop {
+    display: block;
+  }
+}
+
+.item {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  padding: 14px 18px;
+  position: relative;
+}
+
+/* Gift / offer rows — room for the OFFERT badge on the right border; keep
+   mobile padding from collapsing to 8px like regular nail lines. */
+.itemGift {
+  padding-right: 22px;
+}
+
+/* Orders share cart lineTitle styles, including mobile trash clearance
+   padding that carts need — orders have no trash, so reclaim that width
+   for title fit (otherwise titles shrink ~36px early). */
+@media (max-width: 1023px) {
+  .item {
+    /* Same flush vignette as cart lines — photo sticks to the card edge. */
+    padding-left: 0;
+    padding-right: 8px;
+    gap: 7px;
+  }
+
+  .itemGift {
+    padding-right: 22px;
+  }
+
+  .item .orderItemTitle {
+    padding-right: 0;
+  }
+
+  .item + .item::before {
+    left: 0;
+    right: 0;
+  }
+}
+
+/* Between grouped products within the list — inset, not edge to edge
+   (unlike .itemList's own border-bottom above) — matches
+   CartFeature.module.css's .line + .line::before. */
+.item + .item::before {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  left: 18px;
+  height: 1px;
+  background: var(--border-soft);
+  content: '';
+}
+
+.orderFoot {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.footSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Labeled "cut line" heading above each of the nail / accessory / gift
+   blocks — a line, the label, a line, spanning the list's own full bleed
+   width (unlike .item + .item::before above, which is inset between cards
+   of the same kind). The lines are background-image, not a real border, so
+   they can grow/shrink around the centered label text via flex. */
+.itemGroupLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 18px;
+  list-style: none;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.itemGroupLabel::before,
+.itemGroupLabel::after {
+  content: '';
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--border-medium);
+}
+
+/* itemList already draws the line above the foot — no second border on totals. */
+.footTotals {
+  align-items: flex-end;
+}
+
+/* Mobile only: light rule between totals and payment. */
+.footPayment {
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.footSectionTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+@media (min-width: 1024px) {
+  .orderFoot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, auto);
+    column-gap: 28px;
+    row-gap: 16px;
+    align-items: start;
+  }
+
+  .footPayment {
+    grid-column: 1;
+    grid-row: 1;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .footTotals {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .orderActions {
+    grid-column: 1 / -1;
+  }
+}
+
+.orderActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.loyaltyEarnNote {
+  flex: 1 0 100%;
+  margin: 0 0 2px;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.loyaltyEarnAmount {
+  color: var(--color-success);
+  font-weight: 800;
+}
+
+.giftNote {
+  flex: 1 0 100%;
+  margin: 0 0 2px;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.orderActions button:not(.trackPackageLink) {
+  padding: 10px 20px;
+  font-size: 0.8125rem;
+}
+
+.trackPackageLink {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.trackPackageLink:hover {
+  color: var(--color-ink);
+}
+
+.orderTotals {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.shippingRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: 100%;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  text-align: right;
+}
+
+.discountRow {
+  display: flex;
+  gap: 8px;
+  color: var(--color-success);
+  font-size: 0.8125rem;
+}
+
+.orderTotal {
+  font-weight: 700;
+}
+
+.integrityNote {
+  min-width: 0;
+  max-width: 100%;
+  text-align: right;
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  font-family: monospace;
+  letter-spacing: 0.3px;
+  margin: 4px 0 0;
+  box-sizing: border-box;
+  /* Label may wrap above the token; the token itself stays one line. */
+  white-space: normal;
+  overflow-wrap: normal;
+}
+
+.integrityToken {
+  white-space: nowrap;
+}
+
+.paymentCaptureNote {
+  margin: 0;
+  text-align: left;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.paymentMethodNote {
+  margin: 0;
+  text-align: left;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-ink);
+}
+
+.paymentCapturePending {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.paymentCaptureDone {
+  color: var(--color-success);
+}
+
+/* Voluntary cancel or auth-window expiry — muted gray, not danger. */
+.paymentCaptureCanceled {
+  color: var(--color-muted);
+}

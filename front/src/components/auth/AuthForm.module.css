@@ -1,0 +1,610 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Google → remember me → ou, above the email/password form. */
+.connectTop {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+/* In-modal placeholder while shop sign-in methods resolve — same slot as
+ * the social buttons, so the email form never flashes first. */
+.connectMethodsLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 148px;
+  padding: 20px 0;
+  margin-bottom: 14px;
+}
+
+.connectMethodsSpinner {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid var(--border-soft);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: authConnectMethodsSpin 0.7s linear infinite;
+}
+
+.connectMethodsLoadingMessage {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+@keyframes authConnectMethodsSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Login/register structural wrappers — neutral on desktop / AuthModal;
+ * the mobile column layout lives in the max-width: 1023px block below. */
+.loginFields,
+.loginActions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.input {
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-input);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+/* Selects match :read-only in CSS (they aren't text-editable), so limit
+   the muted treatment to actual text controls — otherwise a country
+   <select class="input"> looks disabled while still being changeable. */
+input.input:read-only,
+textarea.input:read-only,
+.input:disabled {
+  background: var(--color-accent-faint);
+  color: var(--color-muted);
+  cursor: default;
+}
+
+/* react-phone-number-input's own wrapper (.PhoneInput) has no border of its
+   own — its child input/select are meant to sit inside a bordered container
+   supplied by the host app, which is exactly what .input provides elsewhere. */
+.phoneInput {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-input);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+}
+
+.phoneInput:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.phoneInput :global(.PhoneInputInput) {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  outline: none;
+  min-width: 0;
+}
+
+.phoneInput :global(.PhoneInputCountry) {
+  margin-right: 10px;
+}
+
+.phoneInput :global(.PhoneInputCountrySelectArrow) {
+  color: currentColor;
+}
+
+/* The address decides the phone country, so the country select is disabled
+   once that country is known (see AddressFormModal). The library only changes
+   the cursor for a disabled select — drop the dropdown caret too, otherwise
+   the control still reads as openable when it no longer is. The flag stays:
+   which country the number belongs to is exactly what the customer needs to
+   see. `~` rather than `+` because the flag sits between the two. */
+.phoneInput :global(.PhoneInputCountrySelect[disabled]) ~ :global(.PhoneInputCountrySelectArrow) {
+  display: none;
+}
+
+/* Relative wrapper for an input + trailing action (password eye, clear ×). */
+.inputActionWrapper,
+.passwordInputWrapper {
+  position: relative;
+  display: flex;
+}
+
+.inputActionWrapper .input,
+.passwordInputWrapper .input {
+  flex: 1;
+  min-width: 0;
+  padding-right: 40px;
+}
+
+.passwordToggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.passwordToggle:hover {
+  color: var(--color-ink);
+}
+
+.passwordToggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+/* Password input + rules icon to its right (connect form). */
+.passwordFieldRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.passwordFieldRow .passwordInputWrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Same box as .input (1lh + 10+10 padding + 1+1 border) so the control is
+   a true square matching the field height. */
+.passwordRulesToggle {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  width: calc(1lh + 22px);
+  height: calc(1lh + 22px);
+  padding: 0;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-card);
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.passwordRulesToggle:hover {
+  color: var(--color-ink);
+}
+
+.passwordRulesToggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.passwordRulesToggle[aria-pressed='true'] {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.passwordStepper {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.passwordPanel {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* Vertical (desktop) / horizontal (narrow) rule with a label in the middle —
+ * same idea as the Google "ou" divider. */
+.passwordPanelSeparator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.passwordPanelSeparator::before,
+.passwordPanelSeparator::after {
+  content: '';
+  flex: 1;
+  width: 1px;
+  min-height: 8px;
+  background: var(--border-soft);
+}
+
+.passwordPanelSeparatorLabel {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+}
+
+.passwordPanelBody {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+}
+
+.passwordRequirement {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 20px;
+  padding: 2px 3px 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.passwordRequirementStatus {
+  display: inline-flex;
+  flex: 0 0 16px;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: var(--color-bg-card);
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.passwordRequirementPassed {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+}
+
+.passwordRequirementPassed .passwordRequirementStatus {
+  background: var(--color-success);
+}
+
+.passwordRequirementPending {
+  color: var(--color-danger);
+  background: var(--color-danger-bg-hover);
+}
+
+.passwordRequirementPending .passwordRequirementStatus {
+  background: var(--color-danger);
+}
+
+.passwordRequirementNeutral {
+  color: var(--color-muted);
+  background: var(--border-soft);
+}
+
+.passwordRequirementNeutral .passwordRequirementStatus {
+  background: var(--color-muted);
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.checkboxField {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink-strong);
+}
+
+.linkButton {
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.requiredMark {
+  composes: requiredMark from '../ui/Typography.module.css';
+}
+
+.fieldError {
+  composes: fieldError from '../ui/Typography.module.css';
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.error {
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+  background: var(--color-danger-bg-hover);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+}
+
+.success {
+  font-size: 0.875rem;
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 18%, transparent);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+/** Standalone status notes (confirm-email page, etc.) — hug the text instead
+ * of stretching a long empty bar across the section. */
+.noteSuccess,
+.noteWarning,
+.noteError {
+  display: inline-block;
+  box-sizing: border-box;
+  max-width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.noteSuccess {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 18%, transparent);
+}
+
+.noteWarning {
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 22%, transparent);
+}
+
+.noteError {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+}
+
+/* Flex column forms stretch children by default — keep the primary
+ * action content-sized and centered (same idea as ConfirmModal's
+ * buttonRowCentered), so long locales still fit without a fixed px width. */
+.submitButton {
+  align-self: center;
+  width: fit-content;
+  max-width: 100%;
+}
+
+/* Verbose social create/link: primary CTA full width. */
+.choiceActionButton {
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Secondary "link existing account" — accent text link, same family as
+ * .backButton / cart .textLink (gold, weight 600). */
+.choiceLink {
+  align-self: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+
+.choiceLink:hover {
+  text-decoration: underline;
+}
+
+.choiceLink:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Matches the app's other back controls (LegalPageBackLink, Mondial Relay
+   picker): arrow + accent text, underlined on hover — not one more inline
+   link in a paragraph. */
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  width: fit-content;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.backButton:hover {
+  text-decoration: underline;
+}
+
+.switchPrompt {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.choicePrompt {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--color-ink-strong);
+  text-align: center;
+}
+
+.consentLead {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+
+.consentSeparator {
+  flex-shrink: 0;
+  height: 1px;
+  margin: 14px 0;
+  background: var(--border-soft);
+}
+
+.consentMiddle {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  min-height: 0;
+}
+
+.googleConsentShell {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.googleConsentShell > .backButton,
+.googleConsentShell > .consentMiddle + button {
+  margin-top: auto;
+  flex-shrink: 0;
+  padding-top: 20px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.consentField {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--color-ink);
+}
+
+.consentField a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.consentField input {
+  margin-top: 3px;
+}
+
+@container (max-width: 540px) {
+  .passwordPanel {
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+  }
+
+  .passwordPanelSeparator {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .passwordPanelSeparator::before,
+  .passwordPanelSeparator::after {
+    width: auto;
+    height: 1px;
+    min-height: 0;
+  }
+
+  .passwordPanelSeparatorLabel {
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+}
+
+/* Mobile login/register pages only (AuthModal is desktop ≥1024px).
+ * Title + welcome stay in AuthPage; form fills leftover height so actions
+ * can pin to the bottom (margin-top: auto). Fields stay in normal flow under
+ * the welcome separator — not vertically centered. */
+@media (max-width: 1023px) {
+  .loginForm {
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 0;
+  }
+
+  .loginFields {
+    flex-shrink: 0;
+  }
+
+  .loginActions {
+    margin-top: auto;
+    flex-shrink: 0;
+    padding-top: 12px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .passwordPanel {
+    flex-shrink: 0;
+  }
+}

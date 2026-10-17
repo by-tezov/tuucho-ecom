@@ -1,0 +1,67 @@
+/* Same cancellation as HomePage.module.css — see its comment.
+   PageHero.module.css's .inner has its own 36px top padding, independent of
+   the back link next to it. Cancelled down to the same 6px
+   LegalPageBackLink's own margin uses everywhere else. */
+@media (max-width: 1023px) {
+  .heroWrap {
+    margin-top: -30px;
+  }
+}
+
+.starsRow {
+  text-align: center;
+  max-width: 44em;
+  margin: 0 auto;
+  padding: 0 var(--page-padding-x);
+}
+
+.stars {
+  color: var(--color-accent);
+  font-size: 1rem;
+  letter-spacing: 8px;
+}
+
+.intro {
+  max-width: min(80%, calc(var(--container-narrow) * 0.8));
+  margin: 20px auto 0;
+  padding: 0 var(--page-padding-x) 52px;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 1.0313rem;
+}
+
+/* Bottom note: other shapes/lengths on request, with a link to /contact.
+   Same narrow column as the lengths section above it. */
+.moreNote {
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding: 12px var(--page-padding-x) 40px;
+}
+
+.moreNoteBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  background: var(--color-accent-shine);
+}
+
+.moreNoteIcon {
+  flex: 0 0 auto;
+  color: var(--color-accent);
+  line-height: 1.5;
+}
+
+.moreNoteText {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.moreNoteLink {
+  color: inherit;
+  text-decoration: underline;
+}

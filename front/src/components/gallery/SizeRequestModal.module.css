@@ -1,0 +1,111 @@
+/* Opened from inside the product modal, which is itself a z-index 1000
+   backdrop — this has to clear it rather than rely on both being 1000 and
+   the later mount happening to paint last. Same ladder as
+   LoadingModal.module.css (1000 base / 1100 / 1200). */
+.aboveLightbox {
+  z-index: var(--z-modal-raised);
+}
+
+.header {
+  flex: 0 0 auto;
+  padding: 28px 24px 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.header .headerTitle {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+@media (max-width: 1023px) {
+  .bottomSheetBackdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .bottomSheet {
+    max-width: none;
+    max-height: min(82dvh, 720px);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: var(--shadow-sheet);
+  }
+}
+
+/* Label above the control, same as the product zoom modal's own mobile
+   quantity row (PhotoLightbox.module.css's .quantityRow mobile override) —
+   applied unconditionally here since this modal has no separate
+   mobile/desktop layout of its own to preserve, unlike that one. */
+.quantityRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.quantityLabel {
+  composes: microLabel from '../ui/Typography.module.css';
+}
+
+/* Label, size chips, then size-guide link under the chips (same order as
+   ProductPage / PhotoLightbox). */
+.sizeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.sizeGridLabel {
+  composes: microLabel from '../ui/Typography.module.css';
+}
+
+.sizeGuideLink {
+  align-self: flex-end;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.sizeGuideLink:hover {
+  opacity: 0.8;
+}
+
+/* Same chip styling as the product zoom modal's own size picker
+   (PhotoLightbox.module.css's .sizeSection .sizeSelector) — equal-width
+   grid, bordered when unselected, solid dark fill when picked. Replaces
+   ModalShell's shared .pickerGroup layout entirely (rather than layering on
+   top of it — two separately-bundled CSS Module files fighting over
+   `display`/`gap` at equal specificity would depend on import order, which
+   isn't reliable to build on). SelectionPickerModal's size axis now uses
+   the same treatment (see its own SelectionPickerModal.module.css); the
+   shape axis keeps ModalShell's plain .pickerGroup. Hardcoded 4 columns —
+   SIZES is always XS/S/M/L. */
+.sizeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.sizeGrid > * {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 6px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink-strong);
+}
+
+.sizeGrid > *[aria-pressed='true'] {
+  border-color: var(--color-ink-strong);
+  background: var(--color-ink-strong);
+  color: var(--color-bg-card);
+}

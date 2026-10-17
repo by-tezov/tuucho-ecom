@@ -1,0 +1,59 @@
+{
+  "title": {
+    "fr": "Pendentif Lumen",
+    "en": "Lumen Pendant",
+    "th": "จี้ลูเมน",
+    "es": "Colgante Lumen",
+    "it": "Ciondolo Lumen",
+    "nl": "Lumen hanger",
+    "pt": "Pendente Lumen"
+  },
+  "desc": {
+    "fr": "Forme $shape.attributive en laiton brosse, cordon lin.",
+    "en": "$Shape.title brushed-brass piece on a linen cord.",
+    "th": "รูป$shape.attributiveทองเหลืองด้านสายลินิน",
+    "es": "Forma $shape.attributive en laton cepillado, cordon de lino.",
+    "it": "Forma $shape.attributive in ottone spazzolato, cordino di lino.",
+    "nl": "$Shape.attributive stuk in geborsteld messing, linnen koord.",
+    "pt": "Forma $shape.attributive em latao escovado, cordao de linho."
+  },
+  "alt": {
+    "fr": "Forme $shape.attributive en laiton brosse, cordon lin.",
+    "en": "$Shape.title brushed-brass piece on a linen cord.",
+    "th": "รูป$shape.attributiveทองเหลืองด้านสายลินิน",
+    "es": "Forma $shape.attributive en laton cepillado, cordon de lino.",
+    "it": "Forma $shape.attributive in ottone spazzolato, cordino di lino.",
+    "nl": "$Shape.attributive stuk in geborsteld messing, linnen koord.",
+    "pt": "Forma $shape.attributive em latao escovado, cordao de linho."
+  },
+  "occasion": {
+    "fr": "cadeau",
+    "en": "gift",
+    "th": "ของขวัญ",
+    "es": "regalo",
+    "it": "regalo",
+    "nl": "cadeau",
+    "pt": "presente"
+  },
+  "color-main": [
+    "$blue",
+    "$gold"
+  ],
+  "color-secondary": [
+    "$white"
+  ],
+  "photos": {
+    "$square": {
+      "$short": [
+        {
+          "photo": "1",
+          "hash": "ba06d450f763113ee6e2b94b8fb8e8e8ff394135c05d27d785b10e45435d969c"
+        },
+        {
+          "photo": "2",
+          "hash": "ba06d450f763113ee6e2b94b8fb8e8e8ff394135c05d27d785b10e45435d969c"
+        }
+      ]
+    }
+  }
+}

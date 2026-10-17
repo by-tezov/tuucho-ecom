@@ -1,0 +1,157 @@
+.frame {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg-card);
+}
+
+.track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+  cursor: grab;
+  transition: transform 300ms ease;
+}
+
+.slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.gatedSlide {
+  position: relative;
+  overflow: hidden;
+}
+
+.gatedImage,
+.imageSkeleton {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gatedImage {
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: opacity 160ms ease-out;
+}
+
+.imageSkeleton {
+  border-radius: 0;
+}
+
+.imageRetry {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-input);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-ink-strong);
+  box-shadow: var(--shadow-card);
+}
+
+.imageRetry:hover {
+  color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gatedImage {
+    transition: none;
+  }
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  /* >= 3:1 for the icon even over a pure-white photo (WCAG 1.4.11) */
+  background: var(--color-photo-control);
+  color: var(--color-cream-bright);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow:hover {
+  background: var(--color-photo-control-hover);
+}
+
+.arrow:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.arrowPrev {
+  left: 0;
+}
+
+.arrowNext {
+  right: 0;
+}
+
+/* Sits at the top, on the same row as the favorite/zoom corner tabs
+   (51px — see GalleryCard.module.css) and top-aligned with them rather
+   than at the bottom of the photo. */
+.dots {
+  position: absolute;
+  top: 10px;
+  left: 56px;
+  right: 56px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+  /* dots sit on top of the photo, not the card background — keep them
+     visible over any photo colour, same idea as the arrow buttons above. */
+  filter: drop-shadow(0 1px 2px rgba(43, 38, 32, 0.6));
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 253, 247, 0.9);
+  border: 1px solid rgba(43, 38, 32, 0.35);
+}
+
+.dotActive {
+  width: 16px;
+  background: var(--color-accent-bright);
+  border-color: var(--color-accent-bright);
+}
+
+@media (max-width: 1023px) {
+  /* Gallery mobile cards: swipe only — hide the in-photo nav arrows. */
+  .arrow {
+    display: none;
+  }
+
+  /* Gallery mobile cards: the shape tag takes the top-right, so the
+     stepper sits in the bottom-left corner the shape left. */
+  .dots {
+    top: auto;
+    bottom: 8px;
+    left: 8px;
+    right: auto;
+    justify-content: flex-start;
+    align-items: flex-end;
+  }
+}

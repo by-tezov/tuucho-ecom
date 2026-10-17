@@ -1,0 +1,345 @@
+/* Portaled to document.body — under the sticky header (z-index 100) so the
+   open panel stays clickable, above page content so the dimmed area receives
+   the close click. Stays mounted while mobile so opacity can fade with the
+   panel (panel opacity 0.2s ease). */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: var(--color-overlay-modal);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+}
+
+.backdropOpen {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop {
+    transition: none;
+  }
+}
+
+.panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--border-medium);
+  box-shadow: var(--shadow-popover);
+  /* Caps the panel so a long item list (e.g. the "Mon compte" group) can't
+     grow past the viewport with nothing to scroll it into view — .listWrap/
+     .list below do the actual scrolling. --header-height is a nominal
+     fallback (the header's real height varies with its own content); good
+     enough for a scroll-container cap, unlike a hard layout dependency. */
+  max-height: calc(100dvh - var(--header-height) - 24px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform-origin: top right;
+  transform: scale(0);
+  opacity: 0;
+  transition:
+    transform 0.26s ease,
+    opacity 0.2s ease;
+}
+
+.panelOpen {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.listWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.list {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* No top padding — appearance band must sit flush under the header.
+     Small extra right inset so trailing switches clear the scroll-hint track. */
+  padding: 0 calc(var(--page-padding-x) + 8px) 20px var(--page-padding-x);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: grab;
+  /* Without this, a press-drag (onListPointerDown, MobileNav.tsx) or a
+     touch drag over the link text triggers the browser's native text
+     selection instead of just scrolling — same fix as PhotoLightbox's
+     .scrollArea / CartControl's .drawerScroll. */
+  user-select: none;
+  -webkit-user-select: none;
+  /* Native scroll (touch/wheel) stays; only the visual scrollbar track is
+     hidden — the .scrollHintUp/.scrollHintDown chevrons take over as the
+     "more content" cue, same as FilterSheet/CartControl/PhotoLightbox. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.list::-webkit-scrollbar {
+  display: none;
+}
+
+.list:active {
+  cursor: grabbing;
+}
+
+.appearanceSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Break out of .list horizontal padding so the wash is edge-to-edge. */
+  margin: 0 calc(-1 * (var(--page-padding-x) + 8px)) 0 calc(-1 * var(--page-padding-x));
+  padding: 4px calc(var(--page-padding-x) + 8px) 4px var(--page-padding-x);
+  background: var(--color-control-subtle);
+  border-radius: 0;
+}
+
+.appearanceRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Theme and contrast share the row: equal halves, each label + control
+   centred in its own half. */
+.appearanceCell {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.appearanceDivider {
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 1px;
+  min-height: 20px;
+  background: var(--border-medium);
+}
+
+.appearanceLabel {
+  min-width: 0;
+  color: var(--color-muted);
+}
+
+.appearanceControl {
+  flex-shrink: 0;
+}
+
+.appearanceSeparator {
+  margin: 4px 0 6px;
+  border: 0;
+  border-top: 1px solid var(--border-medium);
+}
+
+.scrollHintUp,
+.scrollHintDown {
+  position: absolute;
+  right: var(--scroll-hint-inset-x);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--scroll-hint-size);
+  height: var(--scroll-hint-size);
+  border-radius: 50%;
+  background: var(--color-scroll-hint);
+  color: var(--color-scroll-hint-fg);
+  pointer-events: none;
+  animation: mobileNavHintFade 180ms ease;
+}
+
+.scrollHintUp {
+  top: var(--scroll-hint-inset-y);
+}
+
+.scrollHintDown {
+  bottom: var(--scroll-hint-inset-y);
+}
+
+.scrollHintBar {
+  position: absolute;
+  right: calc(var(--scroll-hint-inset-x) + (var(--scroll-hint-size) / 2) - 1px);
+  width: 2px;
+  border-radius: 1px;
+  background: var(--color-scroll-hint-track);
+  pointer-events: none;
+  animation: mobileNavHintFade 180ms ease;
+}
+
+.scrollHintBarFromUp {
+  composes: scrollHintBarFromUp from '../ui/ModalChrome.module.css';
+}
+
+.scrollHintBarToDown {
+  composes: scrollHintBarToDown from '../ui/ModalChrome.module.css';
+}
+
+@keyframes mobileNavHintFade {
+  from {
+    opacity: 0;
+  }
+}
+
+.link {
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--border-soft);
+  text-align: left;
+}
+
+.link:last-child {
+  border-bottom: none;
+}
+
+/* Non-color cue for the current page (RGAA 3.1 / WCAG 1.4.1): a leading bar
+   alongside the colour + weight change. */
+.linkActive {
+  color: var(--color-accent);
+  font-weight: 700;
+  padding-left: 14px;
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}
+
+/* Same red as .childLinkDanger below (AccountShell.module.css's .logout) —
+   "Se déconnecter" now sits outside the "Mon compte" group as its own
+   top-level row, but should still read as destructive. */
+.linkDanger {
+  color: var(--color-danger);
+}
+
+/* Cart entry gets the same "solid accent chip" treatment as the tab bar's
+   own has-items pill (MobileTabBar.module.css .tabHasItems) once the active
+   cart has user lines — an empty cart stays a plain link. */
+.linkCartAccent {
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-shine);
+}
+
+/* Same gold accent as the rest of the shop CTAs — stands out from plain
+   ink links without the blue info colour. */
+.linkLogin {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.group {
+  border-bottom: 1px solid var(--border-soft);
+  padding: 8px 0 10px;
+}
+
+/* Same idea as .link:last-child — a group (Guide/Info) can end up as the
+   panel's actual last child now that the account button below it is hidden
+   for anonymous visitors (MobileNav.tsx), and its border-bottom shouldn't
+   dangle with nothing left to separate from. */
+.group:last-child {
+  border-bottom: none;
+}
+
+.groupLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font-size: 0.6875rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.groupChevron {
+  flex: 0 0 auto;
+  transition: transform 0.2s ease;
+}
+
+.groupChevronOpen {
+  transform: rotate(180deg);
+}
+
+/* The "animate to auto height" trick: a single-row grid track animates
+   between 0fr (collapsed) and 1fr (which resolves to the row's own content
+   height, since it's the only row) — no JS height measurement needed.
+   .groupChildrenInner's overflow:hidden is what actually clips the content
+   mid-transition; the grid item itself can't clip on its own. */
+.groupChildren {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+
+.groupChildrenOpen {
+  grid-template-rows: 1fr;
+}
+
+.groupChildrenInner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .groupChevron,
+  .groupChildren {
+    transition: none;
+  }
+}
+
+/* Sets a group child apart from the ones above it — e.g. "Se déconnecter"
+   in the "Mon compte" group (MobileNav.tsx's separatorBefore). */
+.separator {
+  border: none;
+  border-top: 1px solid var(--border-soft);
+  margin: 6px 0;
+}
+
+.childLink {
+  display: block;
+  width: 100%;
+  text-align: left;
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  padding: 10px 4px 10px 18px;
+}
+
+.childLink.linkActive {
+  padding-left: 18px;
+}
+
+/* Same red as AccountShell.module.css's .logout — "Se déconnecter" reads as
+   destructive in the hamburger exactly like it does in the account sidebar. */
+.childLinkDanger {
+  color: var(--color-danger);
+}
+
+@media (min-width: 1024px) {
+  .backdrop,
+  .panel {
+    display: none;
+  }
+}

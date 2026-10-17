@@ -1,0 +1,121 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  /* Mobile browsers paint a default blue/gray tap flash as a rectangle that
+     ignores border-radius. Kill it globally; keyboard focus stays themed via
+     :focus-visible in global.css. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  /* Instant by default so route changes (size guide, cart, …) don't inherit
+   * a smooth slide from the previous page's offset. In-page jumps pass
+   * `behavior: 'smooth'` explicitly (scrollToId, goHome). */
+  scroll-behavior: auto;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  /* theme.css owns color-scheme so native controls follow the customer's
+     light/dark/system preference too. */
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+img,
+picture,
+svg {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* iOS Safari auto-zooms the page on focus for any text field whose
+   computed font-size is under 16px (e.g. .searchLabel's 13px on the
+   Mondial Relay postal code field, inherited via `font: inherit` above).
+   The zoom then persists once a picker/bottom sheet opens on top,
+   clipping it. Floor mobile form-field text at 16px so Safari never has
+   a reason to zoom; desktop fields (already >=16px almost everywhere)
+   keep their design sizes since this only applies below the tablet
+   breakpoint. */
+@media (max-width: 1023px) {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* Checkboxes/radios/selects still get a blinking text caret when focused in
+ * Chromium — meaningless on these controls (and broken next to custom
+ * opacity:0 overlays). Keyboard focus stays visible via :focus-visible. */
+input[type='checkbox'],
+input[type='radio'],
+select {
+  caret-color: transparent;
+}
+
+/* Long-pressing a link or a button pops the OS callout ("Open in New Tab",
+   "Copy Link", a link preview). This is a mobile-first app: those are
+   desktop-browser affordances leaking onto a touch UI, where the same
+   gesture is more often a mis-hold while scrolling than a deliberate
+   request — and the sheet then covers the very thing being tapped. Same
+   spirit as killing the tap-highlight rectangle above.
+   user-select stops the companion text-selection handles; desktop
+   right-click and text selection elsewhere on the page are untouched. */
+button,
+a {
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "product-uid": "HA-TR-426",
+  "creation-date": "2026-10-01",
+  "price": 31,
+  "available": {
+    "$oval": {
+      "$short": {
+        "S": 8
+      }
+    }
+  }
+}

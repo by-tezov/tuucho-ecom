@@ -1,0 +1,22 @@
+.textarea {
+  min-height: 6.5em;
+  resize: none;
+  white-space: pre-wrap;
+  tab-size: 4;
+}
+
+.charCount {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+/* Stays until the customer closes the sheet (no timed auto-close). */
+.success {
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+  line-height: 1.5;
+  margin: 0;
+}

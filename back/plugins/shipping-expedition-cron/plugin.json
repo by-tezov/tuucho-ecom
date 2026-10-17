@@ -1,0 +1,24 @@
+{
+  "id": "shipping-expedition-cron",
+  "name": "Expedition cron",
+  "version": "1.0.0",
+  "kind": "generic",
+  "description": "Scheduled shipment tracking. Complements home and Mondial Relay shipping. Disable to stop expedition cron work.",
+  "defaultEnabled": true,
+  "dependsOn": [
+    {
+      "id": "shipping-home",
+      "version": ">=1.0.0"
+    },
+    {
+      "id": "shipping-mondial-relay",
+      "version": ">=1.0.0"
+    }
+  ],
+  "provides": [
+    "CronJob"
+  ],
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

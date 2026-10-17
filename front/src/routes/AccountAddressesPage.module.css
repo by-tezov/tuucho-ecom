@@ -1,0 +1,461 @@
+.section {
+  max-width: none;
+}
+
+@media (max-width: 1023px) {
+  /* Mobile account pages with a bottom Retour link: fill the first screen
+     below the header/tab bar so the back affordance pins to the viewport
+     edge on short pages (loyalty wallet, empty addresses, etc.). Same
+     stable --layout-vh budget as AuthPage.module.css login/register. */
+  .section {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(
+      var(--layout-vh) - var(--chrome-height, var(--header-height)) - var(--tab-bar-height, 0px)
+    );
+  }
+
+  .section > [data-placement='bottom'] {
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  margin-bottom: 20px;
+}
+
+.title.hasSubtitle {
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  margin-bottom: 20px;
+}
+
+.loadMoreButton {
+  appearance: none;
+  border: 1px solid var(--border-soft);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  padding: 10px 16px;
+  cursor: pointer;
+  margin: 0 0 20px;
+}
+
+.loadMoreButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.empty {
+  color: var(--color-muted);
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin-bottom: 14px;
+}
+
+.sectionTitle:not(:first-of-type) {
+  margin-top: 32px;
+}
+
+/* One tile per courier, wrapping as many per row as fit and stretching to
+   fill whatever's left on that row — 3 tiles sharing the width evenly, or 2
+   sharing it plus a 3rd that wraps and stretches to the full row width on
+   its own, etc. flex (not grid): grid's tracks are shared columns across
+   every row, so a lone wrapped tile would stay column-width instead of
+   expanding; flex-grow on each item fills its own row independently. */
+.courierTiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1023px) {
+  /* This is the final content block on the addresses page. Its desktop
+     breathing room must not stack with the shared bottom back-link gap. */
+  .section > .courierTiles {
+    margin-bottom: 0;
+  }
+}
+
+.courierTile {
+  flex: 1 1 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+}
+
+.courierTileHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Stands in for a real logo asset — couriers don't have one (see
+   utils/courierBadge.ts), same monogram used at checkout (CartPage.tsx). */
+.courierTileBadge {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Footer: "Définir par défaut" + enable/disable switch on one row.
+   When space is tight, the action label stacks above the switch first
+   (set-default stays vertically centered). If the row still wraps, the
+   switch cluster stays together and is pushed to the right. */
+.courierActions {
+  container-type: inline-size;
+  container-name: courier-actions;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  width: 100%;
+  margin-top: auto;
+}
+
+.courierSetDefaultLink {
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-align: left;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.courierToggleRow {
+  /* Label first in DOM so column stacking puts it above the switch;
+     row-reverse keeps switch | label on the wide layout. */
+  flex-direction: row-reverse;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+@container courier-actions (max-width: 300px) {
+  .courierToggleRow {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+/* Payment actions must remain a single row. A narrow account content column
+   therefore uses one card, while a genuinely wide one can use two. */
+.paymentMethodsList {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.paymentMethodsList .cardActions {
+  flex-wrap: nowrap;
+}
+
+/* PayPal reuses courierToggleRow for switch|label order, but the card
+   actions row puts that control on the left (badge gets margin-left: auto). */
+.paymentMethodsList .cardActions .courierToggleRow {
+  margin-left: 0;
+}
+
+.paymentMethodsList .actionButton {
+  white-space: nowrap;
+}
+
+/* Preference-card brand marks (PayPal / Google Pay / Apple Pay) — same role
+ * as courier logos on address cards: sit at the head's right edge. */
+.paymentBrandMark {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.paypalBrand {
+  display: block;
+  width: 62px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.bancontactBrand {
+  display: block;
+  width: 53px;
+  height: 35px;
+  object-fit: contain;
+}
+
+.googlePayBrand {
+  display: block;
+  width: 41px;
+  height: 17px;
+  object-fit: contain;
+}
+
+/* Official Apple Pay acceptance mark (Apple marketing artwork). */
+.applePayBrand {
+  display: block;
+  width: 41px;
+  height: 26px;
+  object-fit: contain;
+}
+
+@container (min-width: 720px) {
+  .list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .paymentMethodsList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  background: var(--color-bg-card);
+}
+
+.addCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 150px;
+  padding: 20px;
+  border: 1px dashed var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.addCard:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-faint);
+}
+
+.addCardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  color: var(--color-accent);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+/* Carrier logos sit at the head's right edge — pushed there even when the
+   address has no name of its own and the left side is empty. */
+.cardCouriers {
+  margin-left: auto;
+}
+
+.cardCourierLogo {
+  width: 28px;
+  height: 28px;
+  font-size: 0.625rem;
+}
+
+.toggleAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cardLabel {
+  font-weight: 700;
+}
+
+.cardPhone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* Pickup point's own name — part of the address, not of the customer's
+   identity lines above it. */
+.cardPickupPoint {
+  font-weight: 600;
+}
+
+.cardNotes {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.deleteOnlyHint {
+  margin: 0.65rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.cardPhone svg {
+  flex-shrink: 0;
+  color: var(--color-muted);
+}
+
+.countryLine {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.countryFlag {
+  flex-shrink: 0;
+  line-height: 1;
+  font-size: 1.05em;
+}
+
+.deletePreview {
+  line-height: 1.5;
+}
+
+.deletePreviewName {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.deletePreview .countryLine {
+  display: flex;
+}
+
+.deletePreviewPhone {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.deletePreviewPhone svg {
+  flex-shrink: 0;
+  color: var(--color-muted);
+}
+
+.defaultBadge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  background: var(--color-accent-medium);
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.defaultBadgeButton {
+  font: inherit;
+  border: none;
+  cursor: pointer;
+}
+
+.defaultBadgeButton:hover {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+.cardBody {
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.cardActions .defaultBadge {
+  margin-left: auto;
+}
+
+.actionButton {
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.actionButtonEdit {
+  color: var(--color-info);
+}
+
+.actionButtonDelete {
+  color: var(--color-danger);
+}
+
+.secureNotice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-medium);
+  color: var(--color-ink);
+  font-size: 0.8125rem;
+}
+
+.secureNotice svg {
+  flex-shrink: 0;
+  color: var(--color-accent);
+}

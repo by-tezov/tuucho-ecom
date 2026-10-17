@@ -1,0 +1,343 @@
+/* Loyalty onboarding — purse flap lifts open, coins fall in from top corners, flap closes. */
+
+.scene {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  flex: 1 1 auto;
+  align-self: stretch;
+  min-height: 160px;
+  height: auto;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 40%,
+    var(--color-bg-card),
+    var(--color-cream) 72%,
+    var(--color-bg)
+  );
+  --loyalty-speed: 1;
+}
+
+.sceneInstant
+  :is(.drawStroke, .glow, .purse, .flap, .blossom, .vineDot, .corner, .sparkle, .twinkle, .claspShine) {
+  animation-duration: 0.001s !important;
+  animation-delay: 0s !important;
+}
+
+.sceneInstant .flap {
+  transform: scaleY(1) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene
+    :is(
+      .drawStroke,
+      .glow,
+      .purse,
+      .flap,
+      .blossom,
+      .vineDot,
+      .corner,
+      .sparkle,
+      .twinkle,
+      .claspShine,
+      .swayL,
+      .swayR
+    ) {
+    animation-duration: 0.001s !important;
+    animation-delay: 0s !important;
+  }
+
+  .scene .flap {
+    transform: scaleY(1) !important;
+  }
+}
+
+@keyframes loyaltyDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes loyaltyGlow {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes loyaltyFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes loyaltyCornerIn {
+  from {
+    opacity: 0;
+    transform: scale(var(--corner-flip-x), var(--corner-flip-y)) scale(0.85);
+  }
+  to {
+    opacity: 0.88;
+    transform: scale(var(--corner-flip-x), var(--corner-flip-y));
+  }
+}
+
+@keyframes loyaltyTwinkle {
+  0%,
+  35% {
+    opacity: 0;
+    transform: scale(0.3) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(30deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.4) rotate(50deg);
+  }
+}
+
+@keyframes loyaltySwayL {
+  0%,
+  100% {
+    transform: rotate(-1.2deg);
+  }
+  50% {
+    transform: rotate(1deg);
+  }
+}
+
+@keyframes loyaltySwayR {
+  0%,
+  100% {
+    transform: rotate(1.1deg);
+  }
+  50% {
+    transform: rotate(-1.3deg);
+  }
+}
+
+@keyframes loyaltyPurseIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * Flap hinged at the TOP of the mouth. scaleY foreshortens like a lid lifting
+ * toward the camera-away / back of the bag — closed = full cover, open = thin strip.
+ */
+@keyframes loyaltyFlap {
+  0%,
+  6% {
+    transform: scaleY(1);
+  }
+  11% {
+    transform: scaleY(0.46);
+  }
+  /* Slight overshoot past fully open, then it relaxes back. */
+  16% {
+    transform: scaleY(0.09);
+  }
+  22%,
+  74% {
+    transform: scaleY(0.14);
+  }
+  80% {
+    transform: scaleY(0.44);
+  }
+  /* Closes past flat and rebounds — the clasp snaps rather than glides. */
+  86% {
+    transform: scaleY(1.05);
+  }
+  90% {
+    transform: scaleY(0.975);
+  }
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes loyaltyClaspShine {
+  0%,
+  80% {
+    opacity: 0.45;
+  }
+  /* Peaks on the snap frame of loyaltyFlap. */
+  87% {
+    opacity: 1;
+  }
+  93% {
+    opacity: 0.66;
+  }
+  100% {
+    opacity: 0.55;
+  }
+}
+
+.glow {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  width: 68%;
+  height: 52%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(199, 167, 102, 0.3), transparent 70%);
+  filter: blur(8px);
+  opacity: 0;
+  animation: loyaltyGlow calc(1.2s / var(--loyalty-speed)) ease calc(0.1s / var(--loyalty-speed)) both;
+}
+
+.corner {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  opacity: 0;
+  --corner-flip-x: 1;
+  --corner-flip-y: 1;
+  transform: scale(var(--corner-flip-x), var(--corner-flip-y));
+  transform-origin: center;
+  animation: loyaltyCornerIn calc(1.1s / var(--loyalty-speed)) ease calc(0.12s / var(--loyalty-speed)) both;
+}
+
+.cornerTl {
+  top: 6px;
+  left: 6px;
+}
+
+.cornerTr {
+  top: 6px;
+  right: 6px;
+  --corner-flip-x: -1;
+}
+
+.cornerBl {
+  bottom: 6px;
+  left: 6px;
+  --corner-flip-y: -1;
+}
+
+.cornerBr {
+  bottom: 6px;
+  right: 6px;
+  --corner-flip-x: -1;
+  --corner-flip-y: -1;
+}
+
+.vine {
+  position: absolute;
+  pointer-events: none;
+}
+
+.vineTop {
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.72);
+}
+
+.vineBottom {
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.72) scaleY(-1);
+}
+
+.drawStroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation-name: loyaltyDraw;
+  animation-timing-function: ease;
+  animation-fill-mode: both;
+}
+
+.vineDot {
+  opacity: 0;
+  animation: loyaltyFadeUp calc(0.5s / var(--loyalty-speed)) ease both;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas {
+  display: block;
+  width: 94%;
+  height: 94%;
+  overflow: visible;
+}
+
+.swayL {
+  transform-box: fill-box;
+  transform-origin: right bottom;
+  animation: loyaltySwayL calc(4.2s / var(--loyalty-speed)) ease-in-out calc(1.8s / var(--loyalty-speed))
+    infinite;
+}
+
+.swayR {
+  transform-box: fill-box;
+  transform-origin: left bottom;
+  animation: loyaltySwayR calc(4.8s / var(--loyalty-speed)) ease-in-out calc(1.9s / var(--loyalty-speed))
+    infinite;
+}
+
+.blossom {
+  opacity: 0;
+  animation: loyaltyFadeUp calc(0.55s / var(--loyalty-speed)) ease both;
+}
+
+.purse {
+  opacity: 0;
+  animation: loyaltyPurseIn calc(0.65s / var(--loyalty-speed)) ease calc(0.15s / var(--loyalty-speed)) both;
+}
+
+.flap {
+  opacity: 0;
+  /* Hinge = top edge of the flap / mouth */
+  transform-origin: 160px 70px;
+  transform: scaleY(1);
+  animation:
+    loyaltyPurseIn calc(0.65s / var(--loyalty-speed)) ease calc(0.15s / var(--loyalty-speed)) both,
+    loyaltyFlap calc(5.4s / var(--loyalty-speed)) cubic-bezier(0.45, 0.05, 0.25, 1)
+      calc(0.4s / var(--loyalty-speed)) both;
+}
+
+.claspShine {
+  opacity: 0.45;
+  animation: loyaltyClaspShine calc(5.4s / var(--loyalty-speed)) ease calc(0.4s / var(--loyalty-speed)) both;
+}
+
+.sparkle,
+.twinkle {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: loyaltyTwinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+  animation-fill-mode: both;
+}
+
+@media (max-width: 1023px) {
+  .scene {
+    min-height: 148px;
+  }
+}

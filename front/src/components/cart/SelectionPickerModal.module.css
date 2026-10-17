@@ -1,0 +1,176 @@
+/* Same treatment as the size label above the chip grid in the product zoom
+   modal and its size-request offshoot (PhotoLightbox.module.css's
+   .sizeSectionLabel, SizeRequestModal.module.css's .sizeGridLabel) — sits on
+   its own line above .sizeGrid, in place of the plain aria-label the group
+   role already had. Shape picker keeps ModalShell's plain .pickerGroup. */
+.sizeGridLabel {
+  display: block;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+/* Same chip styling as the product zoom modal / size-request modal's size
+   picker (PhotoLightbox.module.css's .sizeSection .sizeSelector,
+   SizeRequestModal.module.css's .sizeGrid) — equal-width grid, bordered
+   when unselected, solid dark fill when picked. Replaces ModalShell's
+   shared .pickerGroup entirely for the size axis (rather than layering on
+   top of it) — shape picker's own .pickerGroup usage is untouched.
+   Hardcoded 4 columns — SIZES is always XS/S/M/L. */
+.sizeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.sizeGrid > * {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 6px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink-strong);
+}
+
+.sizeGrid > *[aria-pressed='true'] {
+  border-color: var(--color-ink-strong);
+  background: var(--color-ink-strong);
+  color: var(--color-bg-card);
+}
+
+/* "Not in stock" — same treatment as the gallery zoom modal's own size
+   picker (PhotoLightbox.module.css's .sizeChipUnavailable, see its longer
+   comment for why "to top left" and the soft-edge gradient specifically).
+   The chip itself keeps its normal look — no Chip.module.css .chipMuted
+   opacity, the strike alone carries the meaning. */
+.sizeChipUnavailable {
+  position: relative;
+  z-index: 0;
+}
+
+.sizeChipUnavailable::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -4px;
+  background: linear-gradient(
+    to top left,
+    transparent calc(50% - 1.5px),
+    var(--color-muted) calc(50% - 0.5px),
+    var(--color-muted) calc(50% + 0.5px),
+    transparent calc(50% + 1.5px)
+  );
+  pointer-events: none;
+}
+
+/* Label above the control, same as SizeRequestModal.module.css's own
+   .quantityRow/.quantityLabel and the product zoom modal's mobile
+   quantity row. */
+.quantityRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.quantityLabel {
+  composes: microLabel from '../ui/Typography.module.css';
+}
+
+/* Row so lastOneNotice sits inline beside the control, instead of
+   .quantityRow's own column stack — same as PhotoLightbox.module.css's
+   .quantityControlRow. */
+.quantityControlRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.lastOneNotice {
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* Only 1 unit left disables the control (nothing to step to/from) but
+   isn't itself wrong — unlike the control's other disabled state here
+   (mid-send), it shouldn't read as inactive/faded. Doubled class for
+   specificity: needs to beat QuantityControl.module.css's own
+   .selectRoot:disabled opacity rule, same (0,2,0) specificity in a
+   different stylesheet, so source order between the two modules isn't
+   something to rely on. */
+.quantityControlLastOne.quantityControlLastOne:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+/* Positioning only — text styling (color/underline/weight/size) comes from
+   ModalShell.module.css's shared .textLink, applied alongside this class
+   in the JSX. .textLink is inline-block with no alignment of its own
+   (fine for its usual left-aligned block flow) — this pushes it right instead.
+   Doubled class
+   for specificity: needs to beat .textLink's own `display: inline-block`,
+   same (0,1,0) specificity in a different stylesheet, so source order
+   between the two modules isn't something to rely on. */
+.sizeGuideLink.sizeGuideLink {
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+}
+
+/* Request sub-view — keep in lockstep with SizeRequestModal.module.css
+   (fixed header, size section with guide under chips). */
+.requestHeader {
+  flex: 0 0 auto;
+  padding: 28px 24px 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.requestHeader .requestHeaderTitle {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.requestSizeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.requestSizeGridLabel {
+  composes: microLabel from '../ui/Typography.module.css';
+}
+
+.requestSizeGuideLink {
+  align-self: flex-end;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.requestSizeGuideLink:hover {
+  opacity: 0.8;
+}
+
+.requestQuantityRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 12px;
+}

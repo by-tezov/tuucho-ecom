@@ -1,0 +1,60 @@
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.divider {
+  flex-shrink: 0;
+  height: 1px;
+  margin: 0 18px;
+  background: var(--border-soft);
+}
+
+.note {
+  margin: 0;
+  padding: 0 8px;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.resendRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 12px;
+}
+
+.resendLink {
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.resendLink:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.resendLink:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.countdown {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}

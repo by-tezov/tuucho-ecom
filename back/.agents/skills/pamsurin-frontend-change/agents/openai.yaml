@@ -1,0 +1,4 @@
+interface:
+  display_name: 'PamSurin Frontend Change'
+  short_description: 'Keep PamSurin React work consistent and maintainable'
+  default_prompt: 'Use $pamsurin-frontend-change to implement or review this PamSurin frontend task while preserving the existing architecture, UI conventions, and repository boundaries.'

@@ -1,0 +1,401 @@
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-size: clamp(1.625rem, 4vw, 2.25rem);
+}
+
+.searchField {
+  display: grid;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin-bottom: 12px;
+}
+
+.searchField input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  font: inherit;
+  color: var(--color-ink);
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.error {
+  margin: 0 0 12px;
+  color: var(--color-danger);
+}
+
+.notice {
+  margin: 0 0 12px;
+  color: var(--color-success);
+}
+
+.empty {
+  margin: 0 0 12px;
+  color: var(--color-muted);
+}
+
+.listRows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.listRows li {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.listRows li:last-child {
+  border-bottom: none;
+}
+
+.listRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  width: 100%;
+  margin: 0;
+  padding: 12px 16px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.listRow:hover {
+  background: var(--color-cream);
+}
+
+.listRow:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+.listRowMain {
+  composes: rowMain from '../components/admin/AdminList.module.css';
+}
+
+.listRowTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.listCode {
+  font-family: ui-monospace, monospace;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  word-break: break-word;
+}
+
+.status {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.statusOn {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.statusOff {
+  color: var(--color-muted);
+  background: var(--color-cream);
+}
+
+.listSummary {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  line-height: 1.4;
+}
+
+.listTrailing {
+  flex: 1 0 100%;
+  font-size: 0.6875rem;
+  color: var(--color-muted);
+  text-align: left;
+}
+
+.offer {
+  margin: 0 0 12px;
+  color: var(--color-accent);
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.stat {
+  display: grid;
+  gap: 1px;
+  padding: 8px 6px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  text-align: center;
+}
+
+.stat span {
+  font-size: 0.59375rem;
+  color: var(--color-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.stat strong {
+  color: var(--color-ink);
+  font-size: 1rem;
+}
+
+.validity,
+.restriction {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.71875rem;
+  line-height: 1.45;
+}
+
+.restriction {
+  overflow-wrap: anywhere;
+}
+
+.usageHeading {
+  margin: 16px 0 10px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.redemptionModal {
+  min-height: 48px;
+}
+
+.redemptionEmpty {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.redemptionList {
+  composes: list from '../components/admin/AdminList.module.css';
+}
+
+.redemptionList li {
+  display: grid;
+  gap: 3px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.redemptionList li:first-child {
+  padding-top: 0;
+}
+
+.redemptionList li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.redemptionList strong,
+.consumedEmail {
+  overflow-wrap: anywhere;
+  user-select: all;
+  font-family: ui-monospace, monospace;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.redemptionList span {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.createTrigger {
+  width: 100%;
+  margin: 0 0 16px;
+  background: none;
+  border: 1.5px dashed var(--border-strong);
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 15px;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+}
+
+.createTrigger:hover {
+  background: var(--color-accent-faint);
+}
+
+.createTrigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Create form (inside BottomSheet) ---- */
+.formGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.spanAll {
+  grid-column: 1 / -1;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.field input,
+.field select,
+.field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  font: inherit;
+  color: var(--color-ink);
+}
+
+.field textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.fieldHint {
+  font-weight: 400;
+  font-size: 0.71875rem;
+  line-height: 1.4;
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.detailBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--color-overlay-modal);
+}
+
+.detailPanel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 92vh;
+  overflow: hidden;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.detailHeader {
+  composes: header from '../components/ui/ModalChrome.module.css';
+}
+
+.detailTitle {
+  font-family: ui-monospace, monospace;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  word-break: break-word;
+}
+
+.detailClose {
+  composes: closeButton from '../components/ui/ModalChrome.module.css';
+}
+
+.detailToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.detailFooter {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 12px 20px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border-soft);
+}
+
+@media (min-width: 600px) {
+  .listTrailing {
+    flex: 0 0 auto;
+    text-align: right;
+  }
+
+  .formGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .formActions {
+    grid-column: 1 / -1;
+  }
+
+  .stats {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .detailBackdrop {
+    align-items: center;
+    padding: 16px;
+  }
+
+  .detailPanel {
+    max-width: 520px;
+    max-height: 88vh;
+    border-radius: var(--radius-xl);
+  }
+}
