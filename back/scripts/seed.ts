@@ -147,15 +147,15 @@ function main(): void {
 
   const results: Record<string, unknown> = {
     library: runChild('library', ['seed', ...directional], args.json),
-    userLibrary: { skipped: true, reason: 'tezov-ecommerce sample catalog has no user library' },
-    libraryNail: { skipped: true, reason: 'Composition / library-nail is not part of tezov-ecommerce' },
+    userLibrary: { skipped: true, reason: 'tuucho-ecom sample catalog has no user library' },
+    libraryNail: { skipped: true, reason: 'Composition / library-nail is not part of tuucho-ecom' },
     courier: runChild('courier', ['seed', ...directional], args.json),
     ...(args.direction === 'remote'
       ? { courierLiveState: runChild('courier-live-state', ['seed', ...common], args.json) }
       : {
           courierLiveState: { skipped: true, reason: 'local direction is not implemented for this command' },
         }),
-    accessory: { skipped: true, reason: 'tezov-ecommerce sample catalog has no accessories' },
+    accessory: { skipped: true, reason: 'tuucho-ecom sample catalog has no accessories' },
   };
   if (args.direction === 'remote') {
     results.cartRule = runChild('cart-rule', ['seed', ...common], args.json);

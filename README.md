@@ -1,4 +1,4 @@
-# tezov-ecommerce
+# tuucho-ecom
 
 Open-source single-shop e-commerce. One atelier, plugins like WordPress,
 Herd/Local friendly. MIT licensed.
@@ -15,7 +15,7 @@ Lumen clone.
 Needs Node 22+, Docker (Postgres 10 on host port **5434**), and npm.
 
 ```bash
-cd /home/tezov/Local/e-com_white-brand
+cd /home/tezov/Local/tuucho-ecom
 npm run setup:cli -- --yes \
   --store-name Lumen \
   --admin-email admin@lumen.test \

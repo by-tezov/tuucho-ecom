@@ -1,6 +1,6 @@
 # Plugin API
 
-tezov-ecommerce is a kernel plus plugins. Core owns catalog, cart, checkout,
+tuucho-ecom is a kernel plus plugins. Core owns catalog, cart, checkout,
 orders, accounts, the admin shell, and **openings** so plugins can extend
 Preferences, My profile, sign-in methods and notifications. Pages, theme,
 payments, shipping, vouchers, cart rules, gifts, loyalty, product requests,
@@ -218,7 +218,7 @@ Worked examples in Admin, Documentation: profile menu, courier on cart, fidélit
 ## Create a plugin with AI
 
 The kernel is built so an AI can add plugins. The Cursor skill
-`.cursor/skills/tezov-create-plugin/SKILL.md` is the easiest path: point an
+`.cursor/skills/tuucho-create-plugin/SKILL.md` is the easiest path: point an
 agent at it. Admin, Documentation has the same page.
 
 ## Core APIs and database

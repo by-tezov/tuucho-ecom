@@ -15,7 +15,7 @@ function forge(payload: object, options: jwt.SignOptions = {}, secret = config.j
   return jwt.sign(payload, secret, {
     algorithm: 'HS256',
     issuer: config.apiBaseUrl,
-    audience: 'tezov-ecommerce-api',
+    audience: 'tuucho-ecom-api',
     subject: USER.sub,
     expiresIn: '5m',
     ...options,
@@ -52,7 +52,7 @@ test('an expired token is refused', () => {
 test('the none algorithm and malformed claims are refused', () => {
   const header = Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString('base64url');
   const body = Buffer.from(
-    JSON.stringify({ sub: USER.sub, email: USER.email, tokenType: 'access', aud: 'tezov-ecommerce-api', iss: config.apiBaseUrl }),
+    JSON.stringify({ sub: USER.sub, email: USER.email, tokenType: 'access', aud: 'tuucho-ecom-api', iss: config.apiBaseUrl }),
   ).toString('base64url');
   assert.equal(verifyAccessToken(`${header}.${body}.`), undefined);
   assert.equal(verifyAccessToken(forge({ email: 42, tokenType: 'access' })), undefined);

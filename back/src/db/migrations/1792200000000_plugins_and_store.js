@@ -1,4 +1,4 @@
-/** Plugin registry and store-setting defaults for tezov-ecommerce.
+/** Plugin registry and store-setting defaults for tuucho-ecom.
 
  * `plugins` holds enable/disable + JSON settings per shipped plugin.
  * Store identity, tax mode, product axes, theme tokens and menus live in

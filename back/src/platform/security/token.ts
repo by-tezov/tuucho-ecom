@@ -15,7 +15,7 @@ export interface AccessTokenPayload {
   impersonatorId?: string;
 }
 
-const ACCESS_TOKEN_AUDIENCE = 'tezov-ecommerce-api';
+const ACCESS_TOKEN_AUDIENCE = 'tuucho-ecom-api';
 const ACCESS_TOKEN_TYPE = 'access';
 
 /** Short-lived, stateless — never checked against the DB, so it's never

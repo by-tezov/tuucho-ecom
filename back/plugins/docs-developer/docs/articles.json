@@ -5,12 +5,12 @@
       "group": "core",
       "groupTitle": "Core handbook",
       "title": "Documentation",
-      "summary": "Developer handbook of tezov-ecommerce. What core guarantees, how plugins talk to it, and how they talk to each other.",
+      "summary": "Developer handbook of tuucho-ecom. What core guarantees, how plugins talk to it, and how they talk to each other.",
       "sections": [
         {
           "heading": "What this is",
           "paragraphs": [
-            "This site is the Documentation plugin (docs-developer). Disable it and the admin menu disappears. The same truth is in docs/plugins.md and .cursor/skills/tezov-create-plugin/SKILL.md.",
+            "This site is the Documentation plugin (docs-developer). Disable it and the admin menu disappears. The same truth is in docs/plugins.md and .cursor/skills/tuucho-create-plugin/SKILL.md.",
             "Core is a kernel plus openings: catalog, cart, checkout, orders, accounts, admin shell, plugin runtime, versioning. Theme, pages, payments, shipping, vouchers, cart rules, gifts, loyalty, product requests, reviews, journals, expedition cron and this guide are plugins. Each preinstalled plugin adds its own pages under Documentation."
           ]
         },
@@ -254,7 +254,7 @@
         {
           "heading": "Easiest path",
           "paragraphs": [
-            "Point an agent at .cursor/skills/tezov-create-plugin/SKILL.md inside e-com_white-brand. It contains the Te lock, the manifest, permissions, dependsOn, openings, versioning, admin and storefront recipes, and how to read the database without reaching around the kernel."
+            "Point an agent at .cursor/skills/tuucho-create-plugin/SKILL.md inside tuucho-ecom. It contains the Te lock, the manifest, permissions, dependsOn, openings, versioning, admin and storefront recipes, and how to read the database without reaching around the kernel."
           ]
         },
         {

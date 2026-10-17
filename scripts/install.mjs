@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * WordPress-style first-run installer for tezov-ecommerce.
+ * WordPress-style first-run installer for tuucho-ecom.
  *
  *   npm run setup            # web wizard on :8787
  *   npm run setup:cli -- --yes --store-name Lumen --admin-email admin@lumen.test --admin-password 'LumenAdmin1!'
@@ -29,7 +29,7 @@ function parseArgs(argv) {
     lang: 'fr',
     postgresUser: 'tezov',
     postgresPassword: randomBytes(12).toString('base64url'),
-    postgresDb: 'tezov_ecommerce',
+    postgresDb: 'tuucho_ecom',
     stripePublishable: 'pk_test_placeholder',
     stripeSecret: '',
     stripeWebhook: '',
@@ -174,7 +174,7 @@ async function install(options) {
     ) + '\n',
   );
   console.log('');
-  console.log('tezov-ecommerce is installed.');
+  console.log('tuucho-ecom is installed.');
   console.log('  Shop:  http://localhost:5174');
   console.log('  API:   http://localhost:3010');
   console.log('  Admin: http://localhost:5174/admin');
@@ -185,7 +185,7 @@ async function install(options) {
 function wizardHtml() {
   return `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>tezov-ecommerce installer</title>
+<title>tuucho-ecom installer</title>
 <style>
 body{font-family:Manrope,system-ui,sans-serif;background:#ffffff;color:#1a1a1a;margin:0;padding:24px}
 main{max-width:32rem;margin:0 auto;background:#fff;padding:24px;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.06);border:1px solid #e1e1e1}
@@ -196,7 +196,7 @@ button{margin-top:20px;background:#121212;color:#fff;border:0;padding:12px 18px;
 .out{white-space:pre-wrap;background:#121212;color:#f2f2f2;padding:12px;border-radius:8px;margin-top:16px;min-height:4rem}
 </style></head>
 <body><main>
-<h1>tezov-ecommerce</h1>
+<h1>tuucho-ecom</h1>
 <p>First-run installer. Postgres on port 5434, API on 3010, shop on 5174.</p>
 <form id="f">
 <label>Store name</label><input name="storeName" value="Lumen" required/>

@@ -9,7 +9,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-ROOT = Path("/home/tezov/Local/e-com_white-brand")
+ROOT = Path("/home/tezov/Local/tuucho-ecom")
 PAM_MGR = Path("/home/tezov/Local/Pam/pamsurin-manager")
 SAMPLE = ROOT / "sample"
 

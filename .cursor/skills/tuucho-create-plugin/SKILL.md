@@ -1,7 +1,7 @@
-# Create a tezov-ecommerce plugin
+# Create a tuucho-ecom plugin
 
 Use this skill whenever you add, extract, or extend a plugin in
-`/home/tezov/Local/e-com_white-brand`. Work only in that tree. Do not touch Pam.
+`/home/tezov/Local/tuucho-ecom`. Work only in that tree. Do not touch Pam.
 
 The kernel is built so an AI can add plugins. Follow this file instead of
 inventing a parallel architecture.
