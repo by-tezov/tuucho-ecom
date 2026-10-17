@@ -1,0 +1,5 @@
+# Safe default for Vite/dev. Production prerender overwrites dist/robots.txt
+# with Allow + Sitemap. Live shop robots: GET /storefront/robots.txt on the API.
+# API origin /robots.txt is crawler policy, never shop robots.
+User-agent: *
+Disallow: /

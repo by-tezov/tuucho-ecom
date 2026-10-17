@@ -1,0 +1,16 @@
+{
+  "id": "page-accessibility",
+  "installPath": "plugins/user/legal/pages/page-accessibility",
+  "name": "Accessibility",
+  "version": "1.0.0",
+  "kind": "page",
+  "description": "RGAA accessibility statement. Footer only — not in the shop info menu.",
+  "defaultEnabled": true,
+  "provides": [
+    "StorefrontPage"
+  ],
+  "route": "/accessibility",
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

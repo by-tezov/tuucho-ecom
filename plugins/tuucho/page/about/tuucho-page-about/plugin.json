@@ -1,0 +1,20 @@
+{
+  "id": "tuucho-page-about",
+  "installPath": "plugins/tuucho/page/about/tuucho-page-about",
+  "name": "About",
+  "version": "1.0.0",
+  "kind": "page",
+  "description": "About the atelier.",
+  "defaultEnabled": true,
+  "provides": [
+    "StorefrontPage"
+  ],
+  "route": "/about",
+  "nav": {
+    "key": "about",
+    "order": 40
+  },
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

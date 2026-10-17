@@ -1,0 +1,36 @@
+.wrap {
+  margin: 0;
+  overflow: auto;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.th,
+.td {
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.45;
+}
+
+.th {
+  background: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg-card));
+  color: var(--color-ink);
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.td {
+  border-top: 1px solid var(--border-soft);
+}
+
+.tr:nth-child(even) .td {
+  background: color-mix(in srgb, var(--color-ink) 3%, transparent);
+}

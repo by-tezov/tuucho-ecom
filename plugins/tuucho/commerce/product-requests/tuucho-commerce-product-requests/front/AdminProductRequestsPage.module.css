@@ -1,0 +1,308 @@
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: clamp(1.625rem, 4vw, 2.25rem);
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+.empty {
+  composes: empty from '@kernel/front/components/admin/AdminList.module.css';
+}
+
+.cardGrid {
+  composes: list from '@kernel/front/components/admin/AdminList.module.css';
+}
+
+.reqCard {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.reqCard:hover {
+  border-color: var(--border-medium);
+}
+
+.reqCardMain {
+  composes: rowMain from '@kernel/front/components/admin/AdminList.module.css';
+}
+
+.reqCardThumb {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: var(--color-cream);
+}
+
+.reqCardMeta {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.reqCardEmail {
+  font-size: 0.8125rem;
+  color: var(--color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detailOnly {
+  width: 100%;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.detailHeader h2 {
+  margin: 8px 0 3px;
+  font-size: 1.625rem;
+}
+
+.detailMeta {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65625rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  padding: 4px 10px;
+  border-radius: 13px;
+  white-space: nowrap;
+}
+
+.tone_requested {
+  background: var(--color-alert-soft);
+  color: var(--color-alert);
+}
+
+.tone_accepted {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.tone_refused {
+  background: var(--color-neutral-soft);
+  color: var(--color-neutral);
+}
+
+.loadingNotice,
+.successNotice {
+  margin: 0 !important;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.loadingNotice {
+  background: var(--color-warning-soft);
+  color: var(--color-accent);
+}
+
+.successNotice {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.detailGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.detailCard {
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.photoButton {
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: zoom-in;
+  align-self: flex-start;
+}
+
+.photo {
+  display: block;
+  width: min(100%, 220px);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+}
+
+.meta,
+.comment {
+  margin: 0;
+  line-height: 1.45;
+  font-size: 0.875rem;
+}
+
+.comment {
+  padding: 11px 13px;
+  border-left: 2px solid var(--color-accent-bright);
+  background: var(--color-cream);
+  border-radius: 0 8px 8px 0;
+}
+
+.messages {
+  display: grid;
+  gap: 8px;
+}
+
+.customer,
+.admin {
+  display: grid;
+  gap: 6px;
+  max-width: 86%;
+  padding: 10px 13px;
+  border-radius: 12px;
+}
+
+.customer {
+  justify-self: start;
+  border: 1px solid var(--border-soft);
+  background: var(--color-bg-card);
+  border-radius: 12px 12px 12px 3px;
+}
+
+.admin {
+  justify-self: end;
+  background: var(--color-cream);
+  border-radius: 12px 12px 3px 12px;
+}
+
+.customer p,
+.admin p {
+  margin: 0;
+  font-size: 0.8125rem;
+  white-space: pre-wrap;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field {
+  display: block;
+}
+
+.field span {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-bottom: 6px;
+}
+
+.field input,
+.field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font: inherit;
+  min-height: 46px;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.pricePreview {
+  margin: -4px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actions button {
+  flex: 1;
+  min-width: 150px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-inverse);
+  color: var(--color-cream-bright);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.actions button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.actions .dangerAction {
+  border: 1.5px solid var(--color-danger-border);
+  background: none;
+  color: var(--color-danger);
+}
+
+.actions .dangerAction:hover:not(:disabled) {
+  background: var(--color-danger-bg-hover);
+}
+
+.answered {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 1024px) {
+  .detailGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .detailOnly {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+}

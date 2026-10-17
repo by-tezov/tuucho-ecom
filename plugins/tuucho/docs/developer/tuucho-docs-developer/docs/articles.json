@@ -1,0 +1,1129 @@
+{
+  "articles": [
+    {
+      "id": "welcome",
+      "group": "start",
+      "groupTitle": "Start here",
+      "title": "Welcome",
+      "summary": "Developer handbook for the kernel and bundled plugins. APIs, openings, storage, and how each surface actually works.",
+      "sections": [
+        {
+          "heading": "Who this is for",
+          "blocks": [
+            {
+              "type": "callout",
+              "tone": "info",
+              "title": "Developers and agents",
+              "text": "Write a plugin, extend checkout, or teach an IA the shop without reading the whole repo. This is not operator help. Disable the Documentation plugin and the menu disappears; the shop keeps running."
+            },
+            {
+              "type": "cards",
+              "items": [
+                { "title": "Kernel APIs", "text": "Register API, openings, slots, UI registry, permissions, contact, other kernel surfaces, storage." },
+                { "title": "Extend", "text": "SEO filters, plugin-to-plugin services, locale overlays." },
+                { "title": "Ship", "text": "Folder, Cursor skills, versioning, disable versus uninstall." },
+                { "title": "Bundled plugins", "text": "Real behaviour only: slots, openings, tables, routes. Locale packs are omitted from the rail." }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "What you will not find",
+          "blocks": [
+            {
+              "type": "callout",
+              "tone": "warning",
+              "title": "No identity cards",
+              "text": "A page is not Package, Version, Kind, Enabled, and No Configure form. If a plugin has nothing a developer can call, it has no page. Kernel surfaces (collection, orders, stock, users, roles) and the Contact plugin still have articles."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "group": "start",
+      "groupTitle": "Start here",
+      "title": "How the shop is built",
+      "summary": "Kernel versus plugin versus complement, and what must never leave core.",
+      "sections": [
+        {
+          "heading": "Three layers",
+          "blocks": [
+            {
+              "type": "cards",
+              "items": [
+                { "title": "Kernel", "text": "Always on: catalogue, cart, checkout, orders, accounts, the admin shell, plugin host, SEO engine, payment-method, courier, and email shells." },
+                { "title": "Plugin", "text": "A folder with plugin.json and back/register.ts. Enable loads it. Disable unloads it. Tables stay until uninstall. For a public page, enable is also the shop menu entry." },
+                { "title": "Complement", "text": "dependsOn another plugin id. If a required parent is off, isPluginEffectivelyEnabled is false. The runtime does not auto-enable dependencies." }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Stays in the kernel",
+          "blocks": [
+            {
+              "type": "callout",
+              "tone": "important",
+              "title": "Do not extract these",
+              "text": "Collection, users, orders, stock, roles, vocabulary, shop axes, checkout, and the plugin host stay in core. Contact is tuucho-contact. Cursor plugin skills still refuse to extract catalogue or checkout."
+            },
+            {
+              "type": "defs",
+              "items": [
+                { "term": "Identity", "description": "Shop name, product axes, vocabulary, Preferences, Roles, users, impersonation." },
+                { "term": "Commerce core", "description": "Orders, stock, collection. Payment-method and courier shells are kernel lists that plugins register into." },
+                { "term": "Email shell", "description": "SMTP, mail_jobs, sendMail / sendTemplatedMail. Plugins call api.sendMail. They do not own SMTP. Who receives spy/ops copies is tuucho-mail-spy." },
+                { "term": "Account", "description": "My profile, sign-in methods, and notifications are kernel screens. Plugins add rows through openings." }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kernel-register",
+      "group": "kernel",
+      "groupTitle": "Kernel APIs",
+      "title": "Plugin register API",
+      "summary": "The object back/register.ts receives: filters, actions, services, shells, HTTP mounts, cache, mail.",
+      "sections": [
+        {
+          "heading": "PluginRegisterApi",
+          "blocks": [
+            {
+              "type": "callout",
+              "tone": "info",
+              "title": "From @tuucho/plugin-sdk",
+              "text": "export const register: PluginRegisterFn = async (api) => { ... }. There is no db, settings, or logger on api. Query through your own application helpers. Kernel wraps client.query in plugin migrations and rejects SQL that mutates tables you do not own."
+            },
+            {
+              "type": "defs",
+              "items": [
+                { "term": "pluginId / manifest", "description": "This package id and the parsed plugin.json." },
+                { "term": "addFilter(name, fn, priority?)", "description": "Transform a value. Lower priority runs first (default 10). Must return the same type." },
+                { "term": "addAction(name, fn, priority?)", "description": "Fire-and-forget. Kernel actions include plugin.enabled.changed and cron.process-shipment-tracking." },
+                { "term": "registerPluginService(id, api)", "description": "Publish a public object under a plugin id. Callers use peekPluginService or getPluginService from the SDK, not from api." },
+                { "term": "registerPaymentGateway", "description": "Payment plugins only. Kernel checkout lists methods while the plugin is on." },
+                { "term": "registerShippingMethod", "description": "Shipping plugins only. courierCodes on the method and on the manifest." },
+                { "term": "registerHttpMount({ scope, path, router })", "description": "scope: admin, account, public, operation. Typed scope plugin is not wired in the kernel today." },
+                { "term": "cache", "description": "Per-plugin namespace: get, set, del, flush. set({ ttl, sensitivity: 'public' | 'private' }). Public keys cannot look like secrets." },
+                { "term": "registerMailTemplate / registerEmailCatalog", "description": "Named mail bodies and locale overlays for email." },
+                { "term": "sendMail / sendTemplatedMail / enqueueMailJob", "description": "Kernel email shell. Plugins never own SMTP. Unbound host throws mail_shell_unbound." }
+              ]
+            },
+            {
+              "type": "code",
+              "language": "ts",
+              "caption": "back/register.ts",
+              "code": "import type { PluginRegisterFn } from '@tuucho/plugin-sdk';\nimport { CORE_OPENING_FILTERS, peekPluginService } from '@tuucho/plugin-sdk';\n\nconst register: PluginRegisterFn = async (api) => {\n  api.addFilter(CORE_OPENING_FILTERS.profile, (entries) => [\n    ...entries,\n    { id: 'your-profile', pluginId: api.pluginId, title: 'Your page', href: '/your-page' },\n  ]);\n  api.registerPluginService(api.pluginId, { ping: () => 'ok' });\n  api.registerHttpMount({ scope: 'admin', path: '/your-page', router: yourRouter });\n};\nexport { register };\nexport default register;"
+            }
+          ]
+        },
+        {
+          "heading": "Look up a peer",
+          "blocks": [
+            {
+              "type": "code",
+              "language": "ts",
+              "caption": "Optional peer versus required",
+              "code": "import { peekPluginService, getPluginService } from '@tuucho/plugin-sdk';\n\nconst journal = peekPluginService<{ append: Function }>('tuucho-journal-api');\nif (!journal) return;\nawait journal.append(event);\n\n// throws Error('plugin_unavailable:tuucho-journal-api') when unloaded\nconst required = getPluginService('tuucho-journal-api');"
+            },
+            {
+              "type": "callout",
+              "tone": "important",
+              "title": "Never import another plugin's files",
+              "text": "Do not import http/ or infrastructure/ from a sibling package, and do not query its tables with ad-hoc SQL. Use the service or a kernel opening."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "core-openings",
+      "group": "kernel",
+      "groupTitle": "Kernel APIs",
+      "title": "Kernel openings",
+      "summary": "Named filters and actions the kernel applies so a plugin can extend the shop without a fork.",
+      "sections": [
+        {
+          "heading": "How filters run",
+          "blocks": [
+            {
+              "type": "callout",
+              "tone": "info",
+              "title": "Register from back/register.ts",
+              "text": "api.addFilter(CORE_OPENING_FILTERS.*, fn, priority). Lower priority runs first. Prefer an opening over a blank Configure page when a row or a toggle is enough. Unregister happens when the plugin is disabled: the host reloads hooks from enabled packages."
+            },
+            {
+              "type": "code",
+              "language": "ts",
+              "caption": "CoreOpeningEntry shape for profile, preferences, notifications",
+              "code": "{\n  id: 'your-profile',\n  pluginId: api.pluginId,\n  title: 'Your page',\n  description: 'Open your page',\n  href: '/your-page',\n}"
+            }
+          ]
+        },
+        {
+          "heading": "CORE_OPENING_FILTERS",
+          "blocks": [
+            {
+              "type": "table",
+              "columns": ["Name", "Where"],
+              "rows": [
+                ["core.preferences.entries", "Admin → Preferences extra rows"],
+                ["core.profile.entries", "My profile extra cards. Use href for a plugin page."],
+                ["core.signIn.methods", "Sign-in methods. Do not invent a parallel login screen."],
+                ["core.notifications.entries", "Account notification rows"],
+                ["cart.shipping.methods", "Courier list on the cart. Shipping plugins usually registerShippingMethod instead."],
+                ["cart.lines", "Extra cart line descriptors (loyalty credit, gift, voucher)."],
+                ["checkout.quote", "Mutate quote: extraLines, plugins[pluginId] bag, totals inputs. Priorities: cart-rules 10, vouchers 20, loyalty 30."],
+                ["checkout.lines", "Checkout line list"],
+                ["checkout.totals", "Totals after extraLines"],
+                ["checkout.prepare", "Pre-confirm; loyalty uses phase release"],
+                ["checkout.reserve", "Hold wallet or stock-like reservations"],
+                ["checkout.confirm", "Commit after payment"],
+                ["checkout.release", "Release holds; account.delete writes off loyalty"],
+                ["orders.snapshot", "Copy plugin bags onto the order at confirm"],
+                ["orders.history.entries", "Account / admin history extra rows"],
+                ["invoice.render", "Theme tokens, extraLines, copy, language"],
+                ["invoice.document", "Replace PDF bytes"],
+                ["mail.send", "Intercept send"],
+                ["mail.templates", "Named template bodies"],
+                ["mail.recipients", "Extra To/Cc"],
+                ["mail.spy.channels", "Accumulate spy/ops-notify channels. Kernel seeds KERNEL_SPY_CHANNELS; plugins append."],
+                ["mail.spy.resolve", "tuucho-mail-spy fills { channelId, to }. Empty skips the send."],
+                ["seo.meta", "Page meta"],
+                ["seo.jsonld.graph", "JSON-LD nodes"],
+                ["seo.sitemap.entries", "{ loc, source } URLs"],
+                ["seo.robots.rules", "{ directive, value }"],
+                ["seo.redirects.rules", "{ fromPath, toPath, status, source }"],
+                ["storefront.bootstrap", "Menus and bootstrap payload"]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Named outside the enum",
+          "blocks": [
+            {
+              "type": "defs",
+              "items": [
+                { "term": "storefront.theme.slots", "description": "Theme plugin appends chrome slot names: header, burger, bottomBar, footer. Not in CORE_OPENING_FILTERS; still a kernel applyFilters name." },
+                { "term": "catalog.importAvailability", "description": "Library set import. Kernel-owned catalogue path." },
+                { "term": "plugin.enabled.changed", "description": "Action (not a filter). doAction(id, enabled) after Admin → Plugins toggle or uninstall." },
+                { "term": "cron.process-shipment-tracking", "description": "Action. Expedition-cron complement listens. Home and Mondial Relay must be effectively on." }
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "warning",
+              "title": "No contact opening",
+              "text": "There is no core.contact.* filter. You cannot inject fields into POST /contact or swap the guest form through the bus. Home FAQ plus a Contact CTA is slot.home.faq. See Contact."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "front-slots",
+      "group": "kernel",
+      "groupTitle": "Kernel APIs",
+      "title": "Front slots and views",
+      "summary": "Named regions a plugin fills. Import ids from frontSlots.ts, never from PluginHost.tsx.",
+      "sections": [
+        {
+          "heading": "Contract",
+          "blocks": [
+            {
+              "type": "callout",
+              "tone": "important",
+              "title": "Do not value-import PluginHost",
+              "text": "PluginHost.tsx eagerly globs every front/index.tsx. Import CORE_FRONT_SLOTS from @kernel/front/plugins/frontSlots (or @tuucho/plugin-sdk). import type { PluginFrontModule } from @kernel/front/plugins/PluginHost is fine."
+            },
+            {
+              "type": "code",
+              "language": "ts",
+              "caption": "front/index.tsx",
+              "code": "import type { PluginFrontModule } from '@kernel/front/plugins/PluginHost';\nimport { CORE_FRONT_SLOTS } from '@kernel/front/plugins/frontSlots';\nimport { ContactFaq } from './ContactFaq';\n\nexport const pluginFront: PluginFrontModule = {\n  pluginId: 'tuucho-home-faq',\n  slots: { [CORE_FRONT_SLOTS.homeFaq]: <ContactFaq /> },\n};"
+            }
+          ]
+        },
+        {
+          "heading": "CORE_FRONT_SLOTS",
+          "blocks": [
+            {
+              "type": "table",
+              "columns": ["Id", "Kernel host"],
+              "rows": [
+                ["slot.home.faq", "Home page. FAQ plugin mounts ContactFaq (contact CTA + accordion)."],
+                ["slot.home.onboarding", "Home overlay tour."],
+                ["slot.home.featured", "Home featured / new arrivals row."],
+                ["slot.admin.dashboard", "Admin Accueil. PluginSlot is a fragment inside the stats grid. Use AdminPage.module.css statCard or urgentCard."],
+                ["slot.cart.summary", "Cart summary extras"],
+                ["slot.cart.line", "Per-line extras (also legacy cartLines)"],
+                ["slot.checkout.payment", "Payment UI extras"],
+                ["slot.product.actions", "Product page actions"],
+                ["slot.account.profile", "Account profile extras besides core.profile.entries"],
+                ["slot.account.notifications", "Account notifications extras"],
+                ["slot.order.detail", "Order detail extras"],
+                ["slot.order.history.row", "History row extras"],
+                ["slot.footer.identity", "Footer brand name, tagline and copyright. User plugin footer-identity."]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "CORE_FRONT_VIEWS",
+          "blocks": [
+            {
+              "type": "defs",
+              "items": [
+                { "term": "view.cart", "description": "Replace the shop cart surface (gift receiver cart). PluginView / PluginCartSurface. First enabled plugin wins." },
+                { "term": "view.product", "description": "Replace the product page view." },
+                { "term": "view.invoice.preview", "description": "Replace invoice preview." }
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "warning",
+              "title": "Slots versus UI registry",
+              "text": "A slot fills a region. Button, AccordionItem, and DocsCallout are controls (KERNEL_UI). Do not replace Button with a slot."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kernel-ui",
+      "group": "kernel",
+      "groupTitle": "Kernel APIs",
+      "title": "Kernel UI registry",
+      "summary": "Use, extend, or override shared controls. Theme kind wins on replace. Colour stays CSS variables.",
+      "sections": [
+        {
+          "heading": "Modes",
+          "blocks": [
+            {
+              "type": "table",
+              "columns": ["Mode", "How"],
+              "rows": [
+                ["Use", "Import the wrapped export. Call sites stay Button from components/ui/Button or @kernel/front/ui."],
+                ["Extend", "pluginFront.ui: [{ name: 'ui.StarRating', component }]. New ui.PascalCase only. Cannot occupy a kernel name without replace."],
+                ["Override", "pluginFront.ui: [{ name: KERNEL_UI.Button, component, replace: true }]. Applies while that plugin is enabled."]
+              ]
+            },
+            {
+              "type": "steps",
+              "items": [
+                "Enabled theme replace: true for that name (last registered among enabled themes).",
+                "Else enabled non-theme replace: true (last registered).",
+                "Else the kernel default from withKernelUi.",
+                "Else an enabled extend for a name the kernel does not own."
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "KERNEL_UI names",
+          "blocks": [
+            {
+              "type": "list",
+              "items": [
+                "ui.Button, ui.ConfirmModal, ui.LoadingModal, ui.ToggleSwitch, ui.Chip, ui.AccordionItem, ui.QuantityControl",
+                "ui.PageHero, ui.SectionHeading, ui.IntroSurface, ui.Figure, ui.BottomSheet, ui.SegmentedSwitch, ui.StatusModal, ui.Skeleton",
+                "ui.RequiredMark, ui.RequiredFieldsNote",
+                "ui.DocsCallout, ui.DocsCards, ui.DocsSteps, ui.DocsTable, ui.DocsDefList, ui.DocsCode, ui.DocsOutline, ui.DocsPager"
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "info",
+              "title": "Not wrapped",
+              "text": "ModalBackdrop (forwardRef), Toast, CloseIcon, FlagIcon, CourierLogo, ThemeSwitch, ContrastControl, Lightbox internals. Replacing those needs a kernel product change, not the plugin skill."
+            },
+            {
+              "type": "code",
+              "language": "ts",
+              "caption": "Theme override",
+              "code": "import { KERNEL_UI, type UiComponent } from '@kernel/front/ui';\nimport { ShopButton } from './ShopButton';\n\nexport const pluginFront: PluginFrontModule = {\n  pluginId: 'tuucho-theme-default',\n  ui: [{ name: KERNEL_UI.Button, component: ShopButton as UiComponent, replace: true }],\n};"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "permissions",
+      "group": "kernel",
+      "groupTitle": "Kernel APIs",
+      "title": "Permissions",
+      "summary": "Kernel CORE_PERMISSIONS versus plugin manifest codes. Grant in Roles. Gate HTTP and nav.",
+      "sections": [
+        {
+          "heading": "CORE_PERMISSIONS",
+          "blocks": [
+            {
+              "type": "callout",
+              "tone": "important",
+              "title": "Do not add plugin codes here",
+              "text": "staffPermissions.ts is kernel sections only. Plugin codes live on plugin.json permissions[] and join the Roles matrix only while that plugin and its dependsOn parents are on."
+            },
+            {
+              "type": "table",
+              "columns": ["Code", "Admin surface"],
+              "rows": [
+                ["stats", "Admin Accueil stats cards"],
+                ["orders", "Orders"],
+                ["messages", "Contact hub: registered chats and guest unconnected contacts"],
+                ["users", "Users; GET /admin/users/:id/contacts"],
+                ["impersonate", "Impersonation"],
+                ["library_stock", "Library stock"],
+                ["accessory_stock", "Accessory stock"],
+                ["user_library_stock", "User library stock"],
+                ["catalogue_edit", "Catalogue vocabulary and product edit"],
+                ["preferences", "Boutique / Preferences"],
+                ["activity", "Activity"]
+              ]
+            },
+            {
+              "type": "defs",
+              "items": [
+                { "term": "super-admin", "description": "Holds every catalogue code implicitly. Not stored in role_permissions. Manages roles." },
+                { "term": "user", "description": "Customer. Holds none. Cannot open admin." }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Plugin codes",
+          "blocks": [
+            {
+              "type": "steps",
+              "items": [
+                "Put { code, label } on plugin.json permissions[]. Code matches /^[a-z][a-z0-9_]{1,63}$/.",
+                "While the plugin is on, Admin → Roles can grant it. Super-admin still holds every code.",
+                "HTTP: requireAuth, requirePermission('your_code'), requirePluginEnabled('your-id') so a disabled plugin 404s instead of an empty screen.",
+                "Nav: access and pluginId on the adminNav item. Return NotFound when usePluginEnabled is false."
+              ]
+            },
+            {
+              "type": "code",
+              "language": "json",
+              "caption": "Manifest fragment",
+              "code": "{\n  \"id\": \"tuucho-commerce-loyalty\",\n  \"permissions\": [{ \"code\": \"loyalty\", \"label\": \"Loyalty wallet\" }]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "group": "kernel",
+      "groupTitle": "Kernel APIs",
+      "title": "Contact",
+      "summary": "Pre-bundled plugin tuucho-contact: public guest form, signed-in account chat, admin Contact hub. Permission messages. Kernel owns the email shell and the named tables.",
+      "sections": [
+        {
+          "heading": "What it is",
+          "blocks": [
+            {
+              "type": "callout",
+              "tone": "important",
+              "title": "Kernel surface",
+              "text": "Contact is tuucho-contact (plugins/tuucho/messaging/contact/tuucho-contact). Enable shows /contact and Admin → Contact. Disable unloads HTTP and UI. Tables unconnected_contacts and chat_* stay kernel-named. tuucho-home-faq fills slot.home.faq. Product-requests owns POST /contact/product-request."
+            },
+            {
+              "type": "cards",
+              "items": [
+                { "title": "Guest form", "text": "Anonymous visitors on /contact. POST /contact. Stored as unconnected_contacts. Owner mail enqueued on mail_jobs." },
+                { "title": "Account chat", "text": "Signed-in visitors on the same /contact page. chat_sessions / chat_messages, SSE, presence, open or closed." },
+                { "title": "Admin Contact", "text": "One hub with switch Registered → /admin/chats and Guests → /admin/unconnected-contacts. Permission messages." }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Storefront page",
+          "blocks": [
+            {
+              "type": "defs",
+              "items": [
+                { "term": "Route", "description": "/contact (localized). Menu: Info → Contact while tuucho-contact is enabled. Plugin publicRoutes, not a kind:page menu." },
+                { "term": "Guest", "description": "ContactPage form: email, identity (full name), message, optional 0–3 images. Success collapses the form." },
+                { "term": "Signed in", "description": "Lazy AccountContactChat. Guest login hint opens the auth modal on desktop or /login with returnTo /contact on mobile." },
+                { "term": "Copy", "description": "kernel/front/src/assets/i18n/strings/en/contact.ts. Overlay French via tuucho-locale-fr, not via a contact plugin." }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Guest form fields",
+          "blocks": [
+            {
+              "type": "table",
+              "columns": ["Field", "Rules"],
+              "rows": [
+                ["email", "Required. boundedEmail / FIELD_EMAIL_MAX."],
+                ["identity", "Required. Full name. FIELD_CONTACT_IDENTITY_MAX (env, default 160)."],
+                ["message", "Required. FIELD_CONTACT_MESSAGE_MAX (env, default 5000)."],
+                ["images", "Optional. 0–3 jpeg/png/webp. Magic bytes must match declared MIME. Sharp decodes. Cap CONTACT_IMAGE_MAX_BYTES after processing."]
+              ]
+            },
+            {
+              "type": "code",
+              "language": "json",
+              "caption": "POST /contact JSON",
+              "code": "{ \"email\": \"customer@example.com\", \"identity\": \"Last name First name\", \"message\": \"…\" }"
+            },
+            {
+              "type": "p",
+              "text": "Multipart uses the same fields plus images. Persist first as status new, then enqueue mail. Prefer contact_email_guest_enabled off: skip owner mail, still 201. Errors: 400 validation, 429 rate limit, 503 contact_unavailable, 502 email_delivery_failed."
+            }
+          ]
+        },
+        {
+          "heading": "Storage",
+          "blocks": [
+            {
+              "type": "defs",
+              "items": [
+                { "term": "unconnected_contacts", "description": "public_id, encrypted email and identity, email_lookup HMAC, language, status new | answered | ignored." },
+                { "term": "unconnected_contact_messages", "description": "direction visitor | admin, encrypted body." },
+                { "term": "unconnected_contact_attachments", "description": "encrypted file_name / original_name. Files under PRIVATE_DIR + PRIVATE_MEDIA_CONTACT_DIR. No public URL." },
+                { "term": "chat_sessions / chat_messages", "description": "Signed-in inbox. status open | closed, user_id. Attachments under PRIVATE_MEDIA_CHAT_DIR." }
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "warning",
+              "title": "Search",
+              "text": "Guest PII is encrypted at rest. Admin q matches exact email via HMAC, public id, or decrypted text inside a window of the 2000 most recent threads (CONTACT_SEARCH_WINDOW in code, not env)."
+            }
+          ]
+        },
+        {
+          "heading": "HTTP and permissions",
+          "blocks": [
+            {
+              "type": "table",
+              "columns": ["Path", "Auth"],
+              "rows": [
+                ["POST /contact", "Public. Rate RATE_CONTACT_EMAIL (prod 15m:5). DISABLE_RATE_CONTACT_EMAIL is dev only."],
+                ["POST /contact/product-request", "optionalAuth + requirePluginEnabled tuucho-commerce-product-requests. Not this inbox."],
+                ["GET|POST /account/chat/sessions …", "requireAuth. messages, read, close, presence, events, attachments."],
+                ["/admin/chats and /admin/unconnected-contacts", "Staff permission messages."],
+                ["GET /admin/users/:id/contacts", "Permission users. HMAC email match of guest threads, not an account foreign key."]
+              ]
+            },
+            {
+              "type": "p",
+              "text": "Admin chats: status open|closed, q, period, sort. SSE at /events. Replies JSON or multipart body + images 0–3. Close is idempotent. Attention badge GET /admin/chats/attention-counts { open }. Guest inbox: status new|answered|ignored. POST …/replies emails the visitor and marks answered only after delivery. Attention GET /admin/unconnected-contacts/attention-counts { new }."
+            }
+          ]
+        },
+        {
+          "heading": "Mail and preferences",
+          "blocks": [
+            {
+              "type": "defs",
+              "items": [
+                { "term": "EMAIL_CONTACT_RECIPIENT", "description": "Legacy env. Contact inbound uses tuucho-mail-spy channel contact.inbound. Seeded only if it matches an unlocked staff account and no recipients exist yet." },
+                { "term": "EMAIL_CHAT_RECIPIENT", "description": "Legacy env. Chat owner-notify uses tuucho-mail-spy channel contact.chat. Same seed rule. EMAIL_CHAT_FROM / SMTP_CHAT_* stay the piped mailbox transport." },
+                { "term": "contact_email_guest_enabled", "description": "Admin → Preferences Contact e-mails. Off: persist, skip owner mail, still 201." },
+                { "term": "contact_email_connected_enabled", "description": "Owner notify when a signed-in customer writes in chat, unless they are marked present." },
+                { "term": "mail_jobs kind contact_form", "description": "Hardcoded French plaintext builder, replyTo = visitor. Not mail.templates." }
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "info",
+              "title": "Local / folder routing",
+              "text": "When ROUTE_EMAIL_FOLDER is on, the worker writes under DEV_EMAIL_USER_DIR. No SMTP required. Endpoint still 201 after enqueue."
+            }
+          ]
+        },
+        {
+          "heading": "How to extend",
+          "blocks": [
+            {
+              "type": "list",
+              "items": [
+                "There is no CORE_OPENING_FILTERS contact name. You cannot add a form field or swap ContactPage through the bus.",
+                "Home teaser: fill or replace slot.home.faq (see Home FAQ). That slot is not mounted on /contact.",
+                "Mail: generic mail.send / mail.recipients may wrap other mail. Guest-form owner notify uses mail.spy.resolve via contact.inbound; chat owner-notify uses contact.chat (tuucho-mail-spy). Unconnected replies use dedicated builders.",
+                "Admin extra pages: adminNav + permission, not a Contact slot.",
+                "Sold-out size requests: tuucho-commerce-product-requests, permission product_requests, spy channel product_request (tuucho-mail-spy)."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kernel-surfaces",
+      "group": "kernel",
+      "groupTitle": "Kernel APIs",
+      "title": "Other kernel surfaces",
+      "summary": "Collection, orders, stock, users, roles, vocabulary, preferences, payment and courier shells.",
+      "sections": [
+        {
+          "heading": "Admin shells",
+          "blocks": [
+            {
+              "type": "defs",
+              "items": [
+                { "term": "Collection", "description": "Gallery, product pages, catalogue vocabulary. Permission catalogue_edit for edit. Not a plugin." },
+                { "term": "Orders", "description": "Staff orders + account history. Permission orders. Plugin bags via orders.snapshot." },
+                { "term": "Stock", "description": "library_stock, accessory_stock, user_library_stock. Accueil stats need stats." },
+                { "term": "Users", "description": "Accounts, impersonate. GET /admin/users/:id/contacts is HMAC guest-thread match." },
+                { "term": "Roles", "description": "role_permissions grants. Super-admin implicit. Plugin codes appear only while the plugin is on." },
+                { "term": "Preferences", "description": "Boutique toggles plus core.preferences.entries. Theme tokens are not Boutique fields (theme Configure)." }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Payment and shipping shells",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The kernel owns the method lists. A payment plugin calls registerPaymentGateway({ id, methods, capabilities, Stripe-like ops }). Checkout keeps a method only while that plugin is enabled. A shipping plugin calls registerShippingMethod({ id, courierCodes, ensureCouriers }) and lists courierCodes on the manifest. Packet prices live in courier_packets and are edited on the kernel Couriers JSON page (PUT /admin/courier-catalog/…), not Plugin Configure and not a kernel table you ALTER."
+            },
+            {
+              "type": "code",
+              "language": "ts",
+              "caption": "Payment register (Stripe)",
+              "code": "api.registerPaymentGateway({\n  id: api.pluginId,\n  methods: ['card', 'paypal', 'bancontact', 'google_pay', 'apple_pay'],\n  capabilities: ['saved-methods', 'webhooks', 'manual-capture'],\n  getClient: () => createStripeFromEnv(),\n  createAccountIntent,\n  createGuestIntent,\n  constructWebhookEvent,\n});"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "locales",
+      "group": "kernel",
+      "groupTitle": "Kernel APIs",
+      "title": "Locale overlays",
+      "summary": "English lives in the kernel. French is locale plugins. Complements overlay one parent. No extra product languages.",
+      "sections": [
+        {
+          "heading": "How French is assembled",
+          "blocks": [
+            {
+              "type": "steps",
+              "items": [
+                "Kernel dictionaries are English (strings/en, admin/strings/en.ts).",
+                "tuucho-locale-fr (kind locale) overlays kernel chrome, email, invoice.render copy.",
+                "<id>-locale-fr dependsOn the parent and ships front/catalog.ts (and adminCatalog.ts when needed).",
+                "assembleDictionary deep-merges enabled overlays when lang is fr. Disable the complement and that plugin stays English even if tuucho-locale-fr is on."
+              ]
+            },
+            {
+              "type": "code",
+              "language": "ts",
+              "caption": "front/index.tsx of a complement",
+              "code": "export const pluginFront: PluginFrontModule = {\n  pluginId: 'tuucho-home-faq-locale-fr',\n  locales: [{ lang: 'fr', catalog }],\n};"
+            },
+            {
+              "type": "callout",
+              "tone": "warning",
+              "title": "Product languages",
+              "text": "en and fr only. Do not add es, it, nl, pt, th. Email: api.registerEmailCatalog('fr', catalog)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extend-seo",
+      "group": "extend",
+      "groupTitle": "Extend the shop",
+      "title": "Extend SEO",
+      "summary": "How a plugin joins the kernel SEO engine when it adds a public URL, crawler rule, or structured data.",
+      "sections": [
+        {
+          "heading": "Who owns what",
+          "blocks": [
+            {
+              "type": "callout",
+              "tone": "important",
+              "title": "Production only",
+              "text": "Public indexing is on only when APP_TARGET is exactly prod. On dev and preprod the shop sends noindex, nofollow, Disallow /, and does not publish /sitemap.xml. Filters still register so Settings → SEO can preview extras. NODE_ENV does not flip this."
+            },
+            {
+              "type": "table",
+              "columns": ["Owner", "Responsibility"],
+              "rows": [
+                ["Kernel", "Canonicals, default meta, /sitemap.xml, shop robots, seo_redirects, Settings → SEO."],
+                ["API host", "GET /robots.txt is the JSON crawler policy. That is not the shop document."],
+                ["Sitemap pages", "Appends enabled page-plugin routes while the plugin is on."],
+                ["Robots rules", "Appends Disallow /admin /account /checkout /gallery? (used on prod)."],
+                ["Redirects apply", "Turns on live apply of the table and of seo.redirects.rules. Permission seo_redirects."]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Filters",
+          "blocks": [
+            {
+              "type": "code",
+              "language": "ts",
+              "caption": "back/register.ts",
+              "code": "import { CORE_OPENING_FILTERS } from '@tuucho/plugin-sdk';\n\napi.addFilter(CORE_OPENING_FILTERS.seoSitemap, (entries) => [\n  ...entries,\n  { loc: `${shopOrigin}/your-path`, source: api.pluginId },\n]);\n\napi.addFilter(CORE_OPENING_FILTERS.seoRobots, (rules) => [\n  ...rules,\n  { directive: 'Disallow', value: '/your-private' },\n]);\n\napi.addFilter(CORE_OPENING_FILTERS.seoMeta, (meta) => ({ ...meta, title: meta.title ?? 'Your page' }));\n\napi.addFilter(CORE_OPENING_FILTERS.seoJsonLd, (graph) => [...graph, { '@type': 'FAQPage' }]);\n\napi.addFilter(CORE_OPENING_FILTERS.seoRedirects, (rules) => [\n  ...rules,\n  { fromPath: '/old', toPath: '/your-path', status: 301, source: api.pluginId },\n]);"
+            },
+            {
+              "type": "defs",
+              "items": [
+                { "term": "Page route", "description": "A page plugin with plugin.json route is already listed while Sitemap pages is on." },
+                { "term": "Extra URL", "description": "Register seo.sitemap.entries yourself for a path that is not that route. Guides does this for /pose and /capsules." },
+                { "term": "Unload", "description": "Register only from back/register.ts so the extras disappear when the plugin is off." }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plugin-to-plugin",
+      "group": "extend",
+      "groupTitle": "Extend the shop",
+      "title": "Plugins talking to plugins",
+      "summary": "dependsOn, public services, and the rule that you never import another plugin's private files.",
+      "sections": [
+        {
+          "heading": "Contracts",
+          "blocks": [
+            {
+              "type": "defs",
+              "items": [
+                { "term": "dependsOn", "description": "Other plugin ids, optionally with a version range. dependsOnMode all (default) or any. Complements disappear when a parent is off. Enable returns 409 plugin_incompatible if the parent is missing or out of range." },
+                { "term": "Service", "description": "Owner: api.registerPluginService(api.pluginId, { ... }). Caller: peekPluginService('tuucho-journal-api'). getPluginService throws plugin_unavailable:id." }
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "important",
+              "title": "No private imports",
+              "text": "Never import another plugin's http/ or infrastructure/, and do not query its tables with ad-hoc SQL."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-plugin",
+      "group": "ship",
+      "groupTitle": "Ship a plugin",
+      "title": "Anatomy of a plugin",
+      "summary": "Folder, manifest, kinds, and when Configure exists.",
+      "sections": [
+        {
+          "heading": "Folder and manifest",
+          "blocks": [
+            {
+              "type": "defs",
+              "items": [
+                { "term": "Bundled", "description": "plugins/tuucho/<group>/<feature>/<id>/. Leaf folder name is the plugin id. Bundled ids start with tuucho-." },
+                { "term": "User", "description": "plugins/user/<group>/<feature>/<id>/. User ids must not start with tuucho-." },
+                { "term": "Minimum", "description": "plugin.json and back/register.ts. Ship docs/handbook.json with real sections if this site should describe you. Empty identity cards are omitted." }
+              ]
+            },
+            {
+              "type": "table",
+              "columns": ["Field", "Rule"],
+              "rows": [
+                ["Required", "id, name, version, kind, description (what it does). Locale plugins may omit description."],
+                ["Kinds", "theme, page, payment, shipping, commerce, docs, generic, seo, locale."],
+                ["required: true", "Cannot be disabled (home and the default theme)."]
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "warning",
+              "title": "Configure",
+              "text": "Configure is only this plugin's settings form at /admin/plugins/:id. Empty Configure is hidden. Admin CRUD uses adminNav, not Configure."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-plugin-ai",
+      "group": "ship",
+      "groupTitle": "Ship a plugin",
+      "title": "Create with Cursor",
+      "summary": "Point an agent at the router skill. It loads one specialized child skill and does not edit the kernel.",
+      "sections": [
+        {
+          "heading": "The router",
+          "blocks": [
+            {
+              "type": "steps",
+              "items": [
+                "Use .cursor/skills/tuucho-create-plugin/SKILL.md.",
+                "It picks page, admin, slot, opening, schema, locale, payment, shipping, permission, SEO, UI, or spy channel, then reads exactly one child SKILL.md.",
+                "If the opening you need does not exist, it stops and tells you."
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "important",
+              "title": "Stay in core",
+              "text": "The skill will not move collection, contact, users, orders, stock, roles, vocabulary, or shop axes into a plugin."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "versioning",
+      "group": "ship",
+      "groupTitle": "Ship a plugin",
+      "title": "Versioning",
+      "summary": "Kernel semver, plugin semver, and engines.core. Incompatible plugins cannot enable.",
+      "sections": [
+        {
+          "heading": "What you see",
+          "blocks": [
+            {
+              "type": "defs",
+              "items": [
+                { "term": "Core", "description": "Admin → Plugins shows Core <version> on the title." },
+                { "term": "version", "description": "The plugin's own semver on each row." },
+                { "term": "engines.core", "description": "Kernel range, for example >=1.0.0 <2.0.0." }
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "warning",
+              "title": "Mismatch",
+              "text": "Scan disables mismatches. Enable returns 409 plugin_incompatible when the kernel is outside the range or a parent is missing. The enable switch is disabled."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "publishing-updates",
+      "group": "ship",
+      "groupTitle": "Ship a plugin",
+      "title": "Publishing a plugin for updates",
+      "summary": "How a third party must publish so Admin, Plugins, Check for updates can walk git tags.",
+      "sections": [
+        {
+          "heading": "Two origins",
+          "blocks": [
+            {
+              "type": "callout",
+              "tone": "info",
+              "title": "Official Tuucho is one repo",
+              "text": "Kernel and every tuucho-* plugin update only from https://github.com/by-tezov/tuucho-ecom tags (1.0.9, never v1.0.9). There is no per-plugin GitHub for Tuucho. plugins/user/ is never overwritten by a Tuucho Apply. Check reads CORE_VERSION and shop-release.json, never the shop package.json."
+            },
+            {
+              "type": "p",
+              "text": "A user plugin may set plugin.json repository to an HTTPS GitHub repo root. Check uses that origin for that plugin id only. Missing repository means zip-only. Complements are separate packages."
+            }
+          ]
+        },
+        {
+          "heading": "Must publish",
+          "blocks": [
+            {
+              "type": "table",
+              "columns": ["Rule", "Locked value"],
+              "rows": [
+                ["Host", "Public GitHub repository"],
+                ["Tags", "MAJOR.MINOR.PATCH. Order is semver. No v prefix. No master HEAD."],
+                ["Version", "plugin.json version equals the tag (1.2.0 means 1.2.0)."],
+                ["Layout", "Repo root is the package: plugin.json and back/register.ts at the zipball root."],
+                ["installPath", "Under plugins/user/..., leaf equals id."],
+                ["Id", "[a-z0-9-]+ and must not start with tuucho-."],
+                ["Description", "Required except locale plugins."],
+                ["Changelog", "CHANGELOG.md or plugin-release.json changelog. Optional."],
+                ["Migrations", "Additive back/migrations. Never rewrite an applied up. Tables plugin_<id>_... only."],
+                ["Jumps", "Every tag between the shop version and latest must be bootable. The shop walks 2 then 3 then 4 then 5."],
+                ["engines.core", "Semver range. Shop refuses plugin_incompatible."]
+              ]
+            },
+            {
+              "type": "code",
+              "language": "json",
+              "caption": "plugin-release.json on every tag (required for updates)",
+              "code": "{\n  \"id\": \"gift-wrap\",\n  \"version\": \"1.2.0\",\n  \"tag\": \"1.2.0\",\n  \"releaseId\": 4,\n  \"migrations\": [\"001_tables.js\"],\n  \"changelog\": \"Adds gift-wrap SKUs.\"\n}"
+            },
+            {
+              "type": "p",
+              "text": "releaseId strictly increases. Set repository on plugin.json to the repo root URL."
+            }
+          ]
+        },
+        {
+          "heading": "What the shop will refuse",
+          "blocks": [
+            {
+              "type": "list",
+              "items": [
+                "missing plugin.json or back/register.ts",
+                "tuucho-* id, path escape, absolute installPath, archive members named plugins/ or kernel/",
+                "missing description on a non-locale plugin",
+                "engines.core or dependsOn mismatch",
+                "git tag 1.2.0 with plugin.json version 1.1.0, or a v-prefixed tag",
+                "releaseId hole or decrease",
+                "non-GitHub or non-HTTPS repository",
+                "private repo (v1 sends no GitHub token)",
+                "id change across tags"
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "important",
+              "title": "Apply",
+              "text": "Admin, Plugins: Check for updates, then Apply. A third-party Apply replaces that folder only, after a snapshot. Failure restores the snapshot. Updates never uninstall."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop-updates",
+      "group": "ship",
+      "groupTitle": "Ship a plugin",
+      "title": "Installing and applying shop updates",
+      "summary": "Clone a tag, then Check and Apply from Admin, Plugins. What is never touched, how jumps walk tags, and how rollback works.",
+      "sections": [
+        {
+          "heading": "First install",
+          "blocks": [
+            {
+              "type": "steps",
+              "items": [
+                "git clone --branch 1.0.9 --depth 1 https://github.com/by-tezov/tuucho-ecom.git",
+                "npm run setup:cli (or npm run setup on :8787)",
+                "npm run dev. Shop on 5174. Setup writes shop-release.json next to installed.lock."
+              ]
+            },
+            {
+              "type": "p",
+              "text": "You do not git-pull later. Check for updates reads git tags only, never untagged master. Running kernel is CORE_VERSION. Last applied official tag is shop-release.json. The shop root package.json is yours and is not a version probe."
+            }
+          ]
+        },
+        {
+          "heading": "Check then Apply",
+          "blocks": [
+            {
+              "type": "steps",
+              "items": [
+                "Admin, Plugins: Check for updates.",
+                "Read the tag path (1.0.9 to 1.0.10 to 1.0.11). Scope All, Kernel, or Tuucho plugins. One plugin Apply is on that row.",
+                "Confirm. Apply snapshots, then walks every tag. The overlay log stays until you close it."
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "important",
+              "title": "No skipping",
+              "text": "A shop on tag 1 with latest 5 applies 2 then 3 then 4 then 5. Latest-only would skip migrations that later tags deleted."
+            }
+          ]
+        },
+        {
+          "heading": "What is never touched",
+          "blocks": [
+            {
+              "type": "table",
+              "columns": ["Path", "Tuucho Apply", "Third-party Apply"],
+              "rows": [
+                ["plugins/user/", "Never", "Only that plugin folder"],
+                [".env, secrets, installed.lock, shop root package.json", "Never", "Never"],
+                ["Media / uploads", "Never", "Never"],
+                ["Postgres rows", "Only kernel or plugin up", "Only that plugin's plugin_<id>_ tables"]
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "warning",
+              "title": "Local edits under plugins/tuucho",
+              "text": "Check hashes the bundled tree. If it disagrees with the recorded tag, Apply is refused until you copy those edits out (or into a plugins/user plugin). There is no force in v1."
+            }
+          ]
+        },
+        {
+          "heading": "Failure and rollback",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Apply snapshots the database and the scoped files first. Any thrown step restores that snapshot and stops. A later go-back to an older tag is restore-from-backup, not walking down. Kernel Apply may ask you to restart the API process."
+            },
+            {
+              "type": "callout",
+              "tone": "info",
+              "title": "GitHub egress",
+              "text": "The shop server must reach github.com, raw.githubusercontent.com, and codeload.github.com over HTTPS. Official origin is public; v1 sends no token. Private third-party repos fail Check. Zip upload remains for first install and for publishers without repository."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "data-lifecycle",
+      "group": "ship",
+      "groupTitle": "Ship a plugin",
+      "title": "Storage and uninstall",
+      "summary": "Plugin-owned tables, disable versus uninstall, and how to read kernel data.",
+      "sections": [
+        {
+          "heading": "Tables",
+          "blocks": [
+            {
+              "type": "callout",
+              "tone": "important",
+              "title": "No ALTER of kernel tables",
+              "text": "Extra data lives in plugin_<id with underscores>_… from back/migrations/*.js with up(client) and down(client). Foreign keys may point at users, orders, or products. The host wraps client.query and rejects SQL that mutates any other table."
+            },
+            {
+              "type": "table",
+              "columns": ["Action", "What happens"],
+              "rows": [
+                ["Disable", "Unloads code. Tables, settings, and schema_version stay."],
+                ["Uninstall", "POST /admin/plugins/:id/uninstall with confirm true: down, drop leftover plugin tables, delete the row."],
+                ["Delete folder only", "Admin → Plugins shows Folder missing. Uninstall to drop tables, or restore the folder."]
+              ]
+            },
+            {
+              "type": "p",
+              "text": "Kernel contact, orders, and stock tables are not plugin tables. Read them through kernel HTTP or openings. Do not ALTER unconnected_contacts or orders from a plugin migration."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-profile",
+      "group": "examples",
+      "groupTitle": "Walkthroughs",
+      "title": "Profile card",
+      "summary": "Add a card on My profile that opens a page plugin.",
+      "sections": [
+        {
+          "heading": "Register",
+          "blocks": [
+            {
+              "type": "steps",
+              "items": [
+                "Copy a page plugin (demo-page-guides is the shipped example).",
+                "In register.ts, append to core.profile.entries.",
+                "Account → My profile already renders bootstrap openings. Hide the card from inside the filter when you need it off independently of the page menu."
+              ]
+            },
+            {
+              "type": "code",
+              "language": "ts",
+              "caption": "Profile opening",
+              "code": "api.addFilter(CORE_OPENING_FILTERS.profile, (entries) => [\n  ...entries,\n  {\n    id: 'your-profile',\n    pluginId: api.pluginId,\n    title: 'Your page',\n    description: 'A public page from your plugin.',\n    href: '/your-page',\n  },\n]);"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-courier",
+      "group": "examples",
+      "groupTitle": "Walkthroughs",
+      "title": "Courier on the cart",
+      "summary": "How a shipping plugin registers methods and packet prices.",
+      "sections": [
+        {
+          "heading": "Manifest and cart",
+          "blocks": [
+            {
+              "type": "steps",
+              "items": [
+                "kind shipping, provides ShippingMethod, courierCodes lists the rows you own.",
+                "registerShippingMethod({ id, courierCodes, ensureCouriers }). Checkout keeps a courier only while its plugin is on.",
+                "Packet prices are edited on the kernel Couriers JSON page (PUT /admin/courier-catalog/couriers/:code). Disable the plugin and those couriers leave the cart."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-loyalty",
+      "group": "examples",
+      "groupTitle": "Walkthroughs",
+      "title": "Loyalty on checkout",
+      "summary": "How commerce-loyalty injects extraLines and stores a snapshot on the order.",
+      "sections": [
+        {
+          "heading": "Quote and history",
+          "blocks": [
+            {
+              "type": "cards",
+              "items": [
+                { "title": "Off", "text": "Credit is zero. Wallet UI is hidden." },
+                { "title": "On", "text": "checkout.quote priority 30 adds extraLines and plugins[tuucho-commerce-loyalty]. Confirm consumes a hold. Snapshot copies the bag." },
+                { "title": "Later off", "text": "Past orders keep the snapshot. New UI is hidden. Checkout pricing is server-authoritative." }
+              ]
+            },
+            {
+              "type": "p",
+              "text": "Service id is tuucho-commerce-loyalty (peekPluginService). HTTP mounts: admin /loyalty, account /loyalty, operation /loyalty. Permission loyalty. Dashboard card uses slot.admin.dashboard and AdminPage statCard (the stats grid owns width)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-permissions",
+      "group": "examples",
+      "groupTitle": "Walkthroughs",
+      "title": "A staff permission",
+      "summary": "From manifest to Roles to requirePermission.",
+      "sections": [
+        {
+          "heading": "Path",
+          "blocks": [
+            {
+              "type": "steps",
+              "items": [
+                "permissions[] on the manifest.",
+                "Admin → Roles can grant it while the plugin is on.",
+                "requirePermission plus requirePluginEnabled on the router. Nav: access and pluginId. Super-admin sees the section without a stored grant."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-spy-channel",
+      "group": "examples",
+      "groupTitle": "Walkthroughs",
+      "title": "Register a spy channel",
+      "summary": "Declare who should be configurable for an ops e-mail. tuucho-mail-spy owns recipients; the kernel still sends SMTP.",
+      "sections": [
+        {
+          "heading": "Path",
+          "blocks": [
+            {
+              "type": "steps",
+              "items": [
+                "addFilter mail.spy.channels with appendSpyChannel: id, pluginId, title, description, filters (role, email, kind).",
+                "Send with spyTo('your_id') then sendMail. Empty To skips.",
+                "Operators pick roles and/or staff emails on Admin → Spy e-mails. Customers never receive. One address, one copy."
+              ]
+            },
+            {
+              "type": "code",
+              "language": "ts",
+              "caption": "Gift registers gift_created",
+              "code": "api.addFilter(CORE_OPENING_FILTERS.mailSpyChannels, (channels) =>\n  appendSpyChannel(channels, {\n    id: 'gift_created',\n    pluginId: api.pluginId,\n    title: 'Gift created',\n    description: 'Staff copy when a giver creates a gift offer.',\n    filters: ['role', 'email', 'kind'],\n  }),\n);"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

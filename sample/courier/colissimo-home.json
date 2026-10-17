@@ -2,21 +2,11 @@
   "code": "colissimo-home",
   "name": {
     "fr": "Colissimo",
-    "en": "Colissimo",
-    "th": "Colissimo",
-    "es": "Colissimo",
-    "it": "Colissimo",
-    "nl": "Colissimo",
-    "pt": "Colissimo"
+    "en": "Colissimo"
   },
   "description": {
     "fr": "Livraison directement à votre domicile.",
-    "en": "Delivery directly to your home.",
-    "th": "จัดส่งถึงบ้านของคุณโดยตรง",
-    "es": "Entrega directamente en tu domicilio.",
-    "it": "Consegna direttamente a casa tua.",
-    "nl": "Rechtstreeks bij je thuis bezorgd.",
-    "pt": "Entrega diretamente na sua morada."
+    "en": "Delivery directly to your home."
   },
   "enabled": true,
   "sortOrder": 3,
@@ -30,8 +20,14 @@
     "$home"
   ],
   "deliveryTime": {
-    "default": { "min": 2, "max": 4 },
-    "BE": { "min": 3, "max": 5 }
+    "default": {
+      "min": 2,
+      "max": 4
+    },
+    "BE": {
+      "min": 3,
+      "max": 5
+    }
   },
   "packets": [
     {

@@ -3,7 +3,7 @@
  * WordPress-style first-run installer for tuucho-ecom.
  *
  *   npm run setup            # web wizard on :8787
- *   npm run setup:cli -- --yes --store-name Lumen --admin-email admin@lumen.test --admin-password 'LumenAdmin1!'
+ *   npm run setup:cli -- --yes --store-name Shop --admin-email admin@shop.example --admin-password 'ShopAdmin1!'
  */
 import { createServer } from 'node:http';
 import { randomBytes } from 'node:crypto';
@@ -14,18 +14,18 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const lockPath = join(root, 'installed.lock');
-const back = join(root, 'back');
-const front = join(root, 'front');
+const back = join(root, 'kernel/back');
+const front = join(root, 'kernel/front');
 
 function parseArgs(argv) {
   const out = {
     yes: false,
     cli: false,
     wizard: !argv.includes('--yes') && !argv.includes('--cli'),
-    storeName: 'Lumen',
-    storeSuffix: 'Atelier',
-    adminEmail: 'admin@lumen.test',
-    adminPassword: 'LumenAdmin1!',
+    storeName: 'Shop',
+    storeSuffix: '',
+    adminEmail: 'admin@shop.example',
+    adminPassword: 'ShopAdmin1!',
     lang: 'fr',
     postgresUser: 'tezov',
     postgresPassword: randomBytes(12).toString('base64url'),
@@ -137,6 +137,7 @@ async function install(options) {
   writeConfig(options);
   run('docker', ['compose', '--env-file', '.env/.private.env', 'up', '-d'], back);
   await waitForPostgres();
+  run('npm', ['install'], root);
   if (!existsSync(join(back, 'node_modules'))) {
     run('npm', ['install'], back);
   }
@@ -173,6 +174,7 @@ async function install(options) {
       2,
     ) + '\n',
   );
+  run('npx', ['tsx', 'scripts/writeShopRelease.ts'], back);
   console.log('');
   console.log('tuucho-ecom is installed.');
   console.log('  Shop:  http://localhost:5174');
@@ -199,9 +201,9 @@ button{margin-top:20px;background:#121212;color:#fff;border:0;padding:12px 18px;
 <h1>tuucho-ecom</h1>
 <p>First-run installer. Postgres on port 5434, API on 3010, shop on 5174.</p>
 <form id="f">
-<label>Store name</label><input name="storeName" value="Lumen" required/>
-<label>Admin e-mail</label><input name="adminEmail" type="email" value="admin@lumen.test" required/>
-<label>Admin password</label><input name="adminPassword" type="password" value="LumenAdmin1!" required/>
+<label>Store name</label><input name="storeName" value="Shop" required/>
+<label>Admin e-mail</label><input name="adminEmail" type="email" value="admin@shop.example" required/>
+<label>Admin password</label><input name="adminPassword" type="password" value="ShopAdmin1!" required/>
 <label>Language</label><input name="lang" value="fr"/>
 <label>Stripe publishable key (optional)</label><input name="stripePublishable" placeholder="pk_test_..."/>
 <label>Stripe secret key (optional)</label><input name="stripeSecret" placeholder="sk_test_..."/>

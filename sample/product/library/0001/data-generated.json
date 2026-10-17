@@ -1,39 +1,19 @@
 {
   "title": {
     "fr": "Vase Aurora",
-    "en": "Aurora Vessel",
-    "th": "ภาชนะออโรรา",
-    "es": "Vasija Aurora",
-    "it": "Vaso Aurora",
-    "nl": "Aurora vaas",
-    "pt": "Vaso Aurora"
+    "en": "Aurora Vessel"
   },
   "desc": {
     "fr": "Piece artisanale $shape.attributive, glaçure celadon et liseré sable.",
-    "en": "Hand-thrown $shape.title piece with celadon glaze and a sand rim.",
-    "th": "งานมือ$shape.attributiveเคลือบสีเขียวอ่อนขอบทราย",
-    "es": "Pieza artesanal $shape.attributive, esmalte celadon y borde arena.",
-    "it": "Pezzo artigianale $shape.attributive, smalto celadon e bordo sabbia.",
-    "nl": "Handgemaakt $shape.attributive stuk met celadon glazuur en zandrand.",
-    "pt": "Peça artesanal $shape.attributive, vidrado celadon e bordo areia."
+    "en": "Hand-thrown $shape.title piece with celadon glaze and a sand rim."
   },
   "alt": {
     "fr": "Piece artisanale $shape.attributive, glaçure celadon et liseré sable.",
-    "en": "Hand-thrown $shape.title piece with celadon glaze and a sand rim.",
-    "th": "งานมือ$shape.attributiveเคลือบสีเขียวอ่อนขอบทราย",
-    "es": "Pieza artesanal $shape.attributive, esmalte celadon y borde arena.",
-    "it": "Pezzo artigianale $shape.attributive, smalto celadon e bordo sabbia.",
-    "nl": "Handgemaakt $shape.attributive stuk met celadon glazuur en zandrand.",
-    "pt": "Peça artesanal $shape.attributive, vidrado celadon e bordo areia."
+    "en": "Hand-thrown $shape.title piece with celadon glaze and a sand rim."
   },
   "occasion": {
     "fr": "maison",
-    "en": "home",
-    "th": "บ้าน",
-    "es": "hogar",
-    "it": "casa",
-    "nl": "thuis",
-    "pt": "casa"
+    "en": "home"
   },
   "color-main": [
     "$green",

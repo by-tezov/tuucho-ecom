@@ -1,0 +1,15 @@
+{
+  "id": "tuucho-seo-robots",
+  "installPath": "plugins/tuucho/seo/robots/tuucho-seo-robots",
+  "name": "Robots rules",
+  "version": "1.0.0",
+  "kind": "seo",
+  "description": "Adds private-path Disallow rules to the kernel shop robots.txt.",
+  "defaultEnabled": true,
+  "provides": [
+    "SeoRobots"
+  ],
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "demo-page-guides",
+  "installPath": "plugins/user/demo/guides/demo-page-guides",
+  "name": "Guides",
+  "version": "1.0.0",
+  "kind": "page",
+  "description": "Demo size, shape and care guides (not a bundled Tuucho product plugin).",
+  "defaultEnabled": true,
+  "provides": [
+    "StorefrontPage"
+  ],
+  "route": "/sizes",
+  "nav": {
+    "key": "guide",
+    "order": 30
+  },
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

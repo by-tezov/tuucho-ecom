@@ -1,0 +1,13 @@
+{
+  "title": "French",
+  "summary": "Kernel French for admin and storefront chrome. Enable to offer French in the language switcher. Disable for English-only kernel UI.",
+  "configure": "No Configure form. Enable or disable this plugin.",
+  "preferences": "None.",
+  "openingsUsed": [],
+  "openingsProvided": [
+    "Locale"
+  ],
+  "cart": "None.",
+  "orders": "None.",
+  "profile": "None."
+}

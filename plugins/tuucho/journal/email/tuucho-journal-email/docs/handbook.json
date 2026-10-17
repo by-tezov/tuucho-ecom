@@ -1,0 +1,28 @@
+{
+  "title": "Email journal",
+  "summary": "Admin e-mail log UI. Complement of Journal API. Permission email_log.",
+  "sections": [
+    {
+      "heading": "Complement",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "dependsOn",
+              "description": "tuucho-journal-api >=1.0.0"
+            },
+            {
+              "term": "Permission",
+              "description": "email_log"
+            },
+            {
+              "term": "Mount",
+              "description": "admin / with adminEmailLogRouter"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

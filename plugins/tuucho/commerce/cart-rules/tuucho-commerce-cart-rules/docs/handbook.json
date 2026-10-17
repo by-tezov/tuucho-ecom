@@ -1,0 +1,21 @@
+{
+  "title": "Cart rules",
+  "summary": "Thresholds, gifts and other cart alterations. checkout.quote priority 10 so it runs before vouchers and loyalty. Permission cart_rules.",
+  "sections": [
+    {
+      "heading": "Order on the quote",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Priority 10",
+          "text": "Cart-rules mutate the quote first. Vouchers 20, loyalty 30. ExtraLines and plugins[tuucho-commerce-cart-rules] feed later filters."
+        },
+        {
+          "type": "p",
+          "text": "Admin CRUD is the Cart rules page, not Configure. Disable hides admin and checkout alterations."
+        }
+      ]
+    }
+  ]
+}

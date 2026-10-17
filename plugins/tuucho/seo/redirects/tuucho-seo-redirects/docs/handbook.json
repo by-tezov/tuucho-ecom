@@ -1,0 +1,21 @@
+{
+  "title": "Redirects apply",
+  "summary": "Feature gate for live 301/410 apply of seo_redirects and seo.redirects.rules. Permission seo_redirects. Edit rows in Settings \u2192 SEO.",
+  "sections": [
+    {
+      "heading": "What enabling it does",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Gate, not the editor",
+          "text": "The kernel stores redirects and shows them on Settings \u2192 SEO. While this plugin is on, those rows and extra seo.redirects.rules run. While it is off, you can still edit rows; they do not apply."
+        },
+        {
+          "type": "p",
+          "text": "Manifest permission seo_redirects joins Roles while the plugin is on."
+        }
+      ]
+    }
+  ]
+}

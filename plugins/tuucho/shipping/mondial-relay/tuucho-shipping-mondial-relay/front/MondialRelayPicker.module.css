@@ -1,0 +1,414 @@
+/* The widget doesn't create its map/list DOM at all until the first
+   search — before that, .MR-Widget collapses to ~2px (confirmed live),
+   reading as a bare separator line instead of reserving the map's usual
+   footprint. This reserves it up front, sized to match what the map ends
+   up at on each breakpoint (.MRW-Map's own 360px on mobile below, and the
+   widget's natural ~450px on desktop) rather than the old
+   calc(100dvh - 180px), which reserved far more than the map ever needed
+   and left dead space below it once content did load. Bordered/backed
+   like the page's other blocks (search form, validation) rather than
+   just reserving blank space — overflow: hidden so the map's own square
+   corners don't poke out past the rounded border once it loads. */
+.hostWrap {
+  position: relative;
+}
+
+.host {
+  min-height: 360px;
+  overflow: hidden;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  /* Very light tint of Mondial Relay's own brand red (sampled from the
+     widget's result-list text, rgb(150, 21, 74) — same color the reopen
+     button below is a lighter version of). Only actually visible before a
+     search / in any gaps around the loaded map, which is opaque. */
+  background: rgba(150, 21, 74, 0.05);
+}
+
+@media (min-width: 801px) {
+  .host {
+    min-height: 450px;
+  }
+}
+
+.mapPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  pointer-events: none;
+}
+
+.host :global(.MR-Widget) {
+  box-sizing: border-box;
+  width: 100% !important;
+  margin: 0 !important;
+  font-family: var(--font-body);
+  background: transparent !important;
+}
+
+.host :global(.MRW-Title) {
+  display: none !important;
+}
+
+/* Keep the map popup concise; the complete opening hours are shown in our card.
+   Mondial Relay's theme sets `.MR-Widget .InfoWindow { width: 320px !important }`,
+   and Leaflet then bakes that into an inline width on `.leaflet-popup-content`.
+   Beat both so the bubble shrink-wraps the remaining .PR-Name title. */
+.host :global(.MR-Widget .InfoWindow),
+.host :global(.leaflet-popup-content .InfoWindow) {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  display: table !important;
+}
+
+.host :global(.leaflet-popup) {
+  width: auto !important;
+  max-width: min(90vw, 280px) !important;
+}
+
+.host :global(.leaflet-popup-content-wrapper) {
+  width: auto !important;
+  max-width: inherit !important;
+  padding: 6px 8px !important;
+  display: table !important;
+}
+
+.host :global(.leaflet-popup-content) {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: inherit !important;
+  /* Close (X) is absolutely positioned; keep a little right room for it. */
+  margin: 4px 22px 4px 6px !important;
+  display: table !important;
+}
+
+.host :global(.leaflet-popup-content .InfoWindow .PR-Name) {
+  display: inline-block !important;
+  width: auto !important;
+  max-width: min(70vw, 240px);
+  margin: 0 !important;
+  padding: 0 !important;
+  text-transform: lowercase;
+  font-size: 0.8333rem !important;
+  font-weight: 700 !important;
+  line-height: 1.3;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.host :global(.leaflet-popup-content .InfoWindow .PR-Name::first-letter) {
+  text-transform: uppercase;
+}
+
+.host :global(.leaflet-popup-content .InfoWindow > :not(.PR-Name)) {
+  display: none !important;
+}
+
+/* The search is provided by the page, so remove the widget's duplicate row entirely. */
+.host :global(.MRW-Search) {
+  display: none !important;
+}
+
+/* Keep the result list in the document flow instead of using Mondial Relay's
+   mobile slide-over panel. */
+.host :global(.MRW-ButtonCircle.MRW-ShowList) {
+  display: none !important;
+}
+
+.host :global(.MRW-ButtonCircle.MRW-BtGeoGo) {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  /* Was 1100 (via the widget's own theme stylesheet, loaded after ours —
+     needs !important to win against it). Only has to clear its .MRW-Map
+     sibling below (isolated into its own stacking context, see that
+     rule's comment, so Leaflet's internal panes never reach this far) —
+     nowhere near the site header's z-index: 100. */
+  z-index: 5 !important;
+  display: block !important;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow:
+    0 7px 14px rgba(50, 50, 93, 0.1),
+    0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.host :global(.MRW-ButtonCircle.MRW-BtGeoGo span) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: url('https://widget.mondialrelay.com/parcelshop-picker/v4_0/css/themes/mondialrelay/imgs/ico-target.png')
+    center / 20px no-repeat;
+}
+
+.host :global(.MR-Widget.MR-Widget-Responsive .MRW-Results:not([style*='display: none'])) {
+  display: flex !important;
+}
+
+.host :global(.MR-Widget.MR-Widget-Responsive .MRW-RList) {
+  order: 1;
+  float: none !important;
+}
+
+.host :global(.MR-Widget.MR-Widget-Responsive .MRW-Map) {
+  order: 2;
+  float: none !important;
+  /* Leaflet's own internal panes (.leaflet-popup-pane etc.) use z-index up
+     to 700 by default, and .leaflet-container (this same element) only
+     sets position: relative with no z-index of its own — not enough to
+     contain them, so without this they escaped straight past .host and
+     out-ranked .MRW-BtGeoGo/.MRW-RList's own much smaller values below
+     (kept small on purpose to stay well under the site header's
+     z-index: 100). isolation traps the panes inside this box instead. */
+  isolation: isolate;
+}
+
+@media (max-width: 1023px) {
+  .host :global(.MR-Widget) {
+    height: auto !important;
+  }
+
+  .host :global(.MR-Widget.MR-Widget-Responsive .MRW-Content),
+  .host :global(.MR-Widget.MR-Widget-Responsive .MRW-Results) {
+    height: auto !important;
+  }
+
+  .host :global(.MR-Widget.MR-Widget-Responsive .MRW-Results) {
+    flex-direction: column;
+  }
+
+  .host :global(.MR-Widget.MR-Widget-Responsive .MRW-Map) {
+    order: 1;
+    position: relative !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 360px !important;
+  }
+
+  /* Bottom sheet instead of Mondial Relay's own inline list or slide-over
+     panel — hidden below the viewport by default, brought up when .host
+     also carries .sheetOpen (toggled from MondialRelayPickerModal.tsx's
+     own state, alongside the custom header and reopen button rendered
+     next to it — see .mobileSheetHeader/.reopenButton below). The height
+     here and .mobileSheetHeader's own `bottom` must stay equal so the
+     header sits flush on top of the list with no gap or overlap. */
+  .host :global(.MR-Widget.MR-Widget-Responsive .MRW-RList),
+  .host :global(.MR-Widget.MR-Widget-Responsive .MRW-RList.Hide) {
+    order: 2;
+    position: fixed !important;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Same overlay stack as FilterSheet / other modals (backdrop 1000) —
+       must clear the sticky site header (100). */
+    z-index: 1001;
+    width: 100% !important;
+    height: min(65vh, 520px) !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    box-sizing: border-box !important;
+    /* Without this the rows sat flush against the sheet's own edges — with
+       no visual gap between them, the list read as *being* the sheet
+       rather than content placed inside one. Extra right padding clears
+       the chevron + vertical track. */
+    padding: 8px calc(16px + var(--scroll-hint-inset-x) + var(--scroll-hint-size))
+      calc(16px + env(safe-area-inset-bottom, 0px)) 16px !important;
+    background: var(--color-bg-card);
+    box-shadow: var(--shadow-sheet);
+    transform: translateY(100%) !important;
+    transition: transform 220ms ease;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    touch-action: pan-y;
+  }
+
+  .host :global(.MR-Widget.MR-Widget-Responsive .MRW-RList)::-webkit-scrollbar,
+  .host :global(.MR-Widget.MR-Widget-Responsive .MRW-RList.Hide)::-webkit-scrollbar {
+    display: none;
+  }
+
+  .host.sheetOpen {
+    overflow: visible;
+  }
+
+  .host.sheetOpen :global(.MR-Widget.MR-Widget-Responsive .MRW-RList),
+  .host.sheetOpen :global(.MR-Widget.MR-Widget-Responsive .MRW-RList.Hide) {
+    transform: translateY(0) !important;
+  }
+}
+
+.host :global(input),
+.host :global(select) {
+  border: 1px solid var(--border-medium) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--color-bg-card) !important;
+  color: var(--color-ink) !important;
+}
+
+.host :global(button),
+.host :global(input[type='submit']) {
+  border-radius: var(--radius-pill) !important;
+  background: var(--color-accent) !important;
+  color: var(--color-bg) !important;
+}
+
+.sheetBackdrop {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  /* Portaled to document.body — same z-index as every other modal backdrop
+     so the sticky header and page behind cannot receive taps or scrolls. */
+  .sheetBackdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    background: var(--color-overlay-modal);
+    touch-action: none;
+  }
+}
+
+.mobileSheetHeader {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  /* Sits directly on top of .MRW-RList's own fixed box below — `bottom`
+     here must equal that rule's `height` (min(65vh, 520px)) so the two
+     look like one seamless card. Always rendered (like the list) and
+     transform-toggled via .mobileSheetHeaderOpen, not mounted/unmounted —
+     that used to make it pop straight to its final spot while the list
+     slid up under it, reading as two disconnected pieces instead of one
+     sheet. The hidden position moves it down by its own height *plus* the
+     list's height (not just its own, like the list's rule does) — sitting
+     this high up the screen, translateY(100%) alone would only nudge it
+     a little, nowhere near off-screen. */
+  .mobileSheetHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: min(65vh, 520px);
+    z-index: 1002;
+    padding: 14px 16px;
+    background: var(--color-bg-card);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    box-shadow: var(--shadow-bar);
+    transform: translateY(calc(100% + min(65vh, 520px)));
+    transition: transform 220ms ease;
+    pointer-events: none;
+  }
+
+  .mobileSheetHeaderOpen {
+    transform: translateY(0) !important;
+    pointer-events: auto;
+  }
+
+  /* Inset from the header's own edges, matching every other sheet/dialog
+     header on the site — a full-width line would read as flush with the
+     header's rounded top corners instead of a separator under the title
+     row. */
+  .mobileSheetHeader::after {
+    content: '';
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+}
+
+.mobileSheetTitle {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--color-ink);
+}
+
+.mobileSheetClose {
+  composes: closeButton from '@kernel/front/components/ui/ModalChrome.module.css';
+}
+
+.sheetScrollHints {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .sheetScrollHints {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: min(65vh, 520px);
+    z-index: 1002;
+    pointer-events: none;
+  }
+}
+
+.scrollHintUp {
+  composes: scrollHintUp from '@kernel/front/components/ui/ModalChrome.module.css';
+}
+
+.scrollHintDown {
+  composes: scrollHintDown from '@kernel/front/components/ui/ModalChrome.module.css';
+}
+
+.scrollHintBar {
+  composes: scrollHintBar from '@kernel/front/components/ui/ModalChrome.module.css';
+}
+
+.scrollHintBarFromUp {
+  composes: scrollHintBarFromUp from '@kernel/front/components/ui/ModalChrome.module.css';
+}
+
+.scrollHintBarToDown {
+  composes: scrollHintBarToDown from '@kernel/front/components/ui/ModalChrome.module.css';
+}
+
+.reopenButton {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  /* Light red — Mondial Relay's own brand color (sampled from the
+     widget's own result-list text, rgb(150, 21, 74)) is quite dark, so
+     this is a lighter tint of it rather than the exact shade. Square with
+     rounded corners on purpose, not a circle — distinct at a glance from
+     every other floating/icon button on the site, which are all round. */
+  .reopenButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    z-index: 62;
+    width: 52px;
+    height: 52px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: #cf6d92;
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(150, 21, 74, 0.35);
+  }
+
+  .reopenButton:hover {
+    background: #c05a80;
+  }
+}

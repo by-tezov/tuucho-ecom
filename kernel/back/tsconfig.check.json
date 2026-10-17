@@ -1,0 +1,11 @@
+{
+  "// purpose": "Typechecks the tooling and tests that `tsconfig.json` (which covers `src` only) leaves out. A type error in a build script, an operations CLI or a test used to surface only when the thing ran.",
+  "// ratchet": "`exclude` is a ratchet: every entry is a file with pre-existing errors. Fix them and remove the entry; never add one.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true
+  },
+  "include": ["src", "scripts", "src-test/unit-test"],
+  "exclude": ["scripts/chat.ts", "scripts/deploy.ts", "scripts/library.ts"]
+}

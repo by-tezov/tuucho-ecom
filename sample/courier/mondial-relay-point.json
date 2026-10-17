@@ -2,21 +2,11 @@
   "code": "mondial-relay-point",
   "name": {
     "en": "Mondial Relay Point",
-    "es": "Mondial Relay Point",
-    "fr": "Mondial Relay Point",
-    "it": "Mondial Relay Point",
-    "nl": "Mondial Relay Point",
-    "pt": "Mondial Relay Point",
-    "th": "Mondial Relay Point"
+    "fr": "Mondial Relay Point"
   },
   "description": {
     "fr": "Retrait dans un Point Relais proche de chez vous.",
-    "en": "Collect your parcel from a nearby pickup point.",
-    "th": "รับพัสดุของคุณที่จุดรับใกล้บ้าน",
-    "es": "Recoge tu paquete en un punto de recogida cercano.",
-    "it": "Ritira il tuo pacco in un punto di ritiro vicino.",
-    "nl": "Haal je pakket op bij een afhaalpunt in de buurt.",
-    "pt": "Levante a sua encomenda num ponto de recolha perto de si."
+    "en": "Collect your parcel from a nearby pickup point."
   },
   "enabled": true,
   "sortOrder": 1,
@@ -26,17 +16,45 @@
     "BE": true
   },
   "trackingAvailable": true,
-  "networks": ["$mondial-relay-point"],
+  "networks": [
+    "$mondial-relay-point"
+  ],
   "deliveryTime": {
-    "default": { "min": 3, "max": 5 },
-    "BE": { "min": 3, "max": 6 }
+    "default": {
+      "min": 3,
+      "max": 5
+    },
+    "BE": {
+      "min": 3,
+      "max": 6
+    }
   },
   "custodyTime": 5,
   "packets": [
-    { "key": "solo", "maxQuantity": 1, "price": 4.1 },
-    { "key": "duo", "maxQuantity": 2, "price": 4.45 },
-    { "key": "trio", "maxQuantity": 3, "price": 4.99 },
-    { "key": "moyen", "maxQuantity": 5, "price": 4.95 },
-    { "key": "grand", "maxQuantity": 9, "price": 7.05 }
+    {
+      "key": "solo",
+      "maxQuantity": 1,
+      "price": 4.1
+    },
+    {
+      "key": "duo",
+      "maxQuantity": 2,
+      "price": 4.45
+    },
+    {
+      "key": "trio",
+      "maxQuantity": 3,
+      "price": 4.99
+    },
+    {
+      "key": "moyen",
+      "maxQuantity": 5,
+      "price": 4.95
+    },
+    {
+      "key": "grand",
+      "maxQuantity": 9,
+      "price": 7.05
+    }
   ]
 }

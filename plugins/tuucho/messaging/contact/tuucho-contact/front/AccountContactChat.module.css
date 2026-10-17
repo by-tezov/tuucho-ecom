@@ -1,0 +1,488 @@
+.root {
+  margin-top: 24px;
+}
+
+.conversation,
+.history {
+  width: min(100%, 1012px);
+  margin-inline: auto;
+  padding: 20px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+}
+
+.conversation {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* Fills the screen on load like a messaging app; the page itself scrolls
+     normally past it to reach history below (see .root/.history) — only
+     the transcript scrolls internally. --chrome-height (Layout.tsx) is the
+     live header height, --tab-bar-height (MobileTabBar.tsx, 0 above 1023px)
+     is the fixed bottom nav; 150px approximates the eyebrow/title/margins
+     above this block on desktop. Same approach as AuthPage.module.css's
+     chrome-height offsets. */
+  height: calc(
+    var(--layout-vh) - var(--chrome-height, var(--header-height)) - var(--tab-bar-height, 0px) - 150px
+  );
+  min-height: 320px;
+}
+
+.conversationHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 1.25rem;
+}
+
+.conversationHeader h2,
+.history h2 {
+  margin: 8px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+.history header p,
+.muted,
+.metadata,
+.historyMeta,
+.readOnly {
+  color: var(--color-muted);
+}
+
+.loadOlderWrap {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 12px;
+}
+
+.loadOlder {
+  appearance: none;
+  border: 1px solid var(--border-soft);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.875rem;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.loadOlder:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.history header p {
+  margin: 6px 0 0;
+}
+
+.eyebrow,
+.eyebrowPlaceholder {
+  margin: 0;
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eyebrowPlaceholder {
+  visibility: hidden;
+}
+
+.spaceIntro {
+  margin: 6px 0 0;
+  max-width: 46em;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.close {
+  flex: 0 0 auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.transcriptWrap {
+  position: relative;
+  min-height: 0;
+  margin-top: 24px;
+}
+
+.transcript {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  height: 100%;
+  overflow-y: auto;
+  /* auto (not contain): once the reader hits the top/bottom here, the
+     scroll gesture should chain to the page instead of getting trapped. */
+  overscroll-behavior: auto;
+  padding: 14px calc(var(--scroll-hint-inset-x) + var(--scroll-hint-size) + 10px) 14px 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-bg) 68%, var(--color-bg-card));
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* Without this, a press-drag (onTranscriptPointerDown below) over the
+     message text triggers the browser's native text selection instead of
+     just scrolling — same fix as PhotoLightbox's .scrollArea. */
+  user-select: none;
+}
+
+/* Read-only history distinguished at a glance from the live conversation. */
+.transcriptClosed {
+  background: color-mix(in srgb, var(--color-ink) 6%, var(--color-bg-card));
+}
+
+.transcript::-webkit-scrollbar {
+  display: none;
+}
+.transcript:active {
+  cursor: grabbing;
+}
+
+.scrollHintUp {
+  composes: scrollHintUp from '@kernel/front/components/ui/ModalChrome.module.css';
+}
+
+.scrollHintDown {
+  composes: scrollHintDown from '@kernel/front/components/ui/ModalChrome.module.css';
+}
+
+.scrollHintBar {
+  composes: scrollHintBar from '@kernel/front/components/ui/ModalChrome.module.css';
+}
+
+.scrollHintBarFromUp {
+  composes: scrollHintBarFromUp from '@kernel/front/components/ui/ModalChrome.module.css';
+}
+
+.scrollHintBarToDown {
+  composes: scrollHintBarToDown from '@kernel/front/components/ui/ModalChrome.module.css';
+}
+
+.userMessage,
+.ownerMessage {
+  max-width: min(88%, 520px);
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+}
+
+.userMessage {
+  justify-self: end;
+  background: color-mix(in srgb, var(--color-accent) 16%, var(--color-bg-card));
+}
+
+.ownerMessage {
+  justify-self: start;
+  border: 1px solid var(--border-soft);
+  background: var(--color-bg-card);
+}
+
+.userMessage p,
+.ownerMessage p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.dateSeparator {
+  justify-self: center;
+  margin: 4px 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 5px 0;
+}
+
+.attachmentThumb {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+}
+
+.attachmentPlaceholder {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* Bleeds to the card's bottom edge only (flush safe-area padding) — the
+     border-top stays inset within the card's own horizontal padding instead
+     of running edge to edge. */
+  margin: 16px 0 -20px;
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border-soft);
+  background: var(--color-bg-card);
+}
+
+.composerRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.composerFieldWrap {
+  position: relative;
+  min-width: 0;
+}
+
+.composer textarea {
+  width: 100%;
+  resize: none;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  font: inherit;
+}
+
+.composerButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Desktop keeps the picker's own inline row (ImageAttachField) as the only
+   way to attach — this stacked icon button is a mobile-only shortcut. */
+.attachButton {
+  display: none;
+  border: 1px solid var(--border-soft);
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.attachButton:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.attachButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sendLabel {
+  display: inline;
+}
+.sendIcon {
+  display: none;
+}
+
+.readOnly {
+  margin: 20px 0 0;
+  padding: 14px;
+  border-left: 2px solid var(--color-accent);
+}
+.closedActions {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+.closedActions .readOnly {
+  margin: 0;
+}
+.newConversation {
+  justify-self: start;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.error {
+  color: var(--color-danger);
+}
+
+.historyList {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history {
+  margin-top: 16px;
+}
+
+.historyRow,
+.historySelected {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  width: 100%;
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-bg) 48%, var(--color-bg-card));
+  color: var(--color-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.historySelected {
+  border-color: var(--color-accent);
+  background: var(--color-accent-shine);
+}
+.historyRow:hover,
+.historyRow:focus-visible {
+  border-color: var(--color-accent);
+}
+.historyMain,
+.historyMeta {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.historyMeta {
+  justify-items: end;
+  font-size: 0.8125rem;
+}
+.preview {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.metadata {
+  font-size: 0.8125rem;
+}
+.historyMeta strong {
+  min-width: 1.35rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-bg-card);
+  text-align: center;
+}
+
+@media (max-width: 1023px) {
+  /* ContactPage.module.css inlines Retour + the eyebrow onto one row and
+     hides the title at this same 1023px breakpoint (the site's one chrome/
+     mobile breakpoint) — even less is stacked above the panel there than
+     before, so the reserved offset shrinks to match (otherwise the panel
+     falls short of the viewport and leaves a gap before .history below). */
+  .conversation {
+    height: calc(
+      var(--layout-vh) - var(--chrome-height, var(--header-height)) - var(--tab-bar-height, 0px) - 65px
+    );
+  }
+
+  /* Was 24px (matches desktop) — ContactPage.module.css's .topRow now owns
+     the gap above this, so the panel itself needs much less on top of it. */
+  .root {
+    margin-top: 10px;
+    display: grid;
+    gap: 16px;
+  }
+  .conversation,
+  .history {
+    padding: 18px;
+  }
+  .historyRow,
+  .historySelected {
+    grid-template-columns: 1fr;
+  }
+  /* Stacked to one column here — .historyMain and .historyMeta become the
+     grid's two rows, so .historyRow's own 18px gap (meant for the two-
+     column desktop layout) would otherwise land only between those two
+     groups, reading as a bigger gap than the 4px used between the lines
+     within each group. Match it so the rhythm is even top to bottom. */
+  .historyRow,
+  .historySelected {
+    gap: 4px;
+  }
+  /* Date reads first here, preview text second — reversed from desktop's
+     column order (grid item order, not a DOM change). */
+  .metadata {
+    order: -1;
+  }
+  /* Minimal, symmetric gap on both sides of the separator line — margin-top
+     (space above) and padding-top (space below) match exactly. */
+  .composer {
+    gap: 6px;
+    margin: 8px 0 -18px;
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Bleeds the field itself (not the separator above, and not the button
+     column) flush to the card's left edge, undoing .conversation's own
+     18px padding — negative margin on an auto-stretched grid item grows it
+     leftward, the right edge (next to the buttons) stays anchored. */
+  .composerFieldWrap {
+    margin-left: -18px;
+  }
+
+  .composer textarea {
+    /* Flush with the card's edge on the left (.composerFieldWrap's bleed) —
+       rounding that corner would look off against the straight card border.
+       Right side reserves room for the up/down scroll-hint chevrons. */
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 12px calc(var(--scroll-hint-inset-x) + var(--scroll-hint-size) + 10px) 12px 12px;
+  }
+
+  /* Compact chat-bar look: the picker's own inline row is hidden in favor
+     of this icon button stacked above the send button, both to the right
+     of the field. */
+  .pickerRow {
+    display: none;
+  }
+  .attachButton {
+    display: inline-flex;
+  }
+
+  .composerButtons :global(button) {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .sendLabel {
+    display: none;
+  }
+  .sendIcon {
+    display: inline-flex;
+  }
+}

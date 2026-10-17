@@ -1,0 +1,35 @@
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.index {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.body {
+  margin: 0;
+  padding-top: 2px;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}

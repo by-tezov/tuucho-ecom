@@ -1,0 +1,32 @@
+{
+  "id": "tuucho-commerce-cart-rules",
+  "installPath": "plugins/tuucho/commerce/cart-rules/tuucho-commerce-cart-rules",
+  "name": "Cart rules",
+  "version": "1.0.0",
+  "kind": "commerce",
+  "description": "Thresholds, gifts and other cart alterations. Disable to hide admin and checkout effects.",
+  "defaultEnabled": true,
+  "provides": [
+    "CheckoutAlteration",
+    "AdminPage"
+  ],
+  "permissions": [
+    {
+      "code": "cart_rules",
+      "label": "Cart rules"
+    }
+  ],
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  },
+  "adminNav": [
+    {
+      "id": "cart-rules",
+      "group": "commerce",
+      "to": "/cart-rules",
+      "permission": "cart_rules",
+      "order": 20,
+      "label": "Cart rules"
+    }
+  ]
+}

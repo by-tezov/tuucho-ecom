@@ -1,0 +1,29 @@
+{
+  "title": "Home featured",
+  "summary": "New arrivals row on slot.home.featured. Disable to hide the row. Products come from the kernel catalogue, not a plugin table.",
+  "sections": [
+    {
+      "heading": "Slot",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "slot.home.featured",
+              "description": "front/NewArrivals.tsx"
+            },
+            {
+              "term": "Data",
+              "description": "Kernel catalogue / new-arrivals strings. No Configure."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "slots: { [CORE_FRONT_SLOTS.homeFeatured]: <NewArrivals /> }"
+        }
+      ]
+    }
+  ]
+}

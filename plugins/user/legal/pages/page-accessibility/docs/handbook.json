@@ -1,0 +1,30 @@
+{
+  "title": "Accessibility statement",
+  "summary": "RGAA accessibility statement at /accessibility. Footer only — never in the shop info menu.",
+  "sections": [
+    {
+      "heading": "Footer, not the info menu",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Page plugin",
+          "text": "plugin.json kind page, route /accessibility. No nav.key: the statement stays in the footer (and sitemap) only. The kernel footer still links here even if the plugin is off, so the RGAA mention remains reachable. React lives in this package."
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "route",
+              "description": "/accessibility. Listed on seo.sitemap.entries while Sitemap pages is on."
+            },
+            {
+              "term": "Copy",
+              "description": "English in kernel i18n (accessibilityStatement). French overlay: page-accessibility-locale-fr."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

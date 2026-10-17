@@ -1,0 +1,30 @@
+{
+  "title": "About page",
+  "summary": "About the atelier at /about. Enable equals the menu entry. Copy is kernel i18n (about, atelier, values).",
+  "sections": [
+    {
+      "heading": "Enable equals the menu",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Page plugin",
+          "text": "plugin.json kind page, route /about. While enabled, the kernel puts the route on the shop menu (nav.key / order). Disable and the URL and menu entry go away. React for home, about, legal, and sizes lives in the kernel; this package is the enablement and SEO listing."
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "route",
+              "description": "/about"
+            },
+            {
+              "term": "Sitemap",
+              "description": "While Sitemap pages is on, the kernel lists this route on seo.sitemap.entries. Extra paths that are not this route must register the filter yourself (Guides does /pose and /capsules)."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

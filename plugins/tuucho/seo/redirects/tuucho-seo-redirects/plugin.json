@@ -1,0 +1,21 @@
+{
+  "id": "tuucho-seo-redirects",
+  "installPath": "plugins/tuucho/seo/redirects/tuucho-seo-redirects",
+  "name": "Redirects apply",
+  "version": "1.0.0",
+  "kind": "seo",
+  "description": "Applies stored SEO redirects and plugin redirect rules on the shop API host.",
+  "defaultEnabled": true,
+  "provides": [
+    "SeoRedirects"
+  ],
+  "permissions": [
+    {
+      "code": "seo_redirects",
+      "label": "SEO redirects"
+    }
+  ],
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

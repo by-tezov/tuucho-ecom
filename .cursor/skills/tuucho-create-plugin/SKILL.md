@@ -1,65 +1,110 @@
+---
+name: tuucho-create-plugin
+description: >-
+  Creates or extends a tuucho-ecom plugin by dispatching to one specialized
+  child skill. Use when adding, extracting, or extending a plugin (page, admin,
+  slot, opening, schema, locale, payment, shipping, permission, SEO, UI). Never edits
+  the kernel.
+---
+
 # Create a tuucho-ecom plugin
 
 Use this skill whenever you add, extract, or extend a plugin in
 `/home/tezov/Local/tuucho-ecom`. Work only in that tree. Do not touch Pam.
 
-The kernel is built so an AI can add plugins. Follow this file instead of
-inventing a parallel architecture.
+This file is a **router**. Do not implement from it. **Read exactly one**
+child `SKILL.md` after you pick the kind.
 
-## Core vs plugin (Te lock)
+## Kernel is read-only
 
-**Stay in core** (always on, never extract):
+Write only `plugins/tuucho/<group>/<feature>/<id>/` (id starts with `tuucho-`;
+put `*-locale-*` complements in that same feature folder) or
+`plugins/user/<group>/<feature>/<id>/` (id must not start with `tuucho-`).
+Standalone locale packs (`tuucho-locale-fr`) live in `plugins/tuucho/locale/`
+with no fake parent. Never `kernel/`. Never
+`@tuucho/plugin-sdk` contracts or kernel migrations. If the opening, slot, or
+shell you need is missing, **stop and tell the user**. Do not patch the kernel
+from this skill.
 
-- Plugin runtime (scan, enable/disable, `dependsOn`, permission registration)
-- Shop / Boutique settings including product axes
-- Vocabulaire
-- Préférences (kernel page; plugins may add an **entry**)
-- Roles (kernel UI; plugins register permission codes)
-- Users, impersonate (Usurper un compte)
-- Orders, order history
-- Stock, libraries
-- Collection page (catalog)
-- Contact (storefront + admin)
-- My profile (kernel page; plugins may add **entries**)
-- Auth: session, cache, connection. Sign-in methods are core with an **opening**
-- Customer addresses
-- Payment-method shell (wallet / stored methods). Gateways stay plugins
-- Notifications (kernel page; plugins may add **entries**)
+## Te lock
 
-**Must be plugins** (enable/disable hides UI and behaviour):
+**Stay in core** (never extract): plugin runtime, shop/axes, vocabulaire,
+Préférences page (plugins add an **entry**), roles UI (plugins register
+codes), users/impersonate, orders, stock/libraries, collection, checkout,
+My profile page (plugins add **entries**), auth session, customer addresses,
+payment-method **shell**, courier **shell**, SEO **engine**, email **shell**
+(SMTP / mail_jobs; plugins call `api.sendMail`), notifications page (plugins
+add **entries**). Locale and theming **engines** stay kernel; language packs
+and optional theme packages are plugins. `tuucho-theme-default` is not required.
 
-- Theme (`theme-default`), page plugins, `docs-developer`
-- Payment gateways (`payment-stripe`) registering into the payment-method shell
-- Shipping methods + complementary `shipping-expedition-cron`
-- Vouchers, cart rules, gifts (`commerce-gift`), loyalty (`commerce-loyalty`)
-- Reviews (`commerce-reviews`)
-- Product requests (`commerce-product-requests`)
-- Journal family: `journal-api`, `journal-admin`, `journal-email`, `journal-cron`
-- Anything whose absence must hide UI and behaviour
+**Must be plugins**: theme packages, pages, docs, payment gateways, shipping
+methods, vouchers, cart rules, gifts, loyalty, Vinted review, product
+requests, journals, home slots, locales, **contact** (`tuucho-contact`),
+**spy e-mails** (`tuucho-mail-spy`; kernel still owns SMTP),
+anything whose absence must hide UI.
 
-Do not move collection, contact, users, orders, stock, roles, vocabulaire, or
-shop/axes into plugins.
+## Pick one child, then Read it
 
-Openings (core APIs): `core.preferences.entries`, `core.profile.entries`,
-`core.signIn.methods`, `core.notifications.entries`. Use a preference entry
-instead of a Configure page when that page is not pertinent.
+| User wants | Read |
+| --- | --- |
+| Storefront page + menu (enable = visible) | `.cursor/skills/tuucho-plugin-page/SKILL.md` |
+| Admin page, nav, settings / Configure | `.cursor/skills/tuucho-plugin-admin/SKILL.md` |
+| Fill or replace a front slot / view | `.cursor/skills/tuucho-plugin-slot/SKILL.md` |
+| `addFilter` / `addAction` (cart, checkout, mail, invoice, cache, HTTP) | `.cursor/skills/tuucho-plugin-opening/SKILL.md` |
+| `plugin_<id>_` tables, up/down, disable vs uninstall, zip upload | `.cursor/skills/tuucho-plugin-schema/SKILL.md` |
+| `tuucho-locale-fr` or `<id>-locale-fr` | `.cursor/skills/tuucho-plugin-locale/SKILL.md` |
+| Payment gateway into the payment-method shell | `.cursor/skills/tuucho-plugin-payment/SKILL.md` |
+| Shipping method into the courier shell | `.cursor/skills/tuucho-plugin-shipping/SKILL.md` |
+| Staff role permission | `.cursor/skills/tuucho-plugin-permission/SKILL.md` |
+| Register a spy / ops-notify mail channel | `.cursor/skills/tuucho-plugin-spy/SKILL.md` |
+| Sitemap, robots, meta, JSON-LD, redirects | `.cursor/skills/tuucho-plugin-seo/SKILL.md` |
+| Use, extend, or override kernel UI controls | `.cursor/skills/tuucho-plugin-ui/SKILL.md` |
 
-## Folder and manifest
+Theme Configure hexes → admin. Theme **component** replace → tuucho-plugin-ui.
+SEO extras → tuucho-plugin-seo. Cron complement → opening. FAQ /
+home block → slot (not a menu page). Prefer a Preferences **entry** over a
+blank Configure page. Kernel Button/Chip/Confirm → tuucho-plugin-ui (do not
+invent a one-off control).
 
-Drop `back/plugins/<id>/plugin.json`. Folder name = `id` = `[a-z0-9-]+`.
+When the kind is unclear, Read
+[references/kernel-index.md](references/kernel-index.md) (names only), then
+load the skill it names.
+
+## Shared rules
+
+Leaf folder name = `id` = `[a-z0-9-]+`. Bundled ids start with `tuucho-`.
+Nested grouping folders are allowed. A plugin and its `*-locale-*`
+complements share one feature folder (e.g. `commerce/gift/`). Ship
+`plugin.json` + `back/register.ts`.
+Host `import()`s `register.ts`. Use `@tuucho/plugin-sdk`. Kernel modules:
+`@kernel/front/…` (plugin fronts, CSS `composes`) and `@kernel/back/…`
+(plugin backs). Do not write `../../../../../../kernel/…`. English strings in
+the plugin; French is a locale complement. `engines.core` e.g.
+`>=1.0.0 <2.0.0` (bump kernel patch/minor without changing the 1.x range).
+Do not ALTER kernel tables. Scan/enable from Admin, Plugins. Ship
+`docs/handbook.json`. Git tags for Check / Apply are `MAJOR.MINOR.PATCH`
+(`1.0.9`), never `v1.0.9`. Kernel version is `CORE_VERSION`, not
+`package.json`.
+
+Complements: the API/capability plugin owns storage (`tuucho-journal-api`,
+`tuucho-shipping-home`); cron/email/admin declare `dependsOn`.
+`isPluginEffectivelyEnabled` is false if any ancestor is off. Runtime does
+not auto-enable dependencies.
 
 ```json
 {
   "id": "your-id",
   "name": "Human name",
   "version": "1.0.0",
-  "kind": "theme | page | payment | shipping | commerce | docs | generic",
-  "description": "Operator-facing summary.",
+  "kind": "theme | page | payment | shipping | commerce | docs | generic | seo | locale",
+  "description": "Operator-facing summary of what it does (required except locale plugins).",
   "required": false,
   "defaultEnabled": true,
   "provides": ["AdminPage"],
   "dependsOn": [{ "id": "optional-parent", "version": ">=1.0.0" }],
   "engines": { "core": ">=1.0.0 <2.0.0" },
+  "installPath": "plugins/user/<group>/your-id",
+  "repository": "https://github.com/owner/your-id",
   "permissions": [{ "code": "your_code", "label": "Your section" }],
   "route": "/optional-storefront-path",
   "nav": { "key": "optional", "order": 45, "bottomBar": false },
@@ -69,127 +114,4 @@ Drop `back/plugins/<id>/plugin.json`. Folder name = `id` = `[a-z0-9-]+`.
 }
 ```
 
-Kinds: `theme` (one active), `page`, `payment`, `shipping`, `commerce`, `docs`,
-`generic`. `required: true` cannot be disabled (`page-home`, `theme-default`).
-
-Scan from Admin, Plugins (or refresh the list). Enable. Scan/enable **reject**
-a plugin when `engines.core` does not match the kernel (`CORE_VERSION`, shown
-on Admin, Plugins) or a `dependsOn` plugin is missing / out of range
-(`409 plugin_incompatible`). Configure only if the plugin has a real form or a
-deep-linked admin page. Empty Configure is hidden.
-
-Ship `docs/handbook.json` (identity, Configure, openings, cart/order/profile)
-so Admin, Documentation can load your page. Optional `docs/articles.json`
-adds extra handbook pages.
-
-## Permissions
-
-Put staff permissions on the manifest (`permissions[]`). They appear in Admin,
-Roles only while the plugin (and every `dependsOn` parent) is on. Core does
-not hardcode plugin codes in `CORE_PERMISSIONS`. Gate HTTP with
-`requirePermission('your_code')` and `requirePluginEnabled('your-id')`.
-
-The code must already exist in the `permissions` vocabulary (migration) and
-in `PERMISSIONS` in `staffPermissions.ts` so TypeScript knows it. Then the
-manifest is what makes it **grantable**.
-
-## Complement plugins (`dependsOn`)
-
-Do not jam cron, email, and admin UI into one monolith.
-
-- API / capability plugin owns storage or the public contract (`journal-api`,
-  `shipping-home`).
-- Complements declare `dependsOn: ["that-id"]` (`journal-admin`,
-  `journal-email`, `journal-cron`, `shipping-expedition-cron`).
-- `isPluginEffectivelyEnabled(id)` is false if the plugin or any ancestor is
-  off. Complements disappear; the parent can stay on without them.
-
-Runtime does not auto-enable dependencies. Document them in `description`.
-
-## Core openings (prefer these over a blank Configure page)
-
-Register a filter (default priority 10; lower runs first):
-
-```ts
-import { addFilter } from '../application/hooks.js';
-
-addFilter('core.preferences.entries', (entries) => [
-  ...entries,
-  { id: 'my-pref', pluginId: 'your-id', title: 'My toggle', description: '…' },
-]);
-```
-
-| Filter | Surface | When to use |
-| --- | --- | --- |
-| `core.preferences.entries` | Admin, Préférences | A toggle or note belongs on Preferences, not a dedicated Configure page |
-| `core.profile.entries` | Account, My profile | Extra profile cards |
-| `core.signIn.methods` | Sign-in methods (prefs + account) | Extra OAuth / auth method |
-| `core.notifications.entries` | Account notifications + prefs notifications | Extra notification rows |
-
-Example: `commerce-product-requests` keeps the size-request toggle on
-Préférences (Boutique tab) instead of inventing a Configure form.
-
-Also: `plugin.enabled.changed` action, `storefront.bootstrap` filter,
-`cart.shipping.methods`, `cart.loyalty.lines`, `cart.vouchers`, `cart.gifts`,
-`orders.history.entries`.
-
-Worked examples in Admin, Documentation: profile menu (`core.profile.entries`),
-courier on cart (`courierCodes` + rates), fidélité on cart
-(`priceLoyaltyIfEnabled`) and order history (`loyalty_credit` snapshot),
-permissions (`manifest.permissions` + `requirePermission` + Rôles).
-
-## Versioning
-
-Kernel: `CORE_VERSION` in `coreVersion.ts`, same as `back/package.json`.
-Plugin: `version` plus `engines.core` (e.g. `>=1.0.0 <2.0.0`). `dependsOn`
-may pin `{ id, version }`. Incompatible plugins cannot enable. Bump kernel
-patch/minor without changing the 1.x range. A 2.0 kernel needs plugins to
-raise `engines.core`.
-
-## Services (plugin to plugin)
-
-```ts
-registerPluginService('journal-api', { append, query });
-const journal = await getPluginService('journal-api');
-if (!journal) return;
-```
-
-Never import another plugin `http/` or `infrastructure/`. Call
-`isPluginEffectivelyEnabled(id)` or `getPluginService(id)`.
-
-## Admin page
-
-1. Manifest `provides: ["AdminPage"]` and `permissions` if staff-gated.
-2. React route under `/admin/...`.
-3. `pluginId` on the `adminNav` item.
-4. `usePluginEnabled(id)` on the page (NotFound when off).
-5. `requirePluginEnabled(id)` on the router (`404 plugin_disabled`).
-6. Optional Configure deep link in `front/src/routes/pluginConfigure.ts`.
-
-## Storefront page / menu
-
-Page plugins set `route` + `nav`. Enable equals menu. There is no Menus tab.
-Copy `back/plugins/page-studio-note/` for a page with only title/body settings.
-
-## Checkout / shipping / payment
-
-- Vouchers and cart rules: `CheckoutAlteration`. Skip pricing when the plugin
-  is off.
-- Shipping: `courierCodes` + packet prices on Configure.
-- Payment gateway: register methods into the core payment-method shell.
-- Cron jobs: their own complement plugin, not hidden in core.
-
-## Reading core and other plugins
-
-Never reach around the kernel. Use owning-module `application/` functions or
-the public JSON API. Cross-module imports may reach another module's
-`application/` only, never `http/` or `infrastructure/`.
-
-- Registry: `listPlugins`, `isPluginEnabled`, `isPluginEffectivelyEnabled`,
-  `patchPluginSettings` in `pluginStore.ts`.
-- Store identity / axes: `storeSettings.ts`, Admin Shop (`/admin/shop`).
-- Database: orders, products, customers through those modules. PII is
-  encrypted. Do not `SELECT` plaintext encrypted columns.
-
-In-admin copy of this guide: Admin, Documentation (`docs-developer`). Repo
-copy: `docs/plugins.md`.
+Current branch only; no extra git branch; no PR unless asked.

@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Tuucho Frontend Change'
+  short_description: 'Keep Tuucho React work consistent and maintainable'
+  default_prompt: 'Use $tuucho-frontend-change to implement or review this Tuucho frontend task while preserving the existing architecture, UI conventions, and repository boundaries.'

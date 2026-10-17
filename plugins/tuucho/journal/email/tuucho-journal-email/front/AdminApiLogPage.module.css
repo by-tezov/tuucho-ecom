@@ -1,0 +1,253 @@
+.metrics {
+  display: grid;
+  gap: 12px;
+}
+
+.metricCards,
+.tops {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 720px) {
+  .metricCards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .tops {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .tops {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.metricCard,
+.topCard {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+}
+
+.metricWindow,
+.topCard h2 {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.metricValue {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.metricCaption,
+.metricsEmpty {
+  margin: 6px 0 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.topList {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.topRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.topRow:hover {
+  background: var(--color-cream);
+}
+
+.topRow:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.topRowActive {
+  border-color: var(--color-accent);
+  background: var(--color-cream);
+}
+
+.topPath {
+  flex: 1;
+  min-width: 0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  word-break: break-all;
+}
+
+.topCount {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.filters {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+}
+
+.filtersRow {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 720px) {
+  .filtersRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .filtersRow {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.field {
+  display: grid;
+  gap: 1px;
+  align-content: center;
+  box-sizing: border-box;
+  min-height: 52px;
+  padding: 8px 14px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.field label {
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.field input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.field input::placeholder {
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.field input:focus {
+  outline: none;
+}
+
+.field:focus-within {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row:hover {
+  background: var(--color-cream);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.rowBody {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.headline {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.block {
+  margin-top: 10px;
+}
+
+.block h2 {
+  margin: 0 0 4px;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.pre {
+  margin: 0;
+  overflow: auto;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

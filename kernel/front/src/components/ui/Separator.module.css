@@ -1,0 +1,13 @@
+.rule {
+  display: block;
+  width: 100%;
+  height: 0;
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--border-soft);
+}
+
+.inset {
+  width: auto;
+  margin-inline: 12px;
+}

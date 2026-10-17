@@ -1,0 +1,23 @@
+{
+  "title": "Footer identity",
+  "summary": "Fills slot.footer.identity with operator-owned shop name, tagline and copyright. Kernel and theme only provide the slot.",
+  "sections": [
+    {
+      "heading": "What it mounts",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Slot only",
+          "text": "front/index.tsx sets slots[CORE_FRONT_SLOTS.footerIdentity] to <FooterIdentity />. PluginSlot in the kernel footer renders it. Edit copy on Plugins → Configure. Defaults are Shop, empty tagline, empty also-known-as, empty copyright suffix, plus the current year."
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "export const pluginFront: PluginFrontModule = {\n  pluginId: 'footer-identity',\n  slots: { [CORE_FRONT_SLOTS.footerIdentity]: <FooterIdentity /> },\n};",
+          "caption": "front/index.tsx"
+        }
+      ]
+    }
+  ]
+}

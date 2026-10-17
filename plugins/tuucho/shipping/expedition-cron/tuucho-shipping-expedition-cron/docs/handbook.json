@@ -1,0 +1,30 @@
+{
+  "title": "Shipment tracking cron",
+  "summary": "Complement of home and Mondial Relay shipping. Listens to action cron.process-shipment-tracking. Disable to stop polling.",
+  "sections": [
+    {
+      "heading": "dependsOn",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "Parents",
+              "description": "tuucho-shipping-home and tuucho-shipping-mondial-relay, both >=1.0.0"
+            },
+            {
+              "term": "Action",
+              "description": "api.addAction('cron.process-shipment-tracking', ...)"
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Not effectively enabled",
+          "text": "If a parent is off, isPluginEffectivelyEnabled is false even if this row is enabled."
+        }
+      ]
+    }
+  ]
+}

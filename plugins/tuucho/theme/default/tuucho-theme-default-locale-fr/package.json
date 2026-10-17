@@ -1,0 +1,9 @@
+{
+  "name": "@tuucho/plugin-tuucho-theme-default-locale-fr",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"
+  }
+}

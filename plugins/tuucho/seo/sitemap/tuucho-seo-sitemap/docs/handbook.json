@@ -1,0 +1,22 @@
+{
+  "title": "Sitemap pages",
+  "summary": "Appends enabled page-plugin routes to the kernel sitemap. Inspect the result in Settings \u2192 SEO.",
+  "sections": [
+    {
+      "heading": "What enabling it does",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Contributor, not the hub",
+          "text": "The kernel already lists catalogue URLs and kernel pages. This plugin appends every enabled page plugin that has a route. Extra paths that are not that route belong in Extend SEO (Guides: /pose, /capsules)."
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "api.addFilter(CORE_OPENING_FILTERS.seoSitemap, async (entries) => [\n  ...entries,\n  /* enabled page-plugin routes */\n]);"
+        }
+      ]
+    }
+  ]
+}

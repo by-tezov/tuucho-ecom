@@ -1,0 +1,21 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.paragraph {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.list {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}

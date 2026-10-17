@@ -1,0 +1,15 @@
+{
+  "title": "journal-admin French",
+  "summary": "French strings for journal-admin. Enable with locale-fr for French UI; disable to keep this plugin in English.",
+  "configure": "No Configure form. Enable or disable this plugin.",
+  "preferences": "None.",
+  "openingsUsed": [
+    "dependsOn"
+  ],
+  "openingsProvided": [
+    "Locale"
+  ],
+  "cart": "None.",
+  "orders": "None.",
+  "profile": "None."
+}

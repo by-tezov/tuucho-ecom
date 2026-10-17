@@ -1,0 +1,30 @@
+{
+  "title": "Legal pages",
+  "summary": "Legal notice, privacy, terms of use and terms of sale. Footer only — never in the shop info menu. Kernel owns the React routes.",
+  "sections": [
+    {
+      "heading": "Footer, not the info menu",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Page plugin",
+          "text": "plugin.json kind page, route /legal. No nav.key: legal documents stay in the footer only (legal notice, privacy, terms of use, terms of sale) — never the shop info menu. Disable and the plugin drops out of the sitemap listing; footer links stay so the documents remain reachable. React for home, about, legal, and sizes lives in the kernel; this package is the enablement and SEO listing."
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "route",
+              "description": "/legal (legal notice). /privacy, /terms and /sales-terms are the other documents in this plugin's copy pack."
+            },
+            {
+              "term": "Sitemap",
+              "description": "While Sitemap pages is on, the kernel lists this route on seo.sitemap.entries. Extra paths that are not this route must register the filter yourself (Guides does /pose and /capsules)."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

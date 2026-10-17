@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="theme-color"
+      content="#ffffff"
+      data-light="#ffffff"
+      data-dark="#1a1a1a"
+      data-light-more="#ffffff"
+      data-dark-more="#000000"
+    />
+    <script>
+      let themePreference = null;
+      let contrastPreference = null;
+      try {
+        themePreference =
+          localStorage.getItem('psn-theme-preference-v1') ||
+          localStorage.getItem('pamsurin-theme-preference');
+        contrastPreference =
+          localStorage.getItem('psn-contrast-preference-v1') ||
+          localStorage.getItem('pamsurin-contrast-preference');
+      } catch {}
+      const resolvedTheme =
+        themePreference === 'light' || themePreference === 'dark'
+          ? themePreference
+          : matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+      const resolvedContrast =
+        contrastPreference === 'standard' || contrastPreference === 'more'
+          ? contrastPreference
+          : matchMedia('(prefers-contrast: more)').matches
+            ? 'more'
+            : 'standard';
+      document.documentElement.dataset.theme = resolvedTheme;
+      document.documentElement.dataset.themePreference =
+        themePreference === 'light' || themePreference === 'dark' || themePreference === 'system'
+          ? themePreference
+          : 'system';
+      document.documentElement.dataset.contrast = resolvedContrast;
+      document.documentElement.dataset.contrastPreference =
+        contrastPreference === 'standard' || contrastPreference === 'more' || contrastPreference === 'system'
+          ? contrastPreference
+          : 'system';
+      const themeColor = document.querySelector('meta[name="theme-color"]');
+      const themeColorKey = resolvedContrast === 'more' ? `${resolvedTheme}More` : resolvedTheme;
+      themeColor.content = themeColor.dataset[themeColorKey];
+    </script>
+
+    <title>%VITE_SHOP_NAME%</title>
+    <!-- Replaced at build time by scripts/prerender.mjs with the per-page
+         robots, description, canonical, Open Graph/Twitter cards and
+         JSON-LD (robots is "index, follow" only for a --mode prod build —
+         see entry-server.tsx's renderHead). In dev,
+         src/components/seo/Seo.tsx creates the same tags at runtime. -->
+    <!--app-head-->
+  </head>
+  <body>
+    <div id="root"><!--app-html--></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

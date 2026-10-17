@@ -1,0 +1,73 @@
+{
+  "title": "Loyalty wallet",
+  "summary": "Wallet spend at checkout and earn on paid orders. Permission loyalty. Dashboard card on slot.admin.dashboard.",
+  "sections": [
+    {
+      "heading": "Register",
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Opening",
+            "Priority / note"
+          ],
+          "rows": [
+            [
+              "checkout.quote",
+              "30. extraLines loyalty-credit and plugins[tuucho-commerce-loyalty] { credit, earn, earnStatus }"
+            ],
+            [
+              "checkout.prepare / release / reserve / confirm",
+              "Holds, consume, write-off on account.delete"
+            ],
+            [
+              "orders.snapshot",
+              "Copy the bag onto the order"
+            ],
+            [
+              "invoice.render",
+              "extraLines from snapshot or order.loyalty_credit"
+            ],
+            [
+              "cart.lines",
+              "Descriptor id loyalty-credit"
+            ]
+          ]
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "api.registerPluginService(api.pluginId, {\n  ...loyalty,\n  priceLoyaltyIfEnabled,\n  extendLoyaltyHold,\n  processLoyaltyReminders,\n  previewGuestItemsLoyalty,\n});\napi.registerHttpMount({ scope: 'admin', path: '/loyalty', router: loyaltyAdminRouter });\napi.registerHttpMount({ scope: 'account', path: '/loyalty', router: accountLoyaltyRouter });"
+        },
+        {
+          "type": "callout",
+          "tone": "important",
+          "title": "Call the service",
+          "text": "peekPluginService('tuucho-commerce-loyalty'). Do not import this plugin's http/ or infrastructure/. Checkout is server-authoritative; the client preview is not trusted."
+        }
+      ]
+    },
+    {
+      "heading": "Admin and account",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "Permission",
+              "description": "loyalty on the manifest. Nav Admin \u2192 Loyalty."
+            },
+            {
+              "term": "Dashboard",
+              "description": "front/AdminDashboardCard.tsx uses AdminPage.module.css statCard inside slot.admin.dashboard. The kernel statsGrid owns width."
+            },
+            {
+              "term": "No Configure",
+              "description": "CRUD is the Loyalty admin page, not /admin/plugins/:id."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

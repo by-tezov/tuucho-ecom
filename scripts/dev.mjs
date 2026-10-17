@@ -5,9 +5,9 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const children = [
-  spawn('npm', ['run', 'dev'], { cwd: join(root, 'back'), stdio: 'inherit', env: process.env }),
+  spawn('npm', ['run', 'dev'], { cwd: join(root, 'kernel/back'), stdio: 'inherit', env: process.env }),
   spawn('npm', ['run', 'dev', '--', '--port', '5174', '--strictPort'], {
-    cwd: join(root, 'front'),
+    cwd: join(root, 'kernel/front'),
     stdio: 'inherit',
     env: process.env,
   }),

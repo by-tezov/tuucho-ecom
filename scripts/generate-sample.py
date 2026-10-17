@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate fictional sample catalog + rebrand copied Pam files. Never writes under Pam."""
+"""Generate a generic sample catalog. Never writes operator secrets."""
 from __future__ import annotations
 
 import hashlib
@@ -10,7 +10,7 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path("/home/tezov/Local/tuucho-ecom")
-PAM_MGR = Path("/home/tezov/Local/Pam/pamsurin-manager")
+PAM_MGR = Path("/home/tezov/Local/Pam/catalog source")
 SAMPLE = ROOT / "sample"
 
 
@@ -154,13 +154,13 @@ PRODUCTS = [
         "lengths": ["short"],
         "sizes": {"XS": 4, "S": 4, "M": 4, "L": 4},
         "title": {
-            "fr": "Pendentif Lumen",
-            "en": "Lumen Pendant",
+            "fr": "Pendentif laiton",
+            "en": "Brass pendant",
             "th": "จี้ลูเมน",
-            "es": "Colgante Lumen",
-            "it": "Ciondolo Lumen",
-            "nl": "Lumen hanger",
-            "pt": "Pendente Lumen",
+            "es": "Colgante Shop",
+            "it": "Ciondolo Shop",
+            "nl": "Shop hanger",
+            "pt": "Pendente Shop",
         },
         "desc": {
             "fr": "Forme $shape.attributive en laiton brosse, cordon lin.",
@@ -268,8 +268,8 @@ PRODUCTS = [
         "lengths": ["medium"],
         "sizes": {"XS": 1, "S": 2, "M": 3, "L": 1},
         "title": {
-            "fr": "Coffret Atelier",
-            "en": "Atelier Box",
+            "fr": "Coffret boutique",
+            "en": "Shop box",
             "th": "กล่องอาเตอลิเยร์",
             "es": "Caja Atelier",
             "it": "Cofanetto Atelier",
@@ -351,13 +351,14 @@ def generate_products() -> None:
 
 
 REPLACEMENTS = [
-    ("PamSurin Nail Art", "Lumen"),
-    ("PamSurin Nails", "Lumen"),
-    ("PamSurin Nail", "Lumen"),
-    ("Pam Surin Nails", "Lumen"),
-    ("PamSurin", "Lumen"),
-    ("pamsurin.nail@gmail.com", "hello@lumen.test"),
-    ("contact@pamsurin.fr", "hello@lumen.test"),
+    ("PamSurin Nail Art", "Shop"),
+    ("PamSurin Nails", "Shop"),
+    ("PamSurin Nail", "Shop"),
+    ("PamSurin", "Shop"),
+    ("pamsurin", "shop"),
+    ("Lumen", "Shop"),
+    ("tuucho.nail@gmail.com", "hello@shop.example"),
+    ("contact@shop.example", "hello@shop.example"),
 ]
 
 

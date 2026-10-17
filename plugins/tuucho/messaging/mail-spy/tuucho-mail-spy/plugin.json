@@ -1,0 +1,29 @@
+{
+  "id": "tuucho-mail-spy",
+  "installPath": "plugins/tuucho/messaging/mail-spy/tuucho-mail-spy",
+  "name": "Spy e-mails",
+  "version": "1.0.0",
+  "kind": "generic",
+  "description": "Who receives staff/ops copies of spy and contact-owner mail. Kernel still sends SMTP. Disable to stop those copies.",
+  "defaultEnabled": true,
+  "provides": ["AdminPage"],
+  "permissions": [
+    {
+      "code": "spy_mail",
+      "label": "Spy e-mails"
+    }
+  ],
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  },
+  "adminNav": [
+    {
+      "id": "spy-mail",
+      "group": "settings",
+      "to": "/spy-mail",
+      "permission": "spy_mail",
+      "order": 45,
+      "label": "Spy e-mails"
+    }
+  ]
+}

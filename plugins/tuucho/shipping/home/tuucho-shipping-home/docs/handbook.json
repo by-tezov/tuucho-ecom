@@ -1,0 +1,23 @@
+{
+  "title": "Home address delivery",
+  "summary": "Home couriers (Colissimo, Chronopost, Mondial Relay home). registerShippingMethod; packet prices are the kernel Couriers JSON page.",
+  "sections": [
+    {
+      "heading": "Register",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "kind shipping, courierCodes on the manifest.",
+            "registerShippingMethod({ id, courierCodes, ensureCouriers }).",
+            "Packet prices: kernel Couriers page (JSON groups, PUT /admin/courier-catalog/couriers/:code). Disable and those couriers leave the cart."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Customer addresses are kernel. This plugin only consumes the delivery address. Expedition-cron complements tracking later."
+        }
+      ]
+    }
+  ]
+}

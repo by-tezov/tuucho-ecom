@@ -1,0 +1,69 @@
+{
+  "title": "Default theme",
+  "summary": "Required theme plugin. Colour is CSS variables. Structure overrides go through pluginFront.ui replace. This package currently restyles tokens, not Button markup.",
+  "sections": [
+    {
+      "heading": "Colour",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Tokens, not a second CSS file",
+          "text": "Kernel theme.css uses light-dark(). Configure hexes write store.theme.tokens via PATCH /admin/store. ThemeTokens applies bootstrap.theme.tokens only when the merchant saved hexes. An empty map leaves CSS in charge."
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "Configure",
+              "description": "Admin \u2192 Plugins \u2192 Default theme \u2192 Configure. Swatches: surfaces, ink, accent."
+            },
+            {
+              "term": "Not Boutique",
+              "description": "Theme tokens are not Preferences fields."
+            },
+            {
+              "term": "required: true",
+              "description": "Cannot be disabled. Only one theme should be enabled."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Chrome slots",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "back/register.ts appends storefront.theme.slots: header, burger, bottomBar, footer. That name is outside CORE_OPENING_FILTERS but the kernel still applyFilters it."
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "api.addFilter('storefront.theme.slots', (slots: string[]) => [\n  ...slots, 'header', 'burger', 'bottomBar', 'footer',\n]);"
+        }
+      ]
+    },
+    {
+      "heading": "Override KERNEL_UI",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "warning",
+          "title": "This theme does not replace Button today",
+          "text": "pluginFront.ui with replace: true is the structure path. Theme kind wins over a generic replace. Colour stays CSS variables; replace a component when markup must change."
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "import { KERNEL_UI, type UiComponent } from '@kernel/front/ui';\n\nexport const pluginFront: PluginFrontModule = {\n  pluginId: 'tuucho-theme-default',\n  ui: [{ name: KERNEL_UI.Button, component: ShopButton as UiComponent, replace: true }],\n};",
+          "caption": "If you add a structural override"
+        },
+        {
+          "type": "p",
+          "text": "See Kernel UI registry for precedence, the full KERNEL_UI name list, and names that are not wrapped."
+        }
+      ]
+    }
+  ]
+}

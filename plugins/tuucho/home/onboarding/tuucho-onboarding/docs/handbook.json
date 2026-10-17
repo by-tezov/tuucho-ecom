@@ -1,0 +1,33 @@
+{
+  "title": "Onboarding overlay",
+  "summary": "Home tour on slot.home.onboarding plus a replay control on slot.account.profile. Disable to hide the overlay.",
+  "sections": [
+    {
+      "heading": "Slots",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "slot.home.onboarding",
+              "description": "OnboardingController on the home page"
+            },
+            {
+              "term": "slot.account.profile",
+              "description": "OnboardingReplaySettings so a customer can replay the tour"
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "slots: {\n  [CORE_FRONT_SLOTS.homeOnboarding]: <OnboardingController />,\n  [CORE_FRONT_SLOTS.accountProfile]: <OnboardingReplaySettings />,\n}"
+        },
+        {
+          "type": "p",
+          "text": "Copy is t.onboarding in kernel English, overlaid by tuucho-onboarding-locale-fr. No Configure form. No plugin table: progress is client state."
+        }
+      ]
+    }
+  ]
+}

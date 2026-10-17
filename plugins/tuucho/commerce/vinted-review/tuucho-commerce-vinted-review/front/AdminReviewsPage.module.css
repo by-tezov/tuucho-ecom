@@ -1,0 +1,232 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.625rem, 4vw, 2.25rem);
+}
+
+.panel {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.note {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.note a {
+  color: inherit;
+  font-weight: 600;
+}
+
+.empty {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.error {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.notice {
+  margin: 0;
+  color: var(--color-success);
+}
+
+.scrapeForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.field input {
+  box-sizing: border-box;
+  width: 120px;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  font: inherit;
+  color: var(--color-ink);
+}
+
+.field input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.hint {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.fieldError {
+  composes: fieldError from '@kernel/front/components/ui/Typography.module.css';
+}
+
+.fieldset {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+.row:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.rowChecked .reviewBody {
+  color: var(--color-ink);
+}
+
+.pick {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.pick input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: var(--color-accent);
+}
+
+.pick input:disabled {
+  cursor: not-allowed;
+}
+
+.reviewBody {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.stars {
+  color: var(--color-accent);
+  letter-spacing: 2px;
+  font-size: 0.875rem;
+}
+
+.starsOff {
+  color: var(--border-medium);
+}
+
+.text {
+  margin: 0;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.ratingLine {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ratingValue {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.ratingCompare {
+  display: grid;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+}
+
+.pickBody {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.badge {
+  justify-self: start;
+  padding: 2px 8px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.inlineAction {
+  justify-self: start;
+}
+
+.translateToggle {
+  justify-self: start;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}

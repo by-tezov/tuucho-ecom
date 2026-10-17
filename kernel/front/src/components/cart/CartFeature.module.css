@@ -1,0 +1,1389 @@
+/* Shared presentation for cart feature components and order lines. Page-only
+   layout remains in routes/CartPage.module.css. */
+
+/* The recap is a cart feature component, not route layout. Keeping its
+   complete visual contract here prevents an extracted CartOrderSummary from
+   silently losing CSS-module class names that remain in the route module. */
+.summaryCard {
+  padding: 12px 24px 24px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+}
+
+.summaryCardReady {
+  border-color: var(--color-success);
+}
+
+.summaryTitle {
+  margin-bottom: 14px;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.subtotalRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.9375rem;
+}
+
+.shippingRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0 20px;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.discountRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  color: var(--color-success);
+  font-size: 0.875rem;
+}
+
+.promoRow {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0 14px;
+}
+
+.promoInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.promoInput:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.promoButton {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-pill);
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.promoButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.promoSuccess,
+.promoError {
+  margin: -7px 0 12px;
+  font-size: 0.8125rem;
+}
+
+.promoSuccess {
+  color: var(--color-success);
+}
+
+.promoError {
+  color: var(--color-danger);
+}
+
+.totalRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 4px 0 14px;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.totalValue {
+  font-size: 1.375rem;
+}
+
+.deliveryEstimate {
+  margin: -8px 0 12px;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.summaryDivider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin: 16px 0 10px;
+}
+
+.summaryDivider::before,
+.summaryDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-medium);
+}
+
+.walletRow {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.walletAvailable {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.walletToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.walletNote {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.loyaltyEarnCallout {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-faint);
+  border: 1px solid var(--color-accent-medium);
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.loyaltyEarnAmount {
+  color: var(--color-success);
+  font-size: 1.0625rem;
+  font-weight: 800;
+}
+
+.payButton {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.paymentSecurity {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.trustNotes {
+  margin-top: 14px;
+}
+
+.trustNote {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.trustNote svg {
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
+/* Shipping-address selection owns its visual contract here because
+   CartAddressSection is a reusable cart feature, independent from the route
+   that currently composes it. */
+.addressSection {
+  padding: 12px 20px 20px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.addressList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Visually matches a non-selected address option, while opening the address
+   form rather than selecting an existing address. */
+.addAddressTile {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-accent);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.addAddressTile:hover {
+  background: var(--color-accent-faint);
+}
+
+.addAddressTile:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Same accent underline link as AddressFormModal / ModalShell textLink. */
+.textLink {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sectionTextLinkRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sectionTextLinkRow .textLink {
+  margin-top: 6px;
+}
+
+.addAddressPlus {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-bg-card);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.addressRow {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 10px 72px 10px 14px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+}
+
+.addressRowMain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Desktop: edit + trash inlined (row-reverse puts edit left of trash),
+   vertically centered on the card. */
+.addressRowActions {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 8px;
+}
+
+.addressOptionBody {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.addressName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  font-weight: 600;
+}
+
+.addressDefaultBadge {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+}
+
+.addressDetail {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.addressCouriers {
+  flex-shrink: 0;
+}
+
+.addressCourierLogo {
+  width: 26px;
+  height: 26px;
+  font-size: 0.5625rem;
+}
+
+.addressPickupPoint {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.countryLine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.countryFlag {
+  flex-shrink: 0;
+  font-size: 1.05em;
+  line-height: 1;
+}
+
+.addressCourierReason {
+  margin: 10px 0 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.addressRowSelected {
+  border-color: var(--color-accent);
+  background: var(--color-accent-faint);
+}
+
+.addressOption {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+}
+
+.addressOptionDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.addressIconButton,
+.addressDeleteButton {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-medium);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-muted);
+}
+
+.addressIconButtonEdit {
+  border-color: var(--color-info-border);
+  color: var(--color-info);
+}
+
+.addressIconButtonEdit:hover {
+  background: var(--color-info-bg-hover);
+  color: var(--color-info);
+}
+
+.addressDeleteButton {
+  border-color: var(--color-danger-border);
+  color: var(--color-danger);
+}
+
+.addressDeleteButton:hover {
+  background: var(--color-danger-bg-hover);
+  color: var(--color-danger);
+}
+
+@media (max-width: 1023px) {
+  .addressRow {
+    min-height: 80px;
+    padding-right: 44px;
+  }
+
+  /* Mobile: trash flush top-right; edit fills the column below it. */
+  .addressRowActions {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 35.2px;
+    transform: none;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .addressRow:has(.addressDefaultBadge) .addressRowActions {
+    bottom: 32px;
+  }
+
+  .addressIconButtonEdit {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  .addressDeleteButton {
+    width: 35.2px;
+    height: 35.2px;
+    border-top: none;
+    border-right: none;
+    border-radius: 0 0 0 var(--radius-md);
+    background: transparent;
+  }
+
+  .addressDeleteButton:hover {
+    border-color: var(--color-danger);
+    background: transparent;
+  }
+
+  .addressDeleteButton svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .addressDefaultBadge {
+    right: 0;
+    bottom: 8px;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  /* Visible so the flush corner trash isn't clipped oddly; radius still
+     clips via the card's own border-radius on the first/last edges. */
+  overflow: visible;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+}
+
+.line {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  padding: 18px;
+  /* Room for the corner trash so title/content don't sit under it. */
+  padding-right: 44px;
+  position: relative;
+}
+
+.lineOffer {
+  /* Offer rows: right accent; OFFERT sits on that border and breaks it. */
+  position: relative;
+  padding-right: 22px;
+  border-right: 3px solid var(--color-accent-bright);
+  background: transparent;
+}
+
+/* Gift pot: photo | (title + desc) / qty — qty drops full-width under the photo on mobile. */
+.lineOffer:has(.giftMeta) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'photo body'
+    'photo meta';
+  align-items: start;
+  column-gap: 14px;
+}
+
+.lineOffer:has(.giftMeta) .photoCol {
+  grid-area: photo;
+}
+
+.lineOfferTitleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Gift rows that use the title row — full width under the border badge. */
+.lineBody:has(> .lineOfferTitleRow) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  grid-template-columns: none;
+  grid-template-rows: none;
+  grid-template-areas: none;
+}
+
+.lineOffer:has(.giftMeta) .lineBody {
+  grid-area: body;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  grid-template-columns: none;
+  grid-template-rows: none;
+  grid-template-areas: none;
+}
+
+.lineOffer:has(.giftMeta) .lineHeading,
+.lineOfferTitleRow .lineHeading {
+  grid-area: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.lineOffer:has(.giftMeta) .lineDesc {
+  grid-area: auto;
+  grid-column: auto;
+}
+
+.lineOffer:has(.giftMeta) .giftMeta {
+  grid-area: meta;
+}
+
+/* OFFERT on the right accent border — card bg breaks the line around the label. */
+.giftBadge {
+  position: absolute;
+  top: 16px;
+  right: 0;
+  z-index: 2;
+  transform: translateX(50%);
+  margin: 0;
+  padding: 6px 0;
+  border: none;
+  background: var(--color-bg-card);
+  color: var(--color-accent);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.list > .lineOffer:first-child {
+  border-top-right-radius: var(--radius-xl);
+}
+
+.list > .lineOffer:last-child {
+  border-bottom: 3px solid var(--color-accent-bright);
+  border-bottom-left-radius: var(--radius-xl);
+  border-bottom-right-radius: var(--radius-xl);
+}
+
+.rulesSection {
+  /* Spacing vs the accessories / shipping cards comes from .mainCol gap
+     only — no extra bottom margin (that stacked to ~52px vs 24px between
+     other sections). */
+  margin: 0;
+}
+
+.lineDesc {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+
+/* Description under the ref — desktop only (cart + orders paid lines). */
+.lineDescDesktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .lineDescDesktop {
+    display: block;
+  }
+}
+
+.giftQty {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.variantPriceFree {
+  margin-left: auto;
+  color: var(--color-success);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Gift qty/price strip — beside photo under body on desktop; full width below on mobile. */
+.giftMeta {
+  min-width: 0;
+}
+
+.giftMeta .variantText {
+  flex: 1 1 auto;
+  flex-shrink: 1;
+  min-width: 0;
+  white-space: normal;
+}
+
+/* Remise row — standalone column layout (never share `.lineBody` grid). */
+.rulesProgressBody {
+  min-width: 0;
+  flex: 1 1 auto;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+}
+
+.rulesProgressHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+}
+
+.rulesProgressTitleWrap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.rulesProgressHeader .lineTitle {
+  grid-area: auto;
+  width: 100%;
+  padding-right: 0;
+}
+
+.rulesProgressHeader .variantPriceFree {
+  margin-left: 0;
+}
+
+/* Title + ref stack — real box so mobile title fitting measures the right width. */
+.lineHeading {
+  grid-area: title;
+  min-width: 0;
+}
+
+/* Title with unit price immediately after — price hugs the title text,
+   not the far right of the row (do not flex-grow the title). */
+.titlePriceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.titlePriceRow .lineTitle {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.itemRefUnderTitle {
+  margin: -0.2em 0 0;
+  padding-bottom: 10px;
+  font-size: 0.6875rem;
+  line-height: 1.15;
+  color: color-mix(in srgb, var(--color-muted) 62%, var(--color-bg-card));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Shape + length, below Réf. Same two chips the photo column used to carry
+   just for shape (.variantShapeChip, unchanged) — length reuses that exact
+   look, joined by a plain dash between them. */
+.variantAxisRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: -4px 0 10px;
+  color: var(--color-muted);
+}
+
+.rulesProgressLadder {
+  margin: 8px 0 10px;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.rulesProgressTrack {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-progress-track) 0%, var(--color-progress-track-end) 100%);
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px light-dark(rgba(40, 48, 60, 0.12), rgba(0, 0, 0, 0.45));
+}
+
+.rulesProgressFill {
+  height: 100%;
+  border-radius: inherit;
+  /* Cold→hot across the full track; --rules-progress keeps the map fixed as width grows. */
+  background-image: linear-gradient(
+    90deg,
+    var(--color-progress-fill-start) 0%,
+    var(--color-progress-fill-mid) 18%,
+    var(--color-progress-fill-warm) 42%,
+    var(--color-progress-fill-gold) 72%,
+    var(--color-accent-bright) 100%
+  );
+  background-size: calc(100% / var(--rules-progress, 1)) 100%;
+  background-repeat: no-repeat;
+  transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rulesProgressFill {
+    transition: none;
+  }
+}
+
+.rulesProgressStatus {
+  margin: 10px 0 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  color: var(--color-accent);
+}
+
+.rulesProgressStatusLine {
+  display: inline;
+}
+
+.rulesProgressStatusLine + .rulesProgressStatusLine::before {
+  content: ' ';
+}
+
+@media (max-width: 1023px) {
+  .rulesProgressStatus {
+    text-align: center;
+  }
+
+  .rulesProgressStatusLine {
+    display: block;
+  }
+
+  .rulesProgressStatusLine + .rulesProgressStatusLine::before {
+    content: none;
+  }
+
+  .rulesProgressStatusLine + .rulesProgressStatusLine {
+    margin-top: 0.15em;
+  }
+}
+
+.priceStruck {
+  text-decoration: line-through;
+  opacity: 0.65;
+  margin-right: 0.4em;
+}
+
+.shippingFeeValue {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25em;
+}
+
+.shippingFreeLabel {
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+.line + .line::before {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  left: 18px;
+  height: 1px;
+  background: var(--border-soft);
+  content: '';
+}
+
+.photoCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  width: 112px;
+}
+
+.photo {
+  width: 112px;
+  height: 112px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.photoFavoriteButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-pill);
+  font-size: 0.6875rem;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.photoFavoriteButton:hover {
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+.lineBody {
+  min-width: 0;
+  flex: 1 1 auto;
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'title'
+    'variants'
+    'ref';
+  align-items: start;
+}
+
+.lineTitle {
+  min-width: 0;
+  margin: 0;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* When title sits inside .lineHeading, drop the grid-area (heading owns the cell). */
+.lineHeading .lineTitle {
+  grid-area: auto;
+  width: auto;
+  max-width: 100%;
+  line-height: 1.15;
+}
+
+/* Same style as the header drawer's own per-product unit price
+   (CartControl.module.css's .drawerLineUnitPrice) — kept in sync by eye
+   since the two live in different stylesheets. Sits right after the title. */
+.lineUnitPrice {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.variantList {
+  grid-area: variants;
+  align-self: stretch;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.variantRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.variantRow:not(:first-child) {
+  padding-top: 8px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--color-accent-line) 0,
+    var(--color-accent-line) 2px,
+    transparent 2px,
+    transparent 12px
+  );
+  background-position: top;
+  background-size: 100% 1px;
+  background-repeat: repeat-x;
+}
+
+/* Only variant row for this product — bracket it with a dash above and
+   below instead of the usual "only between rows" separator, so it doesn't
+   look like it's just floating in the middle of the card's extra height. */
+.variantRowSolo {
+  padding-top: 16px;
+  padding-bottom: 16px;
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--color-accent-line) 0,
+      var(--color-accent-line) 2px,
+      transparent 2px,
+      transparent 12px
+    ),
+    repeating-linear-gradient(
+      to right,
+      var(--color-accent-line) 0,
+      var(--color-accent-line) 2px,
+      transparent 2px,
+      transparent 12px
+    );
+  background-position: top, bottom;
+  background-size:
+    100% 1px,
+    100% 1px;
+  background-repeat: repeat-x, repeat-x;
+}
+
+.variantChips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Shared by OrdersList — keep the previous cart-chip look there. */
+.variantText {
+  flex-shrink: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+/* Same footprint as GalleryCard / NewArrivalCard shape badges, sized up
+   1.25x (7px 12px / 0.79rem -> 8.75px 15px / 0.9875rem) — this is the one
+   shape/length control on the whole cart line, so it reads as the primary
+   tag rather than a plain label. */
+.variantShapeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8.75px 15px;
+  border-radius: var(--radius-pill);
+  font-size: 0.9875rem;
+  font-weight: 600;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Only rendered when the axis has more than one option to switch to — same
+   glyph and look as ShapeTag/LengthTag's own .caret. */
+.variantAxisCaret {
+  font-size: 0.75rem;
+  line-height: 1;
+  margin-top: -1px;
+}
+
+/* Same chip style as the size pickers (PhotoLightbox / SizeRequestModal /
+   SelectionPickerModal's own .sizeGrid > *) — bordered, same corner
+   radius. Square instead of their 4-column grid, sized to match
+   QuantityControl's own outer height (QuantityControl.module.css's
+   .root: 2.625rem) so the two sit flush in the variant row. */
+.variantSizeChip {
+  box-sizing: border-box;
+  width: 2.625rem;
+  height: 2.625rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink-strong);
+}
+
+.variantPackChip {
+  box-sizing: border-box;
+  min-width: 2.625rem;
+  height: 2.625rem;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink-strong);
+  text-transform: none;
+}
+
+.variantPackChip[aria-pressed='true'] {
+  border-color: var(--color-ink-strong);
+  background: var(--color-ink-strong);
+  color: var(--color-bg-card);
+}
+
+/* Quantity → size → price; pin the line total to the trailing edge. */
+.variantPrice {
+  flex-shrink: 0;
+  font-weight: 700;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+/* Wraps AccessoryCartLine's QuantityControl so useSiblingsWrapped has a
+   stable node to measure — the control itself has no forwarded ref. */
+.accessoryQuantityControl {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1023px) {
+  /* Quantity + size (+ price when it fits). If the price can't sit on the
+     same row, it wraps and is pushed to the right. */
+  .variantRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 8px;
+  }
+
+  .variantPrice {
+    margin-left: auto;
+  }
+
+  /* Accessory pack-size chips (x1/x2/…) go above the quantity stepper only
+     once JS (useSiblingsWrapped) has confirmed the row actually wrapped —
+     a row with room to spare keeps the default stepper-left, chips-right
+     order. Price keeps its default order (0) so it still lands last. */
+  .accessoryRowWrapped .accessoryPackChips {
+    order: -2;
+  }
+
+  .accessoryRowWrapped .accessoryQuantityControl {
+    order: -1;
+  }
+
+  /* Title alone on top; variants grow; ref pinned to the card bottom.
+     Only the title keeps trash clearance — variant rows sit below the
+     flush tab and can use the full width up to the card's right padding. */
+  .lineBody {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      'title'
+      'variants'
+      'ref';
+    align-items: start;
+    column-gap: 8px;
+    padding-right: 0;
+    min-width: 0;
+  }
+
+  /* Gift offer rows — title/ref full width; OFFERT on right border. */
+  .lineOffer:has(.giftMeta) .lineBody {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .lineOffer:has(.giftMeta) .lineTitle {
+    padding-right: 0;
+  }
+
+  .lineTitle {
+    /* Clear the 35.2px flush trash tab on the first line of the card. */
+    padding-right: 36px;
+    box-sizing: border-box;
+    /* Base before JS fit — same as the fit range max so short titles
+       don't flash a larger desktop size first. */
+    font-size: 18px;
+  }
+
+  .titlePriceRow .lineTitle {
+    width: 100%;
+  }
+
+  .lineUnitPrice {
+    display: none;
+  }
+
+  /* Bracket multi-variant blocks with top+bottom dashes like .variantRowSolo
+     (desktop still only draws rules between rows). */
+  .variantRow:first-child:not(.variantRowSolo) {
+    padding-top: 10px;
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--color-accent-line) 0,
+      var(--color-accent-line) 2px,
+      transparent 2px,
+      transparent 12px
+    );
+    background-position: top;
+    background-size: 100% 1px;
+    background-repeat: repeat-x;
+  }
+
+  .variantRow:last-child:not(:first-child) {
+    padding-bottom: 10px;
+    background-image:
+      repeating-linear-gradient(
+        to right,
+        var(--color-accent-line) 0,
+        var(--color-accent-line) 2px,
+        transparent 2px,
+        transparent 12px
+      ),
+      repeating-linear-gradient(
+        to right,
+        var(--color-accent-line) 0,
+        var(--color-accent-line) 2px,
+        transparent 2px,
+        transparent 12px
+      );
+    background-position: top, bottom;
+    background-size:
+      100% 1px,
+      100% 1px;
+    background-repeat: repeat-x, repeat-x;
+  }
+
+  .variantRowSolo {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .line {
+    /* Photo vignette flush to the card's left edge; right keeps a small inset. */
+    padding-left: 0;
+    padding-right: 8px;
+    gap: 7px;
+  }
+
+  /* Accessory (non-gift) lines: photo | title on top, quantity/pack/price
+     drop full-width below — same "photo + full-width strip" idea as the
+     gift .giftMeta pattern just below, so the variant row gets the whole
+     card width instead of being squeezed into the narrow column beside the
+     photo. */
+  .accessoryLine {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'photo title'
+      'variants variants';
+    align-items: start;
+    column-gap: 7px;
+    row-gap: 10px;
+  }
+
+  .accessoryLine .photoCol {
+    grid-area: photo;
+  }
+
+  .accessoryLine .lineBody {
+    display: contents;
+  }
+
+  .lineOffer:has(.giftMeta) {
+    grid-template-areas:
+      'photo body'
+      'meta meta';
+    column-gap: 7px;
+  }
+
+  .lineOffer:has(.giftMeta) .giftMeta {
+    padding-left: 8px;
+    min-width: 0;
+  }
+
+  /* Remise gauge (no photo) keeps a small left inset. */
+  .lineOffer:not(:has(.photoCol)) {
+    padding-left: 8px;
+  }
+
+  /* Flush with the card's left edge — square on the left, rounded on the right. */
+  .photo {
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+
+  /* Compact under the photo: label may wrap, button does not stretch. */
+  .photoFavoriteButton {
+    width: auto;
+    max-width: 112px;
+    white-space: normal;
+    text-align: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    line-height: 1.25;
+    /* Nudge under the flush photo so the remove control isn't edge-clipped. */
+    margin-left: 4px;
+  }
+
+  /* Same hairline as user cart lines — full width, not starting after the photo. */
+  .line + .line::before {
+    left: 0;
+    right: 0;
+  }
+}
+
+/* Same control as .addressDeleteButton — always top-right corner of the
+   cart line. Desktop: circular inset; mobile: flush edge-to-edge tab. */
+.deleteIconButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-danger-border);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.deleteIconButton:hover {
+  background: var(--color-danger-bg-hover);
+  color: var(--color-danger);
+}
+
+@media (max-width: 1023px) {
+  /* Flush top-right corner tab — identical to .addressDeleteButton on mobile. */
+  .deleteIconButton {
+    top: 0;
+    right: 0;
+    width: 35.2px;
+    height: 35.2px;
+    border-top: none;
+    border-right: none;
+    border-radius: 0 0 0 var(--radius-md);
+    background: transparent;
+  }
+
+  .deleteIconButton:hover {
+    background: transparent;
+    border-color: var(--color-danger);
+  }
+
+  .deleteIconButton svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.notice {
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+  margin-top: 6px;
+}
+
+.francoSeparator {
+  height: 1px;
+  margin: 18px 0 16px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--color-accent-line) 0,
+    var(--color-accent-line) 2px,
+    transparent 2px,
+    transparent 12px
+  );
+  background-size: 100% 1px;
+  background-repeat: repeat-x;
+}
+
+.francoProgress {
+  min-width: 0;
+}
+
+/* The out-of-stock notice under a cart line is a control, not just text —
+   it opens the dialog offering to have the size made or to drop the line
+   (see CartLine / OutOfStockModal). Underlined so it reads as clickable
+   without borrowing the accent color a plain link would use: the message
+   itself still has to read as a problem. */
+.noticeButton {
+  display: block;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.noticeButton:hover {
+  opacity: 0.8;
+}
+
+.defaultBadge {
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-medium);
+  color: var(--color-accent);
+  white-space: nowrap;
+}

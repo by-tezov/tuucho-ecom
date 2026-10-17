@@ -1,0 +1,21 @@
+{
+  "id": "tuucho-commerce-vinted-review-locale-fr",
+  "installPath": "plugins/tuucho/commerce/vinted-review/tuucho-commerce-vinted-review-locale-fr",
+  "name": "commerce-vinted-review French",
+  "version": "1.0.0",
+  "kind": "locale",
+  "description": "French strings for commerce-vinted-review. Enable with locale-fr for French UI; disable to keep this plugin in English.",
+  "defaultEnabled": false,
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  },
+  "dependsOn": [
+    {
+      "id": "tuucho-commerce-vinted-review",
+      "version": ">=1.0.0"
+    }
+  ],
+  "provides": [
+    "Locale"
+  ]
+}

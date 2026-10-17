@@ -1,0 +1,17 @@
+{
+  "title": "Documentation",
+  "summary": "In-admin developer handbook. Core articles come from docs/articles.json. Other plugins contribute handbook.json sections. This identity page is omitted from the rail.",
+  "sections": [
+    {
+      "heading": "How this site is built",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Not listed in the rail",
+          "text": "GET /admin/docs runs buildDocsSite(). Locale kind is skipped. handbook.json without sections is skipped. Core API pages live in articles.json."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,373 @@
+import type { AccountEmailCopy } from './accountEmailCopyTypes.js';
+
+/** Italian, Dutch, Portuguese and Thai copy of the account emails (accountEmails.ts). */
+export const ACCOUNT_EMAIL_COPY_IT: AccountEmailCopy = {
+  ctaFallbackHint: 'Se il pulsante non funziona, copi e incolli questo link nel browser:',
+  contactReply: {
+    subject: 'Shop: risposta al suo messaggio',
+    title: 'Risposta al suo messaggio',
+    hello: 'Buongiorno,',
+  },
+  passwordReset: {
+    subject: 'Reimpostazione della password: Shop',
+    title: 'Reimpostazione della password',
+    intro: 'È stata richiesta la reimpostazione della password del suo account Shop.',
+    followLink: 'Segua questo link per scegliere una nuova password:',
+    outro: 'Questo link scade tra 1 ora. Se non ha fatto lei questa richiesta, ignori questa email.',
+    cta: 'Reimposta la mia password',
+  },
+  loginCode: {
+    subject: 'Il suo codice di accesso: Shop',
+    title: 'Il suo codice di accesso',
+    intro: 'Ecco il codice a 6 cifre per continuare su Shop.',
+    codeLabel: 'Codice',
+    outro: 'Questo codice scade tra 10 minuti. Se non ha fatto lei questa richiesta, ignori questa email.',
+    hint: 'Il suo codice',
+  },
+  confirmEmail: {
+    subject: 'Confermi il suo indirizzo email: Shop',
+    title: 'Confermi il suo indirizzo email',
+    followLink: 'Confermi il suo indirizzo email seguendo questo link:',
+    outro: 'Questo link scade tra 24 ore.',
+    cta: 'Conferma il mio indirizzo email',
+  },
+  emailChange: {
+    subject: 'Richiesta di cambio dell’indirizzo email: Shop',
+    title: 'Richiesta di cambio dell’indirizzo email',
+    intro: (email) => `È stato richiesto di cambiare l’indirizzo email del suo account Shop in ${email}.`,
+    outro:
+      'Se è stata lei, non deve fare nulla. Se non ha fatto lei questa richiesta, blocchi subito il suo account. Resterà bloccato finché non lo sbloccheremo manualmente dopo una verifica.',
+    lockLabel: 'Blocca il mio account',
+    cta: 'Non sono stato io: blocca il mio account',
+  },
+  superAdminSignIn: {
+    subject: "Accesso super amministratore: Shop",
+    title: "Accesso al suo account super amministratore",
+    introSignIn: "È appena stato effettuato un accesso al suo account super amministratore Shop.",
+    introResume: "La sua sessione super amministratore Shop è appena stata ripresa automaticamente su un dispositivo già collegato.",
+    when: (value) => `Quando: ${value}`,
+    place: (value) => `Luogo: ${value}`,
+    ipAddress: (value) => `Indirizzo IP: ${value}`,
+    device: (value) => `Dispositivo: ${value}`,
+    unknown: "sconosciuto",
+    outro: "Se è stata lei, non deve fare nulla. Altrimenti blocchi subito l’account: tutte le sue sessioni verranno chiuse e resterà bloccato finché un altro super amministratore o il gestore del sito non lo sbloccherà.",
+    lockLabel: "Blocca l’account",
+    cta: "Non sono stato io: blocca l’account",
+  },
+  deletionRequested: {
+    subject: 'Eliminazione del suo account programmata: Shop',
+    title: 'Eliminazione del suo account programmata',
+    intro: 'Ha chiesto di eliminare il suo account Shop.',
+    outro: (date) =>
+      `Il suo account sarà eliminato definitivamente il ${date} se non effettua di nuovo l’accesso prima di allora. Acceda in qualsiasi momento prima di quella data per annullare l’eliminazione.`,
+  },
+  deletionReminder: {
+    title: 'Il suo account Shop sarà presto eliminato',
+    intro: (days, date) =>
+      `Mancano ${days} giorno/i all’eliminazione definitiva del suo account Shop, prevista il ${date}.`,
+    outro: 'Acceda prima di quella data per annullare l’eliminazione.',
+  },
+  invoice: {
+    title: (n) => `La sua fattura (ordine ${n})`,
+    intro: (n) => `In allegato trova la fattura del suo ordine ${n}.`,
+    guestIntro: (n, label) =>
+      `In allegato trova la fattura del suo ordine ${n}. Usi «${label}» per seguire questo ordine (link valido 24 ore).`,
+    frenchDocumentNote: 'La fattura è emessa in francese, come richiesto dalla legge francese.',
+  },
+  orderReceived: {
+    title: (n) => `Il suo ordine ${n} è stato ricevuto`,
+    subject: (n) => `Ordine ricevuto (${n}): Shop`,
+    intro: 'Il suo ordine risulta ricevuto. La sua fattura è disponibile nella sua area ordini.',
+    cta: 'Vedi lo storico dei miei ordini',
+  },
+  productRequest: {
+    title: 'Richiesta di prodotto',
+    accepted: 'Buone notizie, la sua richiesta è stata accettata.',
+    refused: 'Purtroppo non possiamo accettare la sua richiesta.',
+    acceptedSubject: 'Shop: la sua richiesta è stata accettata',
+    refusedSubject: 'Shop: risposta alla sua richiesta',
+    article: 'Articolo',
+    size: 'Taglia',
+    quantity: 'Quantità',
+    price: 'Prezzo proposto',
+    replyHint: 'Risponda direttamente a questa email per continuare la conversazione.',
+  },
+};
+
+export const ACCOUNT_EMAIL_COPY_NL: AccountEmailCopy = {
+  ctaFallbackHint: 'Werkt de knop niet? Kopieer deze link en plak hem in je browser:',
+  contactReply: {
+    subject: 'Shop: antwoord op je bericht',
+    title: 'Antwoord op je bericht',
+    hello: 'Hallo,',
+  },
+  passwordReset: {
+    subject: 'Je wachtwoord opnieuw instellen: Shop',
+    title: 'Je wachtwoord opnieuw instellen',
+    intro: 'Er is gevraagd om het wachtwoord van je Shop-account opnieuw in te stellen.',
+    followLink: 'Volg deze link om een nieuw wachtwoord te kiezen:',
+    outro: 'Deze link verloopt over 1 uur. Heb je dit niet aangevraagd, negeer dan deze e-mail.',
+    cta: 'Mijn wachtwoord opnieuw instellen',
+  },
+  loginCode: {
+    subject: 'Je inlogcode: Shop',
+    title: 'Je inlogcode',
+    intro: 'Hier is de code van 6 cijfers om verder te gaan op Shop.',
+    codeLabel: 'Code',
+    outro: 'Deze code verloopt over 10 minuten. Heb je dit niet aangevraagd, negeer dan deze e-mail.',
+    hint: 'Je code',
+  },
+  confirmEmail: {
+    subject: 'Bevestig je e-mailadres: Shop',
+    title: 'Bevestig je e-mailadres',
+    followLink: 'Bevestig je e-mailadres via deze link:',
+    outro: 'Deze link verloopt over 24 uur.',
+    cta: 'Mijn e-mailadres bevestigen',
+  },
+  emailChange: {
+    subject: 'Wijziging van e-mailadres aangevraagd: Shop',
+    title: 'Wijziging van e-mailadres aangevraagd',
+    intro: (email) => `Er is gevraagd om het e-mailadres van je Shop-account te wijzigen in ${email}.`,
+    outro:
+      'Was jij dit, dan hoef je niets te doen. Heb je dit niet aangevraagd, blokkeer dan meteen je account. Het blijft geblokkeerd tot wij het na controle handmatig vrijgeven.',
+    lockLabel: 'Mijn account blokkeren',
+    cta: 'Dit was ik niet: mijn account blokkeren',
+  },
+  superAdminSignIn: {
+    subject: "Aanmelding superbeheerder: Shop",
+    title: "Aanmelding op je superbeheerdersaccount",
+    introSignIn: "Er is zojuist aangemeld op je Shop-superbeheerdersaccount.",
+    introResume: "Je Shop-superbeheerderssessie is zojuist automatisch hervat op een apparaat dat al aangemeld was.",
+    when: (value) => `Wanneer: ${value}`,
+    place: (value) => `Locatie: ${value}`,
+    ipAddress: (value) => `IP-adres: ${value}`,
+    device: (value) => `Apparaat: ${value}`,
+    unknown: "onbekend",
+    outro: "Was jij dit, dan hoef je niets te doen. Zo niet, blokkeer het account dan meteen: alle sessies worden gesloten en het blijft geblokkeerd tot een andere superbeheerder of de beheerder van de site het vrijgeeft.",
+    lockLabel: "Account blokkeren",
+    cta: "Dit was ik niet: account blokkeren",
+  },
+  deletionRequested: {
+    subject: 'Verwijdering van je account gepland: Shop',
+    title: 'Verwijdering van je account gepland',
+    intro: 'Je hebt gevraagd om je Shop-account te verwijderen.',
+    outro: (date) =>
+      `Je account wordt op ${date} definitief verwijderd als je niet eerder opnieuw inlogt. Log op elk moment voor die datum in om de verwijdering te annuleren.`,
+  },
+  deletionReminder: {
+    title: 'Je Shop-account wordt binnenkort verwijderd',
+    intro: (days, date) =>
+      `Nog ${days} dag(en) tot je Shop-account definitief wordt verwijderd, gepland op ${date}.`,
+    outro: 'Log voor die datum in om de verwijdering te annuleren.',
+  },
+  invoice: {
+    title: (n) => `Je factuur (bestelling ${n})`,
+    intro: (n) => `In de bijlage vind je de factuur van je bestelling ${n}.`,
+    guestIntro: (n, label) =>
+      `In de bijlage vind je de factuur van je bestelling ${n}. Gebruik "${label}" om deze bestelling te volgen (link 24 uur geldig).`,
+    frenchDocumentNote: 'De factuur is in het Frans opgesteld, zoals de Franse wet vereist.',
+  },
+  orderReceived: {
+    title: (n) => `Je bestelling ${n} is ontvangen`,
+    subject: (n) => `Bestelling ontvangen (${n}): Shop`,
+    intro: 'Je bestelling staat als ontvangen. Je factuur staat in je bestellingenoverzicht.',
+    cta: 'Mijn bestelgeschiedenis bekijken',
+  },
+  productRequest: {
+    title: 'Productaanvraag',
+    accepted: 'Goed nieuws, je aanvraag is geaccepteerd.',
+    refused: 'Helaas kunnen we je aanvraag niet accepteren.',
+    acceptedSubject: 'Shop: je aanvraag is geaccepteerd',
+    refusedSubject: 'Shop: antwoord op je aanvraag',
+    article: 'Artikel',
+    size: 'Maat',
+    quantity: 'Aantal',
+    price: 'Voorgestelde prijs',
+    replyHint: 'Antwoord rechtstreeks op deze e-mail om het gesprek voort te zetten.',
+  },
+};
+
+export const ACCOUNT_EMAIL_COPY_PT: AccountEmailCopy = {
+  ctaFallbackHint: 'Se o botão não funcionar, copie e cole este link no seu navegador:',
+  contactReply: {
+    subject: 'Shop: resposta à sua mensagem',
+    title: 'Resposta à sua mensagem',
+    hello: 'Olá,',
+  },
+  passwordReset: {
+    subject: 'Redefinir a sua palavra-passe: Shop',
+    title: 'Redefinir a sua palavra-passe',
+    intro: 'Foi pedida a redefinição da palavra-passe da sua conta Shop.',
+    followLink: 'Siga este link para escolher uma nova palavra-passe:',
+    outro: 'Este link expira dentro de 1 hora. Se não fez este pedido, ignore este email.',
+    cta: 'Redefinir a minha palavra-passe',
+  },
+  loginCode: {
+    subject: 'O seu código de acesso: Shop',
+    title: 'O seu código de acesso',
+    intro: 'Aqui está o código de 6 dígitos para continuar na Shop.',
+    codeLabel: 'Código',
+    outro: 'Este código expira dentro de 10 minutos. Se não fez este pedido, ignore este email.',
+    hint: 'O seu código',
+  },
+  confirmEmail: {
+    subject: 'Confirme o seu endereço de email: Shop',
+    title: 'Confirme o seu endereço de email',
+    followLink: 'Confirme o seu endereço de email seguindo este link:',
+    outro: 'Este link expira dentro de 24 horas.',
+    cta: 'Confirmar o meu endereço de email',
+  },
+  emailChange: {
+    subject: 'Alteração do endereço de email pedida: Shop',
+    title: 'Alteração do endereço de email pedida',
+    intro: (email) => `Foi pedida a alteração do endereço de email da sua conta Shop para ${email}.`,
+    outro:
+      'Se foi você, não precisa de fazer nada. Se não fez este pedido, bloqueie já a sua conta. Ficará bloqueada até a desbloquearmos manualmente depois de verificar.',
+    lockLabel: 'Bloquear a minha conta',
+    cta: 'Não fui eu: bloquear a minha conta',
+  },
+  superAdminSignIn: {
+    subject: "Início de sessão de superadministrador: Shop",
+    title: "Início de sessão na sua conta de superadministrador",
+    introSignIn: "Acabou de ser iniciada uma sessão na sua conta de superadministrador Shop.",
+    introResume: "A sua sessão de superadministrador Shop acabou de ser retomada automaticamente num dispositivo que já tinha sessão iniciada.",
+    when: (value) => `Quando: ${value}`,
+    place: (value) => `Local: ${value}`,
+    ipAddress: (value) => `Endereço IP: ${value}`,
+    device: (value) => `Dispositivo: ${value}`,
+    unknown: "desconhecido",
+    outro: "Se foi a senhora ou o senhor, não precisa de fazer nada. Caso contrário, bloqueie a conta de imediato: todas as sessões serão fechadas e ficará bloqueada até que outro superadministrador ou o operador do site a desbloqueie.",
+    lockLabel: "Bloquear a conta",
+    cta: "Não fui eu: bloquear a conta",
+  },
+  deletionRequested: {
+    subject: 'Eliminação da sua conta agendada: Shop',
+    title: 'Eliminação da sua conta agendada',
+    intro: 'Pediu a eliminação da sua conta Shop.',
+    outro: (date) =>
+      `A sua conta será eliminada definitivamente a ${date} se não voltar a iniciar sessão até lá. Inicie sessão a qualquer momento antes dessa data para cancelar a eliminação.`,
+  },
+  deletionReminder: {
+    title: 'A sua conta Shop será eliminada em breve',
+    intro: (days, date) =>
+      `Faltam ${days} dia(s) para a eliminação definitiva da sua conta Shop, prevista para ${date}.`,
+    outro: 'Inicie sessão antes dessa data para cancelar a eliminação.',
+  },
+  invoice: {
+    title: (n) => `A sua fatura (encomenda ${n})`,
+    intro: (n) => `Em anexo encontra a fatura da sua encomenda ${n}.`,
+    guestIntro: (n, label) =>
+      `Em anexo encontra a fatura da sua encomenda ${n}. Use «${label}» para acompanhar esta encomenda (link válido durante 24 horas).`,
+    frenchDocumentNote: 'A fatura é emitida em francês, como exige a lei francesa.',
+  },
+  orderReceived: {
+    title: (n) => `A sua encomenda ${n} foi recebida`,
+    subject: (n) => `Encomenda recebida (${n}): Shop`,
+    intro: 'A sua encomenda consta como recebida. A sua fatura está disponível na sua área de encomendas.',
+    cta: 'Ver o histórico das minhas encomendas',
+  },
+  productRequest: {
+    title: 'Pedido de produto',
+    accepted: 'Boas notícias, o seu pedido foi aceite.',
+    refused: 'Infelizmente não podemos aceitar o seu pedido.',
+    acceptedSubject: 'Shop: o seu pedido foi aceite',
+    refusedSubject: 'Shop: resposta ao seu pedido',
+    article: 'Artigo',
+    size: 'Tamanho',
+    quantity: 'Quantidade',
+    price: 'Preço proposto',
+    replyHint: 'Responda diretamente a este email para continuar a conversa.',
+  },
+};
+
+export const ACCOUNT_EMAIL_COPY_TH: AccountEmailCopy = {
+  ctaFallbackHint: 'หากปุ่มใช้งานไม่ได้ ให้คัดลอกลิงก์นี้ไปวางในเบราว์เซอร์ของคุณ:',
+  contactReply: {
+    subject: 'Shop: ตอบกลับข้อความของคุณ',
+    title: 'ตอบกลับข้อความของคุณ',
+    hello: 'สวัสดีค่ะ',
+  },
+  passwordReset: {
+    subject: 'ตั้งรหัสผ่านใหม่: Shop',
+    title: 'ตั้งรหัสผ่านใหม่',
+    intro: 'มีการขอตั้งรหัสผ่านใหม่สำหรับบัญชี Shop ของคุณ',
+    followLink: 'คลิกลิงก์นี้เพื่อเลือกรหัสผ่านใหม่:',
+    outro: 'ลิงก์นี้จะหมดอายุใน 1 ชั่วโมง หากคุณไม่ได้ขอ โปรดเพิกเฉยต่ออีเมลนี้',
+    cta: 'ตั้งรหัสผ่านใหม่',
+  },
+  loginCode: {
+    subject: 'รหัสเข้าสู่ระบบของคุณ: Shop',
+    title: 'รหัสเข้าสู่ระบบของคุณ',
+    intro: 'นี่คือรหัส 6 หลักสำหรับดำเนินการต่อบน Shop',
+    codeLabel: 'รหัส',
+    outro: 'รหัสนี้จะหมดอายุใน 10 นาที หากคุณไม่ได้ขอ โปรดเพิกเฉยต่ออีเมลนี้',
+    hint: 'รหัสของคุณ',
+  },
+  confirmEmail: {
+    subject: 'ยืนยันอีเมลของคุณ: Shop',
+    title: 'ยืนยันอีเมลของคุณ',
+    followLink: 'ยืนยันอีเมลของคุณผ่านลิงก์นี้:',
+    outro: 'ลิงก์นี้จะหมดอายุใน 24 ชั่วโมง',
+    cta: 'ยืนยันอีเมลของฉัน',
+  },
+  emailChange: {
+    subject: 'มีการขอเปลี่ยนอีเมล: Shop',
+    title: 'มีการขอเปลี่ยนอีเมล',
+    intro: (email) => `มีการขอเปลี่ยนอีเมลของบัญชี Shop ของคุณเป็น ${email}`,
+    outro:
+      'หากเป็นคุณ ไม่ต้องทำอะไรเพิ่มเติม หากคุณไม่ได้ขอ โปรดล็อกบัญชีของคุณทันที บัญชีจะถูกล็อกไว้จนกว่าเราจะปลดล็อกให้หลังจากตรวจสอบแล้ว',
+    lockLabel: 'ล็อกบัญชีของฉัน',
+    cta: 'ไม่ใช่ฉัน: ล็อกบัญชีของฉัน',
+  },
+  superAdminSignIn: {
+    subject: "การเข้าสู่ระบบผู้ดูแลระบบสูงสุด: Shop",
+    title: "มีการเข้าสู่ระบบบัญชีผู้ดูแลระบบสูงสุดของคุณ",
+    introSignIn: "มีการเข้าสู่ระบบบัญชีผู้ดูแลระบบสูงสุด Shop ของคุณเมื่อสักครู่",
+    introResume: "เซสชันผู้ดูแลระบบสูงสุด Shop ของคุณเพิ่งกลับมาใช้งานโดยอัตโนมัติบนอุปกรณ์ที่เข้าสู่ระบบไว้แล้ว",
+    when: (value) => `เวลา: ${value}`,
+    place: (value) => `สถานที่: ${value}`,
+    ipAddress: (value) => `ที่อยู่ IP: ${value}`,
+    device: (value) => `อุปกรณ์: ${value}`,
+    unknown: "ไม่ทราบ",
+    outro: "หากเป็นคุณ ไม่ต้องทำอะไรเพิ่ม หากไม่ใช่ โปรดล็อกบัญชีทันที เซสชันทั้งหมดจะถูกปิด และบัญชีจะถูกล็อกจนกว่าผู้ดูแลระบบสูงสุดคนอื่นหรือผู้ดูแลเว็บไซต์จะปลดล็อก",
+    lockLabel: "ล็อกบัญชี",
+    cta: "ไม่ใช่ฉัน: ล็อกบัญชี",
+  },
+  deletionRequested: {
+    subject: 'กำหนดการลบบัญชีของคุณ: Shop',
+    title: 'กำหนดการลบบัญชีของคุณ',
+    intro: 'คุณได้ขอลบบัญชี Shop ของคุณ',
+    outro: (date) =>
+      `บัญชีของคุณจะถูกลบถาวรในวันที่ ${date} หากคุณไม่เข้าสู่ระบบอีกครั้งก่อนวันดังกล่าว เข้าสู่ระบบได้ทุกเมื่อก่อนวันนั้นเพื่อยกเลิกการลบ`,
+  },
+  deletionReminder: {
+    title: 'บัญชี Shop ของคุณจะถูกลบเร็วๆ นี้',
+    intro: (days, date) => `เหลืออีก ${days} วันก่อนบัญชี Shop ของคุณจะถูกลบถาวร ในวันที่ ${date}`,
+    outro: 'เข้าสู่ระบบก่อนวันดังกล่าวเพื่อยกเลิกการลบ',
+  },
+  invoice: {
+    title: (n) => `ใบแจ้งหนี้ของคุณ (คำสั่งซื้อ ${n})`,
+    intro: (n) => `ใบแจ้งหนี้ของคำสั่งซื้อ ${n} แนบมากับอีเมลนี้`,
+    guestIntro: (n, label) =>
+      `ใบแจ้งหนี้ของคำสั่งซื้อ ${n} แนบมากับอีเมลนี้ ใช้ "${label}" เพื่อติดตามคำสั่งซื้อนี้ (ลิงก์ใช้ได้ 24 ชั่วโมง)`,
+    frenchDocumentNote: 'ใบแจ้งหนี้ออกเป็นภาษาฝรั่งเศสตามที่กฎหมายฝรั่งเศสกำหนด',
+  },
+  orderReceived: {
+    title: (n) => `ได้รับคำสั่งซื้อ ${n} ของคุณแล้ว`,
+    subject: (n) => `ได้รับคำสั่งซื้อแล้ว (${n}): Shop`,
+    intro: 'คำสั่งซื้อของคุณถูกระบุว่าได้รับแล้ว ใบแจ้งหนี้อยู่ในหน้าคำสั่งซื้อของคุณ',
+    cta: 'ดูประวัติคำสั่งซื้อของฉัน',
+  },
+  productRequest: {
+    title: 'คำขอสินค้า',
+    accepted: 'ข่าวดี คำขอของคุณได้รับการยอมรับแล้ว',
+    refused: 'ขออภัย เราไม่สามารถรับคำขอของคุณได้',
+    acceptedSubject: 'Shop: คำขอของคุณได้รับการยอมรับแล้ว',
+    refusedSubject: 'Shop: ตอบกลับคำขอของคุณ',
+    article: 'สินค้า',
+    size: 'ไซซ์',
+    quantity: 'จำนวน',
+    price: 'ราคาที่เสนอ',
+    replyHint: 'ตอบกลับอีเมลนี้โดยตรงเพื่อสนทนาต่อ',
+  },
+};

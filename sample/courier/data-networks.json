@@ -1,20 +1,10 @@
 {
   "home": {
     "en": "Home address",
-    "es": "Domicilio",
-    "fr": "Domicile",
-    "it": "Domicilio",
-    "nl": "Thuisadres",
-    "pt": "Domicílio",
-    "th": "ที่อยู่บ้าน"
+    "fr": "Domicile"
   },
   "mondial-relay-point": {
     "en": "Pickup point",
-    "es": "Punto de recogida",
-    "fr": "Point Relais",
-    "it": "Punto di ritiro",
-    "nl": "Ophaalpunt",
-    "pt": "Ponto de recolha",
-    "th": "จุดรับพัสดุ"
+    "fr": "Point Relais"
   }
 }

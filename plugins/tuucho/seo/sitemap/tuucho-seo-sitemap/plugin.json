@@ -1,0 +1,15 @@
+{
+  "id": "tuucho-seo-sitemap",
+  "installPath": "plugins/tuucho/seo/sitemap/tuucho-seo-sitemap",
+  "name": "Sitemap pages",
+  "version": "1.0.0",
+  "kind": "seo",
+  "description": "Adds enabled page-plugin routes to the kernel sitemap.",
+  "defaultEnabled": true,
+  "provides": [
+    "SeoSitemap"
+  ],
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "title": "Spy e-mails",
+  "summary": "Who receives staff copies of ops mail. Kernel SMTP unchanged. Permission spy_mail. Register channels with mail.spy.channels.",
+  "sections": [
+    {
+      "heading": "Register",
+      "blocks": [
+        {
+          "type": "table",
+          "columns": ["Opening", "Priority / note"],
+          "rows": [
+            [
+              "mail.spy.channels",
+              "Kernel seeds KERNEL_SPY_CHANNELS. Plugins append { id, pluginId, title, description, filters }."
+            ],
+            [
+              "mail.spy.resolve",
+              "This plugin fills { channelId, to }. Empty to skips the send."
+            ]
+          ]
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "import { CORE_OPENING_FILTERS, appendSpyChannel, type SpyChannelDeclaration } from '@tuucho/plugin-sdk';\n\napi.addFilter(CORE_OPENING_FILTERS.mailSpyChannels, (channels: SpyChannelDeclaration[]) =>\n  appendSpyChannel(channels, {\n    id: 'gift_created',\n    pluginId: api.pluginId,\n    title: 'Gift created',\n    description: 'Staff copy when a giver creates a gift offer.',\n    filters: ['role', 'email', 'kind'],\n  }),\n);"
+        },
+        {
+          "type": "callout",
+          "tone": "important",
+          "title": "Safety",
+          "text": "Role user (customers) never receive spy mail. Recipients must be existing unlocked staff accounts. Matching many filters still sends one copy per email."
+        }
+      ]
+    },
+    {
+      "heading": "Admin",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "Permission",
+              "description": "spy_mail on the manifest. Nav Admin → Spy e-mails."
+            },
+            {
+              "term": "No Configure",
+              "description": "Channels and recipients live on /admin/spy-mail, not /admin/plugins/:id."
+            },
+            {
+              "term": "Contact",
+              "description": "tuucho-contact registers contact.inbound and contact.chat. EMAIL_CONTACT_RECIPIENT / EMAIL_CHAT_RECIPIENT are seed-only."
+            },
+            {
+              "term": "Outage",
+              "description": "website_down / website_restore_failed use spyTo. If DB is down, warmOutageSpy reads $PRIVATE_DIR/warm-outage/spy-recipients.json. SMTP_HOST / EMAIL_NO_REPLY_FROM stay env."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

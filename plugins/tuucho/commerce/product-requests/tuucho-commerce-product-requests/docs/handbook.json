@@ -1,0 +1,38 @@
+{
+  "title": "Product requests",
+  "summary": "Sold-out size requests. Public POST /contact/product-request (plugin-gated). Admin inbox permission product_requests. Not the kernel Contact guest form.",
+  "sections": [
+    {
+      "heading": "Versus kernel contact",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "warning",
+          "title": "Different inbox",
+          "text": "Kernel POST /contact writes unconnected_contacts; owner To is tuucho-mail-spy channel contact.inbound. This plugin writes product_requests* and registers spy channel product_request. Admin nav Product requests, not the Contact hub."
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "HTTP",
+              "description": "POST /contact/product-request requires the plugin enabled (optionalAuth + gate). Admin GET /admin/product-requests."
+            },
+            {
+              "term": "Permission",
+              "description": "product_requests"
+            },
+            {
+              "term": "Enable",
+              "description": "Plugins list: enable to allow storefront size requests and the admin inbox. Disable to hide both. No Preferences island and no Configure form."
+            },
+            {
+              "term": "Dashboard",
+              "description": "slot.admin.dashboard urgentCard linking to requested status"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

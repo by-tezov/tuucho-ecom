@@ -1,9 +1,16 @@
 node_modules/
 installed.lock
+shop-release.json
+var/shop-updates/
 .env/.private.env
 .env/*/.private.env
 **/.env/.private.env
 **/.env/*/.private.env
+kernel/front/node_modules/
+kernel/back/node_modules/
+kernel/front/dist/
+kernel/back/dist/
+kernel/back/output/
 front/node_modules/
 back/node_modules/
 front/dist/

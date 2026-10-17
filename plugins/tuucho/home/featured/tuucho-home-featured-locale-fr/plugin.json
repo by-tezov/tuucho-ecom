@@ -1,0 +1,21 @@
+{
+  "id": "tuucho-home-featured-locale-fr",
+  "installPath": "plugins/tuucho/home/featured/tuucho-home-featured-locale-fr",
+  "name": "home-featured French",
+  "version": "1.0.0",
+  "kind": "locale",
+  "description": "French strings for home-featured. Enable with locale-fr for French UI; disable to keep this plugin in English.",
+  "defaultEnabled": true,
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  },
+  "dependsOn": [
+    {
+      "id": "tuucho-home-featured",
+      "version": ">=1.0.0"
+    }
+  ],
+  "provides": [
+    "Locale"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "title": "Robots rules",
+  "summary": "Adds Disallow /admin, /account, /checkout, /gallery? on prod shop robots. Inspect Settings \u2192 SEO.",
+  "sections": [
+    {
+      "heading": "What enabling it does",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "warning",
+          "title": "Prod indexing only",
+          "text": "Shop robots Allow the shop only when APP_TARGET is prod. Outside prod the kernel sends Disallow /. This plugin's extra rules apply on prod."
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "const PRIVATE_PATHS = ['/admin', '/account', '/checkout', '/gallery?'];\napi.addFilter(CORE_OPENING_FILTERS.seoRobots, (rules) => [\n  ...rules,\n  ...PRIVATE_PATHS.map((value) => ({ directive: 'Disallow', value })),\n]);"
+        }
+      ]
+    }
+  ]
+}

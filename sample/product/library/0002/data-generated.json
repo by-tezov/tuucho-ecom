@@ -1,39 +1,19 @@
 {
   "title": {
     "fr": "Etole Cedar",
-    "en": "Cedar Wrap",
-    "th": "ผ้าคลุมซีดาร์",
-    "es": "Pañuelo Cedar",
-    "it": "Stola Cedar",
-    "nl": "Cedar omslagdoek",
-    "pt": "Xale Cedar"
+    "en": "Cedar Wrap"
   },
   "desc": {
     "fr": "Tissage $shape.attributive en laine merinos, teinte terre cuite.",
-    "en": "$Shape.title merino weave in terracotta.",
-    "th": "ทอ$shape.attributiveจากขนแกะเมอริโนโทนดินเผา",
-    "es": "Tejido $shape.attributive de merino, tono terracota.",
-    "it": "Tessuto $shape.attributive in merino, tono terracotta.",
-    "nl": "$Shape.attributive merinoweefsel in terracotta.",
-    "pt": "Tecido $shape.attributive em merino, tom terracota."
+    "en": "$Shape.title merino weave in terracotta."
   },
   "alt": {
     "fr": "Tissage $shape.attributive en laine merinos, teinte terre cuite.",
-    "en": "$Shape.title merino weave in terracotta.",
-    "th": "ทอ$shape.attributiveจากขนแกะเมอริโนโทนดินเผา",
-    "es": "Tejido $shape.attributive de merino, tono terracota.",
-    "it": "Tessuto $shape.attributive in merino, tono terracotta.",
-    "nl": "$Shape.attributive merinoweefsel in terracotta.",
-    "pt": "Tecido $shape.attributive em merino, tom terracota."
+    "en": "$Shape.title merino weave in terracotta."
   },
   "occasion": {
     "fr": "hiver",
-    "en": "winter",
-    "th": "ฤดูหนาว",
-    "es": "invierno",
-    "it": "inverno",
-    "nl": "winter",
-    "pt": "inverno"
+    "en": "winter"
   },
   "color-main": [
     "$orange",

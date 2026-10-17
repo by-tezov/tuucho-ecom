@@ -1,0 +1,26 @@
+{
+  "title": "Journal API",
+  "summary": "Persist and query journal events. Complements depend on this service id tuucho-journal-api.",
+  "sections": [
+    {
+      "heading": "Service",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "api.registerPluginService(api.pluginId, {\n  append: appendEmailLog,\n  query: async () => [],\n});"
+        },
+        {
+          "type": "p",
+          "text": "journal-admin, journal-email, and journal-cron declare dependsOn tuucho-journal-api >=1.0.0. Call peekPluginService('tuucho-journal-api'). Disable this package and complements are not effectively enabled."
+        },
+        {
+          "type": "callout",
+          "tone": "warning",
+          "title": "Current query",
+          "text": "The bundled query function returns []. Complements that need rows use kernel application helpers they own, still without importing this package's infrastructure."
+        }
+      ]
+    }
+  ]
+}

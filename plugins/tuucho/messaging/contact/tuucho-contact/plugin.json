@@ -1,0 +1,34 @@
+{
+  "id": "tuucho-contact",
+  "installPath": "plugins/tuucho/messaging/contact/tuucho-contact",
+  "name": "Contact",
+  "version": "1.0.0",
+  "kind": "generic",
+  "description": "Guest contact form, signed-in account chat, and the admin Contact hub. Disable to hide /contact and the inbox.",
+  "defaultEnabled": true,
+  "provides": [
+    "StorefrontPage",
+    "AdminPage"
+  ],
+  "permissions": [
+    {
+      "code": "messages",
+      "label": "Contact messages"
+    }
+  ],
+  "route": "/contact",
+  "engines": {
+    "core": ">=1.0.0 <2.0.0"
+  },
+  "adminNav": [
+    {
+      "id": "contact",
+      "group": "activity",
+      "to": "/chats",
+      "alsoActiveOn": ["/unconnected-contacts"],
+      "permission": "messages",
+      "order": 15,
+      "label": "Contact"
+    }
+  ]
+}

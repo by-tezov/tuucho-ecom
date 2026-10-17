@@ -1,39 +1,19 @@
 {
   "title": {
-    "fr": "Coffret Atelier",
-    "en": "Atelier Box",
-    "th": "กล่องอาเตอลิเยร์",
-    "es": "Caja Atelier",
-    "it": "Cofanetto Atelier",
-    "nl": "Atelier doos",
-    "pt": "Caixa Atelier"
+    "fr": "Coffret boutique",
+    "en": "Shop box"
   },
   "desc": {
     "fr": "Coffret $shape.attributive, cuir vegetal et couture sellier.",
-    "en": "$Shape.title vegetable-tanned leather box, saddle-stitched.",
-    "th": "กล่อง$shape.attributiveหนังฟอกพืชเย็บอานม้า",
-    "es": "Caja $shape.attributive de cuero vegetal, costura de talabartero.",
-    "it": "Cofanetto $shape.attributive in cuoio vegetale, cucitura sellier.",
-    "nl": "$Shape.attributive doos in plantaardig leer, zadelssteek.",
-    "pt": "Caixa $shape.attributive em couro vegetal, costura de seleiro."
+    "en": "$Shape.title vegetable-tanned leather box, saddle-stitched."
   },
   "alt": {
     "fr": "Coffret $shape.attributive, cuir vegetal et couture sellier.",
-    "en": "$Shape.title vegetable-tanned leather box, saddle-stitched.",
-    "th": "กล่อง$shape.attributiveหนังฟอกพืชเย็บอานม้า",
-    "es": "Caja $shape.attributive de cuero vegetal, costura de talabartero.",
-    "it": "Cofanetto $shape.attributive in cuoio vegetale, cucitura sellier.",
-    "nl": "$Shape.attributive doos in plantaardig leer, zadelssteek.",
-    "pt": "Caixa $shape.attributive em couro vegetal, costura de seleiro."
+    "en": "$Shape.title vegetable-tanned leather box, saddle-stitched."
   },
   "occasion": {
     "fr": "cadeau",
-    "en": "gift",
-    "th": "ของขวัญ",
-    "es": "regalo",
-    "it": "regalo",
-    "nl": "cadeau",
-    "pt": "presente"
+    "en": "gift"
   },
   "color-main": [
     "$brown",

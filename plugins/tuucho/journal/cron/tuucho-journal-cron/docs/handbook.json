@@ -1,0 +1,28 @@
+{
+  "title": "Cron journal",
+  "summary": "Admin cron log UI. Complement of Journal API. Permission cron_logs.",
+  "sections": [
+    {
+      "heading": "Complement",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "dependsOn",
+              "description": "tuucho-journal-api >=1.0.0"
+            },
+            {
+              "term": "Permission",
+              "description": "cron_logs"
+            },
+            {
+              "term": "Mount",
+              "description": "admin / with adminCronLogsRouter"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

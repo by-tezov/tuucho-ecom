@@ -1,0 +1,59 @@
+.page {
+  composes: page from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.intro {
+  composes: intro from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.hint {
+  composes: hint from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.empty {
+  composes: empty from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.block {
+  composes: block from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.rule {
+  composes: rule from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.keys {
+  composes: keys from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.key {
+  composes: key from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.entry {
+  composes: entry from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.fieldHead {
+  composes: fieldHead from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.formatInBar {
+  composes: formatInBar from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.formatButton {
+  composes: formatButton from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.jsonInput {
+  composes: jsonInput from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.error {
+  composes: error from './AdminCatalogueVocabularyPage.module.css';
+}
+
+.actions {
+  composes: actions from './AdminCatalogueVocabularyPage.module.css';
+}
