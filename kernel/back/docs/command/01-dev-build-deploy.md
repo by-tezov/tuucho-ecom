@@ -395,13 +395,13 @@ every path referenced by [`docs/features.json`](../features.json) exists
 
 No arguments. Read-only. Part of `npm run check`. Runs
 `node ../../scripts/release-manifest.mjs --check` so root `release.json`
-matches `CORE_VERSION`, `kernel/back/package.json`, `kernel/front/package.json`,
-kernel migration names, and every bundled `plugin.json` under
-`plugins/tuucho/` plus `plugins/tuucho/manifest.json`. It does **not**
-require the shop root `package.json` to match (operators version that
-themselves). Drift fails CI. Write the file with
+matches the **root** `package.json` version, `kernel/back/package.json`,
+`kernel/front/package.json`, `plugin-sdk/package.json`, kernel migration names,
+and every bundled `plugin.json` under `plugins/tuucho/` plus
+`plugins/tuucho/manifest.json`. It also checks generated plugin `package.json`
+stubs. Drift fails CI. Write `release.json` with
 `node ../../scripts/release-manifest.mjs` (no `--check`) when cutting a tag.
-Git tags are `MAJOR.MINOR.PATCH` (`1.0.9`), never `v1.0.9`.
+Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
 
 ## `npm run test:unit`
 

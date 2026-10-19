@@ -1,6 +1,6 @@
 # tuucho-ecom as a loadable kernel
 
-Read from the tree at `/home/tezov/Local/tuucho-ecom` (kernel `CORE_VERSION` **1.0.9**).
+Read from the tree at `/home/tezov/Local/tuucho-ecom` (product version is root `package.json`).
 
 **Verdict:** this is a **loadable kernel** with a real plugin host (`loadPluginRuntime.ts` `import()`s each enabled `back/register.ts`). It is not a fully clean microkernel: some admin screens and `pluginBridges.ts` still special-case plugin ids. The living architecture plan is `.cursor/stores/self/docs/microkernel-architecture.md`.
 
@@ -28,7 +28,7 @@ Guest form + account chat + admin inbox = **`tuucho-contact`**. Tables stay kern
 
 ## Install / update
 
-One public repo, one tag (`1.0.9` = `CORE_VERSION`, no `v` prefix), `release.json` on every tag. Shop owners clone a tag, then Admin, Plugins **Check for updates** / **Apply** walks every intermediate tag. Running kernel identity is `CORE_VERSION` plus `shop-release.json`, not the shop root `package.json`. Zip install still writes `plugins/user/` (or `plugins/tuucho/` for `tuucho-*` ids). Tuucho Apply never writes `plugins/user/` or the shop root `package.json`.
+One public repo, one tag (`MAJOR.MINOR.PATCH`, no `v` prefix), `release.json` on every tag. In this product repo the version Te publishes is root `package.json`. Shop owners clone a tag, then Admin, Plugins **Check for updates** / **Apply** walks every intermediate tag via `shop-release.json` vs tag `release.json`. A deployed shop cannot claim a kernel by editing `package.json`. Zip install still writes `plugins/user/` (or `plugins/tuucho/` for `tuucho-*` ids). Tuucho Apply never writes `plugins/user/` or the shop root `package.json`.
 
 ## Stale claims (do not reuse)
 

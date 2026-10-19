@@ -26,12 +26,11 @@ test('every disk plugin ships docs/handbook.json', async () => {
   }
 });
 
-test('disk manifests declare engines.core on this 1.x kernel', async () => {
+test('disk manifests declare engines.core on this 0.x product', async () => {
   const plugins = await loadManifests();
   assert.ok(plugins.length >= 21, `expected bundled plugins, got ${plugins.length}`);
   for (const plugin of plugins) {
-    if (plugin.id.startsWith('demo-')) continue;
-    assert.equal(plugin.engines?.core, '>=1.0.0 <2.0.0', plugin.id);
+    assert.equal(plugin.engines?.core, '>=0.0.1 <1.0.0', plugin.id);
   }
 });
 

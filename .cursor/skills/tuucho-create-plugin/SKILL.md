@@ -79,12 +79,16 @@ complements share one feature folder (e.g. `commerce/gift/`). Ship
 Host `import()`s `register.ts`. Use `@tuucho/plugin-sdk`. Kernel modules:
 `@kernel/front/…` (plugin fronts, CSS `composes`) and `@kernel/back/…`
 (plugin backs). Do not write `../../../../../../kernel/…`. English strings in
-the plugin; French is a locale complement. `engines.core` e.g.
-`>=1.0.0 <2.0.0` (bump kernel patch/minor without changing the 1.x range).
-Do not ALTER kernel tables. Scan/enable from Admin, Plugins. Ship
+the plugin; French is a locale complement. `engines.core` must be
+`>=0.0.1 <1.0.0` (this 0.x product; a 1.0 kernel needs plugins to raise the
+range). Do not ALTER kernel tables. Scan/enable from Admin, Plugins. Ship
 `docs/handbook.json`. Git tags for Check / Apply are `MAJOR.MINOR.PATCH`
-(`1.0.9`), never `v1.0.9`. Kernel version is `CORE_VERSION`, not
-`package.json`.
+with no `v` prefix. Plugins “Core” is the **root** `package.json` version.
+Check / Apply walks `shop-release.json` vs tag `release.json`. `plugin.json`
+is the only human-edited plugin manifest (id, version, description,
+installPath, repository, engines). Plugin `package.json` is a generated stub
+(`node scripts/write-plugin-packages.mjs` / root `preinstall`): `private`,
+name from id, `@tuucho/plugin-sdk`. No version, no description.
 
 Complements: the API/capability plugin owns storage (`tuucho-journal-api`,
 `tuucho-shipping-home`); cron/email/admin declare `dependsOn`.
@@ -102,7 +106,7 @@ not auto-enable dependencies.
   "defaultEnabled": true,
   "provides": ["AdminPage"],
   "dependsOn": [{ "id": "optional-parent", "version": ">=1.0.0" }],
-  "engines": { "core": ">=1.0.0 <2.0.0" },
+  "engines": { "core": ">=0.0.1 <1.0.0" },
   "installPath": "plugins/user/<group>/your-id",
   "repository": "https://github.com/owner/your-id",
   "permissions": [{ "code": "your_code", "label": "Your section" }],

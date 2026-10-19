@@ -16,7 +16,7 @@ _Not a feature-map entry; it is shared by several features._
 
 | Layer | Files | Lines |
 | --- | --- | --- |
-| `application/` | 21 | 3613 |
+| `application/` | 21 | 3618 |
 | `http/` | 1 | 30 |
 
 ## Routes

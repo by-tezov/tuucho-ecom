@@ -66,7 +66,7 @@ export async function checkUpdates(client: GithubClient = createGithubClient()):
   const dirtyPaths = await detectDirtyTuucho(shop);
   let official: UpdateCheck = {
     currentTag: shop.tag,
-    currentKernel: CORE_VERSION,
+    currentKernel: shop.kernel,
     inferred,
     latestTag: null,
     officialUpToDate: true,
@@ -152,8 +152,8 @@ async function checkOfficial(
     pluginChanges.push({ id: entry.id, from: '(missing)', to: entry.version, installPath: entry.installPath });
   }
   const kernelChange =
-    latestManifest.kernel !== CORE_VERSION
-      ? { id: 'kernel', from: CORE_VERSION, to: latestManifest.kernel }
+    latestManifest.kernel !== shop.kernel
+      ? { id: 'kernel', from: shop.kernel, to: latestManifest.kernel }
       : undefined;
   let officialRefuse: string | undefined;
   if (shop.tuuchoFiles.length === 0) {

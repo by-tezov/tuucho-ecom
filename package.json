@@ -1,7 +1,7 @@
 {
   "name": "tuucho-ecom",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Self-hosted batteries-included e-commerce platform: kernel plus bundled plugins.",
   "license": "MIT",
   "engines": {
@@ -23,6 +23,8 @@
     "zod": "^4.6.1"
   },
   "scripts": {
+    "preinstall": "node scripts/write-plugin-packages.mjs",
+    "check:plugin-packages": "node scripts/write-plugin-packages.mjs --check",
     "setup": "node scripts/install.mjs",
     "setup:cli": "node scripts/install.mjs --yes",
     "dev": "node scripts/dev.mjs",

@@ -36,7 +36,7 @@ export interface PluginManifest {
   dependsOn?: PluginDependency[];
   /** `all` (default) requires every parent; `any` requires at least one. */
   dependsOnMode?: DependsOnMode;
-  /** Semver range of the kernel this plugin may run on, e.g. `>=1.0.0 <2.0.0`. */
+  /** Semver range of the kernel this plugin may run on, e.g. `>=0.0.1 <1.0.0`. */
   engines?: { core?: string };
   /** Storefront route (page plugins). */
   route?: string;

@@ -1,7 +1,6 @@
 {
   "name": "@tuucho/plugin-tuucho-home-featured",
   "private": true,
-  "version": "1.0.0",
   "type": "module",
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"

@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 /**
- * Build or check root release.json against CORE_VERSION, kernel package.json
- * files (not the shop root package.json), plugins/tuucho/manifest.json, and
- * disk plugin.json files.
+ * Build or check root release.json against the product version in root
+ * package.json. kernel/back, kernel/front, plugin-sdk, CORE_VERSION (which
+ * reads that root version), plugins/tuucho/manifest.json, and disk plugin.json
+ * files must not be a second number.
+ *
+ * Check / Apply still walk official GitHub tags via shop-release.json vs this
+ * file. A deployed shop does not get to claim a kernel by editing package.json.
  *
  *   node scripts/release-manifest.mjs           # write
  *   node scripts/release-manifest.mjs --check   # fail on drift
@@ -33,15 +37,17 @@ async function walkPluginJson(dir, out) {
 }
 
 async function main() {
+  const rootPkg = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
   const backPkg = JSON.parse(await readFile(join(root, 'kernel/back/package.json'), 'utf8'));
   const frontPkg = JSON.parse(await readFile(join(root, 'kernel/front/package.json'), 'utf8'));
-  const coreFile = await readFile(join(root, 'kernel/back/src/modules/plugins/domain/coreVersion.ts'), 'utf8');
-  const coreMatch = coreFile.match(/export const CORE_VERSION = '(\d+\.\d+\.\d+)'/);
-  const kernel = coreMatch?.[1];
-  if (!kernel) throw new Error('CORE_VERSION not found');
-  if (backPkg.version !== kernel || frontPkg.version !== kernel) {
+  const sdkPkg = JSON.parse(await readFile(join(root, 'plugin-sdk/package.json'), 'utf8'));
+  const kernel = rootPkg.version;
+  if (typeof kernel !== 'string' || !/^\d+\.\d+\.\d+$/.test(kernel)) {
+    throw new Error('Root package.json must contain a MAJOR.MINOR.PATCH version');
+  }
+  if (backPkg.version !== kernel || frontPkg.version !== kernel || sdkPkg.version !== kernel) {
     throw new Error(
-      `Version drift: kernel/back ${backPkg.version}, kernel/front ${frontPkg.version}, CORE_VERSION ${kernel}`,
+      `Version drift: root ${kernel}, kernel/back ${backPkg.version}, kernel/front ${frontPkg.version}, plugin-sdk ${sdkPkg.version}`,
     );
   }
   const bundled = JSON.parse(await readFile(join(root, 'plugins/tuucho/manifest.json'), 'utf8'));
@@ -78,7 +84,7 @@ async function main() {
       throw new Error(`${plugin.id} installPath is invalid: ${plugin.installPath}`);
     }
   }
-  let releaseId = 9;
+  let releaseId = 1;
   try {
     const existing = JSON.parse(await readFile(join(root, 'release.json'), 'utf8'));
     if (existing.kernel === kernel && typeof existing.releaseId === 'number') releaseId = existing.releaseId;

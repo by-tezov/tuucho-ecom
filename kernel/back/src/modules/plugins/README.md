@@ -16,13 +16,13 @@ _Not a feature-map entry; it is shared by several features._
 
 | Layer | Files | Lines |
 | --- | --- | --- |
-| `application/` | 32 | 3693 |
-| `domain/` | 7 | 423 |
+| `application/` | 32 | 3719 |
+| `domain/` | 7 | 438 |
 | `http/` | 2 | 255 |
 
 ## Sub-capabilities
 
-- `application/updates/` — 12 files, 1296 lines
+- `application/updates/` — 12 files, 1312 lines
 
 ## Routes
 
@@ -60,8 +60,8 @@ _Not a feature-map entry; it is shared by several features._
   table. Kernel data is reached through owning-module `application/` APIs.
 - Official updates read git **tags** (`MAJOR.MINOR.PATCH`, no `v`) on
   `by-tezov/tuucho-ecom` only, walk every intermediate tag, and never write
-  `plugins/user/` or the shop root `package.json`. Current kernel is
-  `CORE_VERSION`; last applied tag is `shop-release.json`. User plugins
+  `plugins/user/` or the shop root `package.json`. Plugins Core is root
+  `package.json`. Last applied official tag is `shop-release.json`. User plugins
   update only from `plugin.json` `repository` (HTTPS GitHub). Dirty
   `plugins/tuucho/` refuses Apply. Failure restores the snapshot.
 

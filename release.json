@@ -1,7 +1,7 @@
 {
-  "tag": "1.0.9",
-  "kernel": "1.0.9",
-  "releaseId": 9,
+  "tag": "0.0.2",
+  "kernel": "0.0.2",
+  "releaseId": 2,
   "kernelMigrations": [
     "1738000000000_init",
     "1791331200000_staff_roles",

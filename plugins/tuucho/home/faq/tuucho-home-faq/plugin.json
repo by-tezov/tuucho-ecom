@@ -7,7 +7,7 @@
   "description": "FAQ block on the home page (slot.home.faq). Disable to hide it.",
   "defaultEnabled": true,
   "engines": {
-    "core": ">=1.0.0 <2.0.0"
+    "core": ">=0.0.1 <1.0.0"
   },
   "provides": [
     "StorefrontSlot"

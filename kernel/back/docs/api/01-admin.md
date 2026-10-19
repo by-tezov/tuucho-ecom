@@ -712,7 +712,8 @@ Installed plugins with manifest (`name`, `description`, `version`, `engines.core
 `back/migrations/` ran), `missingFromDisk` (folder gone, row still present),
 `compatibility` (`ok` plus `errors[]`, including `missing_from_disk`).
 Packet prices are not on this payload: they are the courier catalog
-(`courier_edit`). Top-level `coreVersion` is the kernel semver. Requires
+(`courier_edit`). Top-level `coreVersion` is the root `package.json` product
+version (Plugins “Core”). Requires
 `requireAuth` plus `preferences`.
 
 ### `GET /admin/docs`
@@ -741,10 +742,10 @@ Incompatible → `409 plugin_incompatible`. Missing file → `400 invalid_reques
 
 ### `POST /admin/plugins/updates/check`
 
-Reads the latest **git tag** (`MAJOR.MINOR.PATCH`, never `v1.0.9`, never
+Reads the latest **git tag** (`MAJOR.MINOR.PATCH`, never `v0.0.2`, never
 untagged `master`) on https://github.com/by-tezov/tuucho-ecom and each user
-plugin `repository`. Current kernel is `CORE_VERSION`; current official tag
-is `shop-release.json`. Does not read shop `package.json`. Returns the tag
+plugin `repository`. Current official tag is `shop-release.json`. Check / Apply
+does not let a deployed shop claim a kernel by editing `package.json`. Returns the tag
 path, kernel/plugin diffs, dirty `plugins/tuucho/` paths, and third-party
 rows. GitHub unreachable → `502 update_check_failed`. Requires `preferences`.
 

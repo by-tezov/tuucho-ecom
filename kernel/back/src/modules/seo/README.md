@@ -16,7 +16,7 @@ Feature map entry: `seo` in [docs/features.json](../../../docs/features.json). R
 
 | Layer | Files | Lines |
 | --- | --- | --- |
-| `application/` | 3 | 296 |
+| `application/` | 3 | 295 |
 | `http/` | 2 | 93 |
 
 ## Routes

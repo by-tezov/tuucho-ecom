@@ -791,7 +791,7 @@
               "items": [
                 { "term": "Core", "description": "Admin → Plugins shows Core <version> on the title." },
                 { "term": "version", "description": "The plugin's own semver on each row." },
-                { "term": "engines.core", "description": "Kernel range, for example >=1.0.0 <2.0.0." }
+                { "term": "engines.core", "description": "Kernel range. Shipped plugins use >=0.0.1 <1.0.0." }
               ]
             },
             {
@@ -818,7 +818,7 @@
               "type": "callout",
               "tone": "info",
               "title": "Official Tuucho is one repo",
-              "text": "Kernel and every tuucho-* plugin update only from https://github.com/by-tezov/tuucho-ecom tags (1.0.9, never v1.0.9). There is no per-plugin GitHub for Tuucho. plugins/user/ is never overwritten by a Tuucho Apply. Check reads CORE_VERSION and shop-release.json, never the shop package.json."
+              "text": "Kernel and every tuucho-* plugin update only from https://github.com/by-tezov/tuucho-ecom tags (MAJOR.MINOR.PATCH, never a v prefix). There is no per-plugin GitHub for Tuucho. plugins/user/ is never overwritten by a Tuucho Apply. Plugins Core is the root package.json version. Check / Apply walks shop-release.json vs tag release.json. A deployed shop cannot claim a kernel by editing package.json."
             },
             {
               "type": "p",
@@ -898,14 +898,14 @@
             {
               "type": "steps",
               "items": [
-                "git clone --branch 1.0.9 --depth 1 https://github.com/by-tezov/tuucho-ecom.git",
+                "git clone --branch 0.0.2 --depth 1 https://github.com/by-tezov/tuucho-ecom.git",
                 "npm run setup:cli (or npm run setup on :8787)",
                 "npm run dev. Shop on 5174. Setup writes shop-release.json next to installed.lock."
               ]
             },
             {
               "type": "p",
-              "text": "You do not git-pull later. Check for updates reads git tags only, never untagged master. Running kernel is CORE_VERSION. Last applied official tag is shop-release.json. The shop root package.json is yours and is not a version probe."
+              "text": "You do not git-pull later. Check for updates reads git tags only, never untagged master. Last applied official tag is shop-release.json. Plugins Core is this product's root package.json. A deployed shop cannot claim a kernel by editing package.json."
             }
           ]
         },
@@ -916,7 +916,7 @@
               "type": "steps",
               "items": [
                 "Admin, Plugins: Check for updates.",
-                "Read the tag path (1.0.9 to 1.0.10 to 1.0.11). Scope All, Kernel, or Tuucho plugins. One plugin Apply is on that row.",
+                "Read the tag path (0.0.2 to 0.0.3 to 0.0.4). Scope All, Kernel, or Tuucho plugins. One plugin Apply is on that row.",
                 "Confirm. Apply snapshots, then walks every tag. The overlay log stays until you close it."
               ]
             },

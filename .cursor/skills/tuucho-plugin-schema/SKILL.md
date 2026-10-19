@@ -63,9 +63,11 @@ uninstall shows **Folder missing**.
 an operator, not something to reimplement. After install, Admin, Plugins
 **Check for updates** / **Apply** can walk git tags when `plugin.json`
 `repository` is an HTTPS GitHub repo root (user plugins only). Tags are
-`MAJOR.MINOR.PATCH` (`1.0.9`), never `v1.0.9`. Kernel identity is
-`CORE_VERSION` plus `shop-release.json`, not a shop `package.json`. Tuucho Apply
-never writes `plugins/user/` or the shop root `package.json`.
+`MAJOR.MINOR.PATCH` with no `v` prefix. Plugins “Core” is the root
+`package.json` version. Check / Apply walks `shop-release.json` vs tag
+`release.json`. A deployed shop cannot claim a kernel by editing
+`package.json`. Tuucho Apply never writes `plugins/user/` or the shop root
+`package.json`. Plugin `version` lives only in `plugin.json`.
 
 ## Reading kernel data
 

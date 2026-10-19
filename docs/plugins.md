@@ -48,6 +48,13 @@ plugins/user/<group>/<feature>/<id>/                # user / upload; id must not
 plugin-sdk/                                         # @tuucho/plugin-sdk (not a plugin)
 ```
 
+`plugin.json` is the only human-edited plugin manifest (id, version,
+description, installPath, repository, engines). Plugin `package.json` is a
+generated stub: `private: true`, name from id, dependency on
+`@tuucho/plugin-sdk`. No version. `npm install` (root `preinstall`) and
+`node scripts/write-plugin-packages.mjs` regenerate it; `--check` refuses a
+hand-edited version field.
+
 The plugin host `import()`s `back/register.ts` for every effectively enabled
 plugin. Disk manifests are the catalogue. There is no second shipped list.
 Scan walks nested folders. The **leaf** folder name is the plugin id. It must
@@ -105,12 +112,13 @@ or cart-rules. A page plugin can still ship with only a manifest and settings.
    `plugins/user/<group>/your-id/`.
 2. Edit `plugin.json`: set `"id"` to `your-id` (same as the leaf folder, not `tuucho-*`), choose a
    `"kind"`, and fill `name`, a required `description` of what it does (locale packs may omit it),
-   `route` / `nav` for a page, or `courierCodes` for shipping. Omit `nav` for
-   footer-only documents (`page-legal`, `page-accessibility`).
+   `engines.core` `>=0.0.1 <1.0.0`, `route` / `nav` for a page, or `courierCodes` for shipping. Omit `nav` for
+   footer-only documents (`page-legal`, `page-accessibility`). Plugin version lives only here. Do not put a version on plugin `package.json`.
 3. Add `back/register.ts` that calls `addFilter` / `addAction` /
    `registerPluginService` / `registerPaymentGateway` / `registerShippingMethod`.
-4. Open the shop admin: **Plugins** in the sidebar.
-5. Click **Scan for new plugins**. Enable it, then **Configure**.
+4. Run `node scripts/write-plugin-packages.mjs` so the plugin `package.json` stub is regenerated (name from id, `@tuucho/plugin-sdk`, no version).
+5. Open the shop admin: **Plugins** in the sidebar.
+6. Click **Scan for new plugins**. Enable it, then **Configure**.
 
 Toggling a plugin reloads the host. No kernel source edit is required for a
 profile opening or a `checkout.quote` filter. The shipped page-plugin demo is
@@ -150,7 +158,7 @@ codes (es/it/nl/pt/th) are not supported.
   "defaultEnabled": true,
   "provides": ["StorefrontPage"],
   "dependsOn": [{ "id": "optional-parent", "version": ">=1.0.0" }],
-  "engines": { "core": ">=1.0.0 <2.0.0" },
+  "engines": { "core": ">=0.0.1 <1.0.0" },
   "installPath": "plugins/user/demo/guides/demo-page-guides",
   "repository": "https://github.com/acme/demo-page-guides",
   "route": "/sizes",
@@ -178,7 +186,7 @@ codes (es/it/nl/pt/th) are not supported.
 | `defaultEnabled` | Seeded into `plugins.enabled` on first insert. |
 | `provides` | Contract names this plugin implements. |
 | `dependsOn` | Other plugin ids, or `{ id, version }` ranges. Complements disappear when a parent is off (`isPluginEffectivelyEnabled`). Scan/enable reject missing or out-of-range parents. Not auto-enabled. |
-| `engines.core` | Semver range of the kernel, e.g. `>=1.0.0 <2.0.0`. Incompatible plugins cannot enable. |
+| `engines.core` | Semver range of the kernel. Shipped plugins use `>=0.0.1 <1.0.0`. Incompatible plugins cannot enable. |
 | `permissions` | Staff codes added to Admin, Roles while this plugin (and parents) is on. |
 | `route` / `nav` | Page plugins: public path and menu placement. |
 | `courierCodes` | Shipping plugins: courier rows this plugin owns. |
@@ -335,12 +343,12 @@ Each preinstalled plugin ships `docs/handbook.json` (and docs-developer also shi
 
 ## Versioning
 
-Core version is `CORE_VERSION` (`1.0.9`). Admin, Plugins shows it. Installed shop tag is `shop-release.json`. Check / Apply never read the shop root `package.json`. Each plugin shows `version` and `engines.core`.
+Admin, Plugins “Core” is the **root** `package.json` version (the product). Installed shop tag is `shop-release.json`. Check / Apply walks official GitHub tags via `shop-release.json` vs tag `release.json`. A deployed shop cannot claim a kernel by editing `package.json`. Each plugin shows `plugin.json` `version` and `engines.core`. Plugin `package.json` is a generated npm stub (no version).
 
 - Scan disables plugins whose `engines.core` or `dependsOn` range fails, and lists them in `incompatible`.
 - `PATCH /admin/plugins/:id` `{ "enabled": true }` returns `409 plugin_incompatible` when the kernel is outside `engines.core`, a `dependsOn` plugin is missing, or its version is out of range.
 
-Bump the kernel by changing `CORE_VERSION` together with `kernel/back/package.json` and `kernel/front/package.json` in the official repo (`npm run check:release`). Do not bump the shop root `package.json` for that. A 1.x kernel still satisfies `>=1.0.0 <2.0.0`. A 2.0 kernel needs plugins to raise `engines.core`. Git tags are `MAJOR.MINOR.PATCH` (`1.0.9`), never `v1.0.9`.
+Bump the product by changing root `package.json` `version`. Official-repo CI (`npm run check:release`) keeps `kernel/back/package.json`, `kernel/front/package.json`, `plugin-sdk/package.json`, `release.json`, and `plugins/tuucho/manifest.json` `kernel` in lockstep. Plugin `engines.core` for this 0.x line is `>=0.0.1 <1.0.0`. A 1.0 kernel needs plugins to raise that range. Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
 
 Worked examples in Admin, Documentation: profile menu, courier on cart, fidélité on cart and order history, permissions.
 

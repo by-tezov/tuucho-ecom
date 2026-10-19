@@ -52,11 +52,27 @@ export async function readShopRelease(root = repoRoot()): Promise<ShopReleaseRec
 export async function inferredShopRelease(root = repoRoot()): Promise<ShopReleaseRecord> {
   const existing = await readShopRelease(root);
   if (existing) return existing;
+  let kernel = CORE_VERSION;
+  let tag = tagFromKernelVersion(CORE_VERSION);
+  let releaseId: number | null = null;
+  try {
+    const release = JSON.parse(await readFile(join(root, 'release.json'), 'utf8')) as {
+      kernel?: unknown;
+      tag?: unknown;
+      releaseId?: unknown;
+    };
+    if (typeof release.kernel === 'string') kernel = release.kernel;
+    if (typeof release.tag === 'string') tag = normalizeStoredReleaseTag(release.tag) ?? release.tag;
+    if (typeof release.releaseId === 'number') releaseId = release.releaseId;
+  } catch {
+    // Official catalog missing. CORE_VERSION is root package.json in this
+    // product repo. Check / Apply still prefer shop-release.json when present.
+  }
   return {
     origin: OFFICIAL_ORIGIN,
-    tag: tagFromKernelVersion(CORE_VERSION),
-    kernel: CORE_VERSION,
-    releaseId: null,
+    tag,
+    kernel,
+    releaseId,
     installedAt: new Date().toISOString(),
     tuuchoTreeHash: null,
     tuuchoFiles: [],

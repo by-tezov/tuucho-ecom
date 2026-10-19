@@ -17,7 +17,7 @@ Needs Node 22+, Docker (Postgres 10 on host port **5434**), and npm.
 Clone a **version tag**, not untagged `master`:
 
 ```bash
-git clone --branch 1.0.9 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
+git clone --branch 0.0.2 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
 cd tuucho-ecom
 npm run setup:cli -- --yes \
   --store-name Shop \
@@ -63,8 +63,9 @@ folders (`dev`, `preprod`, `prod`) override. Never put a secret in a
 
 Admin, Plugins, Scan is install (runs schema `up` when the plugin is on).
 **Check for updates** then **Apply** walks every git tag between this shop and
-the latest official tag (`1.0.9`, never `v1.0.9`, never `master`). Kernel
-identity is `CORE_VERSION` plus `shop-release.json`, not the shop root
+the latest official tag (`MAJOR.MINOR.PATCH`, never `v0.0.2`, never `master`).
+Plugins “Core” is root `package.json`. Check / Apply walks `shop-release.json`
+vs tag `release.json`. A deployed shop cannot claim a kernel by editing
 `package.json`. `plugins/user/` is not overwritten
 by a Tuucho update. A user plugin with `repository` on `plugin.json` updates
 from that GitHub repo only. Disable unloads the plugin and keeps its tables.

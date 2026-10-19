@@ -1,7 +1,7 @@
 {
   "name": "tuucho-ecom-back",
   "private": true,
-  "version": "1.0.9",
+  "version": "0.0.2",
   "description": "",
   "type": "module",
   "scripts": {
@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "check:architecture": "node scripts/checkArchitecture.mjs",
     "check:docs": "node scripts/checkDocumentation.mjs",
-    "check:release": "node ../../scripts/release-manifest.mjs --check",
+    "check:release": "node ../../scripts/release-manifest.mjs --check && node ../../scripts/write-plugin-packages.mjs --check",
     "check:sharecard": "node scripts/syncShareCard.mjs --check",
     "sync:sharecard": "node scripts/syncShareCard.mjs",
     "check": "npm run typecheck && npm run typecheck:tooling && npm run check:architecture && npm run check:docs && npm run check:schema && npm run check:sql && npm run check:routes && npm run check:errors && npm run check:env-docs && npm run check:api-reference && npm run check:module-docs && npm run check:policy && npm run check:contract && npm run check:context && npm run check:sharecard && npm run check:release && npm run lint && npm run test:unit",

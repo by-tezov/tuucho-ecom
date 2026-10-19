@@ -1,10 +1,8 @@
 {
   "name": "@tuucho/plugin-tuucho-contact",
   "private": true,
-  "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk",
-    "mailparser": "^3.9.24"
+    "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"
   }
 }

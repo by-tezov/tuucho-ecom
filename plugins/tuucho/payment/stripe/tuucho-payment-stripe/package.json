@@ -1,10 +1,8 @@
 {
   "name": "@tuucho/plugin-tuucho-payment-stripe",
   "private": true,
-  "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk",
-    "stripe": "^22.4.0"
+    "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"
   }
 }
