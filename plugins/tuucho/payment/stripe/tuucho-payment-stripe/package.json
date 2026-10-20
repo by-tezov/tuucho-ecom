@@ -2,6 +2,69 @@
   "name": "@tuucho/plugin-tuucho-payment-stripe",
   "private": true,
   "type": "module",
+  "version": "1.0.0",
+  "description": "Card, PayPal, Bancontact, Google Pay and Apple Pay via Stripe.",
+  "tuucho": {
+    "id": "tuucho-payment-stripe",
+    "installPath": "plugins/tuucho/payment/stripe/tuucho-payment-stripe",
+    "name": "Stripe",
+    "kind": "payment",
+    "defaultEnabled": true,
+    "provides": [
+      "PaymentGateway"
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "defaultSettings": {
+      "publishableKey": "",
+      "requestTimeout": "12s",
+      "paymentAuthExpirySpyBefore": "2d",
+      "oneTimeCardRetentionDays": 30
+    },
+    "settingsSchema": {
+      "publishableKey": {
+        "type": "string",
+        "label": "Publishable key",
+        "description": "pk_test_… or pk_live_… from the Stripe Dashboard. Safe to show in the browser; required for Checkout.",
+        "section": "keys",
+        "sectionTitle": "Stripe keys",
+        "sectionDescription": "Dashboard keys. Use test keys until you take live payments. Secrets are never shown after save."
+      },
+      "secretKey": {
+        "type": "secret",
+        "label": "Secret key",
+        "description": "sk_test_… or sk_live_…. The kernel charges with this key. Type a new value only to replace it.",
+        "section": "keys"
+      },
+      "webhookSecret": {
+        "type": "secret",
+        "label": "Webhook secret",
+        "description": "whsec_… from the Stripe webhook endpoint. Required so payment events are verified. Leave empty to keep the stored secret.",
+        "section": "keys"
+      },
+      "requestTimeout": {
+        "type": "string",
+        "label": "Request timeout",
+        "description": "How long a Stripe API call may wait (for example 12s) before checkout fails the attempt.",
+        "section": "behaviour",
+        "sectionTitle": "Timeouts and retention",
+        "sectionDescription": "How long the kernel waits on Stripe and how long a one-time card stays on file."
+      },
+      "paymentAuthExpirySpyBefore": {
+        "type": "string",
+        "label": "Auth-expiry spy lead time",
+        "description": "How early staff get a spy mail before an uncaptured payment authorization expires (for example 2d).",
+        "section": "behaviour"
+      },
+      "oneTimeCardRetentionDays": {
+        "type": "number",
+        "label": "One-time card retention (days)",
+        "description": "Days to keep a card used once, then drop it. Raise only if you need longer replay for failed captures.",
+        "section": "behaviour"
+      }
+    }
+  },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"
   }

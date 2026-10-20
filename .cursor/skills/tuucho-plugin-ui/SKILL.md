@@ -16,6 +16,7 @@ description: >-
   a new `ui.PascalCase` id, stop. Do not invent a kernel patch from this skill.
 - Match existing plugin fronts (`pluginFront.ui`). Copy structure, not kernel code.
 - Current branch only; no extra git branch; no PR unless asked.
+- Plugin keys go on that plugin’s `settingsSchema` (public) or `type: "secret"` (secret store), never kernel JSON.
 
 ## Who owns what
 

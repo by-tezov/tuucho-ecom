@@ -48,11 +48,11 @@
             },
             {
               "term": "Contact",
-              "description": "tuucho-contact registers contact.inbound and contact.chat. EMAIL_CONTACT_RECIPIENT / EMAIL_CHAT_RECIPIENT are seed-only."
+              "description": "tuucho-contact registers contact.inbound and contact.chat. seedContactRecipient / seedChatRecipient are seed-only plugin settings."
             },
             {
               "term": "Outage",
-              "description": "website_down / website_restore_failed use spyTo. If DB is down, warmOutageSpy reads $PRIVATE_DIR/warm-outage/spy-recipients.json. SMTP_HOST / EMAIL_NO_REPLY_FROM stay env."
+              "description": "website_down / website_restore_failed use spyTo. If DB is down, warmOutageSpy reads $PRIVATE_DIR/warm-outage/spy-recipients.json. SMTP_HOST / EMAIL_NO_REPLY_FROM stay kernel SMTP JSON."
             }
           ]
         }

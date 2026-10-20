@@ -67,6 +67,26 @@ afterEach(() => {
   testState.loadDictionary.mockReset();
 });
 
+describe('LanguageProvider locale enablement', () => {
+  it('settles instead of looping when localeEnablement is a new Set each render', () => {
+    let renders = 0;
+    function Count() {
+      renders += 1;
+      const { lang } = useLang();
+      return <output data-testid="language">{lang}</output>;
+    }
+
+    render(
+      <LanguageProvider>
+        <Count />
+      </LanguageProvider>,
+    );
+
+    expect(screen.getByTestId('language')).toHaveTextContent('en');
+    expect(renders).toBeLessThan(20);
+  });
+});
+
 describe('LanguageProvider request ownership', () => {
   it('ignores a slower dictionary response after a newer language selection', async () => {
     const english = deferred<Strings>();

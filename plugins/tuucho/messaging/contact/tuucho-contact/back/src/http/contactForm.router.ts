@@ -1,8 +1,13 @@
 import { Router, type Request, type Response } from 'express';
-import { config } from '@kernel/back/config/env';
 import { pool } from '@kernel/back/db/pool';
 import { optionalImageUploads, uploadedImageFiles } from '@kernel/back/middleware/optionalImageUploads';
-import { contactRateLimiter } from '@kernel/back/middleware/rateLimiters';
+import {
+  contactIdentityMax,
+  contactImageMaxBytes,
+  contactMediaDir,
+  contactMessageMax,
+  contactRateLimiter,
+} from '../infrastructure/contactSettings.js';
 import {
   contactImageFileName,
   PrivateUploadError,
@@ -26,8 +31,8 @@ async function processContactImages(
   try {
     const saved = await savePrivateImages({
       files,
-      targetDir: config.contactMediaDir,
-      maxBytes: config.contactImageMaxBytes,
+      targetDir: contactMediaDir(),
+      maxBytes: contactImageMaxBytes(),
       fileNameFor: () => contactImageFileName(),
     });
     return {
@@ -105,8 +110,8 @@ contactFormRouter.post(
   async (req: Request, res: Response) => {
     const body = req.body ?? {};
     const email = boundedEmail(body.email);
-    const identity = boundedPrintable(body.identity, config.fieldLimits.contactIdentityMax);
-    const message = boundedPrintable(body.message, config.fieldLimits.contactMessageMax);
+    const identity = boundedPrintable(body.identity, contactIdentityMax());
+    const message = boundedPrintable(body.message, contactMessageMax());
     if (!email || !identity || !message) {
       res.status(400).json({ success: false, error: { code: 'invalid_request' } });
       return;

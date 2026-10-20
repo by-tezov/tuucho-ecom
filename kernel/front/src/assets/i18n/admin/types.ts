@@ -951,6 +951,9 @@ export interface AdminUiStrings {
     amount: string;
     configure: string;
     saveAction: string;
+    secretSet: string;
+    secretNotSet: string;
+    secretReplacePlaceholder: string;
     hex: string;
     axisVisible: string;
     axisHideSingle: string;
@@ -994,7 +997,14 @@ export interface AdminUiStrings {
     uploadBatchSuccess: (count: number) => string;
     uploadBatchPartial: (ok: number, fail: number) => string;
     checkUpdates: string;
+    checkingUpdates: string;
     checkError: string;
+    checkNothingTitle: string;
+    checkAheadTitle: string;
+    checkAheadHint: string;
+    checkResultTitle: string;
+    checkTagsLine: (current: string, latest: string) => string;
+    checkLatestUnknown: string;
     applyUpdates: string;
     applyThisPlugin: string;
     applyConfirmTitle: string;
@@ -1005,6 +1015,7 @@ export interface AdminUiStrings {
     applyingUpdates: string;
     updateUpToDate: string;
     updateAvailable: string;
+    updateAhead: string;
     updateScopeAll: string;
     updateScopeKernel: string;
     updateScopePlugins: string;

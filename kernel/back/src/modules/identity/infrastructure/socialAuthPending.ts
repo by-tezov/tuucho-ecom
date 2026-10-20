@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type pg from 'pg';
-import { config } from '../../../config/env.js';
+import { signInProviderSignupTtlMs } from '../application/signInProviderSettings.js';
 import { generateOpaqueToken, hashOpaqueToken as hashToken } from '../../../platform/security/opaqueToken.js';
 import { decryptPii, emailLookupHash, encryptPii } from '../../../platform/security/piiCrypto.js';
 import type { Language } from '../../../utils/language.js';
@@ -30,7 +30,7 @@ export async function issueSocialAuthPending(
   },
 ): Promise<IssuedSocialAuthPending> {
   const rawToken = generateOpaqueToken();
-  const expiresAt = new Date(Date.now() + config.google.signupTokenTtlMs).toISOString();
+  const expiresAt = new Date(Date.now() + signInProviderSignupTtlMs(input.provider)).toISOString();
   const email = input.email?.trim().toLowerCase() || null;
   const lookup = email ? emailLookupHash(email) : null;
 

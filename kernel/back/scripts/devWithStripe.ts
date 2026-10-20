@@ -1,31 +1,41 @@
 /** Runs the dev server together with `stripe listen`, so a plain `npm run
  * dev` is enough to get webhook forwarding locally — Ctrl+C stops both.
  *
- * `stripe listen`'s webhook signing secret is stable for a given
- * authenticated CLI session, but does change if you re-run `stripe login`
- * or switch Stripe accounts — a stale STRIPE_WEBHOOK_SECRET in
- * .env/dev/.private.env then breaks every local webhook signature check
- * with no useful error (Stripe's own retry logic just looks like nothing
- * happening). So before starting anything, this asks the CLI for the
- * secret it's actually using right now (`--print-secret`, no forwarding)
- * and rewrites the env file in place if it differs.
- *
  * Best-effort: if the Stripe CLI isn't installed or isn't logged in, this
- * warns and starts the server anyway without a forwarding tunnel — the
- * rest of the app (and even checkout itself, via the finalize fast path)
- * still works, only the webhook backstop is unavailable locally without it. */
+ * warns and starts the server anyway without a forwarding tunnel. */
 import { execSync, spawn, type ChildProcess } from 'node:child_process';
-import { stripeListenArgs } from './stripeListenArgs.js';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import pg from 'pg';
+import { inspectConfig } from '../src/config/loadJsonConfig.js';
+import { stripeListenArgs } from './stripeListenArgs.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const port = process.env.APP_PORT ?? '3000';
+const port = process.env.APP_PORT ?? '3010';
 const forwardTo = `localhost:${port}/webhooks/stripe`;
-const privateEnvPath = join(root, '.env', 'dev', '.private.env');
+const appTarget = process.env.APP_TARGET || 'dev';
 
-function syncWebhookSecret(): boolean {
+function mergedDevPrivate(): { databaseUrl?: string; encryptionKey?: string } {
+  const status = inspectConfig(root, appTarget);
+  if (!status.ok || !status.merged) return {};
+  const database = status.merged.database;
+  const pii = status.merged.pii;
+  const databaseUrl =
+    database && typeof database === 'object' && !Array.isArray(database)
+      ? typeof (database as { url?: unknown }).url === 'string'
+        ? (database as { url: string }).url
+        : undefined
+      : undefined;
+  const encryptionKey =
+    pii && typeof pii === 'object' && !Array.isArray(pii)
+      ? typeof (pii as { encryptionKey?: unknown }).encryptionKey === 'string'
+        ? (pii as { encryptionKey: string }).encryptionKey
+        : undefined
+      : undefined;
+  return { databaseUrl, encryptionKey };
+}
+
+async function syncWebhookSecret(): Promise<boolean> {
   let currentSecret: string;
   try {
     currentSecret = execSync('stripe listen --print-secret', { encoding: 'utf-8' }).trim();
@@ -33,25 +43,44 @@ function syncWebhookSecret(): boolean {
     console.warn('[dev] stripe CLI not available or not logged in — starting without webhook forwarding.');
     return false;
   }
-
-  const contents = existsSync(privateEnvPath) ? readFileSync(privateEnvPath, 'utf-8') : '';
-  const lines = contents.split('\n');
-  const lineIndex = lines.findIndex((line) => line.startsWith('STRIPE_WEBHOOK_SECRET='));
-  const existingSecret =
-    lineIndex === -1 ? undefined : lines[lineIndex]!.slice('STRIPE_WEBHOOK_SECRET='.length).trim();
-
-  if (existingSecret === currentSecret) return true;
-
-  if (lineIndex === -1) lines.push(`STRIPE_WEBHOOK_SECRET=${currentSecret}`);
-  else lines[lineIndex] = `STRIPE_WEBHOOK_SECRET=${currentSecret}`;
-  writeFileSync(privateEnvPath, lines.join('\n'));
-  console.log(
-    `[dev] STRIPE_WEBHOOK_SECRET ${existingSecret ? 'updated (was stale)' : 'added'} in .env/dev/.private.env.`,
-  );
+  const { databaseUrl, encryptionKey } = mergedDevPrivate();
+  if (!databaseUrl) {
+    console.warn('[dev] no private JSON database.url — skipping webhook secret store.');
+    return true;
+  }
+  if (!encryptionKey) {
+    console.warn('[dev] no pii.encryptionKey — skipping webhook secret store.');
+    return true;
+  }
+  const pool = new pg.Pool({ connectionString: databaseUrl });
+  try {
+    const { sealPluginSecrets, unsealPluginSecrets } = await import(
+      '../src/modules/plugins/application/pluginSecretsCrypto.js'
+    );
+    const { rows } = await pool.query<{ secrets: unknown }>(`select secrets from plugins where id = $1`, [
+      'tuucho-payment-stripe',
+    ]);
+    const next = unsealPluginSecrets(rows[0]?.secrets, encryptionKey);
+    next.webhookSecret = currentSecret;
+    await pool.query(
+      `update plugins
+          set secrets = to_jsonb($2::text), updated_at = now()
+        where id = $1`,
+      ['tuucho-payment-stripe', sealPluginSecrets(next, encryptionKey)],
+    );
+  } catch (error) {
+    console.warn(
+      `[dev] could not store Stripe webhook secret in the plugin secret store: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  } finally {
+    await pool.end();
+  }
   return true;
 }
 
-const stripeAvailable = syncWebhookSecret();
+const stripeAvailable = await syncWebhookSecret();
 
 const children: ChildProcess[] = [
   spawn('tsx', ['watch', 'src/server.ts'], { stdio: 'inherit', env: { ...process.env, APP_TARGET: 'dev' } }),

@@ -1,0 +1,10 @@
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.switch {
+  width: 100%;
+  min-width: 0;
+}

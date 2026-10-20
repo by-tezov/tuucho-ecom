@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { config } from '@kernel/back/config/env';
 import { pool } from '@kernel/back/db/pool';
 import { optionalAuth } from '@kernel/back/middleware/optionalAuth';
-import { contactRateLimiter } from '@kernel/back/middleware/rateLimiters';
+import { productRequestCommentMax, productRequestRateLimiter } from '../infrastructure/productRequestSettings.js';
 import { productRequestSpyEmail, sendMail, spyTo } from '@kernel/back/modules/messaging/application/email';
 import { insertProductRequest } from '../application/productRequest.js';
 import type { PartialTrilingual, Size } from '@kernel/back/types';
@@ -75,7 +75,7 @@ async function findRequestedProduct(
  * guest supplies the address the answer should go to. The row is stored
  * (`requested`) so ops can list / set-status; the spy email still fires
  * with replyTo so answering the customer is a plain reply. */
-productRequestRouter.post('/product-request', contactRateLimiter, optionalAuth, async (req, res) => {
+productRequestRouter.post('/product-request', productRequestRateLimiter, optionalAuth, async (req, res) => {
   const body = req.body ?? {};
   const productId =
     typeof body.productId === 'string' && UUID_RE.test(body.productId) ? body.productId : undefined;
@@ -93,7 +93,7 @@ productRequestRouter.post('/product-request', contactRateLimiter, optionalAuth, 
       return;
     }
     if (body.comment.trim().length > 0) {
-      comment = boundedPrintable(body.comment, config.fieldLimits.productRequestCommentMax);
+      comment = boundedPrintable(body.comment, productRequestCommentMax());
       if (!comment) {
         res.status(400).json({ success: false, error: { code: 'invalid_request' } });
         return;

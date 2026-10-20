@@ -4,10 +4,10 @@ import { dirname, join } from 'node:path';
 import { promisify } from 'node:util';
 import { runner } from 'node-pg-migrate';
 import { config } from '../../../../config/env.js';
-import { CORE_VERSION } from '../../domain/coreVersion.js';
+import { CORE_VERSION } from '../../../../config/appVersion.js';
 import { OFFICIAL_ORIGIN, parseGithubHttpsRepo } from '../../domain/githubRepository.js';
 import { parsePluginReleaseManifest, parseShopReleaseManifest } from '../../domain/releaseManifest.js';
-import { isTuuchoPluginId, isUserPluginId, repoRoot } from '../discoverPlugins.js';
+import { isTuuchoPluginId, isUserPluginId, readPluginPackageFields, repoRoot } from '../discoverPlugins.js';
 import { assessPluginCompatibility } from '../pluginCompatibility.js';
 import { listPlugins, scanPlugins } from '../pluginStore.js';
 import { copyScopedPaths, pathExists } from './copyScoped.js';
@@ -267,20 +267,23 @@ async function applyUserPlugin(
         const archive = await client.downloadTagArchive(ref, tag);
         await extractTagTarGz(archive, staging);
         await assertUserPluginStaging(staging);
-        const pluginJsonRaw = JSON.parse(await readFile(join(staging, 'plugin.json'), 'utf8')) as Record<string, unknown>;
-        const id = typeof pluginJsonRaw.id === 'string' ? pluginJsonRaw.id : '';
-        const version = typeof pluginJsonRaw.version === 'string' ? pluginJsonRaw.version : '';
+        const pluginPkgRaw = JSON.parse(await readFile(join(staging, 'package.json'), 'utf8')) as unknown;
+        const pluginPkg = readPluginPackageFields(pluginPkgRaw);
+        if (!pluginPkg) throw new Error(`Tag ${tag} package.json is missing the tuucho discriminator.`);
+        const id = pluginPkg.id;
+        const version = pluginPkg.version;
         if (id !== pluginId) throw new Error(`Tag ${tag} id ${id} does not match ${pluginId}.`);
         const releaseRaw = await client.readOptionalJson(ref, tag, 'plugin-release.json');
         const release = parsePluginReleaseManifest(releaseRaw, { id, version, tag });
         if (release.id !== pluginId) throw new Error(`plugin-release.json id ${release.id} does not match ${pluginId}.`);
+        const enginesRaw = pluginPkg.tuucho.engines;
         const compatibility = assessPluginCompatibility(
           {
             id,
             manifest: {
               version,
-              engines: pluginJsonRaw.engines && typeof pluginJsonRaw.engines === 'object'
-                ? (pluginJsonRaw.engines as { core?: string })
+              engines: enginesRaw && typeof enginesRaw === 'object'
+                ? (enginesRaw as { core?: string })
                 : live.manifest.engines,
               dependsOn: live.manifest.dependsOn,
             },

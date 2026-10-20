@@ -12,7 +12,7 @@ export default defineConfig({
    * anything importing it fails here unless they are defined. This is the full
    * set that `required()` guards.
    *
-   * Stated as fixed placeholders rather than read from `.env/`: the point of
+   * Stated as fixed placeholders rather than read from kernel JSON: the point of
    * this isolated config is that a test result never depends on a deployment
    * file. A test that cares about one of these values must assert on its own
    * value, not on whatever a target happens to be configured with. */

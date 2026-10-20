@@ -38,7 +38,7 @@ const FIELD_ENV: Array<{ field: keyof PublicPaymentMethodCountries; envKey: stri
 
 export function parseCountryAllowlist(raw: string | undefined, envKey: string): string[] {
   const text = raw?.trim();
-  if (!text) fail(`${envKey} is missing or empty in .env/.seed.env`);
+  if (!text) fail(`${envKey} is missing or empty in sample/seed-defaults.env`);
   if (text.toUpperCase() === 'ALL') return ['ALL'];
   const codes = text.split(',').map((entry) => {
     const code = entry.trim().toUpperCase();
@@ -143,7 +143,7 @@ addCommonOptions(program.command('check'))
   );
 
 addConfirmOption(addCommonOptions(program.command('seed')))
-  .description('Apply PAYMENT_METHOD_COUNTRIES_* defaults from .env/.seed.env.')
+  .description('Apply PAYMENT_METHOD_COUNTRIES_* defaults from sample/seed-defaults.env.')
   .action((opts: CommonModeOpts) =>
     runAction(() => {
       requireConfirmForProdWrite(opts.mode, opts.confirm, fail, 'seed');

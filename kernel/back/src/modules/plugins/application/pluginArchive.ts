@@ -180,14 +180,31 @@ export function buildStoredZip(entries: Array<{ path: string; data: Uint8Array }
   return Buffer.concat([localBuf, centralBuf, end]);
 }
 
+function archiveHasPluginPackage(files: ArchiveFile[], path: string): boolean {
+  const file = files.find((entry) => entry.path === path);
+  if (!file) return false;
+  try {
+    const raw = JSON.parse(Buffer.from(file.data).toString('utf8')) as unknown;
+    return Boolean(
+      raw &&
+        typeof raw === 'object' &&
+        !Array.isArray(raw) &&
+        (raw as { tuucho?: unknown }).tuucho &&
+        typeof (raw as { tuucho?: unknown }).tuucho === 'object',
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function flattenArchiveRoot(files: ArchiveFile[]): ArchiveFile[] {
   const prefixes = new Set(
     files.map((file) => file.path.split('/')[0]).filter((part): part is string => Boolean(part)),
   );
   if (prefixes.size !== 1) return files;
   const root = [...prefixes][0]!;
-  if (files.some((file) => file.path === 'plugin.json')) return files;
-  if (!files.some((file) => file.path === `${root}/plugin.json`)) return files;
+  if (archiveHasPluginPackage(files, 'package.json')) return files;
+  if (!archiveHasPluginPackage(files, `${root}/package.json`)) return files;
   return files
     .filter((file) => file.path.startsWith(`${root}/`) && file.path.length > root.length + 1)
     .map((file) => ({ path: file.path.slice(root.length + 1), data: file.data }));

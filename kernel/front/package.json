@@ -1,7 +1,6 @@
 {
   "name": "tuucho-ecom-front",
   "private": true,
-  "version": "0.0.2",
   "type": "module",
   "engines": {
     "node": ">=22.13 <23"
@@ -9,7 +8,7 @@
   "scripts": {
     "assets:optimize": "node scripts/optimizeStaticImages.mjs",
     "dev": "node scripts/dev.mjs",
-    "build": "node --env-file-if-exists=.env/.public.env --env-file-if-exists=.env/.private.env scripts/build.mjs",
+    "build": "node scripts/build.mjs",
     "check:theme": "node scripts/checkThemeArchitecture.mjs && node scripts/checkThemeContrast.mjs",
     "check:contrast": "node scripts/checkThemeContrast.mjs",
     "check:architecture": "node scripts/checkArchitecture.mjs",

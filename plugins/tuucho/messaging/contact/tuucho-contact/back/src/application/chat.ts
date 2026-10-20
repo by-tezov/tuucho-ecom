@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import { config } from '@kernel/back/config/env';
+import { chatMaxSessionsPerUser, chatSmtpSettings } from '../infrastructure/contactSettings.js';
 import { appVersion } from '@kernel/back/config/appVersion';
 import {
   chatMediaAbsolutePath,
@@ -249,7 +250,7 @@ async function trimUserSessions(db: Pool, userId: string): Promise<number> {
       `select id from chat_sessions where user_id = $1
        order by coalesce(last_message_at, created_at) desc
        offset $2`,
-      [userId, config.chatMaxSessionsPerUser],
+      [userId, chatMaxSessionsPerUser()],
     );
     if (overflow.length === 0) {
       await client.query('commit');
@@ -459,7 +460,7 @@ async function notifyOwnerOfUserMessage(
   const folder = config.routeEmailFolder;
   const to = await spyTo('contact.chat');
   if (!to) return null;
-  const from = config.chatSmtp.fromEmail ?? (folder ? 'chat@localhost' : undefined);
+  const from = chatSmtpSettings().fromEmail ?? (folder ? 'chat@localhost' : undefined);
   if (!from) throw new ChatServiceError('chat_unavailable');
 
   const user = session.user_id ? await findUserById(db, session.user_id) : undefined;
@@ -655,7 +656,7 @@ export async function sendAdminChatReplyNotification(
   );
   await sendChatMail({
     to: session.visitor_email,
-    replyTo: config.chatSmtp.fromEmail,
+    replyTo: chatSmtpSettings().fromEmail,
     subject: 'La boutique vous a répondu',
     text: `La boutique vous a répondu dans votre conversation.\n\n${latest.body.slice(0, 240)}\n\nConnectez-vous à la boutique pour lire et répondre.\n${config.frontendBaseUrl}/contact`,
     headers: {
@@ -860,7 +861,7 @@ export async function getAdminChatAttentionCounts(db: Pool | PoolClient): Promis
 export async function listUserSessions(
   db: Pool | PoolClient,
   userId: string,
-  limit = config.chatMaxSessionsPerUser,
+  limit = chatMaxSessionsPerUser(),
 ): Promise<
   Array<
     ChatSessionRow & {

@@ -20,8 +20,22 @@ export interface StoreIdentity {
   legalSiren: string;
   legalAddress: string;
   vatMention: string;
+  phone?: string;
   taxMode: TaxMode;
 }
+
+const DEFAULT_IDENTITY: StoreIdentity = {
+  name: 'Shop',
+  suffix: '',
+  contactEmail: 'hello@shop.example',
+  legalStatus: 'Entreprise individuelle (micro-entrepreneur)',
+  legalSiren: '000 000 000',
+  legalAddress: 'France',
+  vatMention: 'TVA non applicable, art. 293 B du CGI',
+  taxMode: 'none',
+};
+
+let identityCache: StoreIdentity = DEFAULT_IDENTITY;
 
 export interface StoreMenuItem {
   key: string;
@@ -120,22 +134,14 @@ async function writeJson(key: string, value: unknown, db: Pool): Promise<void> {
   );
 }
 
+export function peekStoreIdentity(): StoreIdentity {
+  return identityCache;
+}
+
 export async function getStoreIdentity(db: Pool = pool): Promise<StoreIdentity> {
-  const stored = await readJson<StoreIdentity>(
-    'store.identity',
-    {
-      name: 'Shop',
-      suffix: '',
-      contactEmail: 'hello@shop.example',
-      legalStatus: 'Entreprise individuelle (micro-entrepreneur)',
-      legalSiren: '000 000 000',
-      legalAddress: 'France',
-      vatMention: 'TVA non applicable, art. 293 B du CGI',
-      taxMode: 'none',
-    },
-    db,
-  );
-  return { ...stored, taxMode: 'none' };
+  const stored = await readJson<StoreIdentity>('store.identity', DEFAULT_IDENTITY, db);
+  identityCache = { ...DEFAULT_IDENTITY, ...stored, taxMode: 'none' };
+  return identityCache;
 }
 
 export async function patchStoreIdentity(
@@ -145,6 +151,7 @@ export async function patchStoreIdentity(
   const current = await getStoreIdentity(db);
   const next: StoreIdentity = { ...current, ...patch, taxMode: 'none' };
   await writeJson('store.identity', next, db);
+  identityCache = next;
   return next;
 }
 

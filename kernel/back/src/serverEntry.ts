@@ -13,3 +13,6 @@ export { pool } from './db/pool.js';
 export { config } from './config/env.js';
 export { getStripe, retrieveBalance } from './platform/stripe/stripeClient.js';
 export { warmAppPreferences } from './modules/settings/application/appPreferences.js';
+export { getStoreIdentity } from './modules/plugins/application/storeSettings.js';
+export { listPlugins } from './modules/plugins/application/pluginStore.js';
+export { carrierLabelSettings } from './modules/shipping/application/carrierSettings.js';

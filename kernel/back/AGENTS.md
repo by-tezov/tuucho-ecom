@@ -1,4 +1,4 @@
-# Tuucho back-end guidance
+# tuucho-ecom back-end guidance
 
 ## Repository ownership
 
@@ -112,7 +112,7 @@ concurrency. Do not hold a database transaction open across a network call.
 
 <!-- policy:secrets-and-destructive-actions start -->
 
-**Never open, print, copy or expose a `.private.env` file or any secret**, not
+**Never open, print, copy or expose kernel private JSON, plugin secrets, or any secret**, not
 even to check one value. Treat as destructive, and require explicit
 authorization each time: `delete-all`, remote imports, remote migrations,
 database reset or restore, order-status changes, Stripe webhook-secret

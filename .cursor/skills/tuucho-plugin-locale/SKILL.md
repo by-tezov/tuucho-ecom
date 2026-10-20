@@ -14,13 +14,14 @@ description: >-
 - If the needed opening does not exist, stop. Tell the user. Do not invent a kernel patch from this skill.
 - Match existing bundled plugins of the same kind (copy structure, not kernel code).
 - Current branch only; no extra git branch; no PR unless asked.
+- Plugin keys go on that plugin’s `settingsSchema` (public) or `type: "secret"` (secret store), never kernel JSON.
 
 ## Recipe (moved from the router)
 
 Kernel UI and every bundled feature plugin package are **English only**.
 French is a locale plugin.
 
-- Locale `plugin.json` may omit `description`; every other plugin must have one.
+- Locale `package.json` may omit npm `description`; every other plugin must have one.
 - `tuucho-locale-fr` (`kind: locale`): kernel chrome + email + invoice overlay
   (`invoice.render` copy). Example: `plugins/tuucho/locale/tuucho-locale-fr`.
 - `<id>-locale-fr` with `dependsOn` on the parent: plugin copy. Live in the

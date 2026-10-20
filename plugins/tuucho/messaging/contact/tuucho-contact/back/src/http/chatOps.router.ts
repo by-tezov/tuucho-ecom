@@ -1,5 +1,5 @@
 import { Router, type Response } from 'express';
-import { config } from '@kernel/back/config/env';
+import { contactMessageMax } from '../infrastructure/contactSettings.js';
 import { pool } from '@kernel/back/db/pool';
 import { processInboundRawEmail } from '../application/chatInbound.js';
 import { simpleParser } from 'mailparser';
@@ -74,7 +74,7 @@ chatOpsRouter.get('/sessions/:publicId', async (req, res) => {
 
 chatOpsRouter.post('/sessions/:publicId/messages', async (req, res) => {
   const session = await sessionFromParam(req.params.publicId);
-  const body = boundedPrintable(req.body?.body, config.fieldLimits.contactMessageMax);
+  const body = boundedPrintable(req.body?.body, contactMessageMax());
   if (!session) {
     fail(res, 404, 'not_found');
     return;

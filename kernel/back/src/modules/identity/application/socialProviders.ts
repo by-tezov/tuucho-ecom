@@ -12,8 +12,8 @@
  * one means adding a row here and its config, not a new module.
  */
 import type pg from 'pg';
-import { config } from '../../../config/env.js';
 import type { Language } from '../../../utils/language.js';
+import { signInProviderSignupTtlMs } from './signInProviderSettings.js';
 import {
   consumeSocialLinkToken,
   consumeSocialSignupToken,
@@ -29,44 +29,48 @@ export type SocialProvider = (typeof SOCIAL_PROVIDERS)[number];
 
 /** The per-provider storage shape. Column names differ because each provider's
  * columns were added by its own migration; the tokens themselves behave
- * identically. */
-const LINK_TOKENS: Record<SocialProvider, SocialLinkTokenDefinition> = {
-  google: {
-    table: 'google_link_tokens',
-    subjectColumn: 'google_sub',
-    emailColumn: 'google_email',
-    emailLookupColumn: 'google_email_lookup',
-    ttlMs: config.google.signupTokenTtlMs,
-  },
-  apple: {
-    table: 'apple_link_tokens',
-    subjectColumn: 'apple_sub',
-    emailColumn: 'apple_email',
-    emailLookupColumn: 'apple_email_lookup',
-    ttlMs: config.apple.signupTokenTtlMs,
-  },
-  facebook: {
-    table: 'facebook_link_tokens',
-    subjectColumn: 'facebook_user_id',
-    emailColumn: 'facebook_email',
-    emailLookupColumn: 'facebook_email_lookup',
-    ttlMs: config.facebook.signupTokenTtlMs,
-  },
-};
+ * identically. TTL is read from the provider plugin at issue time. */
+function linkTokenDef(provider: SocialProvider): SocialLinkTokenDefinition {
+  const ttlMs = signInProviderSignupTtlMs(provider);
+  switch (provider) {
+    case 'google':
+      return {
+        table: 'google_link_tokens',
+        subjectColumn: 'google_sub',
+        emailColumn: 'google_email',
+        emailLookupColumn: 'google_email_lookup',
+        ttlMs,
+      };
+    case 'apple':
+      return {
+        table: 'apple_link_tokens',
+        subjectColumn: 'apple_sub',
+        emailColumn: 'apple_email',
+        emailLookupColumn: 'apple_email_lookup',
+        ttlMs,
+      };
+    case 'facebook':
+      return {
+        table: 'facebook_link_tokens',
+        subjectColumn: 'facebook_user_id',
+        emailColumn: 'facebook_email',
+        emailLookupColumn: 'facebook_email_lookup',
+        ttlMs,
+      };
+  }
+}
 
-const SIGNUP_TOKENS: Record<SocialProvider, SocialSignupTokenDefinition> = {
-  google: {
-    table: 'google_signup_tokens',
-    subjectColumn: 'google_sub',
-    ttlMs: config.google.signupTokenTtlMs,
-  },
-  apple: { table: 'apple_signup_tokens', subjectColumn: 'apple_sub', ttlMs: config.apple.signupTokenTtlMs },
-  facebook: {
-    table: 'facebook_signup_tokens',
-    subjectColumn: 'facebook_user_id',
-    ttlMs: config.facebook.signupTokenTtlMs,
-  },
-};
+function signupTokenDef(provider: SocialProvider): SocialSignupTokenDefinition {
+  const ttlMs = signInProviderSignupTtlMs(provider);
+  switch (provider) {
+    case 'google':
+      return { table: 'google_signup_tokens', subjectColumn: 'google_sub', ttlMs };
+    case 'apple':
+      return { table: 'apple_signup_tokens', subjectColumn: 'apple_sub', ttlMs };
+    case 'facebook':
+      return { table: 'facebook_signup_tokens', subjectColumn: 'facebook_user_id', ttlMs };
+  }
+}
 
 export interface ConsumedLinkToken {
   userId: string;
@@ -86,7 +90,7 @@ export async function issueLinkToken(
   provider: SocialProvider,
   input: { userId: string; providerSubject: string; providerEmail: string },
 ): Promise<{ rawToken: string }> {
-  const rawToken = await issueSocialLinkToken(pool, LINK_TOKENS[provider], input);
+  const rawToken = await issueSocialLinkToken(pool, linkTokenDef(provider), input);
   return { rawToken };
 }
 
@@ -96,7 +100,7 @@ export async function consumeLinkToken(
   rawToken: string,
   userId: string,
 ): Promise<ConsumedLinkToken | undefined> {
-  const token = await consumeSocialLinkToken(pool, LINK_TOKENS[provider], rawToken, userId);
+  const token = await consumeSocialLinkToken(pool, linkTokenDef(provider), rawToken, userId);
   return token
     ? { userId: token.userId, providerSubject: token.providerSubject, providerEmail: token.providerEmail }
     : undefined;
@@ -108,7 +112,7 @@ export async function issueSignupToken(
   provider: SocialProvider,
   input: { providerSubject: string; email: string; language: Language },
 ): Promise<{ rawToken: string }> {
-  const rawToken = await issueSocialSignupToken(pool, SIGNUP_TOKENS[provider], input);
+  const rawToken = await issueSocialSignupToken(pool, signupTokenDef(provider), input);
   return { rawToken };
 }
 
@@ -117,7 +121,7 @@ export async function consumeSignupToken(
   provider: SocialProvider,
   rawToken: string,
 ): Promise<ConsumedSignupToken | undefined> {
-  const token = await consumeSocialSignupToken(pool, SIGNUP_TOKENS[provider], rawToken);
+  const token = await consumeSocialSignupToken(pool, signupTokenDef(provider), rawToken);
   return token
     ? { providerSubject: token.providerSubject, email: token.email, language: token.language }
     : undefined;

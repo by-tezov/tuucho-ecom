@@ -54,8 +54,8 @@ code change.
 
 ## Sensitive data and incidental security findings
 
-Never open, print, search inside, copy, or expose `.private.env` files,
-credentials, session/payment tokens, private uploads, customer PII, or manager
+Never open, print, search inside, copy, or expose kernel private JSON, plugin
+secrets, credentials, session/payment tokens, private uploads, customer PII, or manager
 `order/` and `voucher/` archives unless an explicitly authorized task genuinely
 requires a safe operation on that data. Prefer metadata and code-path inspection.
 

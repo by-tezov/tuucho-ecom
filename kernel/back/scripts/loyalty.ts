@@ -3,7 +3,7 @@
  *   npm run loyalty -- check [--json] --dev|--preprod|--prod
  *
  * The programme is always on. Earn rate, lot life, and reminder spacing live
- * in `.env/.public.env` and are returned by the running process.
+ * in tuucho-commerce-loyalty plugin settings and are returned by the running process.
  */
 import { Command as Program } from 'commander';
 import { dirname, join } from 'node:path';

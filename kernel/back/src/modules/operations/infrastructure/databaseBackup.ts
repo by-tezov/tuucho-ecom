@@ -21,6 +21,7 @@ import { gunzipSync, gzipSync } from 'node:zlib';
 import { runner } from 'node-pg-migrate';
 import type { Pool, PoolClient } from 'pg';
 import { config } from '../../../config/env.js';
+import { resolvePluginPrivatePath } from '../../plugins/application/pluginSettingValues.js';
 import { resetPublicSchema } from '../../../db/resetPublicSchema.js';
 import { withTransaction } from '../../../platform/db/transaction.js';
 import {
@@ -48,8 +49,8 @@ function mediaRoots(): Record<string, string> {
     public: config.mediaDir,
     invoice: config.invoiceDir,
     shipment_label: config.shipmentLabelDir,
-    contact: config.contactMediaDir,
-    chat: config.chatMediaDir,
+    contact: resolvePluginPrivatePath(config.privateDir, 'tuucho-contact', 'mediaContactDir', '/media/contact'),
+    chat: resolvePluginPrivatePath(config.privateDir, 'tuucho-contact', 'mediaChatDir', '/media/chat'),
   };
 }
 

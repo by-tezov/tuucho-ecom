@@ -1,5 +1,5 @@
 import { createWriteStream } from 'node:fs';
-import { config } from '../../../config/env.js';
+import { peekStoreIdentity } from '../../plugins/application/storeSettings.js';
 import { groupOrderDisplayLines } from '../../../utils/groupOrderDisplayLines.js';
 import { drawCustomSetHands } from './invoiceCustomSetPdf.js';
 import { drawItemComment } from './invoiceCommentPdf.js';
@@ -126,13 +126,13 @@ export async function writeInvoicePdf(absolutePath: string, data: InvoiceData): 
   sectionLabel(copy.seller, 50, blockTop);
   addressBlock(
     [
-      config.company.name,
-      config.company.status,
-      copy.siren(config.company.siren),
-      config.company.address,
-      config.company.vatMention,
-      config.company.phone,
-      config.company.email,
+      peekStoreIdentity().name,
+      peekStoreIdentity().legalStatus,
+      copy.siren(peekStoreIdentity().legalSiren),
+      peekStoreIdentity().legalAddress,
+      peekStoreIdentity().vatMention,
+      peekStoreIdentity().phone,
+      peekStoreIdentity().contactEmail,
     ],
     50,
     blockTop + 15,

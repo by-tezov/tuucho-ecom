@@ -1,14 +1,18 @@
 import { readFile } from 'node:fs/promises';
 import { Router, type Request, type Response } from 'express';
-import { config } from '@kernel/back/config/env';
 import { pool } from '@kernel/back/db/pool';
 import { requireAuth } from '@kernel/back/middleware/requireAuth';
 import { optionalImageUploads, uploadedImageFiles } from '@kernel/back/middleware/optionalImageUploads';
-import { contactRateLimiter } from '@kernel/back/middleware/rateLimiters';
+import {
+  chatImageMaxBytes,
+  chatMediaAbsolutePath,
+  chatMediaDir,
+  contactMessageMax,
+  contactRateLimiter,
+} from '../infrastructure/contactSettings.js';
 import {
   chatImageFileName,
   cachedChatImagePreview,
-  chatMediaAbsolutePath,
   PrivateUploadError,
   removeSavedPrivateImages,
   savePrivateImages,
@@ -140,7 +144,7 @@ accountChatRouter.post(
     try {
       let session = await ownedSession(req, res);
       if (!session) return;
-      const body = boundedPrintable(req.body?.body, config.fieldLimits.contactMessageMax);
+      const body = boundedPrintable(req.body?.body, contactMessageMax());
       if (!body) {
         res.status(400).json({ success: false, error: { code: 'invalid_request' } });
         return;
@@ -150,8 +154,8 @@ accountChatRouter.post(
       if (files.length) {
         savedAttachments = await savePrivateImages({
           files,
-          targetDir: config.chatMediaDir,
-          maxBytes: config.chatImageMaxBytes,
+          targetDir: chatMediaDir(),
+          maxBytes: chatImageMaxBytes(),
           fileNameFor: () => chatImageFileName(session!.public_id),
         });
       }
@@ -174,7 +178,7 @@ accountChatRouter.post(
 accountChatRouter.post('/sessions', contactRateLimiter, optionalImageUploads(), async (req, res) => {
   let savedAttachments: Awaited<ReturnType<typeof savePrivateImages>> = [];
   try {
-    const body = boundedPrintable(req.body?.body, config.fieldLimits.contactMessageMax);
+    const body = boundedPrintable(req.body?.body, contactMessageMax());
     if (!body) {
       res.status(400).json({ success: false, error: { code: 'invalid_request' } });
       return;
@@ -193,8 +197,8 @@ accountChatRouter.post('/sessions', contactRateLimiter, optionalImageUploads(), 
     if (files.length) {
       savedAttachments = await savePrivateImages({
         files,
-        targetDir: config.chatMediaDir,
-        maxBytes: config.chatImageMaxBytes,
+        targetDir: chatMediaDir(),
+        maxBytes: chatImageMaxBytes(),
         fileNameFor: () => chatImageFileName(session.public_id),
       });
     }

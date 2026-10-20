@@ -2,6 +2,22 @@
   "name": "@tuucho/plugin-tuucho-theme-default",
   "private": true,
   "type": "module",
+  "version": "1.0.0",
+  "description": "Design tokens and layout skin for the storefront chrome.",
+  "tuucho": {
+    "id": "tuucho-theme-default",
+    "installPath": "plugins/tuucho/theme/default/tuucho-theme-default",
+    "name": "Default theme",
+    "kind": "theme",
+    "required": false,
+    "defaultEnabled": true,
+    "provides": [
+      "Theme"
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    }
+  },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"
   }

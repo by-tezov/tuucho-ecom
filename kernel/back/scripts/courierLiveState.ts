@@ -39,7 +39,7 @@ const fail: (message: string) => never = makeFail(program, 'courier-live-state')
 export function parseCourierLiveDefaults(raw: string | undefined): CourierLiveStateEntry[] {
   const text = raw?.trim();
   if (!text) {
-    fail('COURIER_LIVE_DEFAULTS is missing or empty in .env/.seed.env');
+    fail('COURIER_LIVE_DEFAULTS is missing or empty in sample/seed-defaults.env');
   }
   const entries: CourierLiveStateEntry[] = [];
   for (const segment of text!.split('|')) {
@@ -168,7 +168,7 @@ addCommonOptions(program.command('check'))
   );
 
 addConfirmOption(addCommonOptions(program.command('seed')))
-  .description('Apply COURIER_LIVE_DEFAULTS from .env/.seed.env after courier import.')
+  .description('Apply COURIER_LIVE_DEFAULTS from sample/seed-defaults.env after courier import.')
   .action((opts: CommonModeOpts) =>
     runAction(() => {
       requireConfirmForProdWrite(opts.mode, opts.confirm, fail, 'seed');

@@ -94,9 +94,9 @@ Commerce extras, Stripe gateway, shipping methods, home slots, docs, journals, l
 
 ## 4. Install + update (simple model)
 
-**One public GitHub repo. `master` plus version tags (`1.0.9` = `CORE_VERSION`, no `v` prefix). Running kernel identity is `CORE_VERSION` plus `shop-release.json`, not the shop root `package.json`. One bundled-plugins manifest JSON. Shop owner updates the whole tree. Admin Check / Apply pulls official tags. Zip upload writes `plugins/user/` (or `plugins/tuucho/` for `tuucho-*` ids).**
+**One public GitHub repo. `master` plus version tags (`1.0.9` = root `package.json` version, no `v` prefix). Running kernel identity is live root `package.json` (`CORE_VERSION`). `shop-release.json` is last-applied Apply state. One bundled-plugins manifest JSON. Shop owner updates the whole tree. Admin Check / Apply pulls official tags. Zip upload writes `plugins/user/` (or `plugins/tuucho/` for `tuucho-*` ids).**
 
-Manifest path: `plugins/tuucho/manifest.json`. Disk `plugin.json` remains scan source of truth. Admin Plugins shows enable/disable/Configure/uninstall only.
+Manifest path: `plugins/tuucho/manifest.json`. Disk leaf `package.json` with a `tuucho` object is scan source of truth. Admin Plugins shows enable/disable/Configure/uninstall only.
 
 ---
 

@@ -10,14 +10,22 @@ const pluginRoot = resolve(
 );
 
 describe('tuucho-commerce-product-requests surface', () => {
-  it('is the size-request product: admin page, no Preferences island, no Configure', () => {
-    const manifest = JSON.parse(readFileSync(resolve(pluginRoot, 'plugin.json'), 'utf8')) as {
-      provides?: string[];
-      settingsSchema?: unknown;
+  it('is the size-request product: admin page, no Preferences island, schema Configure', () => {
+    const pkg = JSON.parse(readFileSync(resolve(pluginRoot, 'package.json'), 'utf8')) as {
+      tuucho: {
+        provides?: string[];
+        settingsSchema?: unknown;
+      };
     };
+    const manifest = pkg.tuucho;
     expect(manifest.provides).toContain('AdminPage');
     expect(manifest.provides).not.toContain('PreferenceEntry');
-    expect(manifest.settingsSchema).toBeUndefined();
+    expect(manifest.settingsSchema).toEqual(expect.any(Object));
+    expect(Object.keys(manifest.settingsSchema ?? {}).length).toBeGreaterThan(0);
+    for (const field of Object.values(manifest.settingsSchema ?? {})) {
+      expect((field as { label?: string }).label?.trim()).toBeTruthy();
+      expect((field as { description?: string }).description?.trim()).toBeTruthy();
+    }
 
     const register = readFileSync(resolve(pluginRoot, 'back/register.ts'), 'utf8');
     expect(register).not.toMatch(/CORE_OPENING_FILTERS\.preferences/);

@@ -48,8 +48,8 @@ where `user` is `{id,email,emailVerified,pendingEmail,firstName,lastName,phone,s
 
 ### `POST /account/link-google`
 
-Auth required. Rate-limited (`authRateLimiter`). Requires `GOOGLE_CLIENT_ID`
-on the server — otherwise `503 google_sign_in_disabled`. Also requires shop
+Auth required. Rate-limited (`authRateLimiter`). Requires plugin
+`tuucho-signin-google` enabled with a client id — otherwise `503 google_sign_in_disabled`. Also requires shop
 preference `sign_in_google_enabled` — otherwise `403 sign_in_method_forbidden`. Body:
 `{ "idToken": "string", "unlockToken": "string" }` — GIS credential plus
 unlock token from `POST /account/unlock` with `action: "google"`.
@@ -91,7 +91,8 @@ token is missing/invalid. Response: `{"success":true,"user":{...}}` with
 
 ### `POST /account/link-apple`
 
-Auth required. Rate-limited (`authRateLimiter`). Requires `APPLE_CLIENT_ID` —
+Auth required. Rate-limited (`authRateLimiter`). Requires plugin
+`tuucho-signin-apple` enabled with a Services ID —
 otherwise `503 apple_sign_in_disabled`. Also requires shop preference
 `sign_in_apple_enabled` — otherwise `403 sign_in_method_forbidden`. Body:
 `{ "idToken": "string", "nonce": "string", "unlockToken": "string" }` with unlock
@@ -292,7 +293,7 @@ Account page's "recent logins" block.
 
 One entry per actual sign-in (register/login), never a routine
 `/auth/refresh` rotation — see `token.service.ts`'s `listRecentLogins`.
-Limited to `RECENT_LOGINS_DISPLAY_COUNT` (common `.env/.public.env`, default
+Limited to `RECENT_LOGINS_DISPLAY_COUNT` (common kernel `config/`, default
 3); `0` returns an empty list rather than an error, and the frontend hides
 the block entirely on an empty list. `location`/`device` may be `null`
 (geo-IP lookup failed/timed out, or an unrecognized user agent — see

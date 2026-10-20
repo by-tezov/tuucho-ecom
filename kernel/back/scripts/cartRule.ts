@@ -13,7 +13,7 @@
  *
  * Codes are lowercase slugs (`tip-pot`). Omitted kind flags keep the
  * existing rule’s values when updating, and fall back to the CART_RULE_*
- * values in `.env/.seed.env` (see SeedDefaults) when the code is new —
+ * values in `sample/seed-defaults.env` (see SeedDefaults) when the code is new —
  * the same values `seed` pushes.
  */
 import { Command as Program } from 'commander';
@@ -70,8 +70,8 @@ const CODE_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /** The four permanent rules' out-of-the-box values — what `seed` pushes,
  * and what each kind command falls back to for a flag left out on a code
- * that doesn't exist yet. They live in `.env/.seed.env` (CART_RULE_*,
- * overridable per target the usual way) rather than in this file: changing
+ * that doesn't exist yet. They live in `sample/seed-defaults.env` (CART_RULE_*)
+ * rather than in this file: changing
  * the franco threshold or the gift product is an operator decision, not a
  * code change. */
 interface RuleDefaults {
@@ -128,7 +128,7 @@ function parseThresholdToken(raw: string, origin = '--threshold'): { country: st
 
 function envValue(env: Record<string, string>, key: string): string {
   const raw = env[key]?.trim();
-  if (!raw) fail(`${key} missing from .env/.seed.env`);
+  if (!raw) fail(`${key} missing from sample/seed-defaults.env`);
   return raw;
 }
 
@@ -557,7 +557,7 @@ addCommonOptions(program.command('check'))
   );
 
 addConfirmOption(addCommonOptions(program.command('seed')))
-  .description('Upsert the four permanent default rules from CART_RULE_* in .env/.seed.env.')
+  .description('Upsert the four permanent default rules from CART_RULE_* in sample/seed-defaults.env.')
   .action((opts: CommonModeOpts & { confirm?: boolean }) =>
     runAction(() => {
       requireConfirmForProdWrite(opts.mode, opts.confirm, fail, 'seed');

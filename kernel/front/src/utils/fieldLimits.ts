@@ -1,7 +1,6 @@
 /**
- * Customer input field ceilings — mirrors back-end `.env/.public.env`
- * `FIELD_*` defaults. Keep in sync when those env defaults change; the
- * server still enforces.
+ * Customer input field ceilings — mirrors kernel public JSON `fieldLimits`.
+ * Keep in sync when those defaults change; the server still enforces.
  */
 export const FIELD_EMAIL_MAX = 254;
 export const FIELD_PASSWORD_MAX = 128;

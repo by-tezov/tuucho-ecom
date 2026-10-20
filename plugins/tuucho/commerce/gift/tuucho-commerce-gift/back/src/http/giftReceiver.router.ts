@@ -27,7 +27,7 @@ import {
 import { rawPathToken, withGiftErrors } from './giftErrors.js';
 import { giftReceiverDestinationRouter } from './giftReceiverDestination.router.js';
 import { giftReceiverGalleryRouter } from './giftReceiverGallery.router.js';
-import { giftPinRateLimiter } from '@kernel/back/middleware/rateLimiters';
+import { giftPinRateLimiter } from './giftRateLimiters.js';
 import { unlockGiftPin } from '../application/giftPin.js';
 import { requireGiftPin } from './giftPinGuard.js';
 import {

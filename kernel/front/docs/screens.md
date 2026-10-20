@@ -10,22 +10,15 @@ for a front-end task, the way `npm run feature` starts a backend one.
 also mounted unprefixed for older bookmarks. `{adminPath}` is the operator
 path from `src/config/paths.ts`, which is deployment configuration.
 
-## Public (12)
+## Public (5)
 
-| URL                       | Page file                                                           | Components                      | API modules         | i18n                                     |
-| ------------------------- | ------------------------------------------------------------------- | ------------------------------- | ------------------- | ---------------------------------------- |
-| `/{lang}/about`           | [src/routes/AboutPage.tsx](../src/routes/AboutPage.tsx)             | about, home, layout, seo, ui    | -                   | about, nav, seo                          |
-| `/{lang}/creations/:slug` | [src/routes/ProductPage.tsx](../src/routes/ProductPage.tsx)         | gallery, layout, seo, trust, ui | cart, gallery, gift | gallery, nav, product                    |
-| `/{lang}/gallery`         | [src/routes/GalleryPage.tsx](../src/routes/GalleryPage.tsx)         | gallery, seo, ui                | -                   | gallery, gift, seo                       |
-| `/{lang}/home`            | [src/routes/HomePage.tsx](../src/routes/HomePage.tsx)               | home, layout, seo, ui           | gift                | seo                                      |
-| `/{lang}/legal`           | [src/routes/LegalNoticePage.tsx](../src/routes/LegalNoticePage.tsx) | layout, seo                     | -                   | footer, legalNotice, seo                 |
-| `/{lang}/pose-colle`      | (redirect)                                                          | -                               | -                   | -                                        |
-| `/{lang}/pose-patch`      | (redirect)                                                          | -                               | -                   | -                                        |
-| `/{lang}/privacy`         | [src/routes/PrivacyPage.tsx](../src/routes/PrivacyPage.tsx)         | layout, seo                     | -                   | privacy, seo                             |
-| `/{lang}/sales-terms`     | [src/routes/SalesTermsPage.tsx](../src/routes/SalesTermsPage.tsx)   | layout, seo                     | -                   | salesTerms, seo                          |
-| `/{lang}/sitemap`         | [src/routes/SitemapPage.tsx](../src/routes/SitemapPage.tsx)         | layout, seo                     | -                   | accessibilityStatement, footer, nav, seo |
-| `/{lang}/sizes`           | [src/routes/GuidePage.tsx](../src/routes/GuidePage.tsx)             | guide, layout, seo, ui          | -                   | seo                                      |
-| `/{lang}/terms`           | [src/routes/TermsPage.tsx](../src/routes/TermsPage.tsx)             | layout, seo                     | -                   | seo, terms                               |
+| URL                       | Page file                                                   | Components                      | API modules         | i18n                                     |
+| ------------------------- | ----------------------------------------------------------- | ------------------------------- | ------------------- | ---------------------------------------- |
+| `/{lang}/creations/:slug` | [src/routes/ProductPage.tsx](../src/routes/ProductPage.tsx) | gallery, layout, seo, trust, ui | cart, gallery, gift | gallery, nav, product                    |
+| `/{lang}/gallery`         | [src/routes/GalleryPage.tsx](../src/routes/GalleryPage.tsx) | gallery, seo, ui                | -                   | gallery, gift, seo                       |
+| `/{lang}/pose-colle`      | (redirect)                                                  | -                               | -                   | -                                        |
+| `/{lang}/pose-patch`      | (redirect)                                                  | -                               | -                   | -                                        |
+| `/{lang}/sitemap`         | [src/routes/SitemapPage.tsx](../src/routes/SitemapPage.tsx) | layout, seo                     | -                   | accessibilityStatement, footer, nav, seo |
 
 ## Customer (14)
 
@@ -78,7 +71,7 @@ path from `src/config/paths.ts`, which is deployment configuration.
 | `/auth/facebook-data-deletion` | [src/routes/FacebookDataDeletionPage.tsx](../src/routes/FacebookDataDeletionPage.tsx) | auth, layout, seo | errors, identity | auth       |
 | `/auth/facebook-return`        | [src/routes/FacebookReturnPage.tsx](../src/routes/FacebookReturnPage.tsx)             | seo, ui           | http, identity   | auth       |
 
-## Files under `src/routes/` with no URL of their own (40)
+## Files under `src/routes/` with no URL of their own (41)
 
 Layouts, shells, and pages composed inside another route.
 
@@ -122,3 +115,4 @@ Layouts, shells, and pages composed inside another route.
 - `src/routes/cart/useShopCartPricing.ts`
 - `src/routes/pluginConfigure.ts`
 - `src/routes/pluginListGroups.ts`
+- `src/routes/pluginUpdateCheck.ts`

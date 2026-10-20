@@ -1,4 +1,5 @@
 import { config } from '../../../config/env.js';
+import { pluginSettingOptionalString } from '../../plugins/application/pluginSettingValues.js';
 import { writeDevEmail } from '../../../utils/devEmailWriter.js';
 import { noteSentEmail } from './emailJournal.js';
 import { getChatTransporter, getTransporter } from './smtpTransport.js';
@@ -85,7 +86,10 @@ export async function sendMail(message: MailMessage): Promise<void> {
  * piped mailbox (EMAIL_CHAT_FROM), never the visitor. */
 export async function sendChatMail(message: ChatMailMessage): Promise<void> {
   const subject = prefixedSubject(message.subject);
-  const from = message.from ?? config.chatSmtp.fromEmail ?? 'chat@localhost';
+  const from =
+    message.from ??
+    pluginSettingOptionalString('tuucho-contact', 'fromEmail') ??
+    'chat@localhost';
   const channel = config.routeEmailFolder ? 'folder' : 'smtp';
   const noted = { ...message, replyTo: message.replyTo ?? from };
   try {

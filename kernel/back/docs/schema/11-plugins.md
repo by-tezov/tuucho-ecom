@@ -18,9 +18,9 @@ Admin, Plugins shows **Folder missing**. Restore the folder, or uninstall to
 drop tables.
 
 Example: `plugins/tuucho/messaging/mail-spy/tuucho-mail-spy/back/migrations/001_spy_mail.js`
-creates `plugin_tuucho_mail_spy_channels` on enable and drops it on
-uninstall. Plugin-owned tables are not part of the kernel schema snapshot
-(`sync:schema` skips names that start with `plugin_`).
+is that plugin's **only** baseline (channels + recipients). Enable applies it
+once; uninstall runs `down`. Plugin-owned tables are not part of the kernel
+schema snapshot (`sync:schema` skips names that start with `plugin_`).
 
 ## `plugins`
 
@@ -33,7 +33,8 @@ catalogue; this table is enable, settings, and schema bookkeeping.
 | --- | --- |
 | `id` | Plugin id. Equals the leaf folder name. Bundled ids start with `tuucho-`. Primary key. |
 | `enabled` | Whether the host should load `back/register.ts` and front chunks. Complements also need every `dependsOn` parent on (`isPluginEffectivelyEnabled`). |
-| `settings` | JSONB merged from `defaultSettings` then admin Configure (`PATCH /admin/plugins/:id`). |
+| `settings` | Public JSONB from `defaultSettings` then admin Configure. Stays plaintext. |
+| `secrets` | Server-only JSONB. Sealed at rest with `encryptJsonPii` (AES-256-GCM, kernel `pii.encryptionKey`, `v1:` prefix). Empty is `{}`. Admin Configure returns key names only. |
 | `schema_version` | Plugin package version after its `back/migrations/` files have been applied. Null until the host has run that pass. Disable keeps it. Uninstall deletes the row. |
 | `updated_at` | Last enable, settings, or schema write. |
 

@@ -16,13 +16,13 @@ _Not a feature-map entry; it is shared by several features._
 
 | Layer | Files | Lines |
 | --- | --- | --- |
-| `application/` | 32 | 3719 |
-| `domain/` | 7 | 438 |
+| `application/` | 32 | 3828 |
+| `domain/` | 7 | 427 |
 | `http/` | 2 | 255 |
 
 ## Sub-capabilities
 
-- `application/updates/` — 12 files, 1312 lines
+- `application/updates/` — 12 files, 1355 lines
 
 ## Routes
 
@@ -54,15 +54,18 @@ _Not a feature-map entry; it is shared by several features._
   docs-developer documenting itself. Disable a plugin and its docs group is
   marked disabled.
 - Plugins must not ALTER kernel tables. Extra data is `plugin_<id>_…`
-  created from `back/migrations/`. Disable keeps those tables. Uninstall
+  created from that plugin's one `back/migrations/` baseline. Disable keeps those tables. Uninstall
   (`confirm: true`) runs `down`, drops leftovers, and deletes the
   `plugins` row. The host rejects migration SQL that mutates any other
   table. Kernel data is reached through owning-module `application/` APIs.
 - Official updates read git **tags** (`MAJOR.MINOR.PATCH`, no `v`) on
   `by-tezov/tuucho-ecom` only, walk every intermediate tag, and never write
-  `plugins/user/` or the shop root `package.json`. Plugins Core is root
-  `package.json`. Last applied official tag is `shop-release.json`. User plugins
-  update only from `plugin.json` `repository` (HTTPS GitHub). Dirty
+  `plugins/user/`. Kernel/all Apply copies the shop root `package.json` so
+  Core stays the published tag. Plugins Core and Check current are live
+  root `package.json`. Latest is the origin’s newest tag. Local ahead of
+  that tag has no Apply. Last applied official tag is `shop-release.json`
+  (Apply cursor, not display). User plugins update only from npm
+  `repository` on that plugin `package.json` (HTTPS GitHub). Dirty
   `plugins/tuucho/` refuses Apply. Failure restores the snapshot.
 
 <!-- invariants:end -->

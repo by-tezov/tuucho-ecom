@@ -308,15 +308,15 @@ Added by `1787390000000_google_sign_in.js`. Short-lived pending signup after a v
 
 ### `google_link_tokens`
 
-Added by `1787410000000_google_email_and_link_tokens.js`. Short-lived pending Account link when GIS email ≠ current `users.email` — customer must choose keep vs switch via `POST /account/link-google/complete`. Stores `user_id`, `google_sub`, encrypted `google_email` + lookup. TTL shares `GOOGLE_SIGNUP_TOKEN_TTL`.
+Added by `1787410000000_google_email_and_link_tokens.js`. Short-lived pending Account link when GIS email ≠ current `users.email` — customer must choose keep vs switch via `POST /account/link-google/complete`. Stores `user_id`, `google_sub`, encrypted `google_email` + lookup. TTL shares plugin `tuucho-signin-google` `signupTokenTtl` (default 10m).
 
 ### `facebook_signup_tokens` / `facebook_link_tokens`
 
-Added by `1787420000000_facebook_sign_in.js`. Same shapes as the Google tables for Facebook Login (`facebook_user_id`, encrypted email). TTL shares `FACEBOOK_SIGNUP_TOKEN_TTL` (default 10m).
+Added by `1787420000000_facebook_sign_in.js`. Same shapes as the Google tables for Facebook Login (`facebook_user_id`, encrypted email). TTL shares plugin `tuucho-signin-facebook` `signupTokenTtl` (default 10m).
 
 ### `apple_signup_tokens` / `apple_link_tokens`
 
-Same shapes as the Google tables for Sign in with Apple (`apple_sub`, encrypted email). TTL shares `APPLE_SIGNUP_TOKEN_TTL` (default 10m). Signup requires an email claim; later Apple authorizations may omit email on login-by-sub.
+Same shapes as the Google tables for Sign in with Apple (`apple_sub`, encrypted email). TTL shares plugin `tuucho-signin-apple` `signupTokenTtl` (default 10m). Signup requires an email claim; later Apple authorizations may omit email on login-by-sub.
 
 ### `apple_s2s_notifications`
 
@@ -324,7 +324,7 @@ Idempotency/audit log for Sign in with Apple server-to-server notifications (`PO
 
 ### `social_auth_pending`
 
-Holds a verified Google/Apple/Facebook identity when the matching shop preference `sign_in_*_verbose_enabled` is on and the social email does not match an existing Shop user — until the shopper chooses create (`POST /auth/social/create`) or link-via-OTP (`POST /auth/social/link/*`). Columns: `provider`, `provider_subject`, optional encrypted `email` / `email_lookup`, `language`, hashed token, `expires_at`, `used_at`. TTL shares `GOOGLE_SIGNUP_TOKEN_TTL`. `auth_otp_tokens` / `auth_otp_sends` purpose CHECKs include `social_link`.
+Holds a verified Google/Apple/Facebook identity when the matching shop preference `sign_in_*_verbose_enabled` is on and the social email does not match an existing Shop user — until the shopper chooses create (`POST /auth/social/create`) or link-via-OTP (`POST /auth/social/link/*`). Columns: `provider`, `provider_subject`, optional encrypted `email` / `email_lookup`, `language`, hashed token, `expires_at`, `used_at`. TTL shares that provider plugin's `signupTokenTtl` (default 10m). `auth_otp_tokens` / `auth_otp_sends` purpose CHECKs include `social_link`.
 
 ### `facebook_data_deletion_requests`
 
@@ -357,12 +357,11 @@ PII at rest: `email`, `pending_email`, `first_name`, `last_name`, `phone`, addre
 Natural-key lookup table (`code text primary key`, `label text not null`) —
 same convention as `delivery_networks(code)`. `users.role` defaults to `user`.
 `system = true` marks the two built-in roles, `user` (customer) and
-`super-admin` ("Super-administrateur"; code `admin` before
-`1791331200000_staff_roles.js`, see
-[migration-history.md](./migration-history.md)),
+`super-admin` ("Super-administrateur"; code `admin` before the staff-roles
+squash, see [migration-history.md](./migration-history.md)),
 which the administration Roles page can neither edit nor delete. Every other
-row is a staff role created on that page (`1791331200000_staff_roles.js`
-seeds `preparator`); its `code` is derived once from its first `label` and
+row is a staff role created on that page (`1738000000000_init.js`
+seeds `preparator` and `manager`); its `code` is derived once from its first `label` and
 never changes, `label` can be renamed. The foreign keys to `roles(code)`
 from `users.role`, `user_roles` and `role_parents.parent_code` do not
 cascade: deleting a staff role goes through the application, which first
@@ -404,7 +403,7 @@ parents. Indexed on `parent_code`.
 
 ### `role_assignable_roles`
 
-Delegated assignment (`1791331200000_staff_roles.js`): one row
+Delegated assignment (kernel baseline): one row
 per (`role_code`, `assignable_code`), both FKs `on delete cascade`, `CHECK`
 that `assignable_code` is never `super-admin` or `user`. Lists the roles
 that holders of `role_code` may give or take away, provided their resolved
@@ -418,7 +417,7 @@ Indexed on `assignable_code`.
 ### `role_targetable_roles`
 
 Which accounts a delegated assignment may touch
-(`1791331200000_staff_roles.js`): one row per (`role_code`,
+(kernel baseline): one row per (`role_code`,
 `target_code`), both FKs `on delete cascade`, `CHECK` that `target_code` is
 never `super-admin`; `user` stands for an account holding no staff role.
 `roles.targetable_dominant` marks the list as dominant; lists merge like
@@ -430,8 +429,8 @@ role it holds is in the delegate's resolved list. Indexed on `target_code`.
 The staff roles an account holds: one row per (`user_id`, `role_code`);
 `user_id` cascades with the account, `role_code` does not (deleting a role
 removes these rows first, see `roles`). `CHECK (role_code <> 'user')`: no row
-means a customer. Backfilled from `users.role` by
-`1791331200000_staff_roles.js`. `users.role` stays as a compatible
+means a customer. Fresh shops get no `user_roles` rows until a staff
+assignment. `users.role` stays as a compatible
 summary of this set, rewritten with it: `super-admin` when held, else the first
 staff role by creation order, else `user`. Every create/edit/delete of a
 role and every assignment is journaled (`roles.*`, `accounts.set_roles`,
@@ -442,13 +441,13 @@ role and every assignment is journaled (`roles.*`, `accounts.set_roles`,
 Same hashed-token shape as `email_confirmation_tokens` (`id`, `user_id` FK
 `on delete cascade`, `token_hash unique`, `expires_at`, `used_at`,
 `created_at`) — single-use, expires after `ACCOUNT_SECURITY_LOCK_TOKEN_TTL`
-(common `.env/.public.env`: `48h`). Issued by
+(common kernel `config/`: `48h`). Issued by
 `issueAccountLockToken` whenever `POST /account/change-email` runs, sent only
 to the account's _current_ (pre-change) address, and with every super-admin
 sign-in alert (one token per alert; see
 [Auth](../api/02-auth.md#super-admin-sign-in-alert)). A super-admin session
 counts as an automatic sign-in when it is refreshed after being idle at least
-`SUPER_ADMIN_SIGNIN_ALERT_IDLE` (common `.env/.public.env`: `1h`),
+`SUPER_ADMIN_SIGNIN_ALERT_IDLE` (common kernel `config/`: `1h`),
 measured from the previous `refresh_tokens.created_at`.
 
 ### `account_unlock_tokens`

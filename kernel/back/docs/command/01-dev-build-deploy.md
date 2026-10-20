@@ -33,13 +33,12 @@ stderr. The command stops at the first failed child.
 
 No arguments. Starts the local Postgres (`docker compose ... up -d`), then
 `scripts/devWithStripe.ts`: `tsx watch src/server.ts` (API on
-`http://localhost:3000`, `APP_TARGET=dev`) and, when the Stripe CLI is
+`http://localhost:3010`, `APP_TARGET=dev`) and, when the Stripe CLI is
 available and logged in, `stripe listen --all-snapshot --forward-to
 localhost:<port>/webhooks/stripe`. `--all-snapshot` asks for the classic
-webhook payload this API verifies. That wrapper also rewrites
-`.env/dev/.private.env`'s `STRIPE_WEBHOOK_SECRET` to match the CLI's
-current signing secret. If the CLI is missing, the API still starts without
-local webhook forwarding.
+webhook payload this API verifies. That wrapper also stores the CLI
+signing secret in the Stripe plugin secret store. If the CLI is missing,
+the API still starts without local webhook forwarding.
 
 ## `npm run backup-local`
 
@@ -55,9 +54,9 @@ npm run backup-local -- --ssh|--ftp [--out <dir>]
 Writes a single archive `tuucho-<version>.zip` whose root is the whole
 `Pam/` workspace (`kernel/back`, `kernel/front`, `catalog source`,
 `companion shop`, `resources`, and any other siblings under `Pam`).
-`<version>` is `kernel/back`'s `package.json` version. `kernel/front` and
-`catalog source` must carry the same version; the command refuses to run
-when they disagree, or when the workspace folder is not named `Pam`.
+`<version>` is the **root** `package.json` version. `catalog source` must
+carry the same version; the command refuses to run when they disagree, or
+when the workspace folder is not named `Pam`.
 `companion shop` is included in the archive and is not part of that
 version check. Skips `node_modules`, `output`, `dist`, and IDE `.idea` trees
 anywhere under `Pam`.
@@ -80,9 +79,9 @@ npm run build -- --prod|--preprod [--version X.Y.Z|bump-patch|bump-minor|bump-ma
 
 | Flag                    | Required         | Notes                                                                                                                                                                                                                       |
 | ----------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--preprod` / `--prod`  | yes, exactly one | `prod` or `preprod` — picks which target's `.env/<mode>/.public.env`+`.private.env` pair gets copied into the build. A silently-defaulted mode risks shipping the wrong one unnoticed, hence no default.                    |
-| `--version`             | no               | Either an explicit `X.Y.Z`, or `bump-patch`/`bump-minor`/`bump-major` to increment `package.json`'s current version automatically (minor/major reset the parts below them). Written back to `package.json` before building. |
-| `--patch-version X.Y.Z` | no               | Names the output folder `dist/vX.Y.Z/` instead of `dist/v<package.json version>/` — **never** writes `package.json`. Set by `deploy`'s own `--patch` (see below); rarely passed directly. Cannot combine with `--version`.  |
+| `--preprod` / `--prod`  | yes, exactly one | `prod` or `preprod` — picks which target's kernel `config/`+kernel private JSON pair gets copied into the build. A silently-defaulted mode risks shipping the wrong one unnoticed, hence no default.                    |
+| `--version`             | no               | Either an explicit `X.Y.Z`, or `bump-patch`/`bump-minor`/`bump-major` to increment the **root** `package.json` version automatically (minor/major reset the parts below them). Written back to root `package.json` before building. |
+| `--patch-version X.Y.Z` | no               | Names the output folder `dist/vX.Y.Z/` instead of `dist/v<root package.json version>/` — **never** writes `package.json`. Set by `deploy`'s own `--patch` (see below); rarely passed directly. Cannot combine with `--version`.  |
 
 Compiles to `dist/v<version>/`, self-contained (includes `package.json`,
 migrations, and only the common + this target's own env files) — upload
@@ -129,7 +128,7 @@ never mounts `/operation/*`.
 The deploy publishes and verifies that gateway before it builds anything, so an
 unreachable host fails in seconds rather than after a full front+back build.
 FTP mode requires `FTP_HOST`, `FTP_PORT`, `FTP_USER` and `FTP_PASSWORD` in
-`.env/.private.env`, plus `OPS_TOKEN` for the target.
+kernel private JSON, plus `OPS_TOKEN` for the target.
 
 Uploads stay on FTP over IPv4 (port 21). Gateway and `/healthz` checks use
 HTTPS dual-stack curl (no `--ipv4`): some operator networks get
@@ -246,7 +245,7 @@ Node.js Selector state (`cloudlinux-selector get --interpreter nodejs
 --json`). It keeps one application at `private_html/<mode>/current`. When
 none exists for that environment, it creates it automatically with the API
 subdomain, `server.js`, production mode, the newest available Node version,
-and `.env/<mode>/.lws.env`. When upgrading an old version-rooted app, it
+and leftover process env (`APP_TARGET`). When upgrading an old version-rooted app, it
 clones its cPanel settings onto `current` once. The API subdomain itself must
 already exist in cPanel; no manual “Setup Node.js App” step is required.
 
@@ -272,7 +271,7 @@ therefore appends a block to the API subdomain's `.htaccess`, between
 `# BEGIN TUCHO DIRECT NODE, managed by scripts/deploy.ts` and
 `# END TUCHO DIRECT NODE`, after the selector's own: a `PassengerNodejs`
 naming `/opt/alt/alt-nodejs<major>/root/usr/bin/node` (same major as the
-nodevenv), then one `SetEnv` per key of `.env/<mode>/.lws.env`, since the
+nodevenv), then one `SetEnv` per key of leftover process env (`APP_TARGET`), since the
 selector's own `SetEnv` block only applies under LiteSpeed. The block is
 rewritten on every deploy, before and after the selector restart; a value
 that is not a plain token fails the deploy instead of being quoted, and if
@@ -281,26 +280,21 @@ before. A `cloudlinux-selector restart` outside a deploy (the keep-warm
 cron's restore path) can drop the block; the app keeps working through the
 wrapper until the next deploy writes it back.
 
-**cPanel env-vars (`.env/<mode>/.lws.env`).** Plain `KEY=value`, no comments
-— the exact process-env set for cPanel's Node.js Selector (`APP_TARGET`,
-`ROUTE_EMAIL_FOLDER`, `ENABLED_CRON_*`,
-and any other key that must exist before the app reads `.public.env` /
-`.private.env`). Every back deploy
-pushes this file onto the target app via `cloudlinux-selector set --env-vars`
-(existing app) or bakes it into the first `create` call. The live cPanel
-map is replaced by the file: missing keys are added, changed values are
-overwritten, and keys that are not in the file are removed. `set` is issued
-against a real `current` directory; CloudLinux resolves a stopped app's App
-Root, so a `current → vX.Y.Z` symlink would make it look up a version folder
-that is not the registered application. The release symlink is restored
-immediately after. A no-op when the live set already matches the file.
-Committed to git like `.public.env`. Unlike `.private.env`, which is
-gitignored.
+**cPanel leftover process env.** Deploy SetEnv is only `APP_TARGET` (the
+config folder) and optional `PORT`. Product keys live in uploaded kernel
+`config/` and plugin settings/secrets, not in cPanel env-vars. Every back
+deploy pushes that leftover set via `cloudlinux-selector set --env-vars`
+(existing app) or bakes it into the first `create` call. Live keys that are
+not leftover are removed. `set` is issued against a real `current`
+directory; CloudLinux resolves a stopped app's App Root, so a
+`current → vX.Y.Z` symlink would make it look up a version folder that is
+not the registered application. The release symlink is restored immediately
+after. A no-op when the live set already matches.
 
 **Production crons.** Every `npm run deploy -- --prod` that includes the
 backend installs or refreshes marked cPanel cron entries for shipment
-tracking, account deletion, guest-saved cleanup, loyalty, gift, and gift
-purge when the matching `ENABLED_CRON_*` flag is `true`. Each calls a stable
+tracking, account deletion, guest-saved cleanup, loyalty, gift, gift purge,
+payment-auth-expiry, and keep-warm. Each calls a stable
 file under `~/bin/main-cron-*.sh`, refreshed with the deployed release path.
 Preprod deploys never install these crons. An `--ftp` prod deploy can hit a
 LiteSpeed 503 on `ops.shop.example` right after the API restart (the account
@@ -395,13 +389,12 @@ every path referenced by [`docs/features.json`](../features.json) exists
 
 No arguments. Read-only. Part of `npm run check`. Runs
 `node ../../scripts/release-manifest.mjs --check` so root `release.json`
-matches the **root** `package.json` version, `kernel/back/package.json`,
-`kernel/front/package.json`, `plugin-sdk/package.json`, kernel migration names,
-and every bundled `plugin.json` under `plugins/tuucho/` plus
-`plugins/tuucho/manifest.json`. It also checks generated plugin `package.json`
-stubs. Drift fails CI. Write `release.json` with
-`node ../../scripts/release-manifest.mjs` (no `--check`) when cutting a tag.
-Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
+matches the **root** `package.json` version, kernel migration names, and
+every bundled plugin `package.json` under `plugins/tuucho/` plus
+`plugins/tuucho/manifest.json`. `kernel/back`, `kernel/front`, and
+`plugin-sdk` `package.json` must not carry a `version`. Drift fails CI. Write `release.json`
+with `node ../../scripts/release-manifest.mjs` (no `--check`) when cutting
+a tag. Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
 
 ## `npm run test:unit`
 
@@ -782,7 +775,7 @@ of in production: `tsc` cannot see inside a template literal.
 No arguments. Read-only. Part of `npm run check`.
 
 Fails when documentation states a number for an environment variable that
-`.env/.public.env` does not hold. It reads the form
+kernel `config/` does not hold. It reads the form
 `` `GIFT_MAX_BUDGET_CEILING`, currently 150 € ``: the variable name and the
 value have to sit close together, so merely mentioning a variable is not read
 as a claim about it.

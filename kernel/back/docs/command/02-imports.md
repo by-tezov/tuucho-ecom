@@ -8,9 +8,9 @@ flag, `--ssh` or `--ftp`; `--dev` needs neither. See
 
 Seed-only configuration for cart rules, shop payment methods / countries,
 courier live toggles, and third-party sign-in methods lives in
-`.env/.seed.env` (optional `.env/<mode>/.seed.env` overlay). These keys are
-**not** loaded by the running API. Only the matching `npm run … -- seed`
-CLIs and the aggregate `npm run seed` read them.
+`sample/seed-defaults.env`. These keys are **not** loaded by the running API.
+Only the matching `npm run … -- seed` CLIs and the aggregate `npm run seed`
+read them.
 
 ## `npm run product`
 
@@ -64,7 +64,7 @@ target: they need their own explicit flag, plus `--confirm` on `--prod`.
 | `--from` / `--to`              | `stock-report`   | Same three value forms as `user -- list`'s own `--from`/`--to` (index / relative day count `Nd` / absolute date `YYYY-MM-DD`), but bounding a product's own `creation-date` instead of `last_connected_at` — `--from` is the more-recent boundary, `--to` the further-back one. No `--sort`: creation-date (newest first) is the only order. |
 | `--limit <n>`                  | `stock-report`   | Caps the displayed table. Omitted = every matching product shown. Cannot combine with an index `--to`. Totals always reflect every product matching `--from`/`--to`, regardless of `--limit`.                                                                                                                                                |
 | `--with-orders` / `--not-sent` | `stock-report`   | Mutually exclusive; both switch the count from `available` stock to live order-item quantities. See subcommands below.                                                                                                                                                                                                                       |
-| `--dev`/`--preprod`/`--prod`   | all              | Required, no default — `dev`, `preprod`, or `prod`. Picks both the target API and which `.env/<mode>/.private.env`'s `OPS_TOKEN` to send.                                                                                                                                                                                                    |
+| `--dev`/`--preprod`/`--prod`   | all              | Required, no default — `dev`, `preprod`, or `prod`. Picks both the target API and which kernel private JSON's `OPS_TOKEN` to send.                                                                                                                                                                                                    |
 | `--source`                     | `seed`, `check`  | Defaults to `catalog import tree/product/library` (sibling checkout assumption).                                                                                                                                                                                                                                                             |
 
 Shapes and lengths come from the folders only (docs/plans/variant-visibility.md):
@@ -498,10 +498,9 @@ Kind commands upsert by `--code`; omitted flags keep the existing rule’s
 values, or take the same defaults `seed` uses when the code is new.
 
 Those defaults are not hard-coded: they come from `CART_RULE_*` in
-`.env/.seed.env`, with the usual per-target overlay
-(`.env/<mode>/.seed.env` wins), so a different franco threshold or gift
-product is an env edit, not a code change. A missing or malformed key fails
-the command immediately rather than silently falling back.
+`sample/seed-defaults.env`, so a different franco threshold or gift product
+is a fixture edit, not a code change. A missing or malformed key fails the
+command immediately rather than silently falling back.
 
 | Key                                          | Default           |
 | -------------------------------------------- | ----------------- |
@@ -539,9 +538,8 @@ npm run payment-method -- enable <card|paypal|bancontact|google-pay|apple-pay|al
 npm run payment-method -- disable <card|paypal|bancontact|google-pay|apple-pay|all> [--json] --dev|--preprod|--prod
 ```
 
-`check` is read-only. `seed` explicitly applies the defaults from the
-layered seed env (`.env/.seed.env`, overridden by
-`.env/<target>/.seed.env`); it is idempotent and has no dependency on
+`check` is read-only. `seed` explicitly applies the defaults from
+`sample/seed-defaults.env`; it is idempotent and has no dependency on
 `catalog source`. `enable` and `disable` change only the named shop-wide
 flag; use `all` deliberately to change every flag. As with every target write,
 production requires `--confirm`.
@@ -570,7 +568,7 @@ npm run payment-method -- disable paypal --ssh --prod --confirm
 ## `npm run sign-in-method`
 
 Shop-wide Google / Facebook / Apple sign-in availability lives in the target
-database only (no manager files; OAuth credentials stay in env). The OPS API is
+database only (no manager files; OAuth credentials stay in private JSON). The OPS API is
 `/operation/sign-in-methods`; these toggles only decide which third-party
 providers the shop offers. Email + password / OTP are never gated.
 
@@ -581,8 +579,8 @@ npm run sign-in-method -- enable <google|facebook|apple|all> [--json] --dev|--pr
 npm run sign-in-method -- disable <google|facebook|apple|all> [--json] --dev|--preprod|--prod
 ```
 
-`check` is read-only. `seed` applies the defaults from the layered seed env
-(`.env/.seed.env`, overridden by `.env/<target>/.seed.env`); it is
+`check` is read-only. `seed` applies the defaults from
+`sample/seed-defaults.env`; it is
 idempotent. `enable` and `disable` change only the named shop-wide **availability**
 flag (not the per-provider verbose create/link flow); use `all` deliberately to
 change every availability flag. Production writes require `--confirm`.
@@ -694,9 +692,8 @@ npm run payment-method-countries -- check --ssh --prod
 
 Read-only loyalty programme numbers. OPS API `GET /operation/loyalty`.
 The programme is always on, so there is no seed and no aggregate `npm run seed`
-step. Numbers (`LOYALTY_VALUE_PER_100`, `LOYALTY_LOT_DURATION_MONTHS`,
-`LOYALTY_BURN_NOTICE_WEEKS`, `LOYALTY_REMINDER_INTERVAL_DAYS`) live in
-`.env/.public.env` and are returned from the running process.
+step. Numbers live in tuucho-commerce-loyalty plugin settings and are returned
+from the running process.
 
 ```bash
 npm run loyalty -- check [--json] --dev|--preprod|--prod
@@ -706,8 +703,7 @@ npm run loyalty -- check [--json] --dev|--preprod|--prod
 
 Read-only gift programme numbers. OPS API `GET /operation/gift`. New offers
 are always accepted. TTLs, ceilings, PIN knobs, and purge age live in
-`.env/.public.env` (`GIFT_*`). **Not** part of `npm run seed`. There is no
-production `GIFT_*` overlay.
+tuucho-commerce-gift plugin settings. **Not** part of `npm run seed`.
 
 ```bash
 npm run gift -- check [--json] --dev|--preprod|--prod

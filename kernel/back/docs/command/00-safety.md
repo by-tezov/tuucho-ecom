@@ -25,7 +25,7 @@ What actually protects the ops surface:
   away; `--ftp` ops CLIs then fail.
 
 `scripts/withOpsTunnel.ts` loads `OPS_TOKEN` from
-`.env/.private.env` / `.env/<mode>/.private.env` and sets `PAM_OPS_TOKEN`
+kernel private JSON and sets `PAM_OPS_TOKEN`
 for every transport (dev, ssh, ftp) so CLIs always send the real Bearer
 token. Never commit or print that value.
 
@@ -68,22 +68,13 @@ from the admin dashboard, not by env values:
 
 A route whose preference is off answers `403`.
 
-## 4. Deploy-time environment switches
+## 4. Leftover process env
 
-These are read by `npm run deploy`, not by a request handler — they install or
-remove a production crontab entry and never block a call at runtime:
-
-- `ENABLED_CRON_SHIPMENT`
-- `ENABLED_CRON_ACCOUNT_DELETION`
-- `ENABLED_CRON_GUEST_SAVED_CLEANUP`
-- `ENABLED_CRON_LOYALTY`
-- `ENABLED_CRON_GIFT`
-- `ENABLED_CRON_GIFT_PURGE`
-- `ENABLED_CRON_PAYMENT_AUTH_EXPIRY`
-
-Set them in `.env/<mode>/.lws.env` for production deploy switches (plain
-topology, not a secret). Deploy pushes that file onto the cPanel Node app
-(see `docs/command/01-dev-build-deploy.md`).
+Deploy SetEnv on the cPanel Node app is leftover process overlay only:
+`APP_TARGET` (config folder name) and optional `PORT`. Optional host
+`DATABASE_URL` may overlay kernel private JSON. Product keys live in kernel
+`config/` and plugin settings/secrets. Production deploys always install the
+crontab entries (see `docs/command/01-dev-build-deploy.md`).
 
 `npm run test` is the unit suite (`src-test/unit-test/`). There is no
 `ALLOW_TEST_API` gate.

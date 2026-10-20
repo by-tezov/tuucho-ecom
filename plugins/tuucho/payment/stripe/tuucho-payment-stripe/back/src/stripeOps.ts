@@ -1,5 +1,5 @@
 import type Stripe from 'stripe';
-import { config } from '@kernel/back/config/env';
+import { getPluginSecret } from '@tuucho/plugin-sdk';
 import { createStripeFromEnv } from './stripeClient.js';
 
 function asStripe(stripe: unknown): Stripe {
@@ -13,7 +13,7 @@ function asStripe(stripe: unknown): Stripe {
 
 export function constructWebhookEvent(raw: Buffer, signature: string): Stripe.Event {
   const stripe = createStripeFromEnv();
-  const secret = config.stripe.webhookSecret;
+  const secret = getPluginSecret('tuucho-payment-stripe', 'webhookSecret');
   if (!stripe || !secret) throw new Error('stripe_unavailable');
   return stripe.webhooks.constructEvent(raw, signature, secret);
 }

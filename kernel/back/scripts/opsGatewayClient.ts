@@ -16,7 +16,7 @@
  * caller. Every function here throws on failure; callers decide how to report
  * that. */
 import { execFileSync } from 'node:child_process';
-import { loadEnvFile, loadPublicEnv } from './envFile.js';
+import { loadPublicEnv } from './envFile.js';
 
 export interface GatewayTarget {
   mode: 'preprod' | 'prod';
@@ -50,17 +50,17 @@ export function loadGatewayTarget(root: string, mode: 'preprod' | 'prod'): Gatew
     /\/+$/,
     '',
   );
-  const privateEnv = { ...loadEnvFile(root, '.private.env'), ...loadEnvFile(root, `${mode}/.private.env`) };
-  const ftpHost = process.env.FTP_HOST ?? privateEnv.FTP_HOST;
-  const ftpPort = process.env.FTP_PORT ?? privateEnv.FTP_PORT ?? '21';
-  const ftpUser = process.env.FTP_USER ?? privateEnv.FTP_USER;
-  const ftpPassword = process.env.FTP_PASSWORD ?? privateEnv.FTP_PASSWORD;
-  const opsToken = privateEnv.OPS_TOKEN;
+  const json = loadPublicEnv(root, mode);
+  const ftpHost = json.FTP_HOST;
+  const ftpPort = json.FTP_PORT ?? '21';
+  const ftpUser = json.FTP_USER;
+  const ftpPassword = json.FTP_PASSWORD;
+  const opsToken = json.OPS_TOKEN;
 
   if (!gatewayUrl)
-    throw new Error(`OPS_GATEWAY_URL not found for ${mode} — set it in .env/${mode}/.public.env`);
+    throw new Error(`ops.gatewayUrl not found for ${mode} — set it in kernel/back/config/${mode}/config.json`);
   if (!ftpHost || !ftpUser || !ftpPassword)
-    throw new Error('FTP transport requires FTP_HOST, FTP_USER and FTP_PASSWORD in .env/.private.env');
+    throw new Error('FTP transport requires ftp.host, ftp.user and ftp.password in kernel private JSON');
   if (!/^\d{1,5}$/.test(ftpPort) || Number(ftpPort) > 65535)
     throw new Error(`FTP_PORT must be a port number, got ${ftpPort}`);
   if (ftpPort === '22') throw new Error('FTP_PORT=22 is SFTP/SSH, not FTP; this host serves FTP on port 21');

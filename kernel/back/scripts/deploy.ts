@@ -50,10 +50,10 @@
  * chosen token; --no-route-admin-token retains the ordinary /admin route.
  *
  * --patch X.Y.Z overrides the release folder both builds target,
- * in place of each repo's own package.json version — neither package.json is
+ * in place of the root package.json version — neither package.json is
  * touched. Use it to re-push current source into an already-live version
- * (a hotfix that doesn't warrant a real version bump): e.g. package.json is
- * at 0.9.6 but preprod is still serving 0.9.5 — `--patch 0.9.5` builds
+ * (a hotfix that doesn't warrant a real version bump): e.g. root package.json
+ * is at 0.9.6 but preprod is still serving 0.9.5 — `--patch 0.9.5` builds
  * current HEAD as dist/v0.9.5/ and switches `current` to that release
  * (env-vars synced, npm install, restart, healthz). Not valid with --dev
  * (nothing to build/target) or
@@ -82,10 +82,9 @@
  * that release. There is one stable cPanel Node.js App rooted at the latter.
  * If it does not exist, deploy creates it through LWS's `cloudlinux-selector`
  * CLI; an older version-rooted app is migrated once to that stable root.
- * `.env/<mode>/.lws.env` (plain KEY=value — the cPanel-side
- * process env, including `APP_TARGET`) is pushed onto the app as the
- * exact env-var set via `cloudlinux-selector set`. Keys that are live in
- * cPanel but absent from the file are removed; file values overwrite.
+ * Leftover process env (`APP_TARGET`, optional `PORT`) is pushed onto the
+ * app as the exact env-var set via `cloudlinux-selector set`. Keys that
+ * are live in cPanel but absent from that leftover set are removed.
  * That `set` runs
  * against a real `current` directory (the release symlink is detached for
  * the call and restored afterwards): CloudLinux realpath()s a stopped app's
@@ -149,7 +148,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync 
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { loadApiBaseUrl, loadEnvFile, loadPublicEnv } from './envFile.js';
+import { loadApiBaseUrl, loadPublicEnv } from './envFile.js';
 import {
   GATEWAY_EXEC_ATTEMPTS,
   isRetryableGatewayBody,
@@ -160,6 +159,7 @@ import {
 import { parseTransportFlags, requireTransport, transportFlags, type Transport } from './transport.js';
 
 const backRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+const repoRoot = join(backRoot, '..', '..');
 const frontRoot = join(backRoot, '..', 'kernel/front');
 const SSH_HOST = 'lws_shop_example';
 // cPanel account username — needed to read `cloudlinux-selector get`'s
@@ -206,9 +206,9 @@ interface Args {
 // characters with no meaning in either context, rather than escaping.
 const ROUTE_TOKEN_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 
-// --patch's argument: a bare X.Y.Z, checked against each repo's actual
-// package.json version only insofar as it must look like a version at all —
-// it is deliberately allowed to differ (that's the whole point, see --patch's
+// --patch's argument: a bare X.Y.Z, checked against the root package.json
+// version only insofar as it must look like a version at all — it is
+// deliberately allowed to differ (that's the whole point, see --patch's
 // usage note below).
 const PATCH_VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 const SSH_CONNECT_TIMEOUT_SECONDS = 10;
@@ -446,16 +446,21 @@ function parseArgs(argv: string[]): Args {
   };
 }
 
-function readVersion(root: string): string {
-  const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as { version: string };
+function readRootPackageVersion(): string {
+  const { version } = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')) as {
+    version?: unknown;
+  };
+  if (typeof version !== 'string' || !/^\d+\.\d+\.\d+$/.test(version)) {
+    throw new Error('Root package.json must contain a MAJOR.MINOR.PATCH version');
+  }
   return version;
 }
 
 /** --patch overrides which version folder/cPanel app this deploy targets,
  * for both front and back — used to re-push current source into an
- * already-live version (e.g. a hotfix) without bumping either repo's
- * package.json or registering a new cPanel Node.js App. Falls back to each
- * repo's actual package.json version when --patch wasn't passed. */
+ * already-live version (e.g. a hotfix) without bumping root package.json
+ * or registering a new cPanel Node.js App. Falls back to the root
+ * package.json version when --patch wasn't passed. */
 function effectiveVersion(args: Args, actualVersion: string): string {
   return args.patch ?? actualVersion;
 }
@@ -503,7 +508,7 @@ function run(dryRun: boolean, command: string, args: string[], options: { cwd?: 
 /** Connection details for the FTP transport. The gateway is PHP/Apache on its
  * own subdomain, deliberately independent of the Node app it controls: it has
  * to keep answering while that app is stopped mid-deploy or failing to boot.
- * FTP credentials are shared across targets and live in `.env/.private.env`. */
+ * FTP credentials are shared across targets and live in kernel private JSON. */
 function ftpConnection(mode: Mode): {
   gatewayUrl: string;
   ftpHost: string;
@@ -511,20 +516,15 @@ function ftpConnection(mode: Mode): {
   ftpUser: string;
   ftpPassword: string;
 } {
-  const gatewayUrl = (
-    process.env.PAM_OPS_GATEWAY_URL ?? loadPublicEnv(backRoot, mode).OPS_GATEWAY_URL
-  )?.replace(/\/+$/, '');
-  const privateEnv = {
-    ...loadEnvFile(backRoot, '.private.env'),
-    ...loadEnvFile(backRoot, `${mode}/.private.env`),
-  };
-  const ftpHost = process.env.FTP_HOST ?? privateEnv.FTP_HOST;
-  const ftpPort = process.env.FTP_PORT ?? privateEnv.FTP_PORT ?? '21';
-  const ftpUser = process.env.FTP_USER ?? privateEnv.FTP_USER;
-  const ftpPassword = process.env.FTP_PASSWORD ?? privateEnv.FTP_PASSWORD;
-  if (!gatewayUrl) fail(`OPS_GATEWAY_URL not found for ${mode} — set it in .env/${mode}/.public.env`);
+  const json = loadPublicEnv(backRoot, mode);
+  const gatewayUrl = (process.env.PAM_OPS_GATEWAY_URL ?? json.OPS_GATEWAY_URL)?.replace(/\/+$/, '');
+  const ftpHost = json.FTP_HOST;
+  const ftpPort = json.FTP_PORT ?? '21';
+  const ftpUser = json.FTP_USER;
+  const ftpPassword = json.FTP_PASSWORD;
+  if (!gatewayUrl) fail(`ops.gatewayUrl not found for ${mode} — set it in kernel/back/config/${mode}/config.json`);
   if (!ftpHost || !ftpUser || !ftpPassword)
-    fail(`FTP transport requires FTP_HOST, FTP_USER and FTP_PASSWORD in .env/.private.env`);
+    fail(`FTP transport requires ftp.host, ftp.user and ftp.password in kernel private JSON`);
   if (!/^\d{1,5}$/.test(ftpPort) || Number(ftpPort) > 65535)
     fail(`FTP_PORT must be a port number, got ${ftpPort}`);
   if (ftpPort === '22') fail('FTP_PORT=22 is SFTP/SSH, not FTP; this host serves FTP on port 21');
@@ -532,13 +532,18 @@ function ftpConnection(mode: Mode): {
 }
 
 function opsToken(mode: Mode): string {
-  const privateEnv = {
-    ...loadEnvFile(backRoot, '.private.env'),
-    ...loadEnvFile(backRoot, `${mode}/.private.env`),
-  };
-  const token = privateEnv.OPS_TOKEN;
-  if (!token) fail(`OPS_TOKEN not found for ${mode} — the gateway authenticates with it`);
+  const token = loadPublicEnv(backRoot, mode).OPS_TOKEN;
+  if (!token) fail(`ops.token not found for ${mode} — the gateway authenticates with it`);
   return token;
+}
+
+/** Host process leftover only: APP_TARGET selects the config folder. PORT is
+ * optional for Passenger. Everything else lives in uploaded kernel JSON. */
+function leftoverProcessEnv(mode: Mode): Record<string, string> {
+  const json = loadPublicEnv(backRoot, mode);
+  const env: Record<string, string> = { APP_TARGET: mode };
+  if (json.APP_PORT) env.PORT = json.APP_PORT;
+  return env;
 }
 
 /** LWS exposes cPanel's UAPI on the hosting node itself. Only used for the
@@ -551,12 +556,8 @@ function cpanelUapi(
   operation: string,
   parameters: Record<string, string>,
 ): unknown {
-  const privateEnv = {
-    ...loadEnvFile(backRoot, '.private.env'),
-    ...loadEnvFile(backRoot, `${mode}/.private.env`),
-  };
-  const token = privateEnv.LWS_API_TOKEN;
-  if (!token) throw new Error('LWS_API_TOKEN not found');
+  const token = loadPublicEnv(backRoot, mode).LWS_API_TOKEN;
+  if (!token) throw new Error('ops.lwsApiToken not found in kernel private JSON');
   const endpoint = new URL(`https://web60.lws-hosting.com:2083/execute/${module}/${operation}`);
   for (const [key, value] of Object.entries(parameters)) endpoint.searchParams.set(key, value);
   const output = execFileSync(
@@ -705,9 +706,9 @@ function ftpGatewayExec(
       // is currently deployed, so rotating it locally locks this transport out
       // until that release is replaced — which is what needs the gateway.
       fail(
-        `gateway rejected OPS_TOKEN for ${activeArgs.mode}. It reads the token from the deployed release ` +
-          `(private_html/${activeArgs.mode}/current/.env/${activeArgs.mode}/.private.env), so a locally rotated token ` +
-          'will not match until that file is replaced. Upload the new .private.env over plain FTP first, then re-run.',
+        `gateway rejected OPS_TOKEN for ${activeArgs.mode}. It reads ops.token from the deployed release ` +
+          `(private_html/${activeArgs.mode}/current/config/), so a locally rotated token ` +
+          'will not match until that private JSON is replaced. Upload the new config.private.json over plain FTP first, then re-run.',
       );
     }
     if (options.quiet && parsed.stderr) process.stderr.write(parsed.stderr);
@@ -842,7 +843,7 @@ function ftpSyncDirectory(
 /** Refuses to write anywhere but the release trees this deploy owns.
  *
  * An earlier attempt at this transport unpacked a whole back release into the
- * account's home directory (.env, api/, db/, services/, app.js, server.js …
+ * account's home directory (config/, api/, db/, services/, app.js, server.js …
  * all loose in ~), because a destination path that came out empty silently
  * became the FTP root instead of failing. Every legitimate destination here
  * starts with one of four prefixes, so anything else is a bug in the caller
@@ -932,7 +933,7 @@ function waitForGatewayDigest(mode: Mode, expected: string): boolean {
  * authenticates with. Nothing else — no build, no release, no restart.
  *
  * The token goes in its own file beside the release rather than into the
- * release's .env, for two reasons. It leaves the deployed application's
+ * release's kernel JSON, for two reasons. It leaves the deployed application's
  * configuration completely untouched — which is what makes `--ftp-ops` safe to
  * run against a production release built long before this gateway existed. And
  * it survives a release swap, so rotating OPS_TOKEN no longer locks the
@@ -990,7 +991,7 @@ function removeFtpOps(args: Args, options: { quiet?: boolean } = {}): void {
 }
 
 /** OPS_TOKEN the gateway authenticates with, landed over FTP. Required before
- * `/healthz` can succeed when the release tree (and its `.env`) was wiped —
+ * `/healthz` can succeed when the release tree (and its kernel JSON) was wiped —
  * otherwise bootstrap waits forever on 401 because the token file is only
  * uploaded later by `--ftp-ops`. */
 function publishOpsGatewayToken(mode: Mode): void {
@@ -1033,7 +1034,7 @@ function bootstrapFtpGateway(args: Args): void {
   ftpUploadFile(php, `public_html/${gatewayDirectory}/index.php`, args.mode);
   ftpUploadFile(htaccess, `public_html/${gatewayDirectory}/.htaccess`, args.mode);
 
-  // Auth before the digest wait: after a wipe there is no release `.env` and
+  // Auth before the digest wait: after a wipe there is no release kernel JSON and
   // no `.ops-gateway/token`, so every /healthz call 401s until this lands.
   publishOpsGatewayToken(args.mode as RemoteMode);
 
@@ -1337,7 +1338,7 @@ function startLocalApi(): ChildProcess {
   run(
     false,
     'docker',
-    ['compose', '--env-file', '.env/.private.env', '--env-file', '.env/dev/.private.env', 'up', '-d'],
+    ['compose', '--env-file', '.compose.env', 'up', '-d'],
     { cwd: backRoot },
   );
   const child = spawn('npx', ['tsx', 'src/server.ts'], {
@@ -1489,9 +1490,9 @@ function queryLatestSelectorNodeVersion(): string {
   return latest;
 }
 
-/** Pushes `.env/<mode>/.lws.env` onto the cPanel Node.js App as the exact
- * process-env set. Live keys that are not in the file are removed; file
- * values overwrite. A no-op when the live set already matches the file. */
+/** Pushes leftover process env (`APP_TARGET`, optional `PORT`) onto the
+ * cPanel Node.js App as the exact process-env set. Live keys that are not
+ * leftover are removed. A no-op when the live set already matches. */
 function syncLwsEnvVars(
   args: Args,
   appRoot: string,
@@ -1504,7 +1505,7 @@ function syncLwsEnvVars(
   const removed = currentKeys.filter((key) => !(key in lwsEnv));
   const added = desiredKeys.filter((key) => !(key in currentEnvVars));
   const changed = desiredKeys.filter((key) => key in currentEnvVars && currentEnvVars[key] !== lwsEnv[key]);
-  console.log(`[deploy] syncing .env/${args.mode}/.lws.env onto ${appRoot}`);
+  console.log(`[deploy] syncing leftover process env (APP_TARGET) onto ${appRoot}`);
   if (added.length > 0) console.log(`[deploy]   add: ${added.join(', ')}`);
   if (changed.length > 0) console.log(`[deploy]   set: ${changed.join(', ')}`);
   if (removed.length > 0) console.log(`[deploy]   remove: ${removed.join(', ')}`);
@@ -1602,7 +1603,7 @@ function ensureBackApp(
   // accept it so the first current-layout deploy can clone that app instead
   // of falsely treating an established environment as a first install.
   const entries = selectorEntriesForMode(args.mode);
-  const lwsEnv = loadEnvFile(backRoot, `${args.mode}/.lws.env`);
+  const lwsEnv = leftoverProcessEnv(args.mode);
 
   const appMode = appModeForMode(args.mode);
 
@@ -1725,19 +1726,20 @@ const DIRECT_NODE_END = '# END TUCHO DIRECT NODE';
  * seconds, so that cost landed on almost every visitor.
  *
  * The block is appended after the selector's own, so its `PassengerNodejs`
- * wins, and it re-exports `.env/<mode>/.lws.env` with `SetEnv` (the
- * selector's own `SetEnv` block only applies under LiteSpeed). Rewritten on
+ * wins, and it re-exports leftover process env (`APP_TARGET`, optional
+ * `PORT`) with `SetEnv` (the selector's own `SetEnv` block only applies
+ * under LiteSpeed). Rewritten on
  * every call, so it follows a Node major change and survives the selector
  * rewriting the file; if the real binary is missing, no block is written and
  * the wrapper keeps working as before.
  */
 function directNodeCommands(args: Args): string[] {
-  const lwsEnv = loadEnvFile(backRoot, `${args.mode}/.lws.env`);
+  const lwsEnv = leftoverProcessEnv(args.mode);
   const setEnvLines = Object.entries(lwsEnv).map(([key, value]) => {
     // Interpolated into a remote shell command and an Apache directive:
     // anything but a plain token is refused rather than quoted.
     if (!/^[A-Z][A-Z0-9_]*$/.test(key) || !/^[A-Za-z0-9_.:/-]+$/.test(value)) {
-      throw new Error(`.env/${args.mode}/.lws.env: ${key} is not a plain KEY=token pair`);
+      throw new Error(`leftover process env ${key} is not a plain KEY=token pair`);
     }
     return `SetEnv ${key} ${value}`;
   });
@@ -1757,7 +1759,7 @@ function directNodeCommands(args: Args): string[] {
 }
 
 function uploadFront(args: Args): void {
-  const version = effectiveVersion(args, readVersion(frontRoot));
+  const version = effectiveVersion(args, readRootPackageVersion());
   const versionDir = join(frontRoot, 'dist', `v${version}`);
   const htaccess = join(frontRoot, 'dist', '.htaccess');
   const rootHtaccess = join(frontRoot, 'dist', 'root.htaccess');
@@ -1819,7 +1821,7 @@ function installProductionCron(
   },
 ): void {
   if (args.mode !== 'prod') return;
-  const enabled = loadEnvFile(backRoot, 'prod/.lws.env')[opts.enabledEnv] === 'true';
+  const enabled = true;
   const cronLine = `${opts.cronExpr} $HOME/${opts.stableScript} ${opts.marker}`;
   const grepExclude = [opts.marker, opts.legacyMarker]
     .filter(Boolean)
@@ -1920,7 +1922,7 @@ function installProductionCrons(args: Args, remoteDir: string): void {
 }
 
 function uploadBack(args: Args): void {
-  const version = effectiveVersion(args, readVersion(backRoot));
+  const version = effectiveVersion(args, readRootPackageVersion());
   const versionDir = join(backRoot, 'dist', `v${version}`);
   requireExists(args.dryRun, versionDir, `back dist/v${version}`);
   const versionedPipe = join(versionDir, 'pipe', 'pipe-program-chat-handler.sh');
@@ -2099,7 +2101,7 @@ async function journalDeployFinish(
   args: Args,
   outcome: 'success' | 'failure',
 ): Promise<void> {
-  const version = effectiveVersion(args, readVersion(backRoot));
+  const version = effectiveVersion(args, readRootPackageVersion());
   const payload = {
     category: 'deploy' as const,
     action: 'deploy.finish',
@@ -2186,7 +2188,7 @@ function runDeploy(args: Args): { removeFtpOpsAtEnd: boolean } {
   );
   if (args.patch) {
     console.log(
-      `[deploy] --patch ${args.patch}: building current source as v${args.patch} instead of each repo's own ` +
+      `[deploy] --patch ${args.patch}: building current source as v${args.patch} instead of the root ` +
         'package.json version — neither package.json is modified. This overwrites whatever is currently live at ' +
         'that release and then switches current to it.',
     );

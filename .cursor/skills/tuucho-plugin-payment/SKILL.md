@@ -32,7 +32,8 @@ api.registerPaymentGateway({
 });
 ```
 
-`kind: "payment"`. Checkout methods are toggled in **App Preferences** (the
+`kind: "payment"`. Keys belong in this plugin’s `settingsSchema` / secret
+store (`api.getPluginSecret`), never kernel JSON. Checkout methods are toggled in **App Preferences** (the
 payment-method shell), not a duplicate Configure of only those switches.
 `pluginHasConfigure` is false unless this plugin has a real `settingsSchema`.
 Checkout UI in `slot.checkout.payment` is **tuucho-plugin-slot**.

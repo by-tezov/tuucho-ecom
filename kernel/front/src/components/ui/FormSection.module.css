@@ -1,0 +1,29 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.description {
+  margin: -6px 0 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.body {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}

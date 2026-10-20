@@ -106,7 +106,7 @@ Bearer header to loopback. The loopback ops server itself also requires
 `Authorization: Bearer <OPS_TOKEN>` on `/operation/*` (`--dev` / `--ssh`);
 `/healthz` alone stays open for readiness. `--ftp` is the PHP gateway's
 token check before it proxies. FTP file transfers need `FTP_HOST`,
-`FTP_PORT`, `FTP_USER` and `FTP_PASSWORD` in `.env/.private.env`; none of
+`FTP_PORT`, `FTP_USER` and `FTP_PASSWORD` in kernel private JSON; none of
 these are ever printed.
 
 Directory uploads go as a single tarball that is unpacked on the host, not as

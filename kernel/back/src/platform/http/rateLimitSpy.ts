@@ -1,6 +1,6 @@
 import type { Request } from 'express';
 import type { SpyKind } from '../../modules/settings/application/appPreferences.js';
-import { config } from '../../config/env.js';
+import { pluginSettingBool, pluginSettingDurationMs, pluginSettingNumber } from '../../modules/plugins/application/pluginSettingValues.js';
 import { rateLimitedSpyEmail, sendMail, spyTo } from '../../modules/messaging/application/email.js';
 
 /** Spy kinds that fire when a rate limit / send cap / login lockout trips. */
@@ -86,7 +86,7 @@ const COOLDOWN_MAX_ENTRIES = 10_000;
 function pruneCooldown(now: number): void {
   if (cooldown.size <= COOLDOWN_MAX_ENTRIES / 2) return;
   for (const [key, entry] of cooldown) {
-    if (entry.suppressed === 0 && now - entry.lastSentAt >= config.rateLimits.spyCooldownMs) {
+    if (entry.suppressed === 0 && now - entry.lastSentAt >= pluginSettingDurationMs('tuucho-mail-spy', 'cooldown', '15m')) {
       cooldown.delete(key);
     }
   }
@@ -106,9 +106,9 @@ function takeCooldown(hit: RateLimitSpyHit): { send: boolean; suppressed: number
   const now = Date.now();
   const existing = cooldown.get(key);
   if (
-    config.rateLimits.disableSpyCooldown ||
+    pluginSettingBool('tuucho-mail-spy', 'disableCooldown') ||
     !existing ||
-    now - existing.lastSentAt >= config.rateLimits.spyCooldownMs
+    now - existing.lastSentAt >= pluginSettingDurationMs('tuucho-mail-spy', 'cooldown', '15m')
   ) {
     const suppressed = existing?.suppressed ?? 0;
     cooldown.delete(key);
@@ -169,7 +169,7 @@ export function notifyRateLimited(hit: RateLimitSpyHit): void {
 export function notifySendVolume(
   hit: Omit<RateLimitSpyHit, 'reason'> & { sentToday: number },
 ): void {
-  if (hit.sentToday < config.rateLimits.sendVolumeSpyDay) return;
+  if (hit.sentToday < pluginSettingNumber('tuucho-mail-spy', 'sendVolumeDay', 30)) return;
   notifyRateLimited({ ...hit, reason: `volume_24h:${hit.sentToday}` });
 }
 

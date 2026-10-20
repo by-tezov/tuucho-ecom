@@ -30,6 +30,7 @@ export type TargetOpts = {
   dev?: boolean;
   preprod?: boolean;
   prod?: boolean;
+  env?: string;
   /** Set by `applyResolvedMode` after exactly one target flag is selected. */
   mode?: Mode;
 };
@@ -40,14 +41,27 @@ export function modeFlag(mode: Mode): `--${Mode}` {
 }
 
 /**
- * Resolve exactly one of `--dev` / `--preprod` / `--prod`.
- * Throws an Error with a clear message when zero or multiple are set.
+ * Resolve exactly one of `--dev` / `--preprod` / `--prod` or `--env <name>`.
+ * `--env` is how a user-created folder (not a shortcut flag) is selected.
  */
 export function resolveModeFromOpts(opts: TargetOpts, allowed: readonly Mode[] = MODES): Mode {
   const selected: Mode[] = [];
   if (opts.dev) selected.push('dev');
   if (opts.preprod) selected.push('preprod');
   if (opts.prod) selected.push('prod');
+  const envName = typeof opts.env === 'string' ? opts.env.trim() : '';
+
+  if (envName) {
+    if (!/^[a-z][a-z0-9-]*$/.test(envName)) {
+      throw new Error(`--env must be a folder name [a-z][a-z0-9-]* (got "${envName}")`);
+    }
+    if (selected.length > 0) {
+      throw new Error(
+        `only one target flag allowed; got ${selected.map((m) => `--${m}`).join(' and ')} and --env ${envName}`,
+      );
+    }
+    return envName;
+  }
 
   const allowedSet = new Set(allowed);
   const valid = selected.filter((mode) => allowedSet.has(mode));
@@ -59,7 +73,9 @@ export function resolveModeFromOpts(opts: TargetOpts, allowed: readonly Mode[] =
     );
   }
   if (valid.length === 0) {
-    throw new Error(`exactly one of ${allowed.map((m) => `--${m}`).join(', ')} is required`);
+    throw new Error(
+      `exactly one of ${allowed.map((m) => `--${m}`).join(', ')} or --env <name> is required`,
+    );
   }
   if (valid.length > 1) {
     throw new Error(`only one target flag allowed; got ${valid.map((m) => `--${m}`).join(' and ')}`);
@@ -67,11 +83,12 @@ export function resolveModeFromOpts(opts: TargetOpts, allowed: readonly Mode[] =
   return valid[0]!;
 }
 
-/** Attach `--dev` / `--preprod` / `--prod` flags (no validation hook). */
+/** Attach `--dev` / `--preprod` / `--prod` and `--env <name>` flags (no validation hook). */
 export function addTargetOptionFlags(command: Command, allowed: readonly Mode[] = MODES): Command {
   if (allowed.includes('dev')) command.option('--dev', 'target development');
   if (allowed.includes('preprod')) command.option('--preprod', 'target preprod');
   if (allowed.includes('prod')) command.option('--prod', 'target production');
+  command.option('--env <name>', 'target config/<name>/ (any folder that exists)');
   return command;
 }
 
@@ -107,7 +124,3 @@ export function makeFail(program: Command, prefix: string): (message: string) =>
   return (message: string): never => program.error(`[${prefix}] ${message}`);
 }
 
-/**
- * Parse argv for hand-rolled CLIs: exactly one of the allowed target flags.
- * Rejects legacy `--mode` and unknown tokens that look like target selection.
- */

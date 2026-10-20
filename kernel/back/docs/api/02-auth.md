@@ -38,7 +38,7 @@ refresh-token cookie, sends a confirmation email, response
 Account is fully usable immediately — email verification isn't a gate.
 
 Customer string/quantity ceilings and JSON body size are configured via
-`FIELD_*` / `PASSWORD_MAX_LENGTH` / `RATE_*` in `.env/.public.env` (see
+`FIELD_*` / `PASSWORD_MAX_LENGTH` / `RATE_*` in kernel `config/` (see
 [Input limits and rate limits](#input-limits-and-rate-limits)).
 
 ### `POST /auth/register-otp-skip`
@@ -116,7 +116,8 @@ Wrong guesses increment `failed_attempts` on the live code and burn it at
 
 Public (rate-limited `authRateLimiter`). Shop-wide third-party sign-in flags —
 each value is the admin/OPS preference **and** provider credentials configured
-on the server (`GOOGLE_CLIENT_ID` / Facebook app id+secret / `APPLE_CLIENT_ID`).
+on the enabled sign-in provider plugin (`tuucho-signin-google` client id /
+`tuucho-signin-facebook` app id+secret / `tuucho-signin-apple` Services ID).
 Email + password / OTP are never gated here.
 
 ```json
@@ -132,7 +133,8 @@ JavaScript SDK's `FB.login()` flow. Desktop always uses `FB.login()`.
 
 ### `POST /auth/google`
 
-Rate-limited (`authRateLimiter`, `loginRateLimiter`). Requires `GOOGLE_CLIENT_ID` on the server — otherwise `503 google_sign_in_disabled`. Also requires the shop preference `sign_in_google_enabled` — otherwise `403 sign_in_method_forbidden`. Body:
+Rate-limited (`authRateLimiter`, `loginRateLimiter`). Requires plugin
+`tuucho-signin-google` enabled with a client id — otherwise `503 google_sign_in_disabled`. Also requires the shop preference `sign_in_google_enabled` — otherwise `403 sign_in_method_forbidden`. Body:
 
 ```json
 { "idToken": "string", "gdprConsent": { "accepted": true }, "language": "fr", "rememberMe": false }
@@ -160,7 +162,8 @@ Consumes the pending token, creates the user (or connects if the address appeare
 
 ### `POST /auth/facebook`
 
-Rate-limited (`authRateLimiter`, `loginRateLimiter`). Requires `FACEBOOK_APP_ID` and `FACEBOOK_APP_SECRET` — otherwise `503 facebook_sign_in_disabled`. Also requires shop preference `sign_in_facebook_enabled` — otherwise `403 sign_in_method_forbidden`. Body:
+Rate-limited (`authRateLimiter`, `loginRateLimiter`). Requires plugin
+`tuucho-signin-facebook` enabled with app id and secret — otherwise `503 facebook_sign_in_disabled`. Also requires shop preference `sign_in_facebook_enabled` — otherwise `403 sign_in_method_forbidden`. Body:
 
 ```json
 { "accessToken": "string", "gdprConsent": { "accepted": true }, "language": "fr", "rememberMe": false }
@@ -187,8 +190,8 @@ Same semantics as `/auth/google/complete` for Facebook pending tokens.
 
 ### `POST /auth/apple`
 
-Rate-limited (`authRateLimiter`, `loginRateLimiter`). Requires `APPLE_CLIENT_ID`
-(Services ID) — otherwise `503 apple_sign_in_disabled`. Also requires shop
+Rate-limited (`authRateLimiter`, `loginRateLimiter`). Requires plugin
+`tuucho-signin-apple` enabled with a Services ID — otherwise `503 apple_sign_in_disabled`. Also requires shop
 preference `sign_in_apple_enabled` — otherwise `403 sign_in_method_forbidden`.
 Body:
 
@@ -263,7 +266,7 @@ and pending token are consumed.
 
 Meta **Data Deletion Request Callback**. Rate-limited (`authRateLimiter`).
 Body is `application/x-www-form-urlencoded` with `signed_request` (not JSON).
-Requires `FACEBOOK_APP_ID` + `FACEBOOK_APP_SECRET`. Verifies HMAC-SHA256,
+Requires plugin `tuucho-signin-facebook` enabled with app id + secret. Verifies HMAC-SHA256,
 finds `users.facebook_user_id`, clears Facebook fields, invalidates pending
 Facebook signup/link tokens, and when the account is `active` schedules the
 same soft-deletion as `POST /account/request-deletion` (grace period + email).
@@ -287,9 +290,9 @@ Public status for the confirmation URL. Response
 
 Sign in with Apple **server-to-server notifications**. Rate-limited
 (`authRateLimiter`). JSON body `{ "payload": "<JWS>" }` (Apple-signed JWT).
-Requires `APPLE_CLIENT_ID`. Verifies the JWS with Apple's JWKS (`iss`
-`https://appleid.apple.com`, `aud` = `APPLE_CLIENT_ID` and/or optional
-`APPLE_S2S_AUDIENCE` when the primary App ID differs from the Services ID).
+Requires plugin `tuucho-signin-apple` enabled with a Services ID. Verifies the JWS with Apple's JWKS (`iss`
+`https://appleid.apple.com`, `aud` = plugin `clientId` and/or optional
+`s2sAudience` when the primary App ID differs from the Services ID).
 
 | `events.type` | Action |
 | --- | --- |
@@ -322,7 +325,7 @@ Response
 `GET /account/profile`.
 
 For a `super-admin`, a refresh of a session idle for at least
-`SUPER_ADMIN_SIGNIN_ALERT_IDLE` (`1h` in `.env/.public.env`; measured from when the
+`SUPER_ADMIN_SIGNIN_ALERT_IDLE` (`1h` in kernel `config/`; measured from when the
 presented token was issued) counts as an automatic sign-in and sends the
 super-admin sign-in alert (see below). An open tab refreshing on schedule,
 once per access-token lifetime, does not.

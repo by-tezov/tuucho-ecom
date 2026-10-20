@@ -70,12 +70,16 @@ When the kind is unclear, Read
 [references/kernel-index.md](references/kernel-index.md) (names only), then
 load the skill it names.
 
+New keys go on that plugin’s `settingsSchema` (public) or `type: "secret"`
+(plugin secret store). Do not add `MONDIAL_*`, `STRIPE_*`, or `VITE_SHOP_*`
+to kernel JSON or leftover env.
+
 ## Shared rules
 
 Leaf folder name = `id` = `[a-z0-9-]+`. Bundled ids start with `tuucho-`.
 Nested grouping folders are allowed. A plugin and its `*-locale-*`
 complements share one feature folder (e.g. `commerce/gift/`). Ship
-`plugin.json` + `back/register.ts`.
+leaf `package.json` (npm `version`/`description` plus `"tuucho": { id, kind, installPath, engines.core, … }`) + `back/register.ts`.
 Host `import()`s `register.ts`. Use `@tuucho/plugin-sdk`. Kernel modules:
 `@kernel/front/…` (plugin fronts, CSS `composes`) and `@kernel/back/…`
 (plugin backs). Do not write `../../../../../../kernel/…`. English strings in
@@ -84,11 +88,9 @@ the plugin; French is a locale complement. `engines.core` must be
 range). Do not ALTER kernel tables. Scan/enable from Admin, Plugins. Ship
 `docs/handbook.json`. Git tags for Check / Apply are `MAJOR.MINOR.PATCH`
 with no `v` prefix. Plugins “Core” is the **root** `package.json` version.
-Check / Apply walks `shop-release.json` vs tag `release.json`. `plugin.json`
-is the only human-edited plugin manifest (id, version, description,
-installPath, repository, engines). Plugin `package.json` is a generated stub
-(`node scripts/write-plugin-packages.mjs` / root `preinstall`): `private`,
-name from id, `@tuucho/plugin-sdk`. No version, no description.
+Check / Apply walks `shop-release.json` vs tag `release.json`. There is no
+`plugin.json` and no stub generator. The `tuucho` object is the discriminator
+so `node_modules` is never scanned as a plugin.
 
 Complements: the API/capability plugin owns storage (`tuucho-journal-api`,
 `tuucho-shipping-home`); cron/email/admin declare `dependsOn`.
@@ -97,24 +99,29 @@ not auto-enable dependencies.
 
 ```json
 {
-  "id": "your-id",
-  "name": "Human name",
+  "name": "@shop/your-id",
+  "private": true,
+  "type": "module",
   "version": "1.0.0",
-  "kind": "theme | page | payment | shipping | commerce | docs | generic | seo | locale",
   "description": "Operator-facing summary of what it does (required except locale plugins).",
-  "required": false,
-  "defaultEnabled": true,
-  "provides": ["AdminPage"],
-  "dependsOn": [{ "id": "optional-parent", "version": ">=1.0.0" }],
-  "engines": { "core": ">=0.0.1 <1.0.0" },
-  "installPath": "plugins/user/<group>/your-id",
   "repository": "https://github.com/owner/your-id",
-  "permissions": [{ "code": "your_code", "label": "Your section" }],
-  "route": "/optional-storefront-path",
-  "nav": { "key": "optional", "order": 45, "bottomBar": false },
-  "courierCodes": [],
-  "defaultSettings": {},
-  "settingsSchema": {}
+  "tuucho": {
+    "id": "your-id",
+    "name": "Human name",
+    "kind": "theme | page | payment | shipping | commerce | docs | generic | seo | locale",
+    "required": false,
+    "defaultEnabled": true,
+    "provides": ["AdminPage"],
+    "dependsOn": [{ "id": "optional-parent", "version": ">=1.0.0" }],
+    "engines": { "core": ">=0.0.1 <1.0.0" },
+    "installPath": "plugins/user/<group>/your-id",
+    "permissions": [{ "code": "your_code", "label": "Your section" }],
+    "route": "/optional-storefront-path",
+    "nav": { "key": "optional", "order": 45, "bottomBar": false },
+    "courierCodes": [],
+    "defaultSettings": {},
+    "settingsSchema": {}
+  }
 }
 ```
 

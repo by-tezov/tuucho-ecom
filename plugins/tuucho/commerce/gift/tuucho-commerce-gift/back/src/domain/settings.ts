@@ -8,6 +8,9 @@ export interface GiftSettings {
   lockSessionTtlHours: number;
   stockHoldTtlDays: number;
   giverPayTtlDays: number;
+  selectReminderBeforeMs: number;
+  holdReminderBeforeMs: number;
+  payReminderBeforeMs: number;
   visibilityAfterTerminalDays: number;
   /** Smallest sets budget an offer may carry (`GIFT_MIN_BUDGET`). */
   minBudget: number;
@@ -26,6 +29,4 @@ export interface GiftSettings {
   purgeAfterDays: number;
 }
 
-/** Every number in `GiftSettings` comes from the `GIFT_*` environment and is
- * required there, so there is deliberately no default for any of them here:
- * a second copy of those values would be read by nobody and would drift. */
+/** Programme numbers come from this plugin's `settingsSchema` / defaults. */

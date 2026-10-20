@@ -16,7 +16,7 @@ never mounts `/ops-gateway` or `/operation/*`.
 
 Every route under `/operation/*` is also rate-limited per IP via
 `RATE_OPS` (`<window>:<count>`, default `60s:5` in
-`.env/.public.env`; dev/preprod override a higher count). Only
+kernel `config/`; dev/preprod override a higher count). Only
 **failed** (non-2xx) requests count (`skipSuccessfulRequests`), then `429`
 until the window clears — not a hard lockout. A legitimate SSH-tunnelled
 caller never trips it in normal use.
@@ -71,12 +71,8 @@ surface:
   `cronGiftPurgeLogEnabled`, `cronPaymentAuthExpirySpyLogEnabled`,
   `cronWarmLogEnabled`. A route
   whose preference is off returns `403` with `{"success":false,"error":"string"}`;
-- `ENABLED_CRON_SHIPMENT` / `ENABLED_CRON_ACCOUNT_DELETION` /
-  `ENABLED_CRON_GUEST_SAVED_CLEANUP` / `ENABLED_CRON_LOYALTY` /
-  `ENABLED_CRON_GIFT` / `ENABLED_CRON_GIFT_PURGE` /
-  `ENABLED_CRON_PAYMENT_AUTH_EXPIRY` / `ENABLED_CRON_WARM` — deploy-time only: they
-  install or remove a production crontab entry and never block a call at
-  runtime.
+- Production deploys always install the crontab entries. Plugin enable still
+  gates gift/loyalty work. They never block a call at runtime.
 
 ### `GET /operation/log/api?lines=100`
 
@@ -250,14 +246,16 @@ Production returns `404`.
 
 Runs any pending migrations (`node-pg-migrate`, tracked in its own
 `pgmigrations` table; already-applied ones are skipped automatically).
-Schema history is a single squashed `1738000000000_init` (the full current
-schema plus its seeds, as a first deployment); later timestamped files appear
-only when a new schema change lands. Fresh DBs (or after `database-reset`) get
-that full current schema. `checkOrder` is off so a database migrated before a
-squash, whose `pgmigrations` still lists deleted intermediate names, does not
-block newer files. Such a database does not receive changes folded into
-`1738000000000_init` after it was applied: wipe it with `database-reset` then
-migrate. The running app's `db/migrations/` directory must match the repo
+Kernel schema is the single baseline `1738000000000_init` (the full current
+schema plus its seeds, as a first deployment, including sealed
+`plugins.secrets`). Plugin tables are not in that file. Later timestamped
+files appear only when a new schema change lands after this reset. Fresh DBs
+(or after `database-reset`) get that full current schema. `checkOrder` is off
+so a database migrated before a squash, whose `pgmigrations` still lists
+deleted intermediate names, does not block. Such a database does not receive
+changes folded into `1738000000000_init` after it was applied: wipe it with
+`database-reset` then migrate. This shop is the source of the baseline and
+already has `1738000000000_init` in `pgmigrations`, so migrate skips it. The running app's `db/migrations/` directory must match the repo
 (build wipes `dist/v<version>/` before copy). Stale pre-squash files left on
 the server after a merge-deploy will be picked up by node-pg-migrate and can
 fail (duplicate column/table).
@@ -497,7 +495,7 @@ Stripe. Idempotent via `payment_auth_expiry_spy_sends`. Response `200`:
 
 Mounted at `/operation/loyalty` (`src/api/loyaltyOps.routes.ts`). Read-only.
 The programme is always on. Numbers come from the running process
-`.env/.public.env`. CLI: `npm run loyalty -- check`.
+kernel `config/`. CLI: `npm run loyalty -- check`.
 
 #### `GET /operation/loyalty`
 

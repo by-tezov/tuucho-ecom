@@ -11,6 +11,7 @@ let stripePromise: Promise<Stripe | null> | undefined;
  * `developerTools.assistant.enabled: false` hides Stripe’s floating
  * sandbox testing widget (it only appears with test keys; live never shows it). */
 export function getStripePromise(): Promise<Stripe | null> {
+  if (!shopConfig.stripePublishableKey) return Promise.resolve(null);
   stripePromise ??= loadStripe(shopConfig.stripePublishableKey, {
     developerTools: { assistant: { enabled: false } },
   });

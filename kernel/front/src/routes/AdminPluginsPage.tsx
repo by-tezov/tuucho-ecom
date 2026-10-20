@@ -7,6 +7,7 @@ import { LoadingModal } from '../components/ui/LoadingModal';
 import { SegmentedSwitch } from '../components/ui/SegmentedSwitch';
 import { ToggleSwitch } from '../components/ui/ToggleSwitch';
 import { useAuthSession } from '../state/AuthContext';
+import { useToast } from '../state/ToastContext';
 import { useAdminStrings } from '../assets/i18n/admin';
 import { ApiError } from '../api/errors';
 import { shopConfig } from '../config/env';
@@ -35,7 +36,12 @@ import {
   type PluginOriginFilter,
   type PluginStatusFilter,
 } from './pluginListGroups';
+import { classifyUpdateCheck, coreLineCheckStatus, latestTagLabel } from './pluginUpdateCheck';
 import styles from './AdminPlugins.module.css';
+
+type CheckDialog =
+  | { type: 'failed'; message: string }
+  | { type: 'checked'; check: AdminUpdateCheck };
 
 type InstallStatus = 'pending' | 'installing' | 'ok' | 'error';
 
@@ -62,6 +68,7 @@ function TrashIcon() {
 export function AdminPluginsPage() {
   const w = useAdminStrings().whiteLabel;
   const { authedRequest } = useAuthSession();
+  const toast = useToast();
   const refreshBootstrap = useRefreshStorefrontBootstrap();
   const [plugins, setPlugins] = useState<AdminPlugin[]>([]);
   const [coreVersion, setCoreVersion] = useState('');
@@ -76,8 +83,10 @@ export function AdminPluginsPage() {
   const [updateScope, setUpdateScope] = useState<UpdateScope>('all');
   const [pendingApply, setPendingApply] = useState<{ scope: UpdateScope; pluginId?: string } | null>(null);
   const [updateJob, setUpdateJob] = useState<AdminUpdateJob | null>(null);
+  const [checkingUpdates, setCheckingUpdates] = useState(false);
+  const [checkDialog, setCheckDialog] = useState<CheckDialog | null>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
-  const installing = Boolean(installItems) || Boolean(updateJob);
+  const installing = Boolean(installItems) || Boolean(updateJob) || checkingUpdates;
 
   async function reload() {
     try {
@@ -94,6 +103,12 @@ export function AdminPluginsPage() {
     void reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authedRequest]);
+
+  useEffect(() => {
+    if (!notice) return undefined;
+    const timer = window.setTimeout(() => setNotice(''), shopConfig.noticeMs);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
 
   useEffect(() => {
     if (!updateJob || updateJob.status !== 'running') return undefined;
@@ -122,16 +137,23 @@ export function AdminPluginsPage() {
   }, [updateJob, authedRequest, refreshBootstrap, w.applyDone, w.applyFailed, w.updateRestart]);
 
   async function checkForUpdates() {
+    if (checkingUpdates) return;
     setNotice('');
     setError('');
+    setCheckDialog(null);
+    setCheckingUpdates(true);
     try {
       const result = await withMinDuration(
         authedRequest((token) => checkAdminPluginUpdates(token)),
         shopConfig.loadingMinMs.short,
       );
       setUpdateCheck(result.check);
+      setCheckDialog({ type: 'checked', check: result.check });
     } catch (err) {
-      setError(err instanceof ApiError && err.serverMessage ? err.serverMessage : w.checkError);
+      const message = err instanceof ApiError && err.serverMessage ? err.serverMessage : w.checkError;
+      setCheckDialog({ type: 'failed', message });
+    } finally {
+      setCheckingUpdates(false);
     }
   }
 
@@ -255,7 +277,7 @@ export function AdminPluginsPage() {
       setPendingUninstall(null);
       await reload();
       refreshBootstrap();
-      setNotice(w.uninstalled);
+      toast(w.uninstalled);
     } catch (err) {
       setPendingUninstall(null);
       setError(
@@ -294,10 +316,11 @@ export function AdminPluginsPage() {
             {w.coreVersion(coreVersion)}
             {updateCheck
               ? ` · ${
-                  updateCheck.officialUpToDate &&
-                  updateCheck.userPlugins.every((row) => !row.toTag && !row.error)
-                    ? w.updateUpToDate
-                    : w.updateAvailable
+                  {
+                    ahead: w.updateAhead,
+                    upToDate: w.updateUpToDate,
+                    updateAvailable: w.updateAvailable,
+                  }[coreLineCheckStatus(updateCheck)]
                 }`
               : ''}
           </span>
@@ -335,20 +358,26 @@ export function AdminPluginsPage() {
       </div>
       <div className={styles.filters}>
         <SegmentedSwitch
-          className={styles.originSwitch}
+          className={styles.originSwitch ?? ''}
           ariaLabel={w.originAria}
           activeKey={origin}
-          onSelect={(key) => setOrigin(key as PluginOriginFilter)}
+          onSelect={(key) => {
+            setNotice('');
+            setOrigin(key as PluginOriginFilter);
+          }}
           options={[
             { key: 'tuucho', label: w.originTuucho },
             { key: 'user', label: w.originUser },
           ]}
         />
         <SegmentedSwitch
-          className={styles.statusSwitch}
+          className={styles.statusSwitch ?? ''}
           ariaLabel={w.statusFilterAria}
           activeKey={status}
-          onSelect={(key) => setStatus(key as PluginStatusFilter)}
+          onSelect={(key) => {
+            setNotice('');
+            setStatus(key as PluginStatusFilter);
+          }}
           options={[
             { key: 'all', label: w.statusAll },
             { key: 'enabled', label: w.statusEnabled },
@@ -361,56 +390,34 @@ export function AdminPluginsPage() {
         <input
           type="search"
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => {
+            setNotice('');
+            setSearch(event.target.value);
+          }}
           placeholder={w.searchPlaceholder}
           autoComplete="off"
         />
       </label>
       {notice ? <p className={styles.notice}>{notice}</p> : null}
       {error ? <p className={styles.error}>{error}</p> : null}
-      {updateCheck ? (
+      {updateCheck && classifyUpdateCheck(updateCheck).kind === 'plan' && !checkDialog ? (
         <div className={styles.updatePlan}>
-          {updateCheck.officialRefuse ? <p className={styles.error}>{updateCheck.officialRefuse}</p> : null}
-          {updateCheck.dirtyPaths.length > 0 ? <p className={styles.error}>{w.updateDirty}</p> : null}
-          {updateCheck.tagPath.length > 0 ? (
-            <>
-              <p className={styles.updatePath}>
-                {w.updateTagPath}: {[updateCheck.currentTag, ...updateCheck.tagPath].join(' to ')}
-              </p>
-              {updateCheck.kernel ? (
-                <p className={styles.hint}>{w.updateKernelLine(updateCheck.kernel.from, updateCheck.kernel.to)}</p>
-              ) : null}
-              {updateCheck.plugins.map((plugin) => (
-                <p key={plugin.id} className={styles.hint}>
-                  {w.updatePluginLine(plugin.id, plugin.from, plugin.to)}
-                </p>
-              ))}
-              <SegmentedSwitch
-                ariaLabel={w.updateScopeAria}
-                activeKey={updateScope === 'plugin' ? 'all' : updateScope}
-                onSelect={(key) => setUpdateScope(key as UpdateScope)}
-                options={[
-                  { key: 'all', label: w.updateScopeAll },
-                  { key: 'kernel', label: w.updateScopeKernel },
-                  { key: 'plugins', label: w.updateScopePlugins },
-                ]}
-              />
-              <Button
-                type="button"
-                disabled={installing || !updateCheck.canApplyOfficial}
-                onClick={() => setPendingApply({ scope: updateScope === 'plugin' ? 'all' : updateScope })}
-              >
-                {w.applyUpdates}
-              </Button>
-            </>
+          <UpdateCheckPlanDetails
+            check={updateCheck}
+            labels={w}
+            showScope={updateCheck.canApplyOfficial}
+            updateScope={updateScope}
+            onScope={setUpdateScope}
+          />
+          {updateCheck.canApplyOfficial ? (
+            <Button
+              type="button"
+              disabled={installing}
+              onClick={() => setPendingApply({ scope: updateScope === 'plugin' ? 'all' : updateScope })}
+            >
+              {w.applyUpdates}
+            </Button>
           ) : null}
-          {updateCheck.userPlugins.map((row) => (
-            <p key={row.id} className={row.error ? styles.error : styles.hint}>
-              {row.error
-                ? `${row.id}: ${row.error}`
-                : `${w.updatePluginLine(row.id, row.from, row.to)}${row.changelog ? ` ${row.changelog}` : ''}`}
-            </p>
-          ))}
         </div>
       ) : null}
       {groups.length === 0 ? <p className={styles.hint}>{w.searchEmpty}</p> : null}
@@ -476,6 +483,22 @@ export function AdminPluginsPage() {
           </li>
         ))}
       </ul>
+      {checkingUpdates ? <LoadingModal message={w.checkingUpdates} /> : null}
+      {checkDialog && !checkingUpdates ? (
+        <UpdateCheckResultModal
+          dialog={checkDialog}
+          labels={w}
+          updateScope={updateScope}
+          onScope={setUpdateScope}
+          onApply={() => {
+            if (checkDialog.type !== 'checked') return;
+            const scope = updateScope === 'plugin' ? 'all' : updateScope;
+            setCheckDialog(null);
+            void startApply(scope);
+          }}
+          onClose={() => setCheckDialog(null)}
+        />
+      ) : null}
       {installItems ? (
         <LoadingModal message={w.uploadInstalling}>
           <p className={styles.installProgress}>
@@ -568,6 +591,172 @@ export function AdminPluginsPage() {
   );
 }
 
+type WhiteLabel = ReturnType<typeof useAdminStrings>['whiteLabel'];
+
+function UpdateCheckPlanDetails({
+  check,
+  labels: w,
+  showScope,
+  updateScope,
+  onScope,
+}: {
+  check: AdminUpdateCheck;
+  labels: WhiteLabel;
+  showScope?: boolean;
+  updateScope?: UpdateScope;
+  onScope?: (scope: UpdateScope) => void;
+}) {
+  const latest = latestTagLabel(check, w.checkLatestUnknown);
+  return (
+    <div className={styles.checkDialogPlan}>
+      <p className={styles.updatePath}>{w.checkTagsLine(check.currentTag, latest)}</p>
+      {check.officialRefuse ? <p className={styles.error}>{check.officialRefuse}</p> : null}
+      {check.dirtyPaths.length > 0 ? <p className={styles.error}>{w.updateDirty}</p> : null}
+      {check.tagPath.length > 0 ? (
+        <p className={styles.updatePath}>
+          {w.updateTagPath}: {[check.currentTag, ...check.tagPath].join(' to ')}
+        </p>
+      ) : null}
+      {check.kernel ? (
+        <p className={styles.hint}>{w.updateKernelLine(check.kernel.from, check.kernel.to)}</p>
+      ) : null}
+      {check.plugins.map((plugin) => (
+        <p key={plugin.id} className={styles.hint}>
+          {w.updatePluginLine(plugin.id, plugin.from, plugin.to)}
+        </p>
+      ))}
+      {check.userPlugins.map((row) => (
+        <p key={row.id} className={row.error ? styles.error : styles.hint}>
+          {row.error
+            ? `${row.id}: ${row.error}`
+            : `${w.updatePluginLine(row.id, row.from, row.to)}${row.changelog ? ` ${row.changelog}` : ''}`}
+        </p>
+      ))}
+      {showScope && updateScope && onScope ? (
+        <SegmentedSwitch
+          ariaLabel={w.updateScopeAria}
+          activeKey={updateScope === 'plugin' ? 'all' : updateScope}
+          onSelect={(key) => onScope(key as UpdateScope)}
+          options={[
+            { key: 'all', label: w.updateScopeAll },
+            { key: 'kernel', label: w.updateScopeKernel },
+            { key: 'plugins', label: w.updateScopePlugins },
+          ]}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function UpdateCheckResultModal({
+  dialog,
+  labels: w,
+  updateScope,
+  onScope,
+  onApply,
+  onClose,
+}: {
+  dialog: CheckDialog;
+  labels: WhiteLabel;
+  updateScope: UpdateScope;
+  onScope: (scope: UpdateScope) => void;
+  onApply: () => void;
+  onClose: () => void;
+}) {
+  if (dialog.type === 'failed') {
+    return (
+      <ConfirmModal
+        variant="dialog"
+        title={w.checkError}
+        message={dialog.message}
+        confirmLabel={w.applyDismiss}
+        closeIcon={false}
+        onConfirm={onClose}
+        onCancel={onClose}
+      />
+    );
+  }
+
+  const classified = classifyUpdateCheck(dialog.check);
+  const tagsLine = w.checkTagsLine(dialog.check.currentTag, latestTagLabel(dialog.check, w.checkLatestUnknown));
+  if (classified.kind === 'ahead') {
+    return (
+      <ConfirmModal
+        variant="dialog"
+        title={w.checkAheadTitle}
+        message={`${tagsLine} ${w.checkAheadHint}`}
+        confirmLabel={w.applyDismiss}
+        closeIcon={false}
+        onConfirm={onClose}
+        onCancel={onClose}
+      />
+    );
+  }
+  if (classified.kind === 'nothing') {
+    return (
+      <ConfirmModal
+        variant="dialog"
+        title={w.checkNothingTitle}
+        message={tagsLine}
+        confirmLabel={w.applyDismiss}
+        closeIcon={false}
+        onConfirm={onClose}
+        onCancel={onClose}
+      />
+    );
+  }
+
+  if (classified.kind === 'error') {
+    return (
+      <ConfirmModal
+        variant="dialog"
+        title={w.checkError}
+        message={
+          <UpdateCheckPlanDetails check={dialog.check} labels={w} />
+        }
+        confirmLabel={w.applyDismiss}
+        closeIcon={false}
+        onConfirm={onClose}
+        onCancel={onClose}
+      />
+    );
+  }
+
+  if (!classified.canApplyOfficial) {
+    return (
+      <ConfirmModal
+        variant="dialog"
+        title={w.checkResultTitle}
+        message={<UpdateCheckPlanDetails check={dialog.check} labels={w} />}
+        confirmLabel={w.applyDismiss}
+        closeIcon={false}
+        onConfirm={onClose}
+        onCancel={onClose}
+      />
+    );
+  }
+
+  return (
+    <ConfirmModal
+      variant="dialog"
+      title={w.applyConfirmTitle}
+      message={
+        <UpdateCheckPlanDetails
+          check={dialog.check}
+          labels={w}
+          showScope
+          updateScope={updateScope}
+          onScope={onScope}
+        />
+      }
+      confirmLabel={w.applyConfirm}
+      cancelLabel={w.applyDismiss}
+      onConfirm={onApply}
+      onCancel={onClose}
+    />
+  );
+}
+
 function PluginRow({
   plugin,
   nested = false,
@@ -580,7 +769,7 @@ function PluginRow({
 }: {
   plugin: AdminPlugin;
   nested?: boolean;
-  labels: ReturnType<typeof useAdminStrings>['whiteLabel'];
+  labels: WhiteLabel;
   updateCheck: AdminUpdateCheck | null;
   installing: boolean;
   onToggle: (plugin: AdminPlugin, enabled: boolean) => void;
@@ -687,7 +876,7 @@ function installProgress(items: InstallItem[]): number {
 
 function installStatusLabel(
   status: InstallStatus,
-  w: ReturnType<typeof useAdminStrings>['whiteLabel'],
+  w: WhiteLabel,
 ): string {
   if (status === 'pending') return w.uploadItemWaiting;
   if (status === 'installing') return w.uploadItemInstalling;
@@ -702,7 +891,7 @@ function installItemClass(status: InstallStatus): string {
   return `${styles.installItem} ${styles.installPending}`;
 }
 
-function kindText(kind: string, w: ReturnType<typeof useAdminStrings>['whiteLabel']): string {
+function kindText(kind: string, w: WhiteLabel): string {
   if (kind === 'theme') return w.kindTheme;
   if (kind === 'page') return w.kindPage;
   if (kind === 'payment') return w.kindPayment;

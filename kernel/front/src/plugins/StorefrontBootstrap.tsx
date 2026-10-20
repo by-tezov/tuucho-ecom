@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { shopConfig } from '../config/env';
+import { applyStorefrontBootstrap, shopConfig } from '../config/env';
 import type { StorefrontBootstrap } from './types';
 
 const FALLBACK: StorefrontBootstrap = {
@@ -69,7 +69,9 @@ export function StorefrontBootstrapProvider({ children }: { children: ReactNode 
     () => () => {
       void loadBootstrap()
         .then((next) => {
-          if (next) setBootstrap(next);
+          if (!next) return;
+          applyStorefrontBootstrap(next);
+          setBootstrap(next);
         })
         .catch(() => undefined);
     },

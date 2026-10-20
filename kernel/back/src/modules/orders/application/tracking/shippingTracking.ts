@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import type pg from 'pg';
-import { config } from '../../../../config/env.js';
+import { carrierLabelSettings } from '../../../shipping/application/carrierSettings.js';
 import { type OrderRow, type OrderStatus } from '../ordersFacade.js';
 import * as couriers from '../../../delivery/application/couriers.js';
 import {
@@ -79,7 +79,7 @@ type TrackingProvider = 'mondial-relay';
  * something the customer can act on, so it collapses into the same
  * `tracking_unavailable` outcome as the flag being off. */
 function resolveTrackingProvider(order: OrderRow): TrackingProvider | undefined {
-  const mr = config.mondialRelay;
+  const mr = carrierLabelSettings();
   const isMondialRelay =
     (!!mr.pointCourierCode && order.courier_code === mr.pointCourierCode) ||
     (!!mr.homeCourierCode && order.courier_code === mr.homeCourierCode);
@@ -97,7 +97,7 @@ function externalTrackingUrl(
 ): string | null {
   switch (provider) {
     case 'mondial-relay': {
-      const baseUrl = config.mondialRelay.publicTrackingUrl;
+      const baseUrl = carrierLabelSettings().publicTrackingUrl;
       if (!baseUrl) return null;
       try {
         const url = new URL(baseUrl);
@@ -162,7 +162,7 @@ function tracingSecurityKey(
     .toUpperCase();
 }
 
-const MONDIAL_RELAY_LANGUAGE: Partial<Record<string, string>> = {
+const CARRIER_API_LANGUAGE: Partial<Record<string, string>> = {
   fr: 'FR',
   en: 'EN',
   es: 'ES',
@@ -244,11 +244,11 @@ async function mondialRelayTracing(
   shipmentNumber: string,
   language: string,
 ): Promise<MondialRelayTracingResult> {
-  const mr = config.mondialRelay;
-  const apiUrl = required(mr.api1Url, 'MONDIAL_RELAY_API1_URL');
-  const enseigne = required(mr.api1Enseigne, 'MONDIAL_RELAY_API1_ENSEIGNE');
-  const privateKey = required(mr.api1PrivateKey, 'MONDIAL_RELAY_API1_PRIVATE_KEY');
-  const langue = MONDIAL_RELAY_LANGUAGE[language] ?? 'FR';
+  const mr = carrierLabelSettings();
+  const apiUrl = required(mr.api1Url, 'api1Url');
+  const enseigne = required(mr.api1Enseigne, 'api1Enseigne');
+  const privateKey = required(mr.api1PrivateKey, 'api1PrivateKey');
+  const langue = CARRIER_API_LANGUAGE[language] ?? 'FR';
   const security = tracingSecurityKey(enseigne, shipmentNumber, langue, privateKey);
 
   const body = `<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><WSI2_TracingColisDetaille xmlns="http://www.mondialrelay.fr/webservice/"><Enseigne>${escapeXml(enseigne)}</Enseigne><Expedition>${escapeXml(shipmentNumber)}</Expedition><Langue>${escapeXml(langue)}</Langue><Security>${escapeXml(security)}</Security></WSI2_TracingColisDetaille></soap:Body></soap:Envelope>`;
@@ -398,7 +398,7 @@ function cacheAgeMs(fetchedAt: string | null): number | null {
  * from the hourly job for four hours.
  */
 export async function processShipmentTrackingCron(pool: pg.Pool): Promise<ShipmentTrackingCronResult> {
-  const mr = config.mondialRelay;
+  const mr = carrierLabelSettings();
   const courierCodes = [
     ...new Set([mr.pointCourierCode, mr.homeCourierCode].filter((code): code is string => !!code)),
   ];

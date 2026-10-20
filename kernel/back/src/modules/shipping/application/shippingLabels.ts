@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type pg from 'pg';
 import { config } from '../../../config/env.js';
+import { carrierLabelSettings } from './carrierSettings.js';
 import { identityName } from '../../../utils/customerIdentity.js';
 import { decryptJsonPii, decryptPii } from '../../../platform/security/piiCrypto.js';
 
@@ -131,7 +132,7 @@ function addressXml(
 }
 
 function mondialRelayDelivery(order: ShippingLabelOrder, recipientPhone?: string): MondialRelayDelivery {
-  const mr = config.mondialRelay;
+  const mr = carrierLabelSettings();
   if (
     mr.pointCourierCode &&
     mr.pointNetworkCode &&
@@ -155,9 +156,9 @@ function mondialRelayDelivery(order: ShippingLabelOrder, recipientPhone?: string
     // FR-39807). Keep a future widget/API value that is already prefixed.
     return {
       carrierCode: mr.pointCourierCode,
-      mode: required(mr.pointDeliveryMode, 'MONDIAL_RELAY_POINT_DELIVERY_MODE'),
+      mode: required(mr.pointDeliveryMode, 'pointDeliveryMode'),
       location: /^[A-Z]{2}-/i.test(pickupId) ? pickupId : `${order.country_code.toUpperCase()}-${pickupId}`,
-      collectionMode: required(mr.collectionMode, 'MONDIAL_RELAY_COLLECTION_MODE'),
+      collectionMode: required(mr.collectionMode, 'collectionMode'),
       recipientEmailRequired: false,
     };
   }
@@ -178,9 +179,9 @@ function mondialRelayDelivery(order: ShippingLabelOrder, recipientPhone?: string
     }
     return {
       carrierCode: mr.homeCourierCode,
-      mode: required(mr.homeDeliveryMode, 'MONDIAL_RELAY_HOME_DELIVERY_MODE'),
+      mode: required(mr.homeDeliveryMode, 'homeDeliveryMode'),
       location: '',
-      collectionMode: required(mr.homeCollectionMode, 'MONDIAL_RELAY_HOME_COLLECTION_MODE'),
+      collectionMode: required(mr.homeCollectionMode, 'homeCollectionMode'),
       recipientEmailRequired: true,
     };
   }
@@ -196,7 +197,7 @@ function mondialRelayDelivery(order: ShippingLabelOrder, recipientPhone?: string
 export function supportsAutomatedShippingLabel(
   order: Pick<ShippingLabelOrder, 'courier_code' | 'network_code'>,
 ): boolean {
-  const mr = config.mondialRelay;
+  const mr = carrierLabelSettings();
   const isPoint =
     !!mr.pointCourierCode &&
     !!mr.pointNetworkCode &&
@@ -217,20 +218,20 @@ function mondialRelayRequest(
   recipientEmail: string | null,
   recipientPhone?: string,
 ): string {
-  const mr = config.mondialRelay;
+  const mr = carrierLabelSettings();
   validatePacket(packet);
   const sender = {
-    name: required(mr.senderName, 'MONDIAL_RELAY_SENDER_NAME'),
-    line1: required(mr.senderLine1, 'MONDIAL_RELAY_SENDER_LINE1'),
-    postalCode: required(mr.senderPostalCode, 'MONDIAL_RELAY_SENDER_POSTAL_CODE'),
-    city: required(mr.senderCity, 'MONDIAL_RELAY_SENDER_CITY'),
-    countryCode: required(mr.senderCountryCode, 'MONDIAL_RELAY_SENDER_COUNTRY_CODE'),
-    phone: required(mr.senderPhone, 'MONDIAL_RELAY_SENDER_PHONE'),
-    email: required(mr.senderEmail, 'MONDIAL_RELAY_SENDER_EMAIL'),
+    name: required(mr.senderName, 'senderName'),
+    line1: required(mr.senderLine1, 'senderLine1'),
+    postalCode: required(mr.senderPostalCode, 'senderPostalCode'),
+    city: required(mr.senderCity, 'senderCity'),
+    countryCode: required(mr.senderCountryCode, 'senderCountryCode'),
+    phone: required(mr.senderPhone, 'senderPhone'),
+    email: required(mr.senderEmail, 'senderEmail'),
   };
-  const login = required(mr.api2Login, 'MONDIAL_RELAY_API2_LOGIN');
-  const password = required(mr.api2Password, 'MONDIAL_RELAY_API2_PASSWORD');
-  const customerId = required(mr.api2Enseigne, 'MONDIAL_RELAY_API2_ENSEIGNE');
+  const login = required(mr.api2Login, 'api2Login');
+  const password = required(mr.api2Password, 'api2Password');
+  const customerId = required(mr.api2Enseigne, 'api2Enseigne');
   return `<?xml version="1.0" encoding="utf-8"?><ShipmentCreationRequest xmlns="http://www.example.org/Request"><Context><Login>${escapeXml(login)}</Login><Password>${escapeXml(password)}</Password><CustomerId>${escapeXml(customerId)}</CustomerId><Culture>fr-FR</Culture><VersionAPI>1.0</VersionAPI></Context><OutputOptions><OutputFormat>A4</OutputFormat><OutputType>PdfUrl</OutputType></OutputOptions><ShipmentsList><Shipment><OrderNo>${escapeXml(order.order_number.slice(0, 15))}</OrderNo><ParcelCount>1</ParcelCount><DeliveryMode Mode="${escapeXml(delivery.mode)}" Location="${escapeXml(delivery.location)}"/><CollectionMode Mode="${escapeXml(delivery.collectionMode)}" Location=""/><Parcels><Parcel><Content>Handmade pieces</Content><Length Value="${packet.size.length}" Unit="cm"/><Width Value="${packet.size.width}" Unit="cm"/><Depth Value="${packet.size.depth}" Unit="cm"/><Weight Value="${packet.weight}" Unit="gr"/></Parcel></Parcels><Sender>${addressXml(sender.name, sender.line1, null, sender.postalCode, sender.city, sender.countryCode, sender.phone, sender.email)}</Sender><Recipient>${addressXml(identityName(order.recipient_name, order.company_name), order.line1, order.line2, order.postal_code, order.city, order.country_code, recipientPhone ?? order.phone, recipientEmail, order.delivery_notes)}</Recipient></Shipment></ShipmentsList></ShipmentCreationRequest>`;
 }
 
@@ -318,7 +319,7 @@ async function ensureShippingLabelUnlocked(
       fileName: stored.file_name!,
     };
 
-  const mr = config.mondialRelay;
+  const mr = carrierLabelSettings();
   const delivery = mondialRelayDelivery(order, recipientPhone);
   // Gift orders: the recipient typed their email at confirm; Mondial Relay
   // must reach them, not the giver who paid. Guest orders keep guest_email.
@@ -338,7 +339,7 @@ async function ensureShippingLabelUnlocked(
       'Mondial Relay Home requires a valid recipient email address.',
     );
   }
-  const apiUrl = required(mr.api2Url, 'MONDIAL_RELAY_API2_URL');
+  const apiUrl = required(mr.api2Url, 'api2Url');
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers: { accept: 'application/xml', 'content-type': 'text/xml' },

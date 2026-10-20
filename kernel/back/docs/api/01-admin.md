@@ -29,7 +29,7 @@ ancestors, per permission:
 Holding `super-admin` ("Super-administrateur", the highest role) grants
 every permission regardless of other roles, and is the only role that manages
 roles and assigns them, including to other `super-admin` accounts (never to
-itself). Before `1791331200000_staff_roles.js` its code was `admin`. Grants
+itself). Before the staff-roles squash its code was `admin`. Grants
 are read from the database on every request, so a change applies to the
 next call without signing out. A request to a section the account does not
 hold returns `403 forbidden`.
@@ -699,7 +699,7 @@ shape: `shapeKey` is `400`). Missing product → `404`; bad body → `400`.
 ## Plugins and store
 
 Plugin runtime for the shop kernel. Drop-in manifests live under nested
-`plugin.json` files in `plugins/tuucho/` (bundled) and `plugins/user/` (user).
+plugin `package.json` files (`tuucho` discriminator) in `plugins/tuucho/` (bundled) and `plugins/user/` (user).
 The operator guide is
 [docs/plugins.md](../../../docs/plugins.md) and inside admin
 (Documentation plugin). Requires `requireAuth` plus the `preferences`
@@ -712,8 +712,8 @@ Installed plugins with manifest (`name`, `description`, `version`, `engines.core
 `back/migrations/` ran), `missingFromDisk` (folder gone, row still present),
 `compatibility` (`ok` plus `errors[]`, including `missing_from_disk`).
 Packet prices are not on this payload: they are the courier catalog
-(`courier_edit`). Top-level `coreVersion` is the root `package.json` product
-version (Plugins “Core”). Requires
+(`courier_edit`). Top-level `coreVersion` is the live root `package.json`
+product version (Plugins “Core”), not `shop-release.json`. Requires
 `requireAuth` plus `preferences`.
 
 ### `GET /admin/docs`
@@ -730,8 +730,8 @@ One installed plugin. Missing id → `404 not_found`.
 ### `POST /admin/plugins/upload`
 
 Multipart field `archive` (`.zip` or `.tgz`, max 20 MB). Validates
-`plugin.json` (including required `installPath` and, except locale plugins,
-a non-empty `description`) and `engines.core`, rejects
+`package.json` with a `tuucho` object (including required `installPath` and, except locale plugins,
+a non-empty npm `description`) and `engines.core`, rejects
 zip-slip, absolute paths, and archive members that would write under
 `plugins/` or `kernel`. Unpacks a `tuucho-*` id under `plugins/tuucho/…`
 and every other id under `plugins/user/…`, using `installPath`. Path guards
@@ -744,8 +744,10 @@ Incompatible → `409 plugin_incompatible`. Missing file → `400 invalid_reques
 
 Reads the latest **git tag** (`MAJOR.MINOR.PATCH`, never `v0.0.2`, never
 untagged `master`) on https://github.com/by-tezov/tuucho-ecom and each user
-plugin `repository`. Current official tag is `shop-release.json`. Check / Apply
-does not let a deployed shop claim a kernel by editing `package.json`. Returns the tag
+plugin `repository`. Check `currentTag` is the live root `package.json`
+version, not `shop-release.json`. Latest is that origin’s newest official tag.
+Local greater than latest: ahead of the published tag, no Apply. Equal:
+nothing to update. Local less than latest: walk every tag. Returns the tag
 path, kernel/plugin diffs, dirty `plugins/tuucho/` paths, and third-party
 rows. GitHub unreachable → `502 update_check_failed`. Requires `preferences`.
 
@@ -753,7 +755,7 @@ rows. GitHub unreachable → `502 update_check_failed`. Requires `preferences`.
 
 Body `{ "scope": "all"|"kernel"|"plugins"|"plugin", "pluginId"?: string }`.
 Starts a snapshot then walks every intermediate tag. Tuucho scopes never write
-`plugins/user/` or the shop root `package.json`. A user `plugin` scope replaces that folder only. Concurrent
+`plugins/user/`. Kernel/all Apply copies the shop root `package.json`. A user `plugin` scope replaces that folder only. Concurrent
 Apply → `409 update_busy`. Poll `GET /admin/plugins/updates/status` for the log.
 
 ### `GET /admin/plugins/updates/status`
@@ -762,7 +764,7 @@ Current Apply job (`running` / `ok` / `error`) plus log lines, or `job: null`.
 
 ### `POST /admin/plugins/scan`
 
-Reads every nested `plugin.json` under `plugins/tuucho/` and `plugins/user/`, inserts missing `plugins`
+Reads every nested plugin `package.json` (`tuucho` block) under `plugins/tuucho/` and `plugins/user/`, inserts missing `plugins`
 rows, disables plugins whose `engines.core` or `dependsOn` range fails, applies
 pending plugin `up` migrations for enabled compatible plugins, and
 returns `{ "success": true, "added": string[], "incompatible": string[],
@@ -1272,7 +1274,7 @@ Authenticated administrator. Same `:kind` values. Unknown kind is `404`
 gate this route: a journal that is turned off can still be erased. The next
 cron run creates the file again.
 
-`CRON_LOG_RETENTION` (`1y` in `.env/.public.env`, 365 days) is how long a
+`CRON_LOG_RETENTION` (`1y` in kernel `config/`, 365 days) is how long a
 line with `at` is kept. The API process removes older dated lines about once
 a day. A line with no `at` stays until this clear.
 

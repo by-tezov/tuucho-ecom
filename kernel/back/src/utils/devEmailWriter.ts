@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { copyFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { extname, resolve } from 'node:path';
 import { config } from '../config/env.js';
+import { resolvePluginDevEmailDir } from '../modules/plugins/application/pluginSettingValues.js';
 
 function slugify(value: string): string {
   const slug = value
@@ -52,14 +53,12 @@ export interface DevEmail {
 export function writeDevEmail(message: DevEmail): void {
   const dir =
     message.kind === 'spy'
-      ? config.devEmailSpyDir
+      ? resolvePluginDevEmailDir(config.devDir, 'tuucho-mail-spy', 'devEmailDir', '/email-spy')
       : message.kind === 'chat'
-        ? config.devEmailChatDir
+        ? resolvePluginDevEmailDir(config.devDir, 'tuucho-contact', 'devEmailChatDir', '/email-chat')
         : config.devEmailDir;
   if (!dir) {
-    throw new Error(
-      'Dev email output dirs are not configured (DEV_DIR / DEV_EMAIL_USER_DIR / DEV_EMAIL_SPY_DIR / DEV_EMAIL_CHAT_DIR).',
-    );
+    throw new Error('Dev email output dirs are not configured (DEV_DIR / DEV_EMAIL_USER_DIR).');
   }
   mkdirSync(dir, { recursive: true });
   // Date.now() alone collides under concurrent OTP/reset sends in the same

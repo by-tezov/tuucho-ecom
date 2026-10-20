@@ -5,7 +5,13 @@ import { requirePermission } from '@kernel/back/middleware/requirePermission';
 import { requireAuth } from '@kernel/back/middleware/requireAuth';
 import { optionalImageUploads, uploadedImageFiles } from '@kernel/back/middleware/optionalImageUploads';
 import { boundedPrintable } from '@kernel/back/utils/fieldLimits';
-import { config } from '@kernel/back/config/env';
+import {
+  adminChatOwnerEmailSuppressionTimeoutMs,
+  chatImageMaxBytes,
+  chatMediaAbsolutePath,
+  chatMediaDir,
+  contactMessageMax,
+} from '../infrastructure/contactSettings.js';
 import {
   appendOwnerMessage,
   findSessionAttachment,
@@ -24,7 +30,6 @@ import { parseInboxListFilter } from '@kernel/back/platform/listing/inboxListFil
 import {
   chatImageFileName,
   cachedChatImagePreview,
-  chatMediaAbsolutePath,
   PrivateUploadError,
   removeSavedPrivateImages,
   savePrivateImages,
@@ -73,7 +78,7 @@ adminChatsRouter.get('/chats', requireAuth, requirePermission('messages'), async
       total: result.total,
       totalPages: Math.ceil(result.total / ADMIN_CHAT_PAGE_SIZE),
     },
-    ownerEmailSuppressionTimeoutMs: config.adminChatOwnerEmailSuppressionTimeoutMs,
+    ownerEmailSuppressionTimeoutMs: adminChatOwnerEmailSuppressionTimeoutMs(),
   });
 });
 
@@ -134,15 +139,15 @@ adminChatsRouter.post(
     let attachments: Awaited<ReturnType<typeof savePrivateImages>> = [];
     try {
       const session = await adminChatFromParam(req.params.publicId);
-      const body = boundedPrintable(req.body?.body, config.fieldLimits.contactMessageMax);
+      const body = boundedPrintable(req.body?.body, contactMessageMax());
       if (!session) return void res.status(404).json({ success: false, error: { code: 'not_found' } });
       if (!body) return void res.status(400).json({ success: false, error: { code: 'invalid_request' } });
       const files = uploadedImageFiles(req);
       if (files.length) {
         attachments = await savePrivateImages({
           files,
-          targetDir: config.chatMediaDir,
-          maxBytes: config.chatImageMaxBytes,
+          targetDir: chatMediaDir(),
+          maxBytes: chatImageMaxBytes(),
           fileNameFor: () => chatImageFileName(session.public_id),
         });
       }
@@ -186,7 +191,7 @@ adminChatsRouter.patch(
           await pool.query<{ owner_email_suppressed_until: string }>(
             `update chat_sessions set owner_email_suppressed_until = now() + ($2 * interval '1 millisecond')
          where id = $1 returning owner_email_suppressed_until`,
-            [session.id, config.adminChatOwnerEmailSuppressionTimeoutMs],
+            [session.id, adminChatOwnerEmailSuppressionTimeoutMs()],
           )
         ).rows[0]?.owner_email_suppressed_until ?? null)
       : ((
@@ -216,7 +221,7 @@ adminChatsRouter.patch(
     res.json({
       success: true,
       ownerEmailSuppressedUntil: suppressedUntil,
-      ownerEmailSuppressionTimeoutMs: config.adminChatOwnerEmailSuppressionTimeoutMs,
+      ownerEmailSuppressionTimeoutMs: adminChatOwnerEmailSuppressionTimeoutMs(),
     });
   },
 );

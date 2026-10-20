@@ -1,4 +1,4 @@
-import { CORE_VERSION } from '../domain/coreVersion.js';
+import { CORE_VERSION } from '../../../config/appVersion.js';
 import { dependencyId, dependencyRange } from '../domain/pluginDependency.js';
 import { satisfiesRange } from '../domain/semverRange.js';
 import type { PluginManifest } from '../domain/contracts.js';

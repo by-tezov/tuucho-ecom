@@ -135,12 +135,12 @@ and **enable exactly these event types** (others are ignored):
 | `payment_intent.canceled`                  | Same expiry path when Stripe sets `cancellation_reason=expired` (spy email only if the row actually flips `authorized` → `expired`, so it does not double-mail with `charge.expired`). Voluntary cancels (`paymentIntents.cancel` from customer/ops) are **not** flipped to `expired`. |
 | `payment_intent.payment_failed`            | Spy notification only (no order mutation).                                                                                                                                                                                                                                             |
 
-Local: `npm run dev` runs `stripe listen --all-snapshot --forward-to localhost:<port>/webhooks/stripe` when the Stripe CLI is available (see [command](../command/README.md) / [README](../../README.md)). `--all-snapshot` is the classic webhook payload this API verifies. Preprod/prod: configure the Dashboard webhook endpoint for that environment's API host and paste the signing secret into that target's `.private.env` as `STRIPE_WEBHOOK_SECRET`.
+Local: `npm run dev` runs `stripe listen --all-snapshot --forward-to localhost:<port>/webhooks/stripe` when the Stripe CLI is available (see [command](../command/README.md) / [README](../../README.md)). `--all-snapshot` is the classic webhook payload this API verifies. Preprod/prod: configure the Dashboard webhook endpoint for that environment's API host and paste the signing secret into the tuucho-payment-stripe plugin secret store as `webhookSecret`.
 
 ## Input limits and rate limits
 
 Customer-writable strings and quantities are capped in the API (app-layer;
-DB columns stay `text`). Defaults live in `.env/.public.env` as `FIELD_*`,
+DB columns stay `text`). Defaults live in kernel `config/` as `FIELD_*`,
 `PASSWORD_MAX_LENGTH`, and `RATE_*` — tweak there without a code change.
 Over-length / invalid charset → `400 invalid_request` (or `weak_password`
 with `tooLong` for passwords). Customer JSON bodies are limited to
@@ -161,7 +161,7 @@ with `tooLong` for passwords). Customer JSON bodies are limited to
 | `FIELD_CART_QUANTITY_MAX`                                  |                             99 |                                                                          |
 | `FIELD_TOKEN_MAX`                                          |                            128 | Unlock / reset / Stripe ids                                              |
 
-Additional rate limits (per IP, `RATE_*` in `.public.env`): voucher validate,
+Additional rate limits (per IP, `RATE_*` in kernel `config/`): voucher validate,
 checkout create-intent/free/finalize, payment setup/attach, refresh, gallery,
 and ops (`RATE_OPS_*` on `/operation/*`, failures only), gift PIN unlock
 (`RATE_GIFT_PIN_*` on `POST /gift/:token/pin` and
@@ -214,7 +214,7 @@ Emails, names, phones, address lines, delivery notes, order address
 snapshots, confirmation-token emails, and cardholder names are stored as
 AES-256-GCM ciphertext. Login uniqueness uses `users.email_lookup`
 (HMAC of the lowercased email). Keys: `PII_ENCRYPTION_KEY` and
-`PII_LOOKUP_PEPPER` in `.env/<mode>/.private.env` — generate with
+`PII_LOOKUP_PEPPER` in kernel private JSON — generate with
 `npm run operation -- generate-key db` (see [command](../command/README.md)). Ops `--search` is exact
 email only. Invoice / Mondial PDFs on disk remain plaintext.
 

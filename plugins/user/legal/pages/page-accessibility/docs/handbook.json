@@ -9,7 +9,7 @@
           "type": "callout",
           "tone": "info",
           "title": "Page plugin",
-          "text": "plugin.json kind page, route /accessibility. No nav.key: the statement stays in the footer (and sitemap) only. The kernel footer still links here even if the plugin is off, so the RGAA mention remains reachable. React lives in this package."
+          "text": "package.json tuucho.kind page, route /accessibility. No nav.key: the statement stays in the footer (and sitemap) only. The kernel footer still links here even if the plugin is off, so the RGAA mention remains reachable. React lives in this package."
         },
         {
           "type": "defs",

@@ -1,4 +1,4 @@
-# Tuucho shop front
+# tuucho-ecom shop front
 
 Multilingual (`fr`/`en`) customer shop and admin. Vite + React +
 TypeScript, CSS Modules, mobile-first responsive. Catalogue, cart, auth,
@@ -9,10 +9,9 @@ script's arguments.
 ## Getting started
 
 ```bash
+# From the repo root (npm workspaces, one lockfile):
 npm install
-# Env files already exist under .env/ (layered public + private). Edit
-# values as needed — there is no .public.env.example.
-npm run dev
+npm --prefix kernel/front run dev -- --port 5174 --strictPort
 ```
 
 ### Development
@@ -53,10 +52,9 @@ caught it until prerendering failed confusingly partway through.
   gift page's indexable head over an empty body, so `/xx/gift` no longer
   falls back to the `noindex` splash while its lazy route still renders in
   the browser.
-- `npm run build -- --preprod` — same, but loads
-  `.env/preprod/.public.env`/`.env/preprod/.private.env` instead (see
-  `vite.config.ts`) — e.g. a different `VITE_API_BASE_URL`, pointed at
-  preprod's backend rather than prod's.
+- `npm run build -- --preprod` — same, but Vite reads kernel
+  `config/preprod/` `http.*` instead (see `vite.config.ts`) — e.g. a
+  different API origin, pointed at preprod's backend rather than prod's.
 - `npm run build -- --prod --local` (or `--preprod`) — same build,
   plus a `dist/index.html` redirect to the version folder, for opening
   `dist/` directly in a browser (e.g. `npx serve dist`) while working
@@ -68,7 +66,7 @@ caught it until prerendering failed confusingly partway through.
 - `npm run build -- --prod --version 1.2.3` — set an explicit version
   before building.
 - `npm run build -- --prod --version bump-patch` (or `bump-minor` /
-  `bump-major`) — increment the current `package.json` version before
+  `bump-major`) — increment the current root `package.json` version before
   building, instead of editing it by hand.
 - `npm run build -- --prod maintenance-prepare --from DD/MM/YY-HH:mm --to DD/MM/YY-HH:mm [--message "..."]` —
   a normal full build (upload and cut over exactly as usual), except every
@@ -139,44 +137,14 @@ live before.
 
 ## Configuration
 
-Same layered pattern as kernel/back (see its README): env vars live under
-`.env/` and load in order from `.env/.public.env` →
-`.env/<target>/.public.env` → `.env/.private.env` →
-`.env/<target>/.private.env`, each overriding the last (see
-`vite.config.ts`). `.public.env` files are committed (safe-to-commit — note
-that _any_ `VITE_`-prefixed var ends up in the client bundle regardless of
-which file it's in, so nothing secret belongs in a `VITE_` var no matter
-where it's declared); `.private.env` files are gitignored. `target` is
-`dev` (Vite's own default `development` mode, i.e. plain `npm run dev` —
-nothing to set by hand there), `preprod`, or `prod` — for builds,
-`npm run build -- --prod` or `--preprod` (exactly one) selects the env
-pair and passes Vite's internal `--mode` accordingly (see "Build" below)
-rather than
-silently defaulting.
-
-`.env/.public.env` holds values shared across every target: shop name,
-contact email, marketplace links, mandatory mentions-légales info,
-`VITE_POSE_VIDEO_GLUE_URL`/`VITE_POSE_VIDEO_PATCH_URL` (YouTube/Shorts
-links for the pose page's two demo videos), `VITE_ENABLED_LANGUAGES` (a
-comma-separated list, must include `fr` — a language left out isn't
-reachable through the switcher), rating/gallery/capsule flags required by
-`src/config/env.ts`, `VITE_GUEST_STORAGE_RETENTION` (maximum lifetime
-of a signed-out visitor's non-sensitive cart/favourites/delivery choices
-after their last change), `VITE_PRODUCT_CACHE_TTL` (how long in-memory product/stock
-snapshots stay fresh before a silent revalidate), `VITE_CART_PAGE_CACHE_TTL`
-(how long a tab may reuse the cart bootstrap snapshot for cache-first
-Galerie↔Panier navigation after the last SPA activity — memory-only; a
-refresh, new tab, or idle past this TTL loads the cart behind LoadingModal
-again), and
-`VITE_MONDIAL_RELAY_PICKER_NETWORK_CODE` (the code used when opening and
-saving a Mondial Relay pickup-point address; normally also the courier
-code). If the picker courier and address network deliberately use different
-codes, set the optional `VITE_MONDIAL_RELAY_PICKER_COURIER_CODE` too.
-`VITE_MONDIAL_RELAY_HOME_NETWORK_CODE` identifies the network automatically
-assigned when the customer chooses Mondial Relay home delivery while adding
-an address; set the optional `VITE_MONDIAL_RELAY_HOME_COURIER_CODE` if that
-courier uses a different code. The address form requires a phone number for
-that network, as required for Mondial Relay Home labels.
+Shop copy, Stripe publishable key, and Mondial widget brand come from
+`GET /storefront/bootstrap` (Admin / plugin settings), not `VITE_*`. Kernel
+machine config is JSON in `kernel/back` (see that README). Vite origins come
+from kernel `http.apiBaseUrl` / `http.frontendBaseUrl`. OAuth app ids and
+return URLs come from `/storefront/bootstrap` plugin settings
+(`tuucho-signin-*`). Do not add shop or plugin `VITE_*`.
+`APP_TARGET` is `dev` for `npm run dev`, or `preprod` / `prod` for
+`npm run build -- --prod` or `--preprod` (exactly one).
 
 Sensitive checkout state has a separate server-authoritative lifecycle:
 `POST /checkout/session/start` supplies a tab-scoped AES key and the parsed
@@ -193,15 +161,10 @@ gate. Profile phone country options use `GET /account/phone-countries`
 (union of countries served by any shop-enabled courier). Until a delivery
 address is set, the cart shows a pending shipping fee (`?? €` /
 `shippingPricePending`) because map-shaped packet prices need a destination
-country. Some env vars are required with no fallback (the
-app fails loudly at startup if missing, see `src/config/env.ts`).
-
-Per-target `.env/<target>/.public.env` holds at least `VITE_API_BASE_URL`
-(kernel/back for that environment) and `VITE_SITE_URL`. Per-target
-`.private.env` holds client-bundled publishable keys such as
-`VITE_STRIPE_PUBLISHABLE_KEY` and `VITE_MONDIAL_RELAY_BRAND` — still
-`VITE_`-prefixed, so they ship to the browser; keep real secrets out of any
-`VITE_` var.
+country. Leftover origin vars `VITE_API_BASE_URL` and `VITE_SITE_URL` are
+required with no fallback (the app fails loudly at startup if missing, see
+`src/config/env.ts`). Stripe publishable key and Mondial brand are plugin
+public settings on bootstrap.
 
 Production also sets two build-only durations. Neither is shipped to the React
 bundle: the deploy writes both into Apache for the PHP relays to read.

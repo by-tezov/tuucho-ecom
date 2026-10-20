@@ -36,8 +36,8 @@
 #      alert again. There is no "recovered" mail.
 #
 # Install: `deploy --prod` copies this file to ~/bin/main-cron-warm.sh,
-# substitutes the active release path below, and adds the crontab entry only
-# when ENABLED_CRON_WARM=true in prod/.lws.env.
+# substitutes the active release path below, and adds the crontab entry
+# on every production deploy.
 # Preproduction never installs it.
 #
 # Manual run: ssh lws_shop_example '$HOME/bin/main-cron-warm.sh'
@@ -46,44 +46,32 @@
 set -euo pipefail
 
 release_dir='__TUCHO_RELEASE_DIR__'
-if [[ ! -d "$release_dir/.env" ]]; then
+if [[ ! -d "$release_dir/config" ]]; then
   printf 'Keep-warm release path was not installed.\n' >&2
   exit 1
 fi
 
-read_env_value() {
-  local file="$1"
-  local key="$2"
-  if [[ ! -r "$file" ]]; then
-    printf 'Missing deployment environment file: %s\n' "$file" >&2
-    exit 1
-  fi
-  local value
-  value="$(awk -v key="$key" '
-    index($0, key "=") == 1 {
-      value = substr($0, length(key) + 2)
-      sub(/\r$/, "", value)
-      if ((value ~ /^".*"$/) || (value ~ /^\047.*\047$/)) value = substr(value, 2, length(value) - 2)
-      print value
-      exit
-    }
-  ' "$file")"
-  printf '%s' "$value"
+node_runtime=''
+for candidate in "$HOME"/nodevenv/private_html/prod/current/*/bin/node; do
+  [[ -x "$candidate" ]] && node_runtime="$candidate" && break
+done
+: "${node_runtime:?cPanel Node runtime is missing}"
+
+read_release() {
+  APP_TARGET=prod TUCHO_RELEASE_DIR="$release_dir" "$node_runtime" "$release_dir/readReleaseConfig.cjs" "$@"
 }
 
-private_dir="$(read_env_value "$release_dir/.env/.public.env" PRIVATE_DIR)"
-target_private_dir="$(read_env_value "$release_dir/.env/prod/.public.env" PRIVATE_DIR)"
-cron_log_file="$(read_env_value "$release_dir/.env/.public.env" PRIVATE_LOG_CRON_WARM_FILE)"
-private_dir="${target_private_dir:-$private_dir}"
-api_base_url="$(read_env_value "$release_dir/.env/prod/.public.env" URL_API_BASE)"
+private_dir="$(read_release paths.privateDir)"
+cron_log_file="$(read_release paths.logs.cronWarm)"
+api_base_url="$(read_release http.apiBaseUrl)"
 
-: "${private_dir:?PRIVATE_DIR is missing from the release environment}"
-: "${cron_log_file:?PRIVATE_LOG_CRON_WARM_FILE is missing from the release environment}"
-: "${api_base_url:?URL_API_BASE is missing from the release environment}"
+: "${private_dir:?paths.privateDir is missing from kernel JSON}"
+: "${cron_log_file:?paths.logs.cronWarm is missing from kernel JSON/plugin settings}"
+: "${api_base_url:?http.apiBaseUrl is missing from kernel JSON}"
 
 cron_log_relative="${cron_log_file#/}"
 if [[ -z "$cron_log_relative" || "$cron_log_relative" == *'..'* ]]; then
-  printf 'PRIVATE_LOG_CRON_WARM_FILE must stay within PRIVATE_DIR.\n' >&2
+  printf '%s must stay within PRIVATE_DIR.\n' 'paths.logs.cronWarm' >&2
   exit 1
 fi
 cron_log_path="${private_dir%/}/$cron_log_relative"

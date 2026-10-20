@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type pg from 'pg';
-import { config } from '../../../config/env.js';
+import { pluginSettingNumber } from '../../plugins/application/pluginSettingValues.js';
 import { detachPaymentMethod, getOrCreateCustomerId, retrievePaymentIntent, retrieveRemotePaymentMethod, attachRemotePaymentMethod, updateRemotePaymentMethod, type PaymentClient, type PublicPaymentMethod } from '../../../platform/stripe/stripeClient.js';
 import { decryptPii, encryptPii } from '../../../platform/security/piiCrypto.js';
 
@@ -27,7 +27,7 @@ interface RetentionRow {
 }
 
 function retentionDaysMs(): number {
-  return config.oneTimeCardRetentionDays * 24 * 60 * 60 * 1000;
+  return pluginSettingNumber('tuucho-payment-stripe', 'oneTimeCardRetentionDays', 30) * 24 * 60 * 60 * 1000;
 }
 
 function provisionalDeleteAfter(): Date {

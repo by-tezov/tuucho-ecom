@@ -1,7 +1,8 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { inspectConfig } from '../back/src/config/loadJsonConfig.ts';
 import { resolveCssComposeSpecifier, viteResolveAlias } from './importAliases.ts';
 
 /**
@@ -54,79 +55,33 @@ function stampPostcssFrom() {
   };
 }
 
-function loadEnvFile(fileName: string): Record<string, string> {
-  const filePath = resolve(process.cwd(), '.env', fileName);
-  if (!existsSync(filePath)) return {};
-  const values: Record<string, string> = {};
-  for (const line of readFileSync(filePath, 'utf-8').split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eq = trimmed.indexOf('=');
-    if (eq === -1) continue;
-    const key = trimmed.slice(0, eq).trim();
-    let value = trimmed.slice(eq + 1).trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1);
-    }
-    values[key] = value;
+function loadKernelHttp(target: string): { apiBaseUrl?: string; frontendBaseUrl?: string } {
+  const status = inspectConfig(resolve(process.cwd(), '../back'), target);
+  if (!status.ok || !status.merged) {
+    throw new Error(status.errors.join('\n') || `kernel config for ${target} failed`);
   }
-  return values;
+  const http = (status.merged.http ?? {}) as Record<string, unknown>;
+  const loaded: { apiBaseUrl?: string; frontendBaseUrl?: string } = {};
+  if (typeof http.apiBaseUrl === 'string') loaded.apiBaseUrl = http.apiBaseUrl;
+  if (typeof http.frontendBaseUrl === 'string') loaded.frontendBaseUrl = http.frontendBaseUrl;
+  return loaded;
 }
 
-const { version: appVersion } = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf-8'));
+const rootPkg = JSON.parse(readFileSync(resolve(process.cwd(), '../../package.json'), 'utf-8')) as {
+  version?: unknown;
+};
+if (typeof rootPkg.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(rootPkg.version)) {
+  throw new Error('Root package.json must contain a MAJOR.MINOR.PATCH version');
+}
+const appVersion = rootPkg.version;
 
 export default defineConfig(({ mode }) => {
-  // Same layered pattern as kernel/back: .env/.public.env (common) ->
-  // .env/<target>/.public.env -> .env/.private.env (common) ->
-  // .env/<target>/.private.env, each overriding the last. `target` comes
-  // from Vite's own --mode flag: `npm run dev`'s default mode 'development'
-  // -> 'dev'; a future `vite build --mode preprod` -> 'preprod'; anything
-  // else (npm run build's default mode 'production') -> 'prod'.
-  const targetFileSuffix = mode === 'development' ? 'dev' : mode === 'preprod' ? 'preprod' : 'prod';
-  const isolatedTestProcess = Boolean(process.env.PAM_TEST_API_BASE_URL);
-  // The backend functional suite exercises real Stripe test-mode and Mondial
-  // Relay widgets against an isolated API/database. Its Vite child needs the
-  // same client-public provider values as local dev. The front-end's own CI
-  // server never sets PAM_TEST_SUITE and remains private-env-free.
-  const backendFunctionalSuite = process.env.PAM_TEST_SUITE === 'dev';
-  Object.assign(
-    process.env,
-    loadEnvFile('.public.env'),
-    loadEnvFile(`${targetFileSuffix}/.public.env`),
-    // Preserve test-e2e:ci's non-secret isolated server. The backend suite is
-    // the deliberate exception above; Vite exposes only VITE_* values to the
-    // browser, and these provider identifiers are client-public by design.
-    ...(isolatedTestProcess && !backendFunctionalSuite
-      ? []
-      : [loadEnvFile('.private.env'), loadEnvFile(`${targetFileSuffix}/.private.env`)]),
-  );
-  // The backend functional runner starts an isolated API for each suite.
-  // This process-only override deliberately wins over the normal dev files;
-  // it is never written to disk or used by an ordinary frontend dev server.
-  if (process.env.PAM_TEST_API_BASE_URL) process.env.VITE_API_BASE_URL = process.env.PAM_TEST_API_BASE_URL;
-  if (process.env.PAM_TEST_SITE_URL) process.env.VITE_SITE_URL = process.env.PAM_TEST_SITE_URL;
-  // CI may inject inert provider identifiers to mount static UI. The backend
-  // functional suite intentionally leaves these unset so its dev provider
-  // configuration above is used for real widget interactions.
-  if (process.env.PAM_TEST_GOOGLE_CLIENT_ID)
-    process.env.VITE_GOOGLE_CLIENT_ID = process.env.PAM_TEST_GOOGLE_CLIENT_ID;
-  if (process.env.PAM_TEST_APPLE_CLIENT_ID)
-    process.env.VITE_APPLE_CLIENT_ID = process.env.PAM_TEST_APPLE_CLIENT_ID;
-  if (process.env.PAM_TEST_STRIPE_PUBLISHABLE_KEY) {
-    process.env.VITE_STRIPE_PUBLISHABLE_KEY = process.env.PAM_TEST_STRIPE_PUBLISHABLE_KEY;
-  }
-  if (process.env.PAM_TEST_MONDIAL_RELAY_BRAND) {
-    process.env.VITE_MONDIAL_RELAY_BRAND = process.env.PAM_TEST_MONDIAL_RELAY_BRAND;
-  }
-  // The functional runner uses dedicated names because the .env merge above
-  // would otherwise replace direct VITE_* process values with normal dev
-  // timings. These are test-process-only and leave ordinary Vite unchanged.
-  if (process.env.PAM_TEST_LOADING_MIN) {
-    process.env.VITE_LOADING_MIN = process.env.PAM_TEST_LOADING_MIN;
-  }
-  if (process.env.PAM_TEST_BOOT_SPLASH_SPEED) {
-    process.env.VITE_BOOT_SPLASH_SPEED = process.env.PAM_TEST_BOOT_SPLASH_SPEED;
-  }
+  // Origins come from kernel JSON (`http.apiBaseUrl` / `http.frontendBaseUrl`).
+  // Shop copy and plugin keys come from `/storefront/bootstrap`.
+  const targetFileSuffix = process.env.APP_TARGET || (mode === 'development' ? 'dev' : mode);
+  const kernelHttp = loadKernelHttp(targetFileSuffix);
+  if (kernelHttp.apiBaseUrl) process.env.VITE_API_BASE_URL = kernelHttp.apiBaseUrl;
+  if (kernelHttp.frontendBaseUrl) process.env.VITE_SITE_URL = kernelHttp.frontendBaseUrl;
 
   return {
     base: '/',
@@ -137,20 +92,11 @@ export default defineConfig(({ mode }) => {
         plugins: [stampPostcssFrom()],
       },
     },
-    // The backend's functional runner starts a one-shot Vite process. It
-    // never edits frontend source while that process is alive, so watching
-    // tens of thousands of files is wasted work and can exceed Linux's
-    // per-user inotify watch limit (ENOSPC). Normal `npm run dev` keeps Vite
-    // watching/HMR exactly as usual — but never on IDE shelves / VCS junk,
-    // which can burn the whole watch budget alone.
-    server:
-      process.env.PAM_TEST_DISABLE_VITE_WATCH === '1'
-        ? { watch: null }
-        : {
-            watch: {
-              ignored: ['**/.idea/**', '**/.git/**', '**/node_modules/**', '**/dist/**', '**/coverage/**'],
-            },
-          },
+    server: {
+      watch: {
+        ignored: ['**/.idea/**', '**/.git/**', '**/node_modules/**', '**/dist/**', '**/coverage/**'],
+      },
+    },
     define: {
       __APP_VERSION__: JSON.stringify(appVersion),
       __APP_TARGET__: JSON.stringify(targetFileSuffix),

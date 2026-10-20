@@ -15,9 +15,33 @@ export type PluginDependency = string | { id: string; version?: string };
 
 export type DependsOnMode = 'all' | 'any';
 
+export type PluginSettingFieldType =
+  | 'string'
+  | 'text'
+  | 'number'
+  | 'boolean'
+  | 'secret'
+  | 'url'
+  | 'email';
+
+export interface PluginSettingOption {
+  value: string;
+  label: string;
+}
+
 export interface PluginSettingField {
-  type: 'string' | 'text' | 'number' | 'boolean';
-  label?: string;
+  type: PluginSettingFieldType;
+  /** Operator-facing name. Empty is a product bug. */
+  label: string;
+  /** What the field is and when to fill it. Empty is a product bug. */
+  description: string;
+  section?: string | undefined;
+  sectionTitle?: string | undefined;
+  sectionDescription?: string | undefined;
+  placeholder?: string | undefined;
+  options?: PluginSettingOption[] | undefined;
+  /** Secret PEM / JSON: replace control is a textarea, still never shows the stored value. */
+  long?: boolean | undefined;
 }
 
 export interface PluginAdminNavItem {

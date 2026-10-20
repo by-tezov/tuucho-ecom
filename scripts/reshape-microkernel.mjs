@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * One-shot tree reshape: kernel/{back,front} + plugins/<id>/{plugin.json,back,front,docs}.
+ * One-shot tree reshape: kernel/{back,front} + plugins/<id>/{package.json,back,front,docs}.
  * Run from the repo root on the current branch.
  */
 import { spawnSync } from 'node:child_process';

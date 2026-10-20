@@ -2,6 +2,65 @@
   "name": "@tuucho/plugin-tuucho-commerce-vouchers",
   "private": true,
   "type": "module",
+  "version": "1.0.0",
+  "description": "Promo codes at checkout and the Vouchers admin page. Disable to hide both.",
+  "tuucho": {
+    "id": "tuucho-commerce-vouchers",
+    "installPath": "plugins/tuucho/commerce/vouchers/tuucho-commerce-vouchers",
+    "name": "Vouchers",
+    "kind": "commerce",
+    "defaultEnabled": true,
+    "provides": [
+      "CheckoutAlteration",
+      "AdminPage"
+    ],
+    "permissions": [
+      {
+        "code": "vouchers",
+        "label": "Vouchers"
+      }
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "adminNav": [
+      {
+        "id": "vouchers",
+        "group": "commerce",
+        "to": "/vouchers",
+        "permission": "vouchers",
+        "order": 30,
+        "label": "Vouchers"
+      }
+    ],
+    "defaultSettings": {
+      "codeMax": 64,
+      "rateVoucher": "60s:10",
+      "disableRateVoucher": false
+    },
+    "settingsSchema": {
+      "codeMax": {
+        "type": "number",
+        "label": "Voucher code max length",
+        "description": "Maximum characters a voucher code may have. Raise only if you issue longer codes.",
+        "section": "codes",
+        "sectionTitle": "Voucher codes",
+        "sectionDescription": "Code length and how often a customer may try a code at checkout."
+      },
+      "rateVoucher": {
+        "type": "string",
+        "label": "Voucher rate limit",
+        "description": "Window:max for voucher attempts (for example 60s:10). Protects checkout from guessing.",
+        "section": "codes"
+      },
+      "disableRateVoucher": {
+        "type": "boolean",
+        "label": "Disable voucher rate limit",
+        "description": "Turn on only on a local shop while testing. Leave off in production.",
+        "section": "codes"
+      }
+    }
+  },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"
   }

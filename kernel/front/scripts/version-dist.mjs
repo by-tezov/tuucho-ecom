@@ -6,7 +6,11 @@ import { gzipSync } from 'node:zlib';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
-const { version: pkgVersion } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+const rootPkg = JSON.parse(readFileSync(join(root, '../../package.json'), 'utf8'));
+if (typeof rootPkg.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(rootPkg.version)) {
+  throw new Error('Root package.json must contain a MAJOR.MINOR.PATCH version');
+}
+const pkgVersion = rootPkg.version;
 // build.mjs's --patch-version forwards here as an env var (not a CLI flag —
 // this script has no argv parsing of its own) so the version folder/.htaccess
 // can target an already-live version without ever writing package.json.
@@ -51,27 +55,46 @@ const local = Boolean(opts.local);
  * nothing to nest under. */
 const mountPrefix = mode === 'prod' ? 'prod/' : '';
 
-/** Reads a build-only setting from the target public env file. Vite loads that
- * file in its own process, so it is deliberately read here rather than from
- * process.env. */
-function targetPublicEnv(name) {
-  const envPath = join(root, '.env', mode, '.public.env');
-  const match = new RegExp(`^\\s*${name}\\s*=\\s*(.+)$`, 'm').exec(readFileSync(envPath, 'utf8'));
-  if (!match) throw new Error(`version-dist: ${name} missing from .env/${mode}/.public.env`);
-  return match[1].trim().replace(/^['"]|['"]$/g, '');
+function readJson(path) {
+  if (!existsSync(path)) return {};
+  return JSON.parse(readFileSync(path, 'utf8'));
+}
+
+function merge(base, overlay) {
+  const out = { ...base };
+  for (const [key, value] of Object.entries(overlay)) {
+    const current = out[key];
+    out[key] =
+      current &&
+      value &&
+      typeof current === 'object' &&
+      typeof value === 'object' &&
+      !Array.isArray(current) &&
+      !Array.isArray(value)
+        ? merge(current, value)
+        : value;
+  }
+  return out;
+}
+
+function kernelHttp(target) {
+  const back = join(root, '..', 'back');
+  const json = merge(readJson(join(back, 'config', 'config.json')), readJson(join(back, 'config', target, 'config.json')));
+  return json.http ?? {};
 }
 
 /** This environment's API origin, for the CSP connect-src placeholder in
  * public/.htaccess. Deliberately one host and not a shared list — a preprod
  * page must not even be allowed to reach the production API. */
 function apiOrigin() {
-  const value = targetPublicEnv('VITE_API_BASE_URL');
+  const value = kernelHttp(mode).apiBaseUrl;
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`version-dist: http.apiBaseUrl missing from kernel/back/config/${mode}/config.json`);
+  }
   try {
     return new URL(value).origin;
   } catch {
-    throw new Error(
-      `version-dist: VITE_API_BASE_URL in .env/${mode}/.public.env is not a valid URL ("${value}")`,
-    );
+    throw new Error(`version-dist: http.apiBaseUrl is not a valid URL ("${value}")`);
   }
 }
 
@@ -133,7 +156,7 @@ function precompress(dir) {
 function main() {
   const versionPath = join(dist, versionDir);
   if (existsSync(versionPath)) {
-    throw new Error(`dist/${versionDir} already exists — bump "version" in package.json before building.`);
+    throw new Error(`dist/${versionDir} already exists — bump "version" in root package.json before building.`);
   }
   mkdirSync(versionPath);
 

@@ -37,7 +37,9 @@ Do not value-import `PluginHost.tsx` from a plugin (eager glob + TDZ). `import t
 
 ## Wrapped kernel defaults
 
-Button, ConfirmModal, LoadingModal, ToggleSwitch, Chip, AccordionItem, QuantityControl, PageHero, SectionHeading, IntroSurface, Figure, BottomSheet, SegmentedSwitch, StatusModal, Skeleton, RequiredMark, RequiredFieldsNote, DocsCallout, DocsCards, DocsSteps, DocsTable, DocsDefList, DocsCode, DocsOutline, DocsPager.
+Button, ConfirmModal, LoadingModal, ToggleSwitch, Chip, AccordionItem, QuantityControl, PageHero, SectionHeading, IntroSurface, Figure, BottomSheet, SegmentedSwitch, StatusModal, Skeleton, RequiredMark, RequiredFieldsNote, DocsCallout, DocsCards, DocsSteps, DocsTable, DocsDefList, DocsCode, DocsOutline, DocsPager, Field, FormSection, TextField, TextareaField, SecretField, SelectField, ColorField.
+
+Form kit: `Field` is label + help text under the label + control slot. `FormSection` is a compact admin group (not storefront `SectionHeading`). `TextField` / `TextareaField` / `SecretField` (set/not-set Chip + replace, never shows the stored value) / `SelectField` (`SegmentedSwitch` or Chip group — never native `<select>`) / `ColorField`. New field types land here first; Configure consumes them. Do not invent one-off markup on a plugin page.
 
 Not wrapped (refs, icons, or chrome that is not a restyle target): ModalBackdrop (`forwardRef`), Toast (ToastProvider only), CloseIcon, FlagIcon, CourierLogo, ThemeSwitch, ContrastControl, Lightbox internals.
 

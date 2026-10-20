@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { CORE_VERSION } from '../../domain/coreVersion.js';
+import { CORE_VERSION } from '../../../../config/appVersion.js';
 import { OFFICIAL_ORIGIN } from '../../domain/githubRepository.js';
 import { normalizeStoredReleaseTag, tagFromKernelVersion } from '../../domain/semverTags.js';
 import { repoRoot } from '../discoverPlugins.js';
@@ -65,8 +65,8 @@ export async function inferredShopRelease(root = repoRoot()): Promise<ShopReleas
     if (typeof release.tag === 'string') tag = normalizeStoredReleaseTag(release.tag) ?? release.tag;
     if (typeof release.releaseId === 'number') releaseId = release.releaseId;
   } catch {
-    // Official catalog missing. CORE_VERSION is root package.json in this
-    // product repo. Check / Apply still prefer shop-release.json when present.
+    // Official catalog missing. Displayed Check current is live root
+    // package.json; this record is last-applied Apply state and dirty hashes.
   }
   return {
     origin: OFFICIAL_ORIGIN,

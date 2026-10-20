@@ -2,6 +2,7 @@ import type { Server } from 'node:http';
 import express, { type Express, type NextFunction, type Request, type Response } from 'express';
 import compression from 'compression';
 import { config } from './config/env.js';
+import { resolvePluginPrivatePath } from './modules/plugins/application/pluginSettingValues.js';
 import { galleryRouter } from './api/gallery.routes.js';
 import { storefrontBootstrapRouter } from './modules/plugins/http/storefrontBootstrap.router.js';
 import { authRouter } from './api/auth.routes.js';
@@ -13,6 +14,7 @@ import { pluginHttpMiddleware } from './modules/plugins/application/pluginHttp.j
 import { seoPublicRouter, seoRedirectRouter } from './modules/seo/http/seoPublic.router.js';
 import { ensurePluginsLoaded } from './modules/plugins/application/loadPluginRuntime.js';
 import { constructWebhookEvent, getStripe } from './platform/stripe/stripeClient.js';
+import { getCachedPluginSecret } from './modules/plugins/application/pluginStore.js';
 import { pool } from './db/pool.js';
 import { userIdsByEmail } from './modules/identity/application/emailLogUserIds.js';
 import { registerEmailLogUserLookup } from './platform/http/emailLog.js';
@@ -134,6 +136,10 @@ export function createApp(): Express {
 
   const customerJson = express.json({ limit: `${config.fieldLimits.jsonBodyLimitKb}kb` });
 
+  // Liveness must be registered before any `app.use('/')` plugin/DB work.
+  // corsForFront is required: the shop polls this cross-origin.
+  app.get('/healthz', corsForFront, (_req, res) => res.json({ ok: true }));
+
   // User-account auth — genuinely cross-origin from the front just like
   // galleryRouter below, so corsForFront wraps these too (with credentials,
   // since the refresh-token cookie and Authorization header both need it).
@@ -188,16 +194,6 @@ export function createApp(): Express {
   // cache do the work instead of a custom client-side cache.
   app.use('/media', express.static(config.mediaDir, { maxAge: '30d' }));
 
-  // A plain, dependency-free liveness probe: doesn't touch the DB, so it still
-  // answers even before migrations have run or if the DB is temporarily
-  // unreachable, unlike everything else here. corsForFront is required, not
-  // defensive: kernel/front's useBackendHealth.ts polls this cross-origin
-  // from the browser every 15s to gate the whole site on it — without CORS
-  // headers here, the browser blocks every poll, the front concludes the
-  // backend is down, and Layout.tsx substitutes NotFoundPage/
-  // ServiceDisruptedNotice for every single page, permanently, even though
-  // the backend is actually healthy.
-  app.get('/healthz', corsForFront, (_req, res) => res.json({ ok: true }));
   app.use('/', corsForFront, storefrontBootstrapRouter);
 
   // express.raw (not express.json) here, deliberately — Stripe's signature
@@ -209,7 +205,7 @@ export function createApp(): Express {
   // authenticates the request.
   app.post('/webhooks/stripe', express.raw({ type: 'application/json', limit: '1mb' }), async (req, res) => {
     const stripe = getStripe();
-    if (!stripe || !config.stripe.webhookSecret) {
+    if (!stripe || !getCachedPluginSecret('tuucho-payment-stripe', 'webhookSecret')) {
       res.status(501).end();
       return;
     }
@@ -345,9 +341,14 @@ export function startServer(): Server {
           config.cronShipmentLogFilePath,
           config.cronAccountDeletionLogFilePath,
           config.cronGuestSavedCleanupLogFilePath,
-          config.cronLoyaltyLogFilePath,
-          config.cronGiftLogFilePath,
-          config.cronGiftPurgeLogFilePath,
+          resolvePluginPrivatePath(config.privateDir, 'tuucho-commerce-loyalty', 'cronLog', '/log/cron-loyalty.jsonl'),
+          resolvePluginPrivatePath(config.privateDir, 'tuucho-commerce-gift', 'cronLog', '/log/cron-gift.jsonl'),
+          resolvePluginPrivatePath(
+            config.privateDir,
+            'tuucho-commerce-gift',
+            'cronPurgeLog',
+            '/log/cron-gift-purge.jsonl',
+          ),
           config.cronPaymentAuthExpiryLogFilePath,
           config.cronWarmLogFilePath,
           config.activityLogFilePath,
@@ -397,13 +398,4 @@ function installGracefulShutdown(server: Server): void {
   };
   process.once('SIGTERM', () => shutdown('SIGTERM'));
   process.once('SIGINT', () => shutdown('SIGINT'));
-  // Isolated test stacks keep stdin open as a death pipe: when the
-  // orchestrator exits without a clean SIGTERM (interrupted shell), EOF here
-  // still runs the same shutdown instead of leaving a worker against a
-  // dropped disposable role.
-  if (process.env.PAM_TEST_SHUTDOWN_ON_STDIN_CLOSE === '1') {
-    process.stdin.resume();
-    process.stdin.once('end', () => shutdown('stdin-closed'));
-    process.stdin.once('close', () => shutdown('stdin-closed'));
-  }
 }

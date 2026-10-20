@@ -388,8 +388,7 @@
     "schemaDoc": "docs/schema/10-reviews.md",
     "module": "../../plugins/tuucho/commerce/vinted-review/tuucho-commerce-vinted-review/back/src",
     "frontRoutes": [
-      "src/routes/AdminReviewsPage.tsx",
-      "src/routes/HomePage.tsx"
+      "src/routes/AdminReviewsPage.tsx"
     ],
     "frontApi": [
       "src/api/vintedReviews.ts"

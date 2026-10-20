@@ -1,5 +1,6 @@
 import { appVersion } from '../../../config/appVersion.js';
 import { config } from '../../../config/env.js';
+import { peekStoreIdentity } from '../../plugins/application/storeSettings.js';
 import type { Language } from '../../../utils/language.js';
 import { accountEmailCopy, formatEmailDay, formatEmailMoment } from './accountEmailCopy.js';
 import { emailStrings } from './emailStrings.js';
@@ -26,7 +27,7 @@ type MailContent = {
  * forwarding path. */
 export function unconnectedContactReplyEmail(message: string, language: Language): MailContent {
   const copy = accountEmailCopy(language).contactReply;
-  const text = `${copy.hello}\n\n${message}\n\n${config.company.name}`;
+  const text = `${copy.hello}\n\n${message}\n\n${peekStoreIdentity().name}`;
   return {
     subject: copy.subject,
     text,

@@ -1,5 +1,5 @@
 import rateLimit from 'express-rate-limit';
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { isHttpRateLimitRelaxed } from '../../modules/settings/application/appPreferences.js';
 import { createPgRateLimitStore } from './pgRateLimitStore.js';
 import { notifyRateLimitedFromRequest, type RateLimitSpyKind } from './rateLimitSpy.js';
@@ -45,4 +45,13 @@ export function createRateLimiter(options: RateLimiterOptions) {
     handler: jsonRateLimited(options.kind),
     store: createPgRateLimitStore(`rl:${options.kind}:`),
   });
+}
+
+/** Build the limiter on first request so plugin settings (DB) are already cached. */
+export function lazyRateLimiter(factory: () => RequestHandler): RequestHandler {
+  let instance: RequestHandler | undefined;
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!instance) instance = factory();
+    return instance(req, res, next);
+  };
 }

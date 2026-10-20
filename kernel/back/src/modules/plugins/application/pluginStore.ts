@@ -1,6 +1,6 @@
 import type { Pool, PoolClient } from 'pg';
 import { pool } from '../../../db/pool.js';
-import { CORE_VERSION } from '../domain/coreVersion.js';
+import { CORE_VERSION, readRootPackageVersion } from '../../../config/appVersion.js';
 import { loadManifests, manifestById } from './catalog.js';
 import { doAction } from './hooks.js';
 import { ensureMenuForPlugin } from './storeSettings.js';
@@ -9,8 +9,45 @@ import { assessPluginCompatibility, type PluginCompatibility } from './pluginCom
 import { applyPluginMigrations, revertPluginMigrations } from './pluginSchema.js';
 import { flushPluginCache } from '@tuucho/plugin-sdk';
 import type { PluginManifest } from '../domain/contracts.js';
+import {
+  pluginSecretsNeedSeal,
+  sealPluginSecrets,
+  unsealPluginSecrets,
+} from './pluginSecretsCrypto.js';
 
 export { pluginSurfaceEnabled } from './pluginSurface.js';
+
+const settingsCache = new Map<string, Record<string, unknown>>();
+const secretsCache = new Map<string, Record<string, unknown>>();
+const enabledCache = new Map<string, boolean>();
+
+function rememberPluginDocuments(
+  id: string,
+  settings: Record<string, unknown> | undefined,
+  secrets: Record<string, unknown> | undefined,
+): void {
+  settingsCache.set(id, settings ?? {});
+  secretsCache.set(id, secrets ?? {});
+}
+
+export function getCachedPluginSettings(id: string): Record<string, unknown> {
+  return settingsCache.get(id) ?? {};
+}
+
+export function getCachedPluginSecret(id: string, key: string): string | undefined {
+  const value = secretsCache.get(id)?.[key];
+  return typeof value === 'string' && value.trim() ? value : undefined;
+}
+
+export function isCachedPluginEnabled(id: string): boolean {
+  return enabledCache.get(id) === true;
+}
+
+export function secretKeysPresent(id: string): string[] {
+  return Object.entries(secretsCache.get(id) ?? {})
+    .filter(([, value]) => typeof value === 'string' && value.trim().length > 0)
+    .map(([key]) => key);
+}
 
 export interface InstalledPlugin {
   id: string;
@@ -22,7 +59,7 @@ export interface InstalledPlugin {
   compatibility: PluginCompatibility;
 }
 
-export { CORE_VERSION };
+export { CORE_VERSION, readRootPackageVersion };
 
 export async function ensurePluginRows(db: Pool | PoolClient = pool): Promise<PluginManifest[]> {
   const manifests = await loadManifests();
@@ -31,12 +68,53 @@ export async function ensurePluginRows(db: Pool | PoolClient = pool): Promise<Pl
     await db.query(
       `insert into plugins (id, enabled, settings)
        values ($1, $2, $3::jsonb)
-       on conflict (id) do nothing`,
+       on conflict (id) do update
+         set settings = $3::jsonb || coalesce(plugins.settings, '{}'::jsonb)`,
       [plugin.id, seedEnabled, JSON.stringify(plugin.defaultSettings ?? {})],
     );
     await ensureMenuForPlugin(plugin);
   }
   return manifests;
+}
+
+async function persistSealedSecrets(
+  id: string,
+  secrets: Record<string, string>,
+  db: Pool | PoolClient,
+): Promise<void> {
+  if (Object.keys(secrets).length === 0) {
+    await db.query(`update plugins set secrets = '{}'::jsonb, updated_at = now() where id = $1`, [id]);
+    return;
+  }
+  await db.query(
+    `update plugins
+        set secrets = to_jsonb($2::text), updated_at = now()
+      where id = $1`,
+    [id, sealPluginSecrets(secrets)],
+  );
+}
+
+async function migratePlaintextSecrets(
+  rows: Array<{ id: string; secrets: unknown }>,
+  db: Pool | PoolClient,
+): Promise<void> {
+  for (const row of rows) {
+    if (!pluginSecretsNeedSeal(row.secrets)) continue;
+    const map = unsealPluginSecrets(row.secrets);
+    const result = await db.query(
+      `update plugins
+          set secrets = to_jsonb($2::text), updated_at = now()
+        where id = $1
+          and jsonb_typeof(secrets) = 'object'
+          and secrets <> '{}'::jsonb`,
+      [row.id, sealPluginSecrets(map)],
+    );
+    if ((result.rowCount ?? 0) > 0) {
+      console.info(
+        `[plugins] sealed leftover plaintext secrets at rest for ${row.id} (${Object.keys(map).length} keys).`,
+      );
+    }
+  }
 }
 
 function missingDiskManifest(id: string, schemaVersion: string | null): PluginManifest {
@@ -53,13 +131,27 @@ function missingDiskManifest(id: string, schemaVersion: string | null): PluginMa
 
 export async function listPlugins(db: Pool | PoolClient = pool): Promise<InstalledPlugin[]> {
   const manifests = await ensurePluginRows(db);
-  const { rows } = await db.query<{
+  let rows: Array<{
     id: string;
     enabled: boolean;
     settings: Record<string, unknown>;
+    secrets: unknown;
     schema_version: string | null;
-  }>(`select id, enabled, settings, schema_version from plugins order by id`);
+  }>;
+  try {
+    ({ rows } = await db.query(
+      `select id, enabled, settings, secrets, schema_version from plugins order by id`,
+    ));
+  } catch (error) {
+    const code = error && typeof error === 'object' && 'code' in error ? String(error.code) : '';
+    if (code !== '42703') throw error;
+    ({ rows } = await db.query(
+      `select id, enabled, settings, '{}'::jsonb as secrets, schema_version from plugins order by id`,
+    ));
+  }
+  await migratePlaintextSecrets(rows, db);
   const byId = new Map(rows.map((row) => [row.id, row]));
+  for (const row of rows) rememberPluginDocuments(row.id, row.settings, unsealPluginSecrets(row.secrets));
   const assembled: Array<Omit<InstalledPlugin, 'compatibility'>> = manifests.map((manifest) => {
     const row = byId.get(manifest.id);
     return {
@@ -83,7 +175,7 @@ export async function listPlugins(db: Pool | PoolClient = pool): Promise<Install
       manifest: missingDiskManifest(row.id, row.schema_version),
     });
   }
-  return assembled.map((plugin) => ({
+  const listed: InstalledPlugin[] = assembled.map((plugin) => ({
     ...plugin,
     compatibility: plugin.missingFromDisk
       ? {
@@ -97,6 +189,15 @@ export async function listPlugins(db: Pool | PoolClient = pool): Promise<Install
         }
       : assessPluginCompatibility(plugin, assembled),
   }));
+  const enablement = new Map(listed.map((plugin) => [plugin.id, plugin]));
+  enabledCache.clear();
+  for (const plugin of listed) {
+    enabledCache.set(
+      plugin.id,
+      pluginSurfaceEnabled(plugin, enablement) && plugin.compatibility.ok && !plugin.missingFromDisk,
+    );
+  }
+  return listed;
 }
 
 export async function scanPlugins(
@@ -206,6 +307,26 @@ export async function patchPluginSettings(
       where id = $1`,
     [id, JSON.stringify(settings)],
   );
+  const list = await listPlugins(db);
+  return list.find((plugin) => plugin.id === id)!;
+}
+
+export async function patchPluginSecrets(
+  id: string,
+  secrets: Record<string, unknown>,
+  db: Pool = pool,
+): Promise<InstalledPlugin | { error: 'not_found' }> {
+  if (!(await manifestById(id))) return { error: 'not_found' };
+  await ensurePluginRows(db);
+  const cleaned: Record<string, string> = {};
+  for (const [key, value] of Object.entries(secrets)) {
+    if (typeof value !== 'string' || value.trim() === '') continue;
+    cleaned[key] = value;
+  }
+  if (Object.keys(cleaned).length > 0) {
+    const { rows } = await db.query<{ secrets: unknown }>(`select secrets from plugins where id = $1`, [id]);
+    await persistSealedSecrets(id, { ...unsealPluginSecrets(rows[0]?.secrets), ...cleaned }, db);
+  }
   const list = await listPlugins(db);
   return list.find((plugin) => plugin.id === id)!;
 }

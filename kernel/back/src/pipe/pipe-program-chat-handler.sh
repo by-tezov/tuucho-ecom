@@ -10,19 +10,16 @@ set -euo pipefail
 log() { :; }
 log "handler started target=${TUCHO_CHAT_TARGET} release=${TUCHO_CHAT_RELEASE_DIR}"
 
-read_env_value() {
-  local file="$1"
+read_plugin_setting() {
+  local plugin_id="$1"
   local key="$2"
-  [[ -r "$file" ]] || return 0
-  awk -v key="$key" '
-    index($0, key "=") == 1 {
-      value = substr($0, length(key) + 2)
-      sub(/\r$/, "", value)
-      if ((value ~ /^".*"$/) || (value ~ /^\047.*\047$/)) value = substr(value, 2, length(value) - 2)
-      print value
-      exit
-    }
-  ' "$file"
+  local node_runtime=''
+  for candidate in "$HOME"/nodevenv/private_html/"${TUCHO_CHAT_TARGET}"/current/*/bin/node; do
+    [[ -x "$candidate" ]] && node_runtime="$candidate" && break
+  done
+  [[ -n "$node_runtime" ]] || return 0
+  APP_TARGET="$TUCHO_CHAT_TARGET" TUCHO_RELEASE_DIR="$TUCHO_CHAT_RELEASE_DIR" \
+    "$node_runtime" "${TUCHO_CHAT_RELEASE_DIR}/readReleaseConfig.cjs" --plugin "$plugin_id" "$key" 2>/dev/null || true
 }
 
 raw_file="$(mktemp "${TMPDIR:-/tmp}/pipe-program-chat.XXXXXX")"
@@ -36,9 +33,7 @@ cat >"$raw_file"
 if awk 'BEGIN { IGNORECASE=1 }
   /^X-Tuucho-Chat-Message:[[:space:]]*/ { found=1; exit }
   END { exit(found ? 0 : 1) }' "$raw_file"; then
-  forward_recipient="$(read_env_value "${TUCHO_CHAT_RELEASE_DIR}/.env/.public.env" EMAIL_CONTACT_FORWARD_RECIPIENT)"
-  target_forward="$(read_env_value "${TUCHO_CHAT_RELEASE_DIR}/.env/${TUCHO_CHAT_TARGET}/.public.env" EMAIL_CONTACT_FORWARD_RECIPIENT)"
-  forward_recipient="${target_forward:-$forward_recipient}"
+  forward_recipient="$(read_plugin_setting tuucho-contact forwardRecipient)"
   [[ -n "$forward_recipient" ]] || exit 0
   sendmail -oi "$forward_recipient" <"$raw_file" || log 'user notification forward failed'
   exit 0

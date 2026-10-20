@@ -17,12 +17,17 @@ Needs Node 22+, Docker (Postgres 10 on host port **5434**), and npm.
 Clone a **version tag**, not untagged `master`:
 
 ```bash
-git clone --branch 0.0.2 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
+git clone --branch 0.0.3 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
 cd tuucho-ecom
+# public JSON is already in git: kernel/back/config/config.json and config/dev/
+cp kernel/back/config/config.private.example.json kernel/back/config/config.private.json
+cp kernel/back/config/dev/config.private.example.json kernel/back/config/dev/config.private.json
+# replace placeholders in config/dev/config.private.json (database url, jwt, pii, ops, smtp)
 npm run setup:cli -- --yes \
   --store-name Shop \
   --admin-email admin@shop.example \
   --admin-password 'ShopAdmin1!'
+# APP_TARGET=dev is the local default (selects config/dev/)
 npm run dev
 ```
 
@@ -39,39 +44,73 @@ After install:
 Sign in with the admin e-mail you chose. A second `npm run setup` is a no-op
 while `installed.lock` exists.
 
-Stripe and Mondial Relay keys are optional at install time. Checkout lists
-registered **payment gateways**; live payment needs your Stripe test keys in
-`kernel/back/.env/dev/.private.env` and `kernel/front/.env/dev/.private.env`.
+Stripe and Mondial Relay keys are optional at install time. Configure them
+after first Admin login on **Plugins → Configure** (secret store). Do not put
+them in kernel JSON.
 
-## Third-party configuration
+## Configuration (JSON, not a mega `.env`)
 
-Env files load in layers under `kernel/back/.env/` and `kernel/front/.env/`:
-`.public.env` (committed) then `.private.env` (gitignored secrets). Per-target
-folders (`dev`, `preprod`, `prod`) override. Never put a secret in a
-`VITE_` variable: those ship in the shop bundle.
+Files live under `kernel/back/config/`. Common (all envs) sit in `config/`
+itself; each environment is a subfolder. This clone ships **only** `dev/`.
+A new env is a folder, not a closed `dev|preprod|prod` list.
 
-| Concern | Where | Kernel or plugin | Variables (names only) |
-| --- | --- | --- | --- |
-| Postgres | Kernel | Kernel | `DATABASE_URL` (or the split host/user/password vars the installer writes) |
-| Stripe charges | `tuucho-payment-stripe` plugin | Plugin registers methods; keys stay in kernel env | Back: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_REQUEST_TIMEOUT`. Front: `VITE_STRIPE_PUBLISHABLE_KEY` |
-| Mondial Relay labels | `tuucho-shipping-mondial-relay` / `tuucho-shipping-home` | Plugin owns the method; credentials stay in kernel env | `MONDIAL_RELAY_API2_URL`, `MONDIAL_RELAY_API2_ENSEIGNE`, `MONDIAL_RELAY_API2_LOGIN`, `MONDIAL_RELAY_API2_PASSWORD`, `MONDIAL_RELAY_SENDER_*`, point/home courier and mode codes |
-| Mondial Relay tracking | `tuucho-shipping-expedition-cron` | Complement plugin; credentials in kernel env | `MONDIAL_RELAY_API1_URL`, `MONDIAL_RELAY_API1_ENSEIGNE`, `MONDIAL_RELAY_API1_PRIVATE_KEY`, `MONDIAL_RELAY_PUBLIC_TRACKING_URL` |
-| Mondial Relay picker (shop) | Front chrome + shipping plugin | Front env | `VITE_MONDIAL_RELAY_BRAND`, `VITE_MONDIAL_RELAY_PICKER_NETWORK_CODE`, optional `VITE_MONDIAL_RELAY_PICKER_COURIER_CODE`, home network/courier codes |
-| Mail (SMTP) | Kernel | Kernel | `SMTP_HOST`, `SMTP_PORT`, `SMTP_NO_REPLY_USER`, `SMTP_NO_REPLY_PASSWORD`, `SMTP_FROM_NAME_PREFIX`, `EMAIL_NO_REPLY_FROM`. Chat transport: `SMTP_CHAT_HOST`, `SMTP_CHAT_PORT`, `SMTP_CHAT_USER`, `SMTP_CHAT_PASSWORD`, `EMAIL_CHAT_FROM` |
-| Mail recipients | Plugin `tuucho-mail-spy` | Kernel SMTP | Live To is Admin → Spy e-mails. Seed-only if they match unlocked staff and no recipients exist yet: `EMAIL_CONTACT_RECIPIENT`, `EMAIL_CHAT_RECIPIENT`, `EMAIL_ORDER_SPY_RECIPIENT`. Kill switch `DISABLE_SPY_EMAIL`. Reply identity `CONTACT_RECIPIENT_NAME` |
-| Local mail dump | Kernel | Kernel | `ROUTE_EMAIL_FOLDER` (not `false` writes under `DEV_EMAIL_USER_DIR` / `_SPY_` / `_CHAT_` instead of SMTP) |
+Merge, top to bottom (bottom wins): common public → env public → common
+private (or its example) → env private (or its example) → leftover process
+overlay (`APP_TARGET`, `PORT`, optional `DATABASE_URL`). `APP_TARGET` is the
+folder name (local default `dev`). Missing folder → error naming it.
+
+Public JSON is committed. Private JSON is gitignored; each has a committed
+functional `*.example`. Boot: missing private + example present → warning,
+load example, launch. Both missing → error. Private present but required keys
+missing → error naming each key. `npm --prefix kernel/back run config:doctor`
+prints the same list plus every folder under `config/`.
+
+| Concern | After first boot | File or Admin |
+| --- | --- | --- |
+| Kernel policy (TTLs, rates) | Committed `kernel/back/config/config.json` | Git (common public) |
+| Env URLs / dirs | Committed `kernel/back/config/<env>/config.json` | Git (env public) |
+| DB / JWT / PII / ops / SMTP passwords | `config/config.private.json` and `config/<env>/config.private.json` (from those `*.example` files) | Gitignored files |
+| Shop name, legal, footer | Admin + `footer-identity` / `page-legal` | Admin (that env’s DB) |
+| Stripe | Plugin Configure (`tuucho-payment-stripe`) | Admin (secret store on that env) |
+| Mondial Relay | Plugin Configure (shipping plugins) | Admin (secret store on that env) |
+| Spy recipients | Admin → Spy e-mails (`tuucho-mail-spy`) | Admin |
+| Gift / loyalty / cart rules | Those plugins’ Configure or Admin commerce screens | Admin |
+
+**How to add an environment** (copy `dev`, do not invent files in the kernel)
+
+```bash
+# public + example only — do not copy config.private.json
+npm --prefix kernel/back run config:env -- create preprod
+# or by hand:
+# mkdir -p kernel/back/config/preprod
+# cp kernel/back/config/dev/config.json kernel/back/config/preprod/config.json
+# cp kernel/back/config/dev/config.private.example.json kernel/back/config/preprod/config.private.example.json
+cp kernel/back/config/preprod/config.private.example.json \
+   kernel/back/config/preprod/config.private.json
+# edit URLs/paths/CORS in config/preprod/config.json — commit that
+# fill a **new** database URL, JWT, PII, ops in the private file — never commit
+# APP_TARGET=preprod  (or --env preprod on OPS CLIs)
+npm --prefix kernel/back run config:doctor
+```
+
+Do **not** copy another env’s private file onto this one. `prod` is the only
+indexed name, and only when that folder exists. Same steps for any name
+(`staging`, `prod`, …). There is no `README.todo` on this checkout.
+
+Install from a tag: `npm install` only at the **repo root** (npm workspaces, one lockfile). Do not `cd kernel/front && npm install`.
 
 Admin, Plugins, Scan is install (runs schema `up` when the plugin is on).
 **Check for updates** then **Apply** walks every git tag between this shop and
 the latest official tag (`MAJOR.MINOR.PATCH`, never `v0.0.2`, never `master`).
-Plugins “Core” is root `package.json`. Check / Apply walks `shop-release.json`
-vs tag `release.json`. A deployed shop cannot claim a kernel by editing
-`package.json`. `plugins/user/` is not overwritten
-by a Tuucho update. A user plugin with `repository` on `plugin.json` updates
-from that GitHub repo only. Disable unloads the plugin and keeps its tables.
-Uninstall runs `down` and removes the row. Stripe keys and carrier credentials
-do not live in plugin settings: they stay in env files; the plugin only
-registers the method.
+Plugins “Core” and Check current are the live root `package.json`. Latest is
+the newest official GitHub tag. A checkout newer than that tag is ahead (no
+Apply). Matching tags: nothing to update. Older local: walk every tag.
+`shop-release.json` is last-applied Apply state, not displayed current.
+`plugins/user/` is not overwritten
+by a Tuucho update. Kernel/all Apply copies root `package.json`. A user plugin
+with npm `repository` on its `package.json` updates from that GitHub repo only. Disable unloads the plugin and keeps its tables.
+Uninstall runs `down` and removes the row. Stripe keys and carrier credentials live in that plugin’s Admin Configure
+(secret store), not kernel JSON.
 
 Details: [docs/plugins.md](docs/plugins.md).
 

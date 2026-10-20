@@ -1,6 +1,6 @@
 # Plugin folder structure
 
-Scan roots (nested `plugin.json`, leaf folder = `id`):
+Scan roots (nested plugin `package.json` with a `tuucho` block, leaf folder = `id`):
 
 1. `plugins/tuucho/` — bundled first-party. Id **must** start with `tuucho-`.
 2. `plugins/user/` — shop / demo / zip upload. Id **must not** start with `tuucho-`.

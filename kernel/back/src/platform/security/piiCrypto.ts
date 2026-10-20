@@ -11,8 +11,8 @@ const AUTH_TAG_LENGTH = 16;
 let cachedKey: { raw: string; key: Buffer } | null = null;
 let cachedPepper: { raw: string; pepper: Buffer } | null = null;
 
-function encryptionKey(): Buffer {
-  const raw = config.pii.encryptionKey;
+function encryptionKey(rawOverride?: string): Buffer {
+  const raw = rawOverride ?? config.pii.encryptionKey;
   if (cachedKey?.raw === raw) return cachedKey.key;
   const key = Buffer.from(raw, 'base64');
   if (key.length !== 32) {
@@ -33,17 +33,19 @@ function lookupPepper(): Buffer {
   return pepper;
 }
 
-/** AES-256-GCM. Null/undefined pass through. Empty string is encrypted like any other value. */
-export function encryptPii(plain: string | null | undefined): string | null {
+/** AES-256-GCM. Null/undefined pass through. Empty string is encrypted like any other value.
+ * Optional `keyRaw` is the same base64 32-byte key as `pii.encryptionKey` (scripts that
+ * target another APP_TARGET's database pass that environment's key). */
+export function encryptPii(plain: string | null | undefined, keyRaw?: string): string | null {
   if (plain === null || plain === undefined) return null;
   const iv = randomBytes(IV_LENGTH);
-  const cipher = createCipheriv('aes-256-gcm', encryptionKey(), iv);
+  const cipher = createCipheriv('aes-256-gcm', encryptionKey(keyRaw), iv);
   const ciphertext = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]);
   const tag = cipher.getAuthTag();
   return VERSION_PREFIX + Buffer.concat([iv, ciphertext, tag]).toString('base64');
 }
 
-export function decryptPii(stored: string | null | undefined): string | null {
+export function decryptPii(stored: string | null | undefined, keyRaw?: string): string | null {
   if (stored === null || stored === undefined) return null;
   if (!stored.startsWith(VERSION_PREFIX)) {
     throw new Error('Unsupported or plaintext PII value (expected v1: ciphertext).');
@@ -56,7 +58,7 @@ export function decryptPii(stored: string | null | undefined): string | null {
   const iv = raw.subarray(0, IV_LENGTH);
   const tag = raw.subarray(raw.length - AUTH_TAG_LENGTH);
   const ciphertext = raw.subarray(IV_LENGTH, raw.length - AUTH_TAG_LENGTH);
-  const decipher = createDecipheriv('aes-256-gcm', encryptionKey(), iv);
+  const decipher = createDecipheriv('aes-256-gcm', encryptionKey(keyRaw), iv);
   decipher.setAuthTag(tag);
   try {
     return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8');
@@ -70,13 +72,13 @@ export function emailLookupHash(email: string): string {
   return createHmac('sha256', lookupPepper()).update(email.trim().toLowerCase()).digest('hex');
 }
 
-export function encryptJsonPii(value: unknown | null | undefined): string | null {
+export function encryptJsonPii(value: unknown | null | undefined, keyRaw?: string): string | null {
   if (value === null || value === undefined) return null;
-  return encryptPii(JSON.stringify(value));
+  return encryptPii(JSON.stringify(value), keyRaw);
 }
 
-export function decryptJsonPii<T>(stored: string | null | undefined): T | null {
-  const plain = decryptPii(stored);
+export function decryptJsonPii<T>(stored: string | null | undefined, keyRaw?: string): T | null {
+  const plain = decryptPii(stored, keyRaw);
   if (plain === null) return null;
   return JSON.parse(plain) as T;
 }

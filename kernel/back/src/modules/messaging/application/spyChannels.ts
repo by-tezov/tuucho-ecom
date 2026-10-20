@@ -4,7 +4,7 @@ import {
   type SpyChannelDeclaration,
   type SpyResolveState,
 } from '@tuucho/plugin-sdk';
-import { config } from '../../../config/env.js';
+import { pluginSettingBool } from '../../plugins/application/pluginSettingValues.js';
 import { SPY_KINDS, type SpyKind } from '../../settings/domain/spyKinds.js';
 import {
   isOutageSpyChannel,
@@ -199,7 +199,7 @@ export function uniqueSpyEmails(emails: readonly string[]): string[] {
 
 /** Who receives this channel. Empty when the spy plugin is off or nobody matches. */
 export async function resolveSpyRecipients(channelId: string): Promise<string[]> {
-  if (config.disableSpyEmail) {
+  if (pluginSettingBool('tuucho-mail-spy', 'disableEmail')) {
     await rememberOutageSpyTo(channelId, []);
     return [];
   }

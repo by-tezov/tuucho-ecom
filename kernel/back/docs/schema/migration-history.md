@@ -4,6 +4,48 @@ This file records migrations that once existed under `src/db/migrations/` and
 were later removed because their final effect was folded into a later file.
 It is an operator/agent memory aid. It is **not** a runnable history.
 
+## Full squash (2026-10-20) → `1738000000000_init.js`
+
+Nothing is in prod. Kernel history was flattened again: every numbered file
+after the previous squash was folded into `1738000000000_init.js`, regenerated
+from `pg_dump --schema-only` of this shop's Postgres 10 (plugin tables
+excluded). The baseline includes sealed `plugins.secrets`, `plugins.settings`,
+staff roles/permissions, SEO redirects, `orders.plugin_snapshot`,
+`vocabulary_lengths`, en/fr language checks, and the current seeds
+(`user` + `super-admin` + `preparator`/`manager`, not `admin`).
+
+This shop already has `1738000000000_init` in `pgmigrations`, so
+`database-migrate` skips the rewritten file. Leftover rows for the deleted
+names are harmless (`checkOrder: false`). A lagged database that applied the
+old init but not the later files must `database-reset` then migrate. Fresh
+shop: `database-reset` (or empty `public`) then `database-migrate`. New kernel
+work after today is a new timestamped file again.
+
+Plugin tables were **not** dumped into kernel. The only plugin that had SQL
+keeps one baseline:
+`plugins/tuucho/messaging/mail-spy/tuucho-mail-spy/back/migrations/001_spy_mail.js`
+(same filename so `plugins_schema_migrations` skips it on this shop).
+
+| Former file | Role (historical) |
+| --- | --- |
+| `1791331200000_staff_roles.js` | Staff roles, permissions, inheritance, public-id upper-case checks |
+| `1791900000000_gift_receiver_email.js` | `gift_offers.receiver_email` / lookup |
+| `1792000000000_catalogue_edit_permission.js` | `catalogue_edit` permission |
+| `1792100000000_catalogue_vocabulary.js` | `vocabulary_lengths`, `shape_lengths.sort_order` |
+| `1792200000000_plugins_and_store.js` | `plugins` table + store identity prefs |
+| `1792300000000_plugin_email_log_permission.js` | `email_log` permission |
+| `1792400000000_product_seo_and_redirects.js` | Product SEO columns, `seo_redirects` |
+| `1792500000000_plugin_schema_lifecycle.js` | `plugins.schema_version`, `plugins_schema_migrations` |
+| `1792600000000_order_plugin_snapshot.js` | `orders.plugin_snapshot` |
+| `1792700000000_language_en_fr.js` | Language checks en/fr only |
+| `1792800000000_strip_extra_locale_keys.js` | Strip extra locale keys from seed JSONB |
+| `1792900000000_tuucho_plugin_ids.js` | Rename plugin ids to `tuucho-*` |
+| `1792910000000_tuucho_home_faq.js` | Menu pluginId remap for home FAQ |
+| `1792920000000_tuucho_commerce_vinted_review.js` | Menu pluginId remap for Vinted review |
+| `1792930000000_courier_edit_permission.js` | `courier_edit` permission |
+| `1792940000000_page_legal_user.js` | Legal page menu pluginId remap |
+| `1792960000000_plugin_secrets.js` | `plugins.secrets` JSONB (now sealed at rest) |
+
 ## Policy
 
 Never rewrite applied migration history in place. Do not edit a migration that

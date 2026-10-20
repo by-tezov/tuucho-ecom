@@ -3,19 +3,28 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CORE_VERSION } from '../../../../../src/modules/plugins/domain/coreVersion.js';
+import { CORE_VERSION, readRootPackageVersion } from '../../../../../src/config/appVersion.js';
 import { satisfiesRange } from '../../../../../src/modules/plugins/domain/semverRange.js';
 
-test('CORE_VERSION matches root package.json and kernel workspace versions', () => {
+test('CORE_VERSION matches root package.json', () => {
   const here = dirname(fileURLToPath(import.meta.url));
   const backPkg = JSON.parse(readFileSync(join(here, '../../../../../package.json'), 'utf8')) as {
-    version: string;
+    version?: unknown;
   };
+  const frontPkg = JSON.parse(readFileSync(join(here, '../../../../../../front/package.json'), 'utf8')) as {
+    version?: unknown;
+  };
+  const sdkPkg = JSON.parse(
+    readFileSync(join(here, '../../../../../../../plugin-sdk/package.json'), 'utf8'),
+  ) as { version?: unknown };
   const rootPkg = JSON.parse(readFileSync(join(here, '../../../../../../../package.json'), 'utf8')) as {
     version: string;
   };
+  assert.equal(readRootPackageVersion(), rootPkg.version);
   assert.equal(CORE_VERSION, rootPkg.version);
-  assert.equal(CORE_VERSION, backPkg.version);
+  assert.equal('version' in backPkg, false);
+  assert.equal('version' in frontPkg, false);
+  assert.equal('version' in sdkPkg, false);
 });
 
 test('satisfiesRange understands comparators, caret, tilde and star', () => {

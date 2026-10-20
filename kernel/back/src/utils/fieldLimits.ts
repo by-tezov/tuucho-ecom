@@ -1,4 +1,5 @@
 import { config } from '../config/env.js';
+import { pluginSettingNumber } from '../modules/plugins/application/pluginSettingValues.js';
 import { isNonEmptyString, isValidEmail } from './validate.js';
 
 const CONTROL_CHARS_RE = /[\u0000-\u001F\u007F]/; // eslint-disable-line no-control-regex -- intentional reject of C0 controls
@@ -72,7 +73,10 @@ export function boundedPostalCode(value: unknown): string | undefined {
 }
 
 export function boundedVoucherCode(value: unknown): string | undefined {
-  const trimmed = trimmedBounded(value, config.fieldLimits.voucherCodeMax);
+  const trimmed = trimmedBounded(
+    value,
+    pluginSettingNumber('tuucho-commerce-vouchers', 'codeMax', 64),
+  );
   if (!trimmed || !VOUCHER_RE.test(trimmed)) return undefined;
   return trimmed;
 }

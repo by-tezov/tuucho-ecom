@@ -1,4 +1,8 @@
-/** @param {import('pg').PoolClient} client */
+/** Baseline schema for tuucho-mail-spy. Single file — no 001 then 002 chain.
+ * Host records this filename in plugins_schema_migrations; this shop already
+ * applied it and skips. Fresh shops run it once on enable/scan/boot.
+ *
+ * @param {import('pg').PoolClient} client */
 exports.up = async (client) => {
   await client.query(`
     create table plugin_tuucho_mail_spy_channels (

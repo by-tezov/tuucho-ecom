@@ -17,19 +17,12 @@ import { ENABLED_LANGUAGES } from './config/i18nRoutes';
  * instead of the real page.
  */
 import { SplashEntry } from './routes/SplashEntry';
-import { HomePage } from './routes/HomePage';
 import { GalleryPage } from './routes/GalleryPage';
-import { AboutPage } from './routes/AboutPage';
 import {
   pluginAdminRouteElements,
   pluginCustomerRouteElements,
   pluginPublicRouteElements,
 } from './plugins/PluginHost';
-import { GuidePage } from './routes/GuidePage';
-import { LegalNoticePage } from './routes/LegalNoticePage';
-import { PrivacyPage } from './routes/PrivacyPage';
-import { TermsPage } from './routes/TermsPage';
-import { SalesTermsPage } from './routes/SalesTermsPage';
 import { SitemapPage } from './routes/SitemapPage';
 import { NotFoundPage } from './routes/NotFoundPage';
 
@@ -145,17 +138,10 @@ const PluginContentPage = lazy(() =>
  * French `/fr`. Paths here are relative (no leading slash) so the same
  * list composes correctly nested under a `<Route path="xx">`. */
 const PUBLIC_ROUTE_DEFS: { path: string; element: ReactNode }[] = [
-  { path: 'home', element: <HomePage /> },
   { path: 'gallery', element: <GalleryPage /> },
   // API-backed product page. The slug's trailing product uid resolves it at
   // runtime; link-preview bots are served by the backend instead.
   { path: 'creations/:slug', element: <ProductPage /> },
-  { path: 'about', element: <AboutPage /> },
-  { path: 'sizes', element: <GuidePage /> },
-  { path: 'legal', element: <LegalNoticePage /> },
-  { path: 'privacy', element: <PrivacyPage /> },
-  { path: 'terms', element: <TermsPage /> },
-  { path: 'sales-terms', element: <SalesTermsPage /> },
   { path: 'sitemap', element: <SitemapPage /> },
 ];
 

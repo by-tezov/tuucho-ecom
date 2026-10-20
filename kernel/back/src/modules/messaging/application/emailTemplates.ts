@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Language } from '../../../utils/language.js';
-import { config } from '../../../config/env.js';
+import { peekStoreIdentity } from '../../plugins/application/storeSettings.js';
 import { emailStrings } from './emailStrings.js';
 
 /** Assets live at the source root (`src/templates/emails`) and are copied to
@@ -68,7 +68,7 @@ export function renderEmailTemplate(name: string, language: Language, context: o
   }
   const body = template({
     brandTagline: BRAND_TAGLINE[language],
-    shopName: config.company.name,
+    shopName: peekStoreIdentity().name,
     ...context,
   });
   if (body.includes('[object Object]')) {

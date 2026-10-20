@@ -15,9 +15,9 @@ export interface AppConfig {
    * meta, shop robots Allow, published sitemap) follows this flag, never
    * NODE_ENV. */
   isProduction: boolean;
-  /** `HOME_REVIEWS_CACHE_TTL` (for example `14d` on prod): how long browsers
-   * keep a complete `GET /reviews` answer. Null when unset: never cached. */
-  homeReviewsCacheMs: number | null;
+  publicDir: string;
+  privateDir: string;
+  devDir: string | undefined;
   /** When true, outbound mail is written under DEV_DIR / DEV_EMAIL_* instead
    * of SMTP (see email.service.ts / devEmailWriter.ts). Always on for `dev`.
    * On `preprod`, only when ROUTE_EMAIL_FOLDER=true. Always off for `prod`
@@ -49,15 +49,6 @@ export interface AppConfig {
    * shippingLabels.service.ts. */
   invoiceDir: string;
   shipmentLabelDir: string;
-  /** Private contact-form image uploads — PRIVATE_DIR + PRIVATE_MEDIA_CONTACT_DIR.
-   * Never web-served; emailed to the owner as attachments. */
-  contactMediaDir: string;
-  /** Private live-chat image uploads — PRIVATE_DIR + PRIVATE_MEDIA_CHAT_DIR.
-   * Never web-served; filenames only in public APIs. */
-  chatMediaDir: string;
-  /** Max bytes per image after sharp normalization (contact / chat). */
-  contactImageMaxBytes: number;
-  chatImageMaxBytes: number;
   /** Fixture output for `npm run test` (invoice PDFs + rendered emails) —
    * PRIVATE_DIR joined with PRIVATE_TEST_DIR. Never web-served. */
   testDir: string;
@@ -86,11 +77,6 @@ export interface AppConfig {
   cronAccountDeletionLogFilePath: string;
   /** Private output written by the production guest-saved-cleanup cron. */
   cronGuestSavedCleanupLogFilePath: string;
-  /** Private output written by the production loyalty cron. */
-  cronLoyaltyLogFilePath: string;
-  cronGiftLogFilePath: string;
-  /** Private output written by the production gift-purge cron. */
-  cronGiftPurgeLogFilePath: string;
   /** Private output written by the production payment-auth-expiry-spy cron. */
   cronPaymentAuthExpiryLogFilePath: string;
   /** Private failure-path output written by the production keep-warm cron. */
@@ -105,11 +91,6 @@ export interface AppConfig {
    * in dev and preprod (preprod so a runtime folder-routing override can
    * write files). Undefined in prod. */
   devEmailDir: string | undefined;
-  /** Separate output dir for "spy" copies (new order, new account, login,
-   * ...) — DEV_DIR joined with DEV_EMAIL_SPY_DIR. Kept apart from
-   * `devEmailDir` so the spy stream can be watched/emptied independently.
-   * Same directory rule as `devEmailDir`. */
-  devEmailSpyDir: string | undefined;
   /** Square pixel size the small grid thumbnail is cropped to — see
    * media/storage.ts. The modal photo itself is never resized here (every
    * upload arrives already at modal quality/size — see that file's own
@@ -126,8 +107,6 @@ export interface AppConfig {
     encryptionKey: string;
     lookupPepper: string;
   };
-  /** Enables automatic/manual shipment tracking processing. */
-  cronShipmentEnabled: boolean;
   /** Origin(s) allowed to call the public API with credentials — the
    * front's own origin(s) for this environment (preprod.shop.example for
    * preprod; both shop.example and www.shop.example for prod, since browsers
@@ -160,16 +139,13 @@ export interface AppConfig {
   /** Hard ceiling before hashing — see PASSWORD_MAX_LENGTH. */
   passwordMaxLength: number;
   /** App-layer ceilings for customer-writable strings / quantities.
-   * Sourced from FIELD_* in `.env/.public.env` so operators can tweak
+   * Sourced from kernel public JSON `fieldLimits` so operators can tweak
    * without a code change. DB columns stay unbounded `text`. */
   fieldLimits: {
     emailMax: number;
     firstNameMax: number;
     lastNameMax: number;
     phoneMax: number;
-    contactIdentityMax: number;
-    contactMessageMax: number;
-    productRequestCommentMax: number;
     addressLabelMax: number;
     recipientNameMax: number;
     companyNameMax: number;
@@ -180,7 +156,6 @@ export interface AppConfig {
     countryCodeMax: number;
     cardholderNameMax: number;
     cartNameMax: number;
-    voucherCodeMax: number;
     tokenMax: number;
     galleryCursorMax: number;
     cartQuantityMax: number;
@@ -195,12 +170,8 @@ export interface AppConfig {
   rateLimits: {
     authWindowMs: number;
     authMax: number;
-    contactEmailWindowMs: number;
-    contactEmailMax: number;
     authRefreshWindowMs: number;
     authRefreshMax: number;
-    voucherWindowMs: number;
-    voucherMax: number;
     checkoutWindowMs: number;
     checkoutMax: number;
     paymentWindowMs: number;
@@ -210,19 +181,6 @@ export interface AppConfig {
     /** /operation/* — counts failed requests only (skipSuccessfulRequests). */
     opsWindowMs: number;
     opsMax: number;
-    giftPinWindowMs: number;
-    giftPinMax: number;
-    giftCreateEmailWindowMs: number;
-    giftCreateEmailMax: number;
-    /** Giver's "Ma carte cadeau" download modal — edit, download, and
-     * (re)email the share-card, each with its own budget, dedicated env
-     * vars rather than reusing giftCreateEmail's or authRateLimiter's. */
-    giftShareCardUpdateWindowMs: number;
-    giftShareCardUpdateMax: number;
-    giftShareCardDownloadWindowMs: number;
-    giftShareCardDownloadMax: number;
-    giftShareCardEmailWindowMs: number;
-    giftShareCardEmailMax: number;
     /** "Ma Facture" modal's two actions, per-IP window+max, each its own
      * budget — downloading a cached PDF is lower-risk (idempotent, never
      * leaves the requesting user's own browser) than emailing it. */
@@ -235,30 +193,14 @@ export interface AppConfig {
      * Outside APP_TARGET=dev these flags are always forced false at load time.
      */
     disableAuth: boolean;
-    disableContactEmail: boolean;
-    disableGiftCreateEmail: boolean;
-    disableGiftShareCardUpdate: boolean;
-    disableGiftShareCardDownload: boolean;
-    disableGiftShareCardEmail: boolean;
     disableInvoiceDownload: boolean;
     disableInvoiceEmail: boolean;
     disableAuthRefresh: boolean;
-    disableVoucher: boolean;
     disableCheckout: boolean;
     disablePayment: boolean;
     disableGallery: boolean;
     disableOps: boolean;
     disableLogin: boolean;
-    disableGiftPin: boolean;
-    /** Min gap between spy emails for the same (kind, IP-or-user) key. */
-    spyCooldownMs: number;
-    /** Literal DISABLE_RATE_LIMIT_SPY_COOLDOWN=true sends a spy email on
-     * every hit instead of respecting spyCooldownMs. Same dev-only gate as
-     * the DISABLE_RATE_* flags above. */
-    disableSpyCooldown: boolean;
-    /** Mails of one purpose to one account in 24h before the owner is told.
-     * A notification threshold, never a cap — see notifySendVolume. */
-    sendVolumeSpyDay: number;
   };
   passwordResetTokenTtlMs: number;
   /** Per-user day/month cap on POST /auth/request-password-reset, same
@@ -345,47 +287,6 @@ export interface AppConfig {
   recentLoginsDisplayCount: number;
   /** How long an unpaid checkout keeps its stock allocation. */
   stockReservationTtlMs: number;
-  /** How far ahead of an authorization hold's *estimated* expiry (Stripe
-   * exposes no exact one for manual capture) the owner spy alert fires. */
-  paymentAuthExpirySpyBeforeMs: number;
-  /** Loyalty programme numbers. Enable/disable stays a Boutique admin
-   * preference; these rates and windows need a process restart. */
-  loyalty: {
-    valuePer100: number;
-    lotDurationMonths: number;
-    burnNoticeWeeks: number;
-    reminderIntervalDays: number;
-  };
-  /** Gift-offer TTLs, ceilings, and PIN/purge knobs. New offers are always
-   * accepted. The leftover `gift_settings.enabled` column is not read. */
-  gift: {
-    receiverTokenTtlDays: number;
-    /** How far out the giver's "prolonger" button may ever push
-     * `offer_expires_at` (`GIFT_EXTEND_CEILING_DAYS`). */
-    extendCeilingDays: number;
-    lockSessionTtlHours: number;
-    stockHoldTtlDays: number;
-    giverPayTtlDays: number;
-    /** Lead time before `offer_expires_at` for the giver's "not chosen yet"
-     * mail (`GIFT_SELECT_REMINDER_BEFORE`). Sent once per expiry date. */
-    selectReminderBeforeMs: number;
-    /** Lead time before `hold_expires_at` for the stock-hold relance
-     * (`GIFT_HOLD_REMINDER_BEFORE`). */
-    holdReminderBeforeMs: number;
-    /** Lead time before `pay_by_at` for the payment relance
-     * (`GIFT_PAY_REMINDER_BEFORE`). */
-    payReminderBeforeMs: number;
-    visibilityAfterTerminalDays: number;
-    /** Floor for an offer's sets budget (`GIFT_MIN_BUDGET`). Below it the
-     * receiver could not buy anything, so create refuses. */
-    minBudget: number;
-    maxBudgetCeiling: number;
-    maxAccessoryBudgetCeiling: number;
-    maxOpenPromisesPerGiver: number;
-    pinFreeFailures: number;
-    pinMaxFailures: number;
-    purgeAfterDays: number;
-  };
   /** Sliding inactivity timeout for tab-scoped sensitive checkout state. */
   checkoutPrivacySessionIdleTtlMs: number;
   /** How long a customer edit lock blocks ops set-status (see
@@ -421,9 +322,6 @@ export interface AppConfig {
     gracePeriodDays: number;
     reminderDaysBeforeDays: number;
   };
-  /** Days to keep a one-time (non-remembered) Stripe card attached after
-   * order received/cancelled — see cardRetention.service.ts. */
-  oneTimeCardRetentionDays: number;
   /** Blank in a fresh dev checkout (services/email.service.ts writes to
    * output/emails/ instead of sending when smtp.host is undefined); required
    * outside dev. */
@@ -442,141 +340,7 @@ export interface AppConfig {
     user: string | undefined;
     password: string | undefined;
   };
-  /** Seed-only inbox for `tuucho-mail-spy` channel `contact.inbound`. Live To
-   * is Admin → Spy e-mails. Separate from EMAIL_NO_REPLY_FROM (sender). */
-  contactRecipientEmail: string | undefined;
-  /** Mailbox that sends and receives product-request replies. */
-  requestSmtpUser: string | undefined;
-  requestRecipientEmail: string | undefined;
-  /** Seed-only mailbox for `tuucho-mail-spy` when it matches unlocked staff
-   * and the recipients table is empty. Live To is Admin → Spy e-mails. */
-  orderSpyRecipientEmail: string | undefined;
-  /** Kill switch for every `spyTo` resolve (orders, contact inbound, chat
-   * owner-notify, outage). Exact string `true` enables it. Does not disable
-   * customer transactional mail or the chat SMTP pipe (`EMAIL_CHAT_FROM`). */
-  disableSpyEmail: boolean;
-  /** Chat SMTP transport. `fromEmail` (`EMAIL_CHAT_FROM`) is the piped
-   * mailbox From/Reply-To and must stay env. `recipientEmail` is seed-only
-   * for channel `contact.chat`. When `routeEmailFolder`, blank host writes
-   * under DEV_EMAIL_CHAT_DIR instead of sending. */
-  chatSmtp: {
-    host: string | undefined;
-    port: number | undefined;
-    user: string | undefined;
-    password: string | undefined;
-    fromEmail: string | undefined;
-    recipientEmail: string | undefined;
-  };
-  chatMaxSessionsPerUser: number;
-  /** Maximum duration that an admin may mute owner-notify emails for incoming
-   * customer chat messages. */
-  adminChatOwnerEmailSuppressionTimeoutMs: number;
-  /** Google Identity Services (Sign in with Google). Optional — endpoints
-   * return `google_sign_in_disabled` when unset. */
-  google: {
-    clientId: string | undefined;
-    signupTokenTtlMs: number;
-  };
-  /** Facebook Login. Optional — endpoints return `facebook_sign_in_disabled`
-   * when app id or secret is unset. */
-  facebook: {
-    appId: string | undefined;
-    appSecret: string | undefined;
-    signupTokenTtlMs: number;
-  };
-  /** Sign in with Apple. Optional — endpoints return `apple_sign_in_disabled`
-   * when the Services ID (`clientId`) is unset. `privateKey` is loaded from
-   * `.env/<target>/AuthKey_<APPLE_KEY_ID>.p8` when that Key ID is set.
-   * `s2sAudience` is an optional primary App ID for S2S notification JWTs
-   * when Apple's `aud` differs from the Services ID. */
-  apple: {
-    clientId: string | undefined;
-    teamId: string | undefined;
-    keyId: string | undefined;
-    privateKey: string | undefined;
-    signupTokenTtlMs: number;
-    s2sAudience: string | undefined;
-  };
-  /** Folder for chat owner-notify + transcript previews when
-   * `routeEmailFolder`. */
-  devEmailChatDir: string | undefined;
   /** Used to build the clickable links inside confirmation/reset emails
    * (the API itself never renders a page a user would land on). */
   frontendBaseUrl: string;
-  /** Legal seller identity printed on generated invoice PDFs (see
-   * invoicePdf.service.ts) — mirrors kernel/front's VITE_LEGAL_* block
-   * shown on the legal-notice page (same values, duplicated here since the
-   * two apps don't share an env system). `vatMention` is the exact
-   * exemption sentence to print (e.g. "TVA non applicable, art. 293 B du
-   * CGI" for a micro-entrepreneur) rather than a computed VAT breakdown. */
-  company: {
-    name: string;
-    status: string;
-    siren: string;
-    address: string;
-    vatMention: string;
-    phone: string | undefined;
-    email: string;
-  };
-  /** Blank in a fresh dev checkout (same convention as smtp above) — the
-   * checkout/payment-methods routes respond 501 rather than throwing when
-   * stripe.secretKey is undefined (see payments.service.ts), so a fresh
-   * clone still boots without a Stripe account configured. webhookSecret
-   * verifies the `Stripe-Signature` header on POST /webhooks/stripe (see
-   * server.ts) — each environment (local `stripe listen`, preprod, prod)
-   * has its own distinct whsec_ value, never shared across targets. */
-  stripe: {
-    secretKey: string | undefined;
-    webhookSecret: string | undefined;
-    /** Per-request Stripe network ceiling. Database payment markers make a
-     * timed-out operation safe to resume with the same idempotency key. */
-    timeoutMs: number;
-  };
-  /** Optional until the first carrier with label generation is configured.
-   * Route codes/modes are public deploy configuration; credentials and the
-   * sender address remain private. */
-  mondialRelay: {
-    api2Url: string | undefined;
-    api2Enseigne: string | undefined;
-    api2Login: string | undefined;
-    api2Password: string | undefined;
-    pointCourierCode: string | undefined;
-    pointNetworkCode: string | undefined;
-    pointDeliveryMode: string | undefined;
-    homeCourierCode: string | undefined;
-    homeNetworkCode: string | undefined;
-    homeDeliveryMode: string | undefined;
-    homeCollectionMode: string | undefined;
-    collectionMode: string | undefined;
-    senderName: string | undefined;
-    senderLine1: string | undefined;
-    senderPostalCode: string | undefined;
-    senderCity: string | undefined;
-    senderCountryCode: string | undefined;
-    senderPhone: string | undefined;
-    senderEmail: string | undefined;
-    /** API1 (SOAP tracing) credentials — deliberately separate from the
-     * API2/Connect credentials above: Mondial Relay issues distinct security
-     * parameters per API, and API2 (label generation) cannot fetch tracing.
-     * Optional until obtained; tracking simply stays unavailable until
-     * filled in. */
-    api1Url: string | undefined;
-    api1Enseigne: string | undefined;
-    api1PrivateKey: string | undefined;
-    /** Mondial Relay's own public consumer tracking page, shown as a
-     * fallback link alongside/instead of the embedded timeline (see
-     * shippingTracking.service.ts). Per-environment like api1Url/api2Url in
-     * case a distinct value is ever needed, though as of writing Mondial
-     * Relay doesn't appear to run a separate sandbox tracking site — a
-     * sandbox shipment number simply won't have a record on the production
-     * one, which is harmless. */
-    publicTrackingUrl: string | undefined;
-    /** Delay between two carrier lookups in the shipment cron. This protects
-     * the provider during a large backlog independently of the four-hour
-     * per-shipment cache. */
-    trackingThrottleMs: number;
-    /** Hard limit for one WSI2 HTTP request, so a stalled carrier cannot
-     * hold the whole cron batch until the outer cron command expires. */
-    trackingTimeoutMs: number;
-  };
 }

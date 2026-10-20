@@ -1,4 +1,4 @@
-import { CORE_VERSION } from '../../domain/coreVersion.js';
+import { CORE_VERSION } from '../../../../config/appVersion.js';
 import {
   githubApiTagsUrl,
   githubCodeloadTarGzUrl,

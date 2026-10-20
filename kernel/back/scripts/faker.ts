@@ -1280,8 +1280,10 @@ async function runMain(args: Args): Promise<void> {
   if (args.command === 'account') await runAccount(args, apiBaseUrl, opsToken);
   else if (args.command === 'cart') await runCart(args, apiBaseUrl);
   else if (args.command === 'seed') {
-    const stripeSecretKey = loadStripeSecretKey(root, args.mode);
-    if (!stripeSecretKey) fail(`STRIPE_SECRET_KEY missing for mode ${args.mode}.`);
+    const stripeSecretKey = await loadStripeSecretKey(root, args.mode);
+    if (!stripeSecretKey) {
+      fail(`Stripe plugin secret "secretKey" missing for mode ${args.mode}. Set it in Admin → Plugins → Configure.`);
+    }
     await runSeed(args, apiBaseUrl, opsToken, stripeSecretKey);
   } else await runOrder(args, apiBaseUrl, opsToken);
 }

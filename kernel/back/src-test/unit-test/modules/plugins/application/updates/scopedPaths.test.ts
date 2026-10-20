@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   assertNotUserTree,
   officialCopyPaths,
+  OFFICIAL_SNAPSHOT_PATHS,
 } from '../../../../../../src/modules/plugins/application/updates/scopedPaths.js';
 import type { ShopReleaseManifest } from '../../../../../../src/modules/plugins/domain/releaseManifest.js';
 
@@ -33,9 +34,12 @@ test('official scopes never include plugins/user', () => {
     'kernel',
     'plugin-sdk',
     'release.json',
+    'package.json',
   ]);
+  assert.ok(officialCopyPaths('kernel', manifest).includes('package.json'));
+  assert.ok(officialCopyPaths('all', manifest).includes('package.json'));
   assert.equal(
-    officialCopyPaths('kernel', manifest).some((path) => path === 'package.json' || path === 'package-lock.json'),
+    officialCopyPaths('kernel', manifest).includes('package-lock.json'),
     false,
   );
   assert.deepEqual(officialCopyPaths('plugins', manifest), ['plugins/tuucho']);
@@ -45,4 +49,13 @@ test('official scopes never include plugins/user', () => {
     false,
   );
   assert.throws(() => assertNotUserTree('plugins/user/demo/guides/demo-page-guides'), /plugins\/user/);
+});
+
+test('official snapshot includes root package.json and never plugins/user', () => {
+  assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('package.json'));
+  assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('kernel'));
+  assert.equal(
+    OFFICIAL_SNAPSHOT_PATHS.some((path) => path === 'plugins/user' || path.startsWith('plugins/user/')),
+    false,
+  );
 });

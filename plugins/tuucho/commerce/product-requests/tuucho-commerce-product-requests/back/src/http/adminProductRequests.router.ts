@@ -3,6 +3,7 @@ import { pool } from '@kernel/back/db/pool';
 import { requirePermission } from '@kernel/back/middleware/requirePermission';
 import { requireAuth } from '@kernel/back/middleware/requireAuth';
 import { config } from '@kernel/back/config/env';
+import { productRequestReplyTo } from '../infrastructure/productRequestSettings.js';
 import { sendMail } from '@kernel/back/modules/messaging/application/email';
 import {
   productRequestReplyLanguage,
@@ -99,7 +100,7 @@ adminProductRequestsRouter.patch(
     );
     await sendMail({
       to: current.email,
-      replyTo: config.requestRecipientEmail ?? config.requestSmtpUser ?? config.contactRecipientEmail,
+      replyTo: productRequestReplyTo() ?? config.smtp.user,
       ...productRequestResponseEmail({
         publicId,
         token: productRequestReplyToken(publicId),

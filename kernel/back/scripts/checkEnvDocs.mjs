@@ -22,7 +22,8 @@ import { readdir, readFile } from 'node:fs/promises';
 import { extname, relative, resolve } from 'node:path';
 
 const root = resolve('.');
-const envPath = resolve(root, '.env/.public.env');
+const configPath = resolve(root, 'config/config.json');
+const mapPath = resolve(root, 'src/config/configEnvMap.ts');
 const docsRoot = resolve(root, 'docs');
 
 /** `` `KEY`, currently 150 € `` and `` `KEY` (currently 396 days …) ``. The
@@ -42,10 +43,26 @@ async function walk(directory) {
   return nested.flat();
 }
 
+function getPath(obj, path) {
+  let current = obj;
+  for (const part of path.split('.')) {
+    if (!current || typeof current !== 'object') return undefined;
+    current = current[part];
+  }
+  return current;
+}
+
+const publicMap = {};
+for (const line of (await readFile(mapPath, 'utf8')).split('\n')) {
+  const match = /'([^']+)':\s*'([^']+)'/.exec(line);
+  if (match) publicMap[match[1]] = match[2];
+}
+const config = JSON.parse(await readFile(configPath, 'utf8'));
 const env = new Map();
-for (const line of (await readFile(envPath, 'utf8')).split('\n')) {
-  const match = /^([A-Z][A-Z0-9_]*)=(.*)$/.exec(line.trim());
-  if (match) env.set(match[1], match[2].trim());
+for (const [path, key] of Object.entries(publicMap)) {
+  const value = getPath(config, path);
+  if (value === undefined || value === null) continue;
+  env.set(key, String(value));
 }
 
 const errors = [];
@@ -65,7 +82,7 @@ for (const path of (await walk(docsRoot)).sort()) {
     const line = text.slice(0, match.index).split('\n').length;
     verified += 1;
     if (Number(claimed) !== Number(actual)) {
-      errors.push(`${where}:${line}: \`${key}\` is documented as ${claimed}, but .env/.public.env sets ${actual}.`);
+      errors.push(`${where}:${line}: \`${key}\` is documented as ${claimed}, but config.json sets ${actual}.`);
     }
   }
 }
@@ -76,4 +93,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log(`Env documentation check passed (${verified} documented values match .env/.public.env).`);
+console.log(`Env documentation check passed (${verified} documented values match config.json).`);

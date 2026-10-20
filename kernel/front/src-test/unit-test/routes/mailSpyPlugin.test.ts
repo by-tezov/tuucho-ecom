@@ -7,18 +7,26 @@ const here = dirname(fileURLToPath(import.meta.url));
 const pluginRoot = resolve(here, '../../../../../plugins/tuucho/messaging/mail-spy/tuucho-mail-spy');
 
 describe('tuucho-mail-spy surface', () => {
-  it('is a dedicated admin page, not Preferences or Configure', () => {
-    const manifest = JSON.parse(readFileSync(resolve(pluginRoot, 'plugin.json'), 'utf8')) as {
-      id: string;
-      kind: string;
-      provides?: string[];
-      settingsSchema?: unknown;
-      adminNav?: Array<{ to: string; permission: string }>;
+  it('is a dedicated admin page, not Preferences', () => {
+    const pkg = JSON.parse(readFileSync(resolve(pluginRoot, 'package.json'), 'utf8')) as {
+      tuucho: {
+        id: string;
+        kind: string;
+        provides?: string[];
+        settingsSchema?: unknown;
+        adminNav?: Array<{ to: string; permission: string }>;
+      };
     };
+    const manifest = pkg.tuucho;
     expect(manifest.id).toBe('tuucho-mail-spy');
     expect(manifest.kind).toBe('generic');
     expect(manifest.provides).toContain('AdminPage');
-    expect(manifest.settingsSchema).toBeUndefined();
+    expect(manifest.settingsSchema).toEqual(expect.any(Object));
+    expect(Object.keys(manifest.settingsSchema ?? {}).length).toBeGreaterThan(0);
+    for (const field of Object.values(manifest.settingsSchema ?? {})) {
+      expect((field as { label?: string }).label?.trim()).toBeTruthy();
+      expect((field as { description?: string }).description?.trim()).toBeTruthy();
+    }
     expect(manifest.adminNav?.[0]?.to).toBe('/spy-mail');
     expect(manifest.adminNav?.[0]?.permission).toBe('spy_mail');
 

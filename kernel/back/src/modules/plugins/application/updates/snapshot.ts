@@ -9,6 +9,9 @@ import { pool } from '../../../../db/pool.js';
 import { withTransaction } from '../../../../platform/db/transaction.js';
 import { repoRoot } from '../discoverPlugins.js';
 import { copyScopedPaths, pathExists } from './copyScoped.js';
+import { OFFICIAL_SNAPSHOT_PATHS } from './scopedPaths.js';
+
+export { OFFICIAL_SNAPSHOT_PATHS };
 
 const execFileAsync = promisify(execFile);
 
@@ -18,14 +21,6 @@ export type UpdateSnapshot = {
   databaseDump: string;
   paths: string[];
 };
-
-export const OFFICIAL_SNAPSHOT_PATHS = [
-  'kernel',
-  'plugin-sdk',
-  'plugins/tuucho',
-  'release.json',
-  'shop-release.json',
-];
 
 export function updatesVarDir(root = repoRoot()): string {
   return join(root, 'var/shop-updates');
@@ -72,7 +67,7 @@ async function dumpDatabase(target: string, root: string): Promise<void> {
     [
       'compose',
       '--env-file',
-      '.env/.private.env',
+      '.compose.env',
       'exec',
       '-T',
       'postgres',
@@ -143,7 +138,7 @@ async function restoreDatabase(dumpPath: string, root: string): Promise<void> {
       [
         'compose',
         '--env-file',
-        '.env/.private.env',
+        '.compose.env',
         'exec',
         '-T',
         'postgres',

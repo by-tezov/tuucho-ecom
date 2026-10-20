@@ -2,11 +2,13 @@
 /**
  * Build or check root release.json against the product version in root
  * package.json. kernel/back, kernel/front, plugin-sdk, CORE_VERSION (which
- * reads that root version), plugins/tuucho/manifest.json, and disk plugin.json
- * files must not be a second number.
+ * reads that root version), plugins/tuucho/manifest.json, and disk plugin
+ * package.json files (npm version + tuucho block) must not be a second product
+ * version. Plugin package versions are per-plugin.
  *
- * Check / Apply still walk official GitHub tags via shop-release.json vs this
- * file. A deployed shop does not get to claim a kernel by editing package.json.
+ * Check / Apply walk official GitHub tags. Displayed current is live root
+ * package.json; this file is the tag catalog. shop-release.json is last-applied
+ * Apply state, not the Check current.
  *
  *   node scripts/release-manifest.mjs           # write
  *   node scripts/release-manifest.mjs --check   # fail on drift
@@ -32,7 +34,13 @@ async function walkPluginJson(dir, out) {
       await walkPluginJson(full, out);
       continue;
     }
-    if (entry.name === 'plugin.json') out.push(full);
+    if (entry.name === 'package.json') out.push(full);
+  }
+}
+
+function assertNoProductVersion(pkg, label) {
+  if (pkg && typeof pkg === 'object' && 'version' in pkg) {
+    throw new Error(`${label} must not contain version; root package.json is the only product version`);
   }
 }
 
@@ -45,15 +53,15 @@ async function main() {
   if (typeof kernel !== 'string' || !/^\d+\.\d+\.\d+$/.test(kernel)) {
     throw new Error('Root package.json must contain a MAJOR.MINOR.PATCH version');
   }
-  if (backPkg.version !== kernel || frontPkg.version !== kernel || sdkPkg.version !== kernel) {
-    throw new Error(
-      `Version drift: root ${kernel}, kernel/back ${backPkg.version}, kernel/front ${frontPkg.version}, plugin-sdk ${sdkPkg.version}`,
-    );
-  }
-  const bundled = JSON.parse(await readFile(join(root, 'plugins/tuucho/manifest.json'), 'utf8'));
-  if (bundled.kernel !== kernel) {
+  assertNoProductVersion(backPkg, 'kernel/back/package.json');
+  assertNoProductVersion(frontPkg, 'kernel/front/package.json');
+  assertNoProductVersion(sdkPkg, 'plugin-sdk/package.json');
+  const bundledPath = join(root, 'plugins/tuucho/manifest.json');
+  const bundled = JSON.parse(await readFile(bundledPath, 'utf8'));
+  if (checkOnly && bundled.kernel !== kernel) {
     throw new Error(`plugins/tuucho/manifest.json kernel ${bundled.kernel} != ${kernel}`);
   }
+  bundled.kernel = kernel;
   const migrationNames = (await readdir(join(root, 'kernel/back/src/db/migrations')))
     .filter((name) => name.endsWith('.js'))
     .sort()
@@ -63,10 +71,11 @@ async function main() {
   const diskPlugins = [];
   for (const file of jsonFiles.sort()) {
     const body = JSON.parse(await readFile(file, 'utf8'));
+    if (!body?.tuucho || typeof body.tuucho !== 'object') continue;
     diskPlugins.push({
-      id: body.id,
+      id: body.tuucho.id,
       version: body.version,
-      installPath: body.installPath,
+      installPath: body.tuucho.installPath,
     });
   }
   const bundledIds = new Set(bundled.plugins.map((row) => row.id));
@@ -89,13 +98,16 @@ async function main() {
     const existing = JSON.parse(await readFile(join(root, 'release.json'), 'utf8'));
     if (existing.kernel === kernel && typeof existing.releaseId === 'number') releaseId = existing.releaseId;
     else if (existing.kernel !== kernel && typeof existing.releaseId === 'number') {
-      throw new Error(
-        `Kernel is ${kernel} but release.json still has kernel ${existing.kernel} (releaseId ${existing.releaseId}). Increment releaseId when cutting the tag.`,
-      );
+      if (checkOnly) {
+        throw new Error(
+          `Kernel is ${kernel} but release.json still has kernel ${existing.kernel} (releaseId ${existing.releaseId}). Run node scripts/release-manifest.mjs`,
+        );
+      }
+      releaseId = existing.releaseId + 1;
     }
   } catch (error) {
     if (error && typeof error === 'object' && 'code' in error && error.code !== 'ENOENT') {
-      if (String(error.message).includes('Increment releaseId')) throw error;
+      if (String(error.message).includes('release.json still has kernel')) throw error;
     }
   }
   const plugins = diskPlugins
@@ -127,6 +139,7 @@ async function main() {
     return;
   }
   await writeFile(join(root, 'release.json'), serialized);
+  await writeFile(bundledPath, `${JSON.stringify(bundled, null, 2)}\n`);
 }
 
 main().catch((error) => {

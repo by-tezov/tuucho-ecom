@@ -98,7 +98,7 @@ export function parsePluginReleaseManifest(raw: unknown, fallback?: { id: string
   if (!fallback) throw new Error('plugin-release.json is required for updates.');
   const parsedTag = parseReleaseTag(fallback.tag);
   if (!parsedTag || parsedTag.version !== fallback.version) {
-    throw new Error(`plugin.json version ${fallback.version} does not match tag ${fallback.tag}.`);
+    throw new Error(`package.json version ${fallback.version} does not match tag ${fallback.tag}.`);
   }
   return {
     id: fallback.id,

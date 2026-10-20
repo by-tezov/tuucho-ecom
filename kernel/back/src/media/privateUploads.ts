@@ -1,6 +1,7 @@
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { config } from '../config/env.js';
+import { resolvePluginPrivatePath } from '../modules/plugins/application/pluginSettingValues.js';
 import { sanitizeOriginalImageName } from './privateImageNames.js';
 import {
   PRIVATE_IMAGE_ALLOWED_MIME,
@@ -87,11 +88,17 @@ export async function removeSavedPrivateImages(
 }
 
 export function contactMediaAbsolutePath(fileName: string): string {
-  return join(config.contactMediaDir, fileName);
+  return join(
+    resolvePluginPrivatePath(config.privateDir, 'tuucho-contact', 'mediaContactDir', '/media/contact'),
+    fileName,
+  );
 }
 
 export function chatMediaAbsolutePath(fileName: string): string {
-  return join(config.chatMediaDir, fileName);
+  return join(
+    resolvePluginPrivatePath(config.privateDir, 'tuucho-contact', 'mediaChatDir', '/media/chat'),
+    fileName,
+  );
 }
 
 /** Removes a chat attachment and its cached vignette (cachedChatImagePreview). */

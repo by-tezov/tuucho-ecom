@@ -1,5 +1,4 @@
 import type pg from 'pg';
-import { config } from '@kernel/back/config/env';
 import { isLanguage } from '@kernel/back/utils/language';
 import { getGiftSettings } from '../infrastructure/giftSettingsRepo.js';
 import {
@@ -131,7 +130,7 @@ export async function processGift(pool: pg.Pool): Promise<{
 }
 
 async function sendDueReminders(pool: pg.Pool): Promise<number> {
-  const { holdReminderBeforeMs, payReminderBeforeMs, selectReminderBeforeMs } = config.gift;
+  const { holdReminderBeforeMs, payReminderBeforeMs, selectReminderBeforeMs } = await getGiftSettings(pool);
   const { rows: holdRows } = await pool.query<GiftOfferRowQuery>(
     `select id, language from gift_offers
      where status in ('awaiting_payment', 'paying')

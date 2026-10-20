@@ -1,6 +1,6 @@
 {
   "title": "Legal pages",
-  "summary": "Legal notice, privacy, terms of use and terms of sale. Footer only — never in the shop info menu. Kernel owns the React routes.",
+  "summary": "Legal notice, privacy, terms of use and terms of sale. Footer only. Never in the shop info menu. This plugin mounts the React pages.",
   "sections": [
     {
       "heading": "Footer, not the info menu",
@@ -9,7 +9,7 @@
           "type": "callout",
           "tone": "info",
           "title": "Page plugin",
-          "text": "plugin.json kind page, route /legal. No nav.key: legal documents stay in the footer only (legal notice, privacy, terms of use, terms of sale) — never the shop info menu. Disable and the plugin drops out of the sitemap listing; footer links stay so the documents remain reachable. React for home, about, legal, and sizes lives in the kernel; this package is the enablement and SEO listing."
+          "text": "package.json tuucho.kind page, route /legal. This plugin mounts /legal, /privacy, /terms and /sales-terms. No nav.key: legal documents stay in the footer only, never the shop info menu. Disable and the plugin drops out of the sitemap listing; footer links stay so the documents remain reachable."
         },
         {
           "type": "defs",

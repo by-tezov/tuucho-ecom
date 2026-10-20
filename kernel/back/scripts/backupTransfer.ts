@@ -10,7 +10,7 @@
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { loadEnvFile } from './envFile.js';
+import { loadPublicEnv } from './envFile.js';
 import type { Mode } from './envFile.js';
 
 const SSH_HOST = 'lws_shop_example';
@@ -22,13 +22,13 @@ function ftpConnection(
   root: string,
   mode: Mode,
 ): { host: string; port: string; user: string; password: string } {
-  const privateEnv = { ...loadEnvFile(root, '.private.env'), ...loadEnvFile(root, `${mode}/.private.env`) };
-  const host = process.env.FTP_HOST ?? privateEnv.FTP_HOST;
-  const port = process.env.FTP_PORT ?? privateEnv.FTP_PORT ?? '21';
-  const user = process.env.FTP_USER ?? privateEnv.FTP_USER;
-  const password = process.env.FTP_PASSWORD ?? privateEnv.FTP_PASSWORD;
+  const json = loadPublicEnv(root, mode);
+  const host = json.FTP_HOST;
+  const port = json.FTP_PORT ?? '21';
+  const user = json.FTP_USER;
+  const password = json.FTP_PASSWORD;
   if (!host || !user || !password) {
-    throw new Error('FTP transfer requires FTP_HOST, FTP_USER and FTP_PASSWORD in .env/.private.env');
+    throw new Error('FTP transfer requires ftp.host, ftp.user and ftp.password in kernel private JSON');
   }
   return { host, port, user, password };
 }

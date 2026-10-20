@@ -68,21 +68,14 @@ message to `private_html/<mode>/current/pipe/pipe-contact-dispatcher.sh`. That s
 product replies to `pipe-program-product-request-handler.sh`, chat replies to
 `pipe-program-chat-handler.sh` in the active release, and forwards every
 other message to the selected external inbox. Unknown messages and a missing
-active release exit 0 without a bounce. The forward address uses
-the ordinary per-target environment variable, so keep the same name in each
-target's `.env/<mode>/.public.env`:
-
-```sh
-EMAIL_CONTACT_FORWARD_RECIPIENT=tuucho.nail@gmail.com
-```
-
-Set `EMAIL_CONTACT_FORWARD_RECIPIENT` to the external address that should
-receive ordinary messages. The dispatcher and chat handler read only that
-key from the release public env (bash `sendmail` path). Chat and
-product-request handlers that start `opsServer.js` leave the rest to
-`env.ts`. The fallback uses cPanel's local
-`sendmail`, so it needs no SMTP credentials. The pipes are silent and do not
-write email contents, API responses, or credentials to disk.
+active release exit 0 without a bounce. The forward address is
+`tuucho-contact` plugin setting `forwardRecipient` (Admin → Plugins →
+Configure). The dispatcher and chat handler read only that setting for the
+bash `sendmail` path. Chat and product-request handlers that start
+`opsServer.js` leave the rest to kernel JSON / plugin settings. The
+fallback uses cPanel's local `sendmail`, so it needs no SMTP credentials.
+The pipes are silent and do not write email contents, API responses, or
+credentials to disk.
 
 ## `npm run order`
 
@@ -345,7 +338,7 @@ from the release it is about to replace:
 | `db`  | `PII_ENCRYPTION_KEY` + `PII_LOOKUP_PEPPER` |
 
 Without `--replace`, values print to stdout only. With `--replace`, they are
-upserted into `.env/<mode>/.private.env` (create file if missing; overwrite
+upserted into kernel private JSON (create file if missing; overwrite
 existing lines; preserve other keys). Replacing `db` on an env that already
 has ciphertext makes that data unreadable — the CLI prints a warning.
 
@@ -361,7 +354,7 @@ npm run operation -- database-migrate --dev
 
 | Command            | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `database-migrate` | Applies any pending `src/db/migrations/` files (`node-pg-migrate`, tracked in `pgmigrations`). Schema is the single squashed init (`1738000000000_init`) plus any later additive files. Runs node-pg-migrate with `checkOrder` off so leftover pre-squash `pgmigrations` rows do not block newer files; a target migrated before the squash does not receive what was folded into init, so `database-reset` it first. On an already-migrated DB this is a no-op until new migrations land. Safe on every target. **Deploy caveat:** `npm run build` wipes `dist/v<version>/` before copying migrations. Never FTP-merge an older tree on top of a post-squash build. A polluted `db/migrations/` that still contains deleted pre-squash files will fail after init has been applied (duplicate column/table). Fix: rebuild, upload a clean `v<version>/` (or delete the stale migration `.js` files on the server), point Application Root at it, re-run migrate. |
+| `database-migrate` | Applies any pending `src/db/migrations/` files (`node-pg-migrate`, tracked in `pgmigrations`). Kernel schema is the single baseline `1738000000000_init.js` (full current public schema, including sealed `plugins.secrets`). This shop already applied that name, so migrate is a no-op until a new timestamped file lands. Runs with `checkOrder` off so leftover pre-squash `pgmigrations` rows for deleted files do not block. A database that applied `1738000000000_init` *before* this squash does not receive the folded later files: `database-reset` it first, then migrate. **Deploy caveat:** `npm run build` wipes `dist/v<version>/` before copying migrations. Never FTP-merge an older tree on top of a post-squash build. |
 | `database-reset`   | **Destructive.** Empties `public` (all tables + `pgmigrations`) so the next `database-migrate` rebuilds from scratch. On local Docker this drops/recreates the schema; on managed Postgres (LWS) where the app role does not own `public`, it drops the objects inside the schema instead. After a reset, re-import library / courier / voucher — schema seeds only countries, the `user`/`super-admin` roles (and the seeded staff roles), the `home` delivery network, the loyalty singleton, and `payment_method_countries`. |
 | `database-backup`  | Snapshots the target into one `.tar` (rows + sequences + migration head + every media tree), then keeps only the newest `--keep` (default 3). Read-only on the database: it dumps inside a repeatable-read snapshot, so the shop can keep taking orders while it runs. |
 | `database-restore` | **Destructive.** Replaces the target's database *and* media trees with an archive's contents, end to end. Refuses on the version gate unless `--bypass-preflight` (operator accepts incompatibility, e.g. after a migration squash). Requires `--confirm` on `--prod`; the API independently requires `{"confirm":true}` on every target, like `database-reset`. |
@@ -369,7 +362,7 @@ npm run operation -- database-migrate --dev
 | `database-backup-fetch` / `-push` | Move an archive between the target and this machine (scp, or FTP under `--ftp`). Both default to `catalog import tree/backup/`: `fetch` writes `<id>.tar` there; `push` accepts the same archive id (or a path to a `.tar`). |
 | `database-backup-prune`  | Deletes the target's oldest archives, keeping the newest `--keep`. |
 | `generate-key`     | Local secret generation for `ops` / `jwt` / `db` (see above). |
-| `--replace`        | `generate-key`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Write into `.env/<mode>/.private.env` instead of printing.                                                                   |
+| `--replace`        | `generate-key`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Write into kernel private JSON instead of printing.                                                                   |
 | `email-folder`     | Preprod only. Sets the real `ROUTE_EMAIL_FOLDER` process env var via `cloudlinux-selector` and restarts the app — see [operation.md](../api/07-operation.md). Not a DB preference: what a process is doing is always exactly what it was booted with. |
 
 ## `npm run user`

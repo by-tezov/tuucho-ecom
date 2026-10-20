@@ -62,6 +62,8 @@ export {
   type PluginKind,
   type PluginManifest,
   type PluginSettingField,
+  type PluginSettingFieldType,
+  type PluginSettingOption,
   type Review,
   type ReviewsContract,
   type ShippingMethod,
@@ -104,6 +106,9 @@ export {
 
 export { getEmailCatalog, localizedCatalog, registerEmailCatalog, resetEmailCatalogs } from './locale.js';
 
+export { getPluginSecret, resetPluginSecretAccess, setPluginSecret, setPluginSecretAccess } from './secrets.js';
+export { getPluginSettings, resetPluginSettingsAccess, setPluginSettingsAccess } from './settings.js';
+
 import { addAction, addFilter } from './hooks.js';
 import { registerPluginService } from './services.js';
 import { registerHttpMount, registerPaymentGateway, registerShippingMethod } from './shells.js';
@@ -111,6 +116,8 @@ import { pluginCacheNamespace } from './cache.js';
 import { registerMailTemplate } from './mail.js';
 import { enqueuePluginMailJob, sendPluginMail, sendPluginTemplatedMail } from './mailSend.js';
 import { registerEmailCatalog } from './locale.js';
+import { getPluginSecret, setPluginSecret } from './secrets.js';
+import { getPluginSettings } from './settings.js';
 import type { HttpMount, PluginManifest } from './contracts.js';
 import type { PluginCacheNamespace } from './cache.js';
 import type { MailTemplateFn } from './mail.js';
@@ -133,6 +140,9 @@ export interface PluginRegisterApi {
   sendMail: (message: PluginMailMessage) => Promise<void>;
   sendTemplatedMail: (input: PluginTemplatedMail) => Promise<void>;
   enqueueMailJob: (kind: string, payload: Record<string, unknown>) => Promise<string>;
+  getPluginSecret: (key: string) => string | undefined;
+  setPluginSecret: (key: string, value: string) => Promise<void>;
+  getPluginSettings: () => Record<string, unknown>;
 }
 
 export function createPluginRegisterApi(pluginId: string, manifest: PluginManifest): PluginRegisterApi {
@@ -151,6 +161,9 @@ export function createPluginRegisterApi(pluginId: string, manifest: PluginManife
     sendMail: sendPluginMail,
     sendTemplatedMail: sendPluginTemplatedMail,
     enqueueMailJob: enqueuePluginMailJob,
+    getPluginSecret: (key) => getPluginSecret(pluginId, key),
+    setPluginSecret: (key, value) => setPluginSecret(pluginId, key, value),
+    getPluginSettings: () => getPluginSettings(pluginId),
   };
 }
 

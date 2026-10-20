@@ -6,12 +6,12 @@ standalone locale pack stays at `plugins/tuucho/locale/tuucho-locale-fr/`.
 User plugins live under `plugins/user/<group>/…/<id>/`, with optional grouping
 folders (and a feature folder when they have locale complements). Ids must
 not start with `tuucho-`. The **leaf** folder name is the plugin id and must
-match `plugin.json`'s `"id"`.
+match `package.json` `tuucho.id`.
 
 ```
-plugins/tuucho/<group>/<feature>/<id>/plugin.json   # id starts with tuucho-
+plugins/tuucho/<group>/<feature>/<id>/package.json  # tuucho.id starts with tuucho-
 plugins/tuucho/<group>/<feature>/<id>-locale-fr/
-plugins/user/<group>/<feature>/<id>/plugin.json     # id must not use tuucho-
+plugins/user/<group>/<feature>/<id>/package.json    # tuucho.id must not use tuucho-
 ```
 
 Scan walks `plugins/tuucho/` then `plugins/user/`. Bundled ids use the

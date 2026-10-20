@@ -7,7 +7,7 @@
  */
 import { createServer } from 'node:http';
 import { randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +15,6 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const lockPath = join(root, 'installed.lock');
 const back = join(root, 'kernel/back');
-const front = join(root, 'kernel/front');
 
 function parseArgs(argv) {
   const out = {
@@ -27,13 +26,9 @@ function parseArgs(argv) {
     adminEmail: 'admin@shop.example',
     adminPassword: 'ShopAdmin1!',
     lang: 'fr',
-    postgresUser: 'tezov',
+    postgresUser: 'tuucho',
     postgresPassword: randomBytes(12).toString('base64url'),
     postgresDb: 'tuucho_ecom',
-    stripePublishable: 'pk_test_placeholder',
-    stripeSecret: '',
-    stripeWebhook: '',
-    mondialRelayBrand: 'BDTEST13',
   };
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
@@ -49,24 +44,8 @@ function parseArgs(argv) {
     else if (token === '--admin-password') out.adminPassword = argv[++i];
     else if (token.startsWith('--lang=')) out.lang = token.slice(7);
     else if (token === '--lang') out.lang = argv[++i];
-    else if (token.startsWith('--stripe-publishable=')) out.stripePublishable = token.slice(21);
-    else if (token.startsWith('--stripe-secret=')) out.stripeSecret = token.slice(16);
   }
   return out;
-}
-
-function upsertEnv(filePath, values) {
-  mkdirSync(dirname(filePath), { recursive: true });
-  const existing = existsSync(filePath) ? readFileSync(filePath, 'utf8') : '';
-  const map = new Map();
-  for (const line of existing.split('\n')) {
-    if (!line || line.startsWith('#') || !line.includes('=')) continue;
-    const eq = line.indexOf('=');
-    map.set(line.slice(0, eq), line.slice(eq + 1));
-  }
-  for (const [key, value] of Object.entries(values)) map.set(key, String(value));
-  const body = [...map.entries()].map(([key, value]) => `${key}=${value}`).join('\n') + '\n';
-  writeFileSync(filePath, body);
 }
 
 function run(command, args, cwd) {
@@ -84,43 +63,36 @@ function writeConfig(options) {
   const piiPepper = randomBytes(32).toString('base64');
   const databaseUrl = `postgres://${options.postgresUser}:${encodeURIComponent(options.postgresPassword)}@127.0.0.1:5434/${options.postgresDb}`;
 
-  const backPrivate = {
-    POSTGRES_USER: options.postgresUser,
-    POSTGRES_PASSWORD: options.postgresPassword,
-    POSTGRES_DB: options.postgresDb,
-    DATABASE_URL: databaseUrl,
-    JWT_SECRET: jwt,
-    OPS_TOKEN: ops,
-    PII_ENCRYPTION_KEY: piiKey,
-    PII_LOOKUP_PEPPER: piiPepper,
-    COMPANY_NAME: options.storeName,
-    COMPANY_STATUS: 'Entreprise individuelle (micro-entrepreneur)',
-    COMPANY_SIREN: '000 000 000',
-    COMPANY_ADDRESS: 'France',
-    COMPANY_VAT_MENTION: 'TVA non applicable, art. 293 B du CGI',
-    COMPANY_EMAIL: options.adminEmail,
-    STRIPE_SECRET_KEY: options.stripeSecret,
-    STRIPE_WEBHOOK_SECRET: options.stripeWebhook,
-  };
-  upsertEnv(join(back, '.env/.private.env'), backPrivate);
-  upsertEnv(join(back, '.env/dev/.private.env'), backPrivate);
-  upsertEnv(join(front, '.env/dev/.private.env'), {
-    VITE_STRIPE_PUBLISHABLE_KEY: options.stripePublishable,
-    VITE_MONDIAL_RELAY_BRAND: options.mondialRelayBrand,
-  });
-  upsertEnv(join(front, '.env/.public.env'), {
-    VITE_BRAND_NAME: options.storeName,
-    VITE_BRAND_SUFFIX: options.storeSuffix,
-    VITE_SHOP_NAME: options.storeName,
-    VITE_CONTACT_EMAIL: options.adminEmail,
-  });
+  mkdirSync(join(back, 'config', 'dev'), { recursive: true });
+  writeFileSync(join(back, 'config', 'config.private.json'), '{}\n');
+  writeFileSync(
+    join(back, 'config', 'dev', 'config.private.json'),
+    JSON.stringify(
+      {
+        database: {
+          url: databaseUrl,
+          user: options.postgresUser,
+          password: options.postgresPassword,
+          name: options.postgresDb,
+        },
+        jwt: { secret: jwt },
+        ops: { token: ops },
+        pii: { encryptionKey: piiKey, lookupPepper: piiPepper },
+        smtp: { host: '', user: '', password: '', fromEmail: '' },
+        chat: { smtpPassword: '' },
+        auth: { facebookAppSecret: '' },
+      },
+      null,
+      2,
+    ) + '\n',
+  );
 }
 
-async function waitForPostgres() {
+async function waitForPostgres(postgresUser) {
   for (let i = 0; i < 40; i += 1) {
     const result = spawnSync(
       'docker',
-      ['compose', '--env-file', '.env/.private.env', 'exec', '-T', 'postgres', 'pg_isready', '-U', 'tezov'],
+      ['compose', '--env-file', '.compose.env', 'exec', '-T', 'postgres', 'pg_isready', '-U', postgresUser],
       { cwd: back, encoding: 'utf8' },
     );
     if (result.status === 0) return;
@@ -135,15 +107,10 @@ async function install(options) {
     return;
   }
   writeConfig(options);
-  run('docker', ['compose', '--env-file', '.env/.private.env', 'up', '-d'], back);
-  await waitForPostgres();
+  run('node', ['scripts/composeEnv.mjs'], back);
+  run('docker', ['compose', '--env-file', '.compose.env', 'up', '-d'], back);
+  await waitForPostgres(options.postgresUser);
   run('npm', ['install'], root);
-  if (!existsSync(join(back, 'node_modules'))) {
-    run('npm', ['install'], back);
-  }
-  if (!existsSync(join(front, 'node_modules'))) {
-    run('npm', ['install'], front);
-  }
   run('npm', ['run', 'operation', '--', 'database-migrate', '--dev'], back);
   run('npm', ['run', 'library', '--', 'seed', '--dev', '--source', join(root, 'sample/product/library')], back);
   run('npm', ['run', 'courier', '--', 'seed', '--dev', '--source', join(root, 'sample/courier')], back);
@@ -205,8 +172,6 @@ button{margin-top:20px;background:#121212;color:#fff;border:0;padding:12px 18px;
 <label>Admin e-mail</label><input name="adminEmail" type="email" value="admin@shop.example" required/>
 <label>Admin password</label><input name="adminPassword" type="password" value="ShopAdmin1!" required/>
 <label>Language</label><input name="lang" value="fr"/>
-<label>Stripe publishable key (optional)</label><input name="stripePublishable" placeholder="pk_test_..."/>
-<label>Stripe secret key (optional)</label><input name="stripeSecret" placeholder="sk_test_..."/>
 <button type="submit">Install</button>
 </form>
 <div class="out" id="out">Waiting.</div>

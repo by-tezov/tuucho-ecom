@@ -1,4 +1,4 @@
-import { CORE_VERSION } from '../src/modules/plugins/domain/coreVersion.js';
+import { CORE_VERSION } from '../src/config/appVersion.js';
 import { OFFICIAL_ORIGIN } from '../src/modules/plugins/domain/githubRepository.js';
 import { tagFromKernelVersion } from '../src/modules/plugins/domain/semverTags.js';
 import { hashTuuchoTree, readShopRelease, writeShopRelease } from '../src/modules/plugins/application/updates/shopRelease.js';

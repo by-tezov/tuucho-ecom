@@ -1188,9 +1188,9 @@ async function runCheck(
 
 async function runMain(args: Args): Promise<void> {
   const apiBaseUrl = loadApiBaseUrl(root, args.mode);
-  if (!apiBaseUrl) fail(`URL_API_BASE not found in .env/.public.env or .env/${args.mode}/.public.env`);
+  if (!apiBaseUrl) fail(`URL_API_BASE not found in kernel JSON for ${args.mode} (http.apiBaseUrl).`);
   const opsToken = loadOpsToken(root, args.mode);
-  if (!opsToken) fail(`OPS_TOKEN not found in .env/.private.env or .env/${args.mode}/.private.env`);
+  if (!opsToken) fail(`OPS_TOKEN not found in kernel private JSON for ${args.mode} (ops.token).`);
 
   if (args.command === 'stock-report') {
     const summary = await runStockReport(

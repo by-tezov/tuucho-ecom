@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { SUPER_ADMIN_ROLE } from '@kernel/back/modules/identity/domain/staffPermissions';
 import type pg from 'pg';
 import { pricedItemLineKey } from '../domain/pricedLineKey.js';
-import { config } from '@kernel/back/config/env';
+import { pluginSettingNumber } from '@kernel/back/modules/plugins/application/pluginSettingValues';
 import { emailsByUserIds } from '@kernel/back/modules/identity/application/users';
 import { computeUserBurnNotice } from './burnNotice.js';
 import { expireLotRemaining, restoreLotAllocation, roundLoyaltyEuro } from './loyaltyLotLifecycle.js';
@@ -85,12 +85,18 @@ function round2(value: number): number {
   return roundLoyaltyEuro(value);
 }
 
+const LOYALTY_PLUGIN = 'tuucho-commerce-loyalty';
+const LOT_DURATION_MONTHS = [1, 2, 3, 4, 6, 12] as const;
+
 export function getLoyaltySettings(): LoyaltySettingsSnapshot {
+  const lotDurationMonths = pluginSettingNumber(LOYALTY_PLUGIN, 'lotDurationMonths', 6);
   return {
-    valuePer100: config.loyalty.valuePer100,
-    lotDurationMonths: config.loyalty.lotDurationMonths,
-    burnNoticeWeeks: config.loyalty.burnNoticeWeeks,
-    reminderIntervalDays: config.loyalty.reminderIntervalDays,
+    valuePer100: pluginSettingNumber(LOYALTY_PLUGIN, 'valuePer100', 10),
+    lotDurationMonths: (LOT_DURATION_MONTHS as readonly number[]).includes(lotDurationMonths)
+      ? lotDurationMonths
+      : 6,
+    burnNoticeWeeks: pluginSettingNumber(LOYALTY_PLUGIN, 'burnNoticeWeeks', 6),
+    reminderIntervalDays: pluginSettingNumber(LOYALTY_PLUGIN, 'reminderIntervalDays', 7),
     updatedAt: null,
   };
 }

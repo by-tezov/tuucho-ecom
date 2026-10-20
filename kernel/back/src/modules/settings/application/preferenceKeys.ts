@@ -7,6 +7,7 @@
  * own.
  */
 import { config } from '../../../config/env.js';
+import { pluginSettingBool } from '../../plugins/application/pluginSettingValues.js';
 import { isSpyKind, SPY_KINDS, type SpyKind } from '../domain/spyKinds.js';
 
 export { isSpyKind, SPY_KINDS, type SpyKind };
@@ -151,7 +152,7 @@ export function defaultForKey(key: AppPreferenceKey): boolean {
     return false;
   }
   if (key === 'relax_rate_limits') return false;
-  return !config.disableSpyEmail;
+  return !pluginSettingBool('tuucho-mail-spy', 'disableEmail');
 }
 
 export function allKeys(): AppPreferenceKey[] {

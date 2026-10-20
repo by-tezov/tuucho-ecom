@@ -97,7 +97,7 @@ silently expand an ordinary feature task into a repository-wide redesign.
 
 ## Treat incidental security findings as findings
 
-Never read or reproduce `.private.env`, credentials, tokens, private uploads,
+Never read or reproduce kernel private JSON, plugin secrets, credentials, tokens, private uploads,
 orders, vouchers, or customer data while doing unrelated work. If suspicious
 exposure, unsafe handling, or a security weakness appears incidentally:
 

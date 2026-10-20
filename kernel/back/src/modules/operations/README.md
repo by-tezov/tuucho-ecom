@@ -18,7 +18,7 @@ Feature map entry: `operations` in [docs/features.json](../../../docs/features.j
 | --- | --- | --- |
 | `application/` | 13 | 2601 |
 | `domain/` | 1 | 37 |
-| `http/` | 20 | 2818 |
+| `http/` | 20 | 2817 |
 | `infrastructure/` | 1 | 768 |
 
 ## Routes

@@ -10,7 +10,8 @@ import {
 } from './maintenanceWindow.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const packageJsonPath = join(root, 'package.json');
+const repoRoot = join(root, '..', '..');
+const rootPackageJsonPath = join(repoRoot, 'package.json');
 const dist = join(root, 'dist');
 
 const BUMP_KINDS = ['bump-patch', 'bump-minor', 'bump-major'];
@@ -103,13 +104,21 @@ function parseArgs(argv) {
   }
   if (args.patchVersion !== null && args.version !== null) {
     usageError(
-      '--patch-version and --version cannot be combined — --version permanently bumps package.json, --patch-version deliberately does not',
+      '--patch-version and --version cannot be combined — --version permanently bumps root package.json, --patch-version deliberately does not',
     );
   }
   return args;
 }
 
-/** Resolves --version's argument against the current package.json version:
+function readRootPackageVersion() {
+  const pkg = JSON.parse(readFileSync(rootPackageJsonPath, 'utf8'));
+  if (typeof pkg.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(pkg.version)) {
+    usageError('Root package.json must contain a MAJOR.MINOR.PATCH version');
+  }
+  return pkg.version;
+}
+
+/** Resolves --version's argument against the current root package.json version:
  * either an explicit X.Y.Z, or one of bump-patch/bump-minor/bump-major to
  * increment it automatically (minor/major reset the parts below them, per semver). */
 function resolveVersion(versionArg, currentVersion) {
@@ -123,7 +132,7 @@ function resolveVersion(versionArg, currentVersion) {
   const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(currentVersion);
   if (!match) {
     usageError(
-      `--version ${versionArg} needs the current package.json version to be X.Y.Z (got "${currentVersion}")`,
+      `--version ${versionArg} needs the current root package.json version to be X.Y.Z (got "${currentVersion}")`,
     );
   }
   let [major, minor, patch] = [Number(match[1]), Number(match[2]), Number(match[3])];
@@ -134,11 +143,11 @@ function resolveVersion(versionArg, currentVersion) {
 }
 
 function bumpVersion(versionArg) {
-  const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-  const version = resolveVersion(versionArg, pkg.version);
+  const pkg = JSON.parse(readFileSync(rootPackageJsonPath, 'utf8'));
+  const version = resolveVersion(versionArg, readRootPackageVersion());
   pkg.version = version;
-  writeFileSync(packageJsonPath, JSON.stringify(pkg, null, 2) + '\n');
-  console.log(`[build] package.json version set to ${version}`);
+  writeFileSync(rootPackageJsonPath, JSON.stringify(pkg, null, 2) + '\n');
+  console.log(`[build] root package.json version set to ${version}`);
 }
 
 function run(command, args, extraEnv) {
@@ -175,8 +184,8 @@ function fullBuild(extraEnv, local, mode, verbose) {
 function buildMaintenanceLockdown(from, to, message) {
   if (!existsSync(dist)) mkdirSync(dist);
 
-  const shopName = process.env.VITE_SHOP_NAME ?? 'the site';
-  const contactEmail = process.env.VITE_CONTACT_EMAIL ?? '';
+  const shopName = 'the site';
+  const contactEmail = '';
 
   let windowLine = null;
   if (from !== null && to !== null) {
@@ -273,8 +282,8 @@ function main() {
     console.log(`[build] admin path: /${args.adminRouteToken}/admin`);
   }
   if (args.patchVersion) {
-    // Read by version-dist.mjs in place of package.json's version — see its
-    // own comment. package.json itself is never written to.
+    // Read by version-dist.mjs in place of the root package.json version.
+    // Source package.json files are never written to.
     extraEnv.PATCH_VERSION = args.patchVersion;
     console.log(
       `[build] --patch-version ${args.patchVersion}: package.json stays untouched, only dist/v${args.patchVersion}/ is produced`,

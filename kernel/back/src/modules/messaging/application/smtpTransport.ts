@@ -1,5 +1,6 @@
 import nodemailer, { type Transporter } from 'nodemailer';
 import { config } from '../../../config/env.js';
+import { pluginSecret, pluginSettingOptionalString } from '../../plugins/application/pluginSettingValues.js';
 
 let transporter: Transporter | undefined;
 
@@ -27,15 +28,20 @@ export function getTransporter(): Transporter | undefined {
 let chatTransporter: Transporter | undefined;
 
 export function getChatTransporter(): Transporter | undefined {
-  if (!config.chatSmtp.host) return undefined;
+  const host = pluginSettingOptionalString('tuucho-contact', 'smtpHost');
+  if (!host) return undefined;
   if (!chatTransporter) {
+    const portRaw = pluginSettingOptionalString('tuucho-contact', 'smtpPort');
+    const port = portRaw ? Number(portRaw) : undefined;
+    const user = pluginSettingOptionalString('tuucho-contact', 'smtpUser');
+    const password = pluginSecret('tuucho-contact', 'smtpPassword');
     chatTransporter = nodemailer.createTransport({
       pool: true,
       maxConnections: 2,
-      host: config.chatSmtp.host,
-      port: config.chatSmtp.port,
-      secure: config.chatSmtp.port === 465,
-      auth: config.chatSmtp.user ? { user: config.chatSmtp.user, pass: config.chatSmtp.password } : undefined,
+      host,
+      port,
+      secure: port === 465,
+      auth: user ? { user, pass: password } : undefined,
     });
   }
   return chatTransporter;

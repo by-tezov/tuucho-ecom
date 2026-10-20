@@ -36,7 +36,8 @@ async function bundleServerEntry(outDir) {
 }
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const packageJsonPath = join(root, 'package.json');
+const repoRoot = join(root, '..', '..');
+const rootPackageJsonPath = join(repoRoot, 'package.json');
 
 const BUMP_KINDS = ['bump-patch', 'bump-minor', 'bump-major'];
 
@@ -83,12 +84,20 @@ function parseArgs(argv) {
     usageError(`--patch-version must be X.Y.Z (got "${args.patchVersion}")`);
   }
   if (args.patchVersion !== null && args.version !== null) {
-    usageError('--patch-version and --version cannot be combined — --version permanently bumps package.json, --patch-version deliberately does not');
+    usageError('--patch-version and --version cannot be combined — --version permanently bumps root package.json, --patch-version deliberately does not');
   }
   return args;
 }
 
-/** Resolves --version's argument against the current package.json version:
+function readRootPackageVersion() {
+  const pkg = JSON.parse(readFileSync(rootPackageJsonPath, 'utf8'));
+  if (typeof pkg.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(pkg.version)) {
+    usageError('Root package.json must contain a MAJOR.MINOR.PATCH version');
+  }
+  return pkg.version;
+}
+
+/** Resolves --version's argument against the current root package.json version:
  * either an explicit X.Y.Z, or one of bump-patch/bump-minor/bump-major to
  * increment it automatically (minor/major reset the parts below them, per semver). */
 function resolveVersion(versionArg, currentVersion) {
@@ -101,7 +110,7 @@ function resolveVersion(versionArg, currentVersion) {
 
   const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(currentVersion);
   if (!match) {
-    usageError(`--version ${versionArg} needs the current package.json version to be X.Y.Z (got "${currentVersion}")`);
+    usageError(`--version ${versionArg} needs the current root package.json version to be X.Y.Z (got "${currentVersion}")`);
   }
   let [major, minor, patch] = [Number(match[1]), Number(match[2]), Number(match[3])];
   if (versionArg === 'bump-patch') patch += 1;
@@ -111,11 +120,11 @@ function resolveVersion(versionArg, currentVersion) {
 }
 
 function bumpVersion(versionArg) {
-  const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-  const version = resolveVersion(versionArg, pkg.version);
+  const pkg = JSON.parse(readFileSync(rootPackageJsonPath, 'utf8'));
+  const version = resolveVersion(versionArg, readRootPackageVersion());
   pkg.version = version;
-  writeFileSync(packageJsonPath, JSON.stringify(pkg, null, 2) + '\n');
-  console.log(`[build] package.json version set to ${version}`);
+  writeFileSync(rootPackageJsonPath, JSON.stringify(pkg, null, 2) + '\n');
+  console.log(`[build] root package.json version set to ${version}`);
 }
 
 function run(command, args) {
@@ -123,11 +132,10 @@ function run(command, args) {
 }
 
 async function fullBuild(mode, patchVersion) {
-  const { version: pkgVersion } = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+  const pkgVersion = readRootPackageVersion();
   // --patch-version overrides only the output folder name — the dist copy of
-  // package.json below still carries pkgVersion untouched, and the source
-  // package.json is never written to (see the --version/bumpVersion path for
-  // the deliberate, permanent alternative).
+  // package.json below still carries pkgVersion (root product version), and
+  // source package.json files are never written to (see --version/bumpVersion).
   const version = patchVersion ?? pkgVersion;
   const versionDir = `v${version}`;
   const outDir = join(root, 'dist', versionDir);
@@ -143,7 +151,6 @@ async function fullBuild(mode, patchVersion) {
   run('tsc', ['--outDir', outDir]);
 
   mkdirSync(join(outDir, 'db', 'migrations'), { recursive: true });
-  mkdirSync(join(outDir, '.env', mode), { recursive: true });
   cpSync(join(root, 'src', 'db', 'migrations'), join(outDir, 'db', 'migrations'), { recursive: true });
   // tsc only emits .ts -> .js; the .hbs email templates need copying by hand
   // or every order confirmation/shipped email would fail to render outside
@@ -161,6 +168,7 @@ async function fullBuild(mode, patchVersion) {
   );
   cpSync(join(root, 'src', 'pipe', 'pipe-contact-dispatcher.sh'), join(outDir, 'pipe', 'pipe-contact-dispatcher.sh'));
   cpSync(join(root, 'operation', 'pipe', 'main-pipe-contact-dispatcher.sh'), join(outDir, 'pipe', 'main-pipe-contact-dispatcher.sh'));
+  cpSync(join(root, 'scripts', 'readReleaseConfig.cjs'), join(outDir, 'readReleaseConfig.cjs'));
 
   // devDependencies (tsx, typescript, oxlint, ...) are dev/test-only
   // and never imported by the compiled runtime. Shipping them would make
@@ -172,26 +180,35 @@ async function fullBuild(mode, patchVersion) {
   // app straight off `server.js`, and `npm install` doesn't need a scripts
   // block to do its job.
   const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  pkg.version = pkgVersion;
   delete pkg.devDependencies;
   delete pkg.scripts;
   writeFileSync(join(outDir, 'package.json'), JSON.stringify(pkg, null, 2) + '\n');
   cpSync(join(root, 'package-lock.json'), join(outDir, 'package-lock.json'));
-  // Only the common pair + this target's own pair — no point shipping the
-  // other targets' env files (dev's, or the other of preprod/prod) into a
-  // dist folder that only ever runs as one target.
-  for (const file of ['.env/.public.env', '.env/.private.env', `.env/${mode}/.public.env`, `.env/${mode}/.private.env`]) {
-    cpSync(join(root, file), join(outDir, file));
+  const copyConfig = (relative) => {
+    const src = join(root, relative);
+    if (!existsSync(src)) usageError(`missing ${relative}`);
+    mkdirSync(join(outDir, relative, '..'), { recursive: true });
+    cpSync(src, join(outDir, relative));
+  };
+  copyConfig('config/config.json');
+  copyConfig('config/config.private.example.json');
+  if (existsSync(join(root, 'config', 'config.private.json'))) {
+    copyConfig('config/config.private.json');
+  }
+  copyConfig(`config/${mode}/config.json`);
+  copyConfig(`config/${mode}/config.private.example.json`);
+  if (existsSync(join(root, 'config', mode, 'config.private.json'))) {
+    copyConfig(`config/${mode}/config.private.json`);
   }
 
-  // Sign in with Apple AuthKey_<KEY_ID>.p8 sits next to the target private env
-  // (gitignored). Copy every matching key file into dist so deploy has what
-  // runtime loads via APPLE_KEY_ID — env KEY=value alone is not enough.
-  for (const dir of [join(root, '.env', mode), join(root, '.env')]) {
+  for (const dir of [join(root, 'config', mode), join(root, 'config')]) {
     if (!existsSync(dir)) continue;
     for (const name of readdirSync(dir)) {
       if (!/^AuthKey_[A-Z0-9]{10}\.p8$/.test(name)) continue;
-      cpSync(join(dir, name), join(outDir, '.env', mode, name));
-      console.log(`[build] copied ${name} into dist .env/${mode}/`);
+      mkdirSync(join(outDir, 'config', mode), { recursive: true });
+      cpSync(join(dir, name), join(outDir, 'config', mode, name));
+      console.log(`[build] copied ${name} into dist config/${mode}/`);
     }
   }
 

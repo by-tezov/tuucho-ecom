@@ -8,9 +8,15 @@ import { boundedPrintable } from '@kernel/back/utils/fieldLimits';
 import { config } from '@kernel/back/config/env';
 import { sendMail, unconnectedContactReplyEmail } from '@kernel/back/modules/messaging/application/email';
 import {
+  contactImageMaxBytes,
+  contactMediaAbsolutePath,
+  contactMediaDir,
+  contactMessageMax,
+  contactSeedRecipient,
+} from '../infrastructure/contactSettings.js';
+import {
   cachedChatImagePreview,
   contactImageFileName,
-  contactMediaAbsolutePath,
   PrivateUploadError,
   removeSavedPrivateImages,
   savePrivateImages,
@@ -128,21 +134,21 @@ adminContactsRouter.post(
     let attachments: Awaited<ReturnType<typeof savePrivateImages>> = [];
     try {
       const contact = await adminUnconnectedContactFromParam(req.params.publicId);
-      const body = boundedPrintable(req.body?.body, config.fieldLimits.contactMessageMax);
+      const body = boundedPrintable(req.body?.body, contactMessageMax());
       if (!contact) return void res.status(404).json({ success: false, error: { code: 'not_found' } });
       if (!body) return void res.status(400).json({ success: false, error: { code: 'invalid_request' } });
       const files = uploadedImageFiles(req);
       if (files.length) {
         attachments = await savePrivateImages({
           files,
-          targetDir: config.contactMediaDir,
-          maxBytes: config.contactImageMaxBytes,
+          targetDir: contactMediaDir(),
+          maxBytes: contactImageMaxBytes(),
           fileNameFor: () => contactImageFileName(),
         });
       }
       await sendMail({
         to: contact.email,
-        replyTo: config.contactRecipientEmail ?? config.smtp.user,
+        replyTo: contactSeedRecipient() ?? config.smtp.user,
         ...unconnectedContactReplyEmail(body, await unconnectedContactReplyLanguage(pool, contact.id)),
         attachments: attachments.map((file) => ({ filename: file.originalName, path: file.absolutePath })),
       });

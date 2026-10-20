@@ -36,10 +36,24 @@ export interface AdminPlugin {
     engines?: { core?: string };
     dependsOn?: Array<string | { id: string; version?: string }>;
     courierCodes?: string[];
-    settingsSchema?: Record<string, { type: 'string' | 'text' | 'number' | 'boolean'; label?: string }>;
+    settingsSchema?: Record<
+      string,
+      {
+        type: 'string' | 'text' | 'number' | 'boolean' | 'secret' | 'url' | 'email';
+        label: string;
+        description: string;
+        section?: string;
+        sectionTitle?: string;
+        sectionDescription?: string;
+        placeholder?: string;
+        options?: Array<{ value: string; label: string }>;
+        long?: boolean;
+      }
+    >;
   };
   compatibility?: AdminPluginCompatibility;
   rates: AdminPluginRate[];
+  secretKeys?: string[];
 }
 
 export type UpdateScope = 'all' | 'kernel' | 'plugins' | 'plugin';
@@ -50,6 +64,7 @@ export interface AdminUpdateCheck {
   inferred: boolean;
   latestTag: string | null;
   officialUpToDate: boolean;
+  officialAhead: boolean;
   canApplyOfficial: boolean;
   officialRefuse?: string;
   dirtyPaths: string[];
@@ -150,6 +165,7 @@ export function patchAdminPlugin(
   body: {
     enabled?: boolean;
     settings?: Record<string, unknown>;
+    secrets?: Record<string, unknown>;
   },
 ) {
   return request(`/admin/plugins/${encodeURIComponent(id)}`, {

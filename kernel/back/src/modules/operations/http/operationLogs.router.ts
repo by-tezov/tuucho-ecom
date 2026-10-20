@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { config } from '../../../config/env.js';
+import { resolvePluginPrivatePath } from '../../plugins/application/pluginSettingValues.js';
 import {
   requireCronShipmentLog,
   requireCronAccountDeletionLog,
@@ -95,12 +96,12 @@ operationLogsRouter.get('/log/cron-loyalty', requireCronLoyaltyLog, async (req, 
   const lines = Number.isSafeInteger(requested) ? Math.max(1, Math.min(requested, 500)) : 100;
   res.json({
     success: true,
-    data: { lines: await readPrivateLogTail(config.cronLoyaltyLogFilePath, lines) },
+    data: { lines: await readPrivateLogTail(resolvePluginPrivatePath(config.privateDir, 'tuucho-commerce-loyalty', 'cronLog', '/log/cron-loyalty.jsonl'), lines) },
   });
 });
 
 operationLogsRouter.post('/log/cron-loyalty/clear', requireCronLoyaltyLog, async (_req, res) => {
-  const clearedFiles = await clearPrivateLog(config.cronLoyaltyLogFilePath);
+  const clearedFiles = await clearPrivateLog(resolvePluginPrivatePath(config.privateDir, 'tuucho-commerce-loyalty', 'cronLog', '/log/cron-loyalty.jsonl'));
   res.json({ success: true, data: { clearedFiles } });
 });
 
@@ -109,12 +110,12 @@ operationLogsRouter.get('/log/cron-gift', requireCronGiftLog, async (req, res) =
   const lines = Number.isSafeInteger(requested) ? Math.max(1, Math.min(requested, 500)) : 100;
   res.json({
     success: true,
-    data: { lines: await readPrivateLogTail(config.cronGiftLogFilePath, lines) },
+    data: { lines: await readPrivateLogTail(resolvePluginPrivatePath(config.privateDir, 'tuucho-commerce-gift', 'cronLog', '/log/cron-gift.jsonl'), lines) },
   });
 });
 
 operationLogsRouter.post('/log/cron-gift/clear', requireCronGiftLog, async (_req, res) => {
-  const clearedFiles = await clearPrivateLog(config.cronGiftLogFilePath);
+  const clearedFiles = await clearPrivateLog(resolvePluginPrivatePath(config.privateDir, 'tuucho-commerce-gift', 'cronLog', '/log/cron-gift.jsonl'));
   res.json({ success: true, data: { clearedFiles } });
 });
 
@@ -123,12 +124,12 @@ operationLogsRouter.get('/log/cron-gift-purge', requireCronGiftPurgeLog, async (
   const lines = Number.isSafeInteger(requested) ? Math.max(1, Math.min(requested, 500)) : 100;
   res.json({
     success: true,
-    data: { lines: await readPrivateLogTail(config.cronGiftPurgeLogFilePath, lines) },
+    data: { lines: await readPrivateLogTail(resolvePluginPrivatePath(config.privateDir, 'tuucho-commerce-gift', 'cronPurgeLog', '/log/cron-gift-purge.jsonl'), lines) },
   });
 });
 
 operationLogsRouter.post('/log/cron-gift-purge/clear', requireCronGiftPurgeLog, async (_req, res) => {
-  const clearedFiles = await clearPrivateLog(config.cronGiftPurgeLogFilePath);
+  const clearedFiles = await clearPrivateLog(resolvePluginPrivatePath(config.privateDir, 'tuucho-commerce-gift', 'cronPurgeLog', '/log/cron-gift-purge.jsonl'));
   res.json({ success: true, data: { clearedFiles } });
 });
 

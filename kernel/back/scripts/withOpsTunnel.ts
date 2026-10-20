@@ -26,7 +26,7 @@ const rawArgs = process.argv.slice(3);
 if (!target || !/^[a-zA-Z][a-zA-Z0-9-]*$/.test(target))
   throw new Error('usage: withOpsTunnel <script> [...args]');
 
-// Secret generation only rewrites the operator's local private env file; it
+// Secret generation only rewrites the operator's local private JSON; it
 // does not contact an environment and therefore does not need a transport.
 if (target === 'operation' && rawArgs[0] === 'generate-key') {
   const cli = spawn(tsx, [`scripts/${target}.ts`, ...rawArgs], {

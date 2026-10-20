@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { pool } from '@kernel/back/db/pool';
-import { config } from '@kernel/back/config/env';
+import { pluginSettingOptionalString } from '@kernel/back/modules/plugins/application/pluginSettingValues';
 import { CUSTOMER_ROLE, staffEmailIfUnlocked } from '@kernel/back/modules/identity/application/staffMailTargets';
 
 export type SpyFilterType = 'role' | 'email';
@@ -94,9 +94,19 @@ export async function recipientCount(): Promise<number> {
 }
 
 export function envSeedMailboxForChannel(channelId: string): string | undefined {
-  if (channelId === 'contact.inbound') return config.contactRecipientEmail;
-  if (channelId === 'contact.chat') return config.chatSmtp.recipientEmail;
-  return config.orderSpyRecipientEmail;
+  if (channelId === 'contact.inbound') {
+    return (
+      pluginSettingOptionalString('tuucho-mail-spy', 'seedContactRecipient') ??
+      pluginSettingOptionalString('tuucho-contact', 'seedRecipient')
+    );
+  }
+  if (channelId === 'contact.chat') {
+    return (
+      pluginSettingOptionalString('tuucho-mail-spy', 'seedChatRecipient') ??
+      pluginSettingOptionalString('tuucho-contact', 'seedRecipient')
+    );
+  }
+  return pluginSettingOptionalString('tuucho-mail-spy', 'seedOrderRecipient');
 }
 
 /** One-shot: if nobody configured recipients yet, copy a matching staff env mailbox. */

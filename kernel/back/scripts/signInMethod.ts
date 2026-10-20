@@ -6,7 +6,7 @@
  *     [--json] --dev|--preprod|--prod
  *
  * `seed` applies the SIGN_IN_*_ENABLED and SIGN_IN_*_VERBOSE_ENABLED defaults
- * from `.env/.seed.env` (with the normal target-specific public-env overlay).
+ * from `sample/seed-defaults.env`.
  * Email + password / OTP are never gated by these flags. `enable`/`disable`
  * only flip provider availability, not the verbose create/link flow.
  */
@@ -50,7 +50,7 @@ const fail: (message: string) => never = makeFail(program, 'sign-in-method');
 function envBoolean(env: Record<string, string>, key: string): boolean {
   const raw = env[key]?.trim();
   if (raw !== 'true' && raw !== 'false') {
-    fail(`${key} must be true or false in .env/.seed.env, got ${JSON.stringify(raw ?? '')}`);
+    fail(`${key} must be true or false in sample/seed-defaults.env, got ${JSON.stringify(raw ?? '')}`);
   }
   return raw === 'true';
 }
@@ -191,7 +191,7 @@ addCommonOptions(program.command('check'))
   );
 
 addConfirmOption(addCommonOptions(program.command('seed')))
-  .description('Apply SIGN_IN_*_ENABLED and SIGN_IN_*_VERBOSE_ENABLED defaults from .env/.seed.env.')
+  .description('Apply SIGN_IN_*_ENABLED and SIGN_IN_*_VERBOSE_ENABLED defaults from sample/seed-defaults.env.')
   .action((opts: CommonModeOpts) =>
     runAction(() => {
       requireConfirmForProdWrite(opts.mode, opts.confirm, fail, 'seed');

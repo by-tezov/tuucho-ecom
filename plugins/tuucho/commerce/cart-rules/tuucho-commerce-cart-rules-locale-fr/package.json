@@ -2,6 +2,27 @@
   "name": "@tuucho/plugin-tuucho-commerce-cart-rules-locale-fr",
   "private": true,
   "type": "module",
+  "version": "1.0.0",
+  "description": "French strings for commerce-cart-rules. Enable with locale-fr for French UI; disable to keep this plugin in English.",
+  "tuucho": {
+    "id": "tuucho-commerce-cart-rules-locale-fr",
+    "installPath": "plugins/tuucho/commerce/cart-rules/tuucho-commerce-cart-rules-locale-fr",
+    "name": "commerce-cart-rules French",
+    "kind": "locale",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "tuucho-commerce-cart-rules",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"
   }

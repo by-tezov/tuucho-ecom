@@ -3,7 +3,7 @@
  *   npm run gift -- check [--json] --dev|--preprod|--prod
  *
  * New offers are always accepted. TTLs and ceilings live in
- * `.env/.public.env` (`GIFT_*`) and are returned by the running process.
+ * tuucho-commerce-gift plugin settings and are returned by the running process.
  */
 import { Command as Program } from 'commander';
 import { dirname, join } from 'node:path';

@@ -368,9 +368,9 @@ async function runDelete(apiBaseUrl: string, opsToken: string, args: DeleteArgs)
 
 async function runMain(args: ListArgs | WriteArgs | DeleteArgs): Promise<void> {
   const apiBaseUrl = loadApiBaseUrl(root, args.mode);
-  if (!apiBaseUrl) fail(`URL_API_BASE not found in .env/.public.env or .env/${args.mode}/.public.env`);
+  if (!apiBaseUrl) fail(`URL_API_BASE not found in kernel JSON for ${args.mode} (http.apiBaseUrl).`);
   const opsToken = loadOpsToken(root, args.mode);
-  if (!opsToken) fail(`OPS_TOKEN not found in .env/.private.env or .env/${args.mode}/.private.env`);
+  if (!opsToken) fail(`OPS_TOKEN not found in kernel private JSON for ${args.mode} (ops.token).`);
 
   log(args.json, `[user] command=${args.command} mode=${args.mode} api=${apiBaseUrl}`);
   if (args.command === 'list') await runList(apiBaseUrl, opsToken, args);

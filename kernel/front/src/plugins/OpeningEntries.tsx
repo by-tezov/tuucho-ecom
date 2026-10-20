@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Button } from '../components/ui/Button';
 import type { CoreOpeningEntry } from './types';
 
 /** Renders plugin contributions into a core opening (preferences, profile,
@@ -6,9 +6,11 @@ import type { CoreOpeningEntry } from './types';
 export function OpeningEntries({
   entries,
   className,
+  actionLabel,
 }: {
   entries: CoreOpeningEntry[] | undefined;
   className?: string | undefined;
+  actionLabel?: string | undefined;
 }) {
   if (!entries?.length) return null;
   const unique = entries.filter((entry, index) => entries.findIndex((item) => item.id === entry.id) === index);
@@ -18,7 +20,11 @@ export function OpeningEntries({
         <article key={entry.id}>
           <h3>{entry.title}</h3>
           {entry.description ? <p>{entry.description}</p> : null}
-          {entry.href ? <Link to={entry.href}>{entry.title}</Link> : null}
+          {entry.href ? (
+            <Button to={entry.href} variant="secondary">
+              {actionLabel ?? entry.title}
+            </Button>
+          ) : null}
         </article>
       ))}
     </div>

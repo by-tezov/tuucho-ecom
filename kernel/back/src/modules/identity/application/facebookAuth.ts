@@ -1,4 +1,4 @@
-import { config } from '../../../config/env.js';
+import { signInProviderSecret, signInProviderSetting } from './signInProviderSettings.js';
 
 export interface VerifiedFacebookProfile {
   userId: string;
@@ -6,7 +6,7 @@ export interface VerifiedFacebookProfile {
 }
 
 export function isFacebookSignInConfigured(): boolean {
-  return Boolean(config.facebook.appId && config.facebook.appSecret);
+  return Boolean(signInProviderSetting('facebook', 'appId') && signInProviderSecret('facebook', 'appSecret'));
 }
 
 interface DebugTokenResponse {
@@ -27,8 +27,8 @@ interface MeResponse {
 
 /** Verifies a short-lived Facebook user access token from the JS SDK. */
 export async function verifyFacebookAccessToken(accessToken: string): Promise<VerifiedFacebookProfile> {
-  const appId = config.facebook.appId;
-  const appSecret = config.facebook.appSecret;
+  const appId = signInProviderSetting('facebook', 'appId');
+  const appSecret = signInProviderSecret('facebook', 'appSecret');
   if (!appId || !appSecret) {
     throw new Error('facebook_sign_in_disabled');
   }

@@ -16,7 +16,7 @@
  * per day, so the cron may run as often as it likes.
  */
 import type pg from 'pg';
-import { config } from '../../../config/env.js';
+import { pluginSettingDurationMs } from '../../plugins/application/pluginSettingValues.js';
 import { tryInsertPaymentAuthExpirySpySend } from '../infrastructure/paymentAuthExpirySpySends.js';
 import { notifyPaymentAuthorizationExpiring } from './orderNotifications.js';
 import { getById as getOrderById } from './queries/adminOrderQueries.js';
@@ -59,7 +59,10 @@ async function findDueAuthorizations(pool: pg.Pool, beforeMs: number): Promise<s
 }
 
 export async function processPaymentAuthExpirySpy(pool: pg.Pool): Promise<{ notified: number }> {
-  const orderIds = await findDueAuthorizations(pool, config.paymentAuthExpirySpyBeforeMs);
+  const orderIds = await findDueAuthorizations(
+    pool,
+    pluginSettingDurationMs('tuucho-payment-stripe', 'paymentAuthExpirySpyBefore', '2d'),
+  );
   const day = utcDayKey();
   let notified = 0;
   for (const orderId of orderIds) {

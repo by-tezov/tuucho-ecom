@@ -116,7 +116,7 @@ encrypted; bytes stay in `PRIVATE_MEDIA_CONTACT_DIR` and are never public.
 | `original_name`| `text`         | Encrypted visitor-facing filename          |
 | `created_at`   | `timestamptz`  |                                            |
 
-### Product requests (`1738000000000_init.js` + `1787290000000_product_request_snapshots_and_messages.js`)
+### Product requests (`1738000000000_init.js`)
 
 Sold-out size requests from `POST /contact/product-request`. The spy email
 still fires; this table is the durable ops/admin record (`npm run
@@ -208,8 +208,7 @@ Indexes: claim `(status, next_attempt_at)` partial for live statuses; `(kind, cr
 
 The application mints every `chat_sessions`, `unconnected_contacts` and
 `product_requests` `public_id` as upper-case hex and always looks it up
-upper-cased. `1791331200000_staff_roles.js` upper-cased rows
-inserted by hand in lower case (they were listed but could never be opened
-or closed) and added `CHECK (public_id = upper(public_id))` to all three
-tables, `NOT VALID` so a hypothetical row whose upper-case form was already
-taken is left alone instead of failing the deploy.
+upper-cased. The kernel baseline includes
+`CHECK (public_id = upper(public_id))` on all three tables, `NOT VALID` so a
+hypothetical row whose upper-case form was already taken is left alone
+instead of failing the deploy.

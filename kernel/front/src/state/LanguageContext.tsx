@@ -21,8 +21,16 @@ import { en } from '../assets/i18n/strings.en';
 import { preferredLanguage, savePreferredLanguage } from '../assets/i18n/languagePreference';
 import { isLocalizablePath, localizedPath, stripLangPrefix } from '../config/i18nRoutes';
 import { usePrerenderedLanguage } from './PrerenderPayload';
-import { assembleDictionary, frenchAvailable, localeEnablement } from '../plugins/localeCatalog';
+import {
+  assembleDictionary,
+  frenchAvailable,
+  localeEnablementFromKey,
+  localeEnablementKey,
+} from '../plugins/localeCatalog';
 import { useStorefrontBootstrap } from '../plugins/StorefrontBootstrap';
+
+const LANGUAGES_EN: Lang[] = ['en'];
+const LANGUAGES_EN_FR: Lang[] = ['en', 'fr'];
 
 interface LanguageContextValue {
   lang: Lang;
@@ -56,9 +64,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const prerendered = usePrerenderedLanguage(location.pathname);
 
   const bootstrap = useStorefrontBootstrap();
-  const localeEnabled = localeEnablement(bootstrap.plugins);
+  const enablementKey = localeEnablementKey(bootstrap.plugins);
+  const localeEnabled = useMemo(() => localeEnablementFromKey(enablementKey), [enablementKey]);
   const frOn = frenchAvailable(localeEnabled);
-  const availableLanguages: Lang[] = frOn ? ['en', 'fr'] : ['en'];
+  const availableLanguages = frOn ? LANGUAGES_EN_FR : LANGUAGES_EN;
 
   const [lang, setLangState] = useState<Lang>(urlLang ?? defaultLang);
   const [dict, setDict] = useState<Strings>(
@@ -195,7 +204,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const assembled = assembleDictionary(en, nextLang, localeEnabled);
     setCachedDictionary(nextLang, assembled);
     setDict(assembled);
-  }, [lang, frOn, localeEnabled]);
+  }, [lang, frOn, enablementKey, localeEnabled]);
 
   const setLang = useCallback(
     (next: Lang) => {

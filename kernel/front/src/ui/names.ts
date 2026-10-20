@@ -26,6 +26,13 @@ export const KERNEL_UI = {
   DocsCode: 'ui.DocsCode',
   DocsOutline: 'ui.DocsOutline',
   DocsPager: 'ui.DocsPager',
+  Field: 'ui.Field',
+  FormSection: 'ui.FormSection',
+  TextField: 'ui.TextField',
+  TextareaField: 'ui.TextareaField',
+  SecretField: 'ui.SecretField',
+  SelectField: 'ui.SelectField',
+  ColorField: 'ui.ColorField',
 } as const;
 
 export type KernelUiName = (typeof KERNEL_UI)[keyof typeof KERNEL_UI];

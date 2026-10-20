@@ -70,8 +70,3 @@ const shutdown = (reason: string) => {
 };
 process.once('SIGTERM', () => shutdown('SIGTERM'));
 process.once('SIGINT', () => shutdown('SIGINT'));
-if (process.env.PAM_TEST_SHUTDOWN_ON_STDIN_CLOSE === '1') {
-  process.stdin.resume();
-  process.stdin.once('end', () => shutdown('stdin-closed'));
-  process.stdin.once('close', () => shutdown('stdin-closed'));
-}

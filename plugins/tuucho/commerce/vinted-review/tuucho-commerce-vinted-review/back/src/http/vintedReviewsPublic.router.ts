@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { config } from '@kernel/back/config/env';
+import { pluginSettingDurationMsOrNull } from '@kernel/back/modules/plugins/application/pluginSettingValues';
 import { pool } from '@kernel/back/db/pool';
 import { getHomeReviews } from '../application/vintedReviewsWorkflow.js';
 import { isPluginEffectivelyEnabled } from '@kernel/back/modules/plugins/application/pluginStore';
@@ -12,7 +12,7 @@ export const vintedReviewsPublicRouter = Router();
  * so a value chosen later in the administration shows at once instead of an
  * empty answer being kept for days. */
 function cacheControl(complete: boolean): string {
-  const maxAgeMs = config.homeReviewsCacheMs;
+  const maxAgeMs = pluginSettingDurationMsOrNull('tuucho-commerce-vinted-review', 'homeCacheTtl');
   if (!complete || maxAgeMs === null) return 'no-cache';
   return `public, max-age=${Math.floor(maxAgeMs / 1000)}`;
 }

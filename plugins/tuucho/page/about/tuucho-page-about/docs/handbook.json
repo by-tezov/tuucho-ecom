@@ -1,6 +1,6 @@
 {
   "title": "About page",
-  "summary": "About the atelier at /about. Enable equals the menu entry. Copy is kernel i18n (about, atelier, values).",
+  "summary": "About page at /about. Enable equals the menu entry. This plugin mounts the React page.",
   "sections": [
     {
       "heading": "Enable equals the menu",
@@ -9,7 +9,7 @@
           "type": "callout",
           "tone": "info",
           "title": "Page plugin",
-          "text": "plugin.json kind page, route /about. While enabled, the kernel puts the route on the shop menu (nav.key / order). Disable and the URL and menu entry go away. React for home, about, legal, and sizes lives in the kernel; this package is the enablement and SEO listing."
+          "text": "package.json tuucho.kind page, route /about. This plugin mounts the about React page. While enabled, the kernel puts the route on the shop menu (nav.key / order). Disable and the URL and menu entry go away."
         },
         {
           "type": "defs",

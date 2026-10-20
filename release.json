@@ -1,25 +1,9 @@
 {
-  "tag": "0.0.2",
-  "kernel": "0.0.2",
-  "releaseId": 2,
+  "tag": "0.0.3",
+  "kernel": "0.0.3",
+  "releaseId": 3,
   "kernelMigrations": [
-    "1738000000000_init",
-    "1791331200000_staff_roles",
-    "1791900000000_gift_receiver_email",
-    "1792000000000_catalogue_edit_permission",
-    "1792100000000_catalogue_vocabulary",
-    "1792200000000_plugins_and_store",
-    "1792300000000_plugin_email_log_permission",
-    "1792400000000_product_seo_and_redirects",
-    "1792500000000_plugin_schema_lifecycle",
-    "1792600000000_order_plugin_snapshot",
-    "1792700000000_language_en_fr",
-    "1792800000000_strip_extra_locale_keys",
-    "1792900000000_tuucho_plugin_ids",
-    "1792910000000_tuucho_home_faq",
-    "1792920000000_tuucho_commerce_vinted_review",
-    "1792930000000_courier_edit_permission",
-    "1792940000000_page_legal_user"
+    "1738000000000_init"
   ],
   "plugins": [
     {

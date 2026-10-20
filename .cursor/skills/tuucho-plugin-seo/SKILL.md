@@ -15,6 +15,7 @@ description: >-
 - If the needed opening does not exist, stop. Tell the user. Do not invent a kernel patch from this skill.
 - Match existing bundled SEO plugins (`tuucho-seo-sitemap`, `tuucho-seo-robots`, `tuucho-seo-redirects`).
 - Current branch only; no extra git branch; no PR unless asked.
+- Plugin keys go on that plugin’s `settingsSchema` (public) or `type: "secret"` (secret store), never kernel JSON.
 - Do **not** add Admin pages that only print `/sitemap.xml` or robots.txt. Operators use **Settings → SEO**.
 
 ## Who owns what
@@ -62,7 +63,7 @@ api.addFilter(CORE_OPENING_FILTERS.seoRedirects, (rules) => [
 
 `seo.sitemap.productRows` is the catalogue PHP relay only (`/sitemap-products.xml`). Do not use it for ordinary page URLs.
 
-A **page plugin** with `plugin.json` `route` is already listed while `tuucho-seo-sitemap` is on. Still register `seo.sitemap.entries` when the URL is not that route (`demo-page-guides` does this for `/pose` and `/capsules`; also paginated collections, extra feeds, locale-only paths).
+A **page plugin** with `tuucho.route` on `package.json` is already listed while `tuucho-seo-sitemap` is on. Still register `seo.sitemap.entries` when the URL is not that route (`demo-page-guides` does this for `/pose` and `/capsules`; also paginated collections, extra feeds, locale-only paths).
 
 Skip filters when the plugin should be inert if it were off: register only from `back/register.ts` (unloaded when disabled).
 

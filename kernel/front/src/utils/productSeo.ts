@@ -38,7 +38,6 @@ const DESCRIPTION_LIMIT = 170;
 /** Google renders roughly 60 characters of a title. The brand is shortened
  * here, and only here, to buy the room the product term needs. */
 const TITLE_LIMIT = 65;
-const TITLE_BRAND = shopConfig.shopName;
 
 /** Stable per set rather than random: the same URL must produce the same
  * snippet on every render, or the prerendered page and the hydrated one
@@ -150,9 +149,9 @@ export function productSeoTitle(item: GalleryItem, t: Strings, lang: Lang, shape
   const shapeWord = shapeWordFor(item, shapeKey);
   const term = t.product.seoTitleTerm;
   const candidates = [
-    shapeWord ? `${item.title}, ${withShape(term, shapeWord, lang)} · ${TITLE_BRAND}` : '',
-    `${item.title}, ${term} · ${TITLE_BRAND}`,
-    `${item.title} · ${TITLE_BRAND}`,
+    shapeWord ? `${item.title}, ${withShape(term, shapeWord, lang)} · ${shopConfig.shopName}` : '',
+    `${item.title}, ${term} · ${shopConfig.shopName}`,
+    `${item.title} · ${shopConfig.shopName}`,
   ].filter(Boolean);
   return candidates.find((candidate) => candidate.length <= TITLE_LIMIT) ?? candidates.at(-1)!;
 }

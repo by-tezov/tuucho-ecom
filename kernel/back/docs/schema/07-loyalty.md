@@ -14,10 +14,9 @@ burns remaining amounts into history. Expired checkout holds are released in
 the same transactional sweep before lot expiry so abandoned reservations cannot
 freeze credit past `STOCK_RESERVATION_TTL`.
 
-Programme numbers come from `.env/.public.env` (`LOYALTY_VALUE_PER_100`,
-`LOYALTY_LOT_DURATION_MONTHS` in `1|2|3|4|6|12`, `LOYALTY_BURN_NOTICE_WEEKS`
-1–520, `LOYALTY_REMINDER_INTERVAL_DAYS` 1–90). Changing them needs a process
-restart. The programme itself is not a preference.
+Programme numbers come from tuucho-commerce-loyalty plugin settings
+(`valuePer100`, `lotDurationMonths` in `1|2|3|4|6|12`, `burnNoticeWeeks`
+1–520, `reminderIntervalDays` 1–90). The programme itself is not a preference.
 
 | Table / column | Role |
 | --- | --- |

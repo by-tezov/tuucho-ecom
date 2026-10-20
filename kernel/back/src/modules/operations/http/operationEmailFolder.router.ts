@@ -3,6 +3,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { Router } from 'express';
 import { config } from '../../../config/env.js';
+import { resolvePluginDevEmailDir } from '../../plugins/application/pluginSettingValues.js';
 
 const MAX_LIST = 40;
 const MAX_HTML_BYTES = 200_000;
@@ -86,7 +87,12 @@ function parseMeta(html: string): { to: string; subject: string } {
 }
 
 function dirForKind(kind: string): string | undefined {
-  if (kind === 'spy') return config.devEmailSpyDir;
+  if (kind === 'spy') {
+    return resolvePluginDevEmailDir(config.devDir, 'tuucho-mail-spy', 'devEmailDir', '/email-spy');
+  }
+  if (kind === 'chat') {
+    return resolvePluginDevEmailDir(config.devDir, 'tuucho-contact', 'devEmailChatDir', '/email-chat');
+  }
   return config.devEmailDir;
 }
 

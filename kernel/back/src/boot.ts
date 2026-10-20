@@ -208,13 +208,24 @@ async function main(): Promise<void> {
   // that particular dependency. This is a diagnostic, not a gate, so it must
   // not hold the first request: on a cold start it used to cost ~0.5s of
   // network round trips before the server even began listening.
-  const { pool, config, getStripe, retrieveBalance, warmAppPreferences } = entry;
+  const {
+    pool,
+    config,
+    getStripe,
+    retrieveBalance,
+    warmAppPreferences,
+    getStoreIdentity,
+    listPlugins,
+    carrierLabelSettings,
+  } = entry;
   const probes: Array<[string, () => Promise<void | 'skipped'>]> = [
     [
       'db connectivity',
       async () => {
         await pool.query('select 1');
         await warmAppPreferences();
+        await getStoreIdentity();
+        await listPlugins();
       },
     ],
     [
@@ -228,7 +239,7 @@ async function main(): Promise<void> {
       async () => {
         const stripe = getStripe();
         if (!stripe) {
-          log('probe SKIPPED stripe reachable: no STRIPE_SECRET_KEY configured');
+          log('probe SKIPPED stripe reachable: no Stripe secret configured');
           return 'skipped';
         }
         await retrieveBalance(stripe);
@@ -237,9 +248,9 @@ async function main(): Promise<void> {
     [
       'Mondial Relay API2 reachable',
       async () => {
-        const apiUrl = config.mondialRelay.api2Url;
+        const apiUrl = carrierLabelSettings().api2Url;
         if (!apiUrl) {
-          log('probe SKIPPED Mondial Relay API2 reachable: no MONDIAL_RELAY_API2_URL configured');
+          log('probe SKIPPED Mondial Relay API2 reachable: no api2Url configured');
           return 'skipped';
         }
         // Do not create a label merely to prove the carrier is available.

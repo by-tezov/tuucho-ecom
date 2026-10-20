@@ -1,4 +1,4 @@
-import { CORE_VERSION } from '../../domain/coreVersion.js';
+import { CORE_VERSION, readRootPackageVersion } from '../../../../config/appVersion.js';
 import {
   OFFICIAL_ORIGIN,
   parseGithubHttpsRepo,
@@ -9,7 +9,13 @@ import {
   parseShopReleaseManifest,
   type ShopReleaseManifest,
 } from '../../domain/releaseManifest.js';
-import { assertReleaseIdSequence, parseReleaseTag, walkTagsBetween, type ReleaseTag } from '../../domain/semverTags.js';
+import {
+  assertReleaseIdSequence,
+  parseReleaseTag,
+  relateLocalToLatest,
+  walkTagsBetween,
+  type ReleaseTag,
+} from '../../domain/semverTags.js';
 import { isTuuchoPluginId, isUserPluginId } from '../discoverPlugins.js';
 import { listPlugins } from '../pluginStore.js';
 import { createGithubClient, type GithubClient } from './githubClient.js';
@@ -43,6 +49,7 @@ export type UpdateCheck = {
   inferred: boolean;
   latestTag: string | null;
   officialUpToDate: boolean;
+  officialAhead: boolean;
   canApplyOfficial: boolean;
   officialRefuse?: string;
   dirtyPaths: string[];
@@ -64,12 +71,14 @@ export async function checkUpdates(client: GithubClient = createGithubClient()):
   const shop = recorded ?? (await inferredShopRelease());
   const inferred = !recorded;
   const dirtyPaths = await detectDirtyTuucho(shop);
+  const currentVersion = readRootPackageVersion();
   let official: UpdateCheck = {
-    currentTag: shop.tag,
-    currentKernel: shop.kernel,
+    currentTag: currentVersion,
+    currentKernel: currentVersion,
     inferred,
     latestTag: null,
     officialUpToDate: true,
+    officialAhead: false,
     canApplyOfficial: false,
     dirtyPaths,
     tagPath: [],
@@ -104,33 +113,44 @@ async function checkOfficial(
 ): Promise<Partial<UpdateCheck>> {
   const ref = officialRef();
   const tags = await client.listReleaseTags(ref);
-  const current = parseReleaseTag(shop.tag);
-  if (!current) throw new Error(`Shop tag ${shop.tag} is not a release tag.`);
-  const currentOnOrigin = tags.find((entry) => entry.tag === current.tag);
-  if (!currentOnOrigin) {
-    throw new Error(
-      `Shop tag ${shop.tag} is not on ${OFFICIAL_ORIGIN}. Apply is refused until that tag exists (inferred shops must match a published tag).`,
-    );
-  }
+  const currentVersion = readRootPackageVersion();
+  const current = parseReleaseTag(currentVersion);
+  if (!current) throw new Error(`Root package.json version ${currentVersion} is not a release tag.`);
   const latest = tags[tags.length - 1];
   if (!latest) throw new Error(`No release tags on ${OFFICIAL_ORIGIN}.`);
-  const latestManifest = parseShopReleaseManifest(await client.readJson(ref, latest.tag, 'release.json'));
-  const walked = walkTagsBetween(current, latest, tags);
-  if (walked.length === 0) {
+  const relation = relateLocalToLatest(current, latest);
+  if (relation === 'ahead') {
     return {
+      currentTag: current.tag,
+      currentKernel: current.version,
       latestTag: latest.tag,
-      officialUpToDate: true,
+      officialUpToDate: false,
+      officialAhead: true,
       canApplyOfficial: false,
       tagPath: [],
       plugins: [],
     };
   }
+  if (relation === 'equal') {
+    return {
+      currentTag: current.tag,
+      currentKernel: current.version,
+      latestTag: latest.tag,
+      officialUpToDate: true,
+      officialAhead: false,
+      canApplyOfficial: false,
+      tagPath: [],
+      plugins: [],
+    };
+  }
+  const latestManifest = parseShopReleaseManifest(await client.readJson(ref, latest.tag, 'release.json'));
+  const walked = walkTagsBetween(current, latest, tags);
   const nextIds: number[] = [];
   for (const tag of walked) {
     const manifest = parseShopReleaseManifest(await client.readJson(ref, tag.tag, 'release.json'));
     nextIds.push(manifest.releaseId);
   }
-  if (shop.releaseId !== null) assertReleaseIdSequence(shop.releaseId, nextIds);
+  if (shop.releaseId !== null && shop.tag === current.tag) assertReleaseIdSequence(shop.releaseId, nextIds);
   const pluginChanges: PluginVersionChange[] = [];
   const byId = new Map(latestManifest.plugins.map((entry) => [entry.id, entry]));
   const installed = await listPlugins();
@@ -152,8 +172,8 @@ async function checkOfficial(
     pluginChanges.push({ id: entry.id, from: '(missing)', to: entry.version, installPath: entry.installPath });
   }
   const kernelChange =
-    latestManifest.kernel !== shop.kernel
-      ? { id: 'kernel', from: shop.kernel, to: latestManifest.kernel }
+    latestManifest.kernel !== current.version
+      ? { id: 'kernel', from: current.version, to: latestManifest.kernel }
       : undefined;
   let officialRefuse: string | undefined;
   if (shop.tuuchoFiles.length === 0) {
@@ -163,8 +183,11 @@ async function checkOfficial(
     officialRefuse = `Local edits under plugins/tuucho/ (${dirtyPaths.slice(0, 8).join(', ')}). Copy them out before Apply.`;
   }
   return {
+    currentTag: current.tag,
+    currentKernel: current.version,
     latestTag: latest.tag,
     officialUpToDate: false,
+    officialAhead: false,
     canApplyOfficial: !officialRefuse,
     officialRefuse,
     tagPath: walked.map((entry) => entry.tag),
@@ -230,10 +253,13 @@ async function checkUserPlugins(client: GithubClient): Promise<UserPluginUpdate[
       let changelog: string | undefined;
       try {
         const remoteJson = await client.readOptionalJson(ref, latest.tag, 'plugin-release.json');
-        const pluginJson = (await client.readJson(ref, latest.tag, 'plugin.json')) as { id?: unknown; version?: unknown };
+        const pluginPkg = (await client.readJson(ref, latest.tag, 'package.json')) as {
+          version?: unknown;
+          tuucho?: { id?: unknown };
+        };
         const parsed = parsePluginReleaseManifest(remoteJson, {
-          id: typeof pluginJson.id === 'string' ? pluginJson.id : plugin.id,
-          version: typeof pluginJson.version === 'string' ? pluginJson.version : latest.version,
+          id: typeof pluginPkg.tuucho?.id === 'string' ? pluginPkg.tuucho.id : plugin.id,
+          version: typeof pluginPkg.version === 'string' ? pluginPkg.version : latest.version,
           tag: latest.tag,
         });
         if (parsed.id !== plugin.id) throw new Error(`Origin id ${parsed.id} does not match ${plugin.id}.`);

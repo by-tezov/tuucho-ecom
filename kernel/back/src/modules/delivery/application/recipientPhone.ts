@@ -6,7 +6,7 @@
  * order before payment, which is well before a label exists. Re-exported from
  * `shipping` so existing label callers are unaffected.
  */
-import { config } from '../../../config/env.js';
+import { carrierLabelSettings } from '../../shipping/application/carrierSettings.js';
 
 /** Both Mondial Relay delivery modes use the recipient phone number: Home
  * delivery needs it for contact, while Point Relais uses it to deliver the
@@ -16,7 +16,7 @@ export function requiresMondialRelayRecipientPhone(
   courierCode: string | null,
   networkCode: string | null,
 ): boolean {
-  const mr = config.mondialRelay;
+  const mr = carrierLabelSettings();
   const isPoint =
     !!mr.pointCourierCode &&
     !!mr.pointNetworkCode &&

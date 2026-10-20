@@ -51,3 +51,10 @@ test('JSON helpers round-trip structured values', () => {
   assert.equal(encryptJsonPii(null), null);
   assert.equal(decryptJsonPii(null), null);
 });
+
+test('optional key override encrypts for another environment without mixing keys', () => {
+  const otherKey = Buffer.alloc(32, 7).toString('base64');
+  const stored = encryptPii('plugin-secret', otherKey)!;
+  assert.equal(decryptPii(stored, otherKey), 'plugin-secret');
+  assert.throws(() => decryptPii(stored), /wrong key or tampered/);
+});

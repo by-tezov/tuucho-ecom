@@ -27,7 +27,8 @@ description: >-
    router: `requirePermission('your_code')`. Do **not** add a kernel HTTP
    router.
 5. Prefer `settingsSchema` for Configure (auto form at
-   `/admin/plugins/<id>`). Prefer a Preferences **entry**
+   `/admin/plugins/<id>`). Use `type: "secret"` for write-only credentials
+   (never kernel JSON, never bootstrap). Prefer a Preferences **entry**
    (`core.preferences.entries`) when a dedicated page is not pertinent.
 6. Do **not** reuse Plugins → Configure as a link to docs, SEO, journals, or
    any other admin screen. Configure is only `settingsSchema` / theme at

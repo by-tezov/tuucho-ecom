@@ -8,7 +8,16 @@ export type ApplyRequest = {
   pluginId?: string;
 };
 
-const KERNEL_PATHS = ['kernel', 'plugin-sdk', 'release.json'] as const;
+const KERNEL_PATHS = ['kernel', 'plugin-sdk', 'release.json', 'package.json'] as const;
+
+export const OFFICIAL_SNAPSHOT_PATHS = [
+  'kernel',
+  'plugin-sdk',
+  'plugins/tuucho',
+  'release.json',
+  'package.json',
+  'shop-release.json',
+];
 
 export function assertNotUserTree(path: string): void {
   const posix = path.replaceAll('\\', '/');

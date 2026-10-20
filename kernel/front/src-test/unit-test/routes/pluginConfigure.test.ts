@@ -83,7 +83,9 @@ describe('pluginHasConfigure', () => {
             name: 'Shop notes',
             kind: 'page',
             description: '',
-            settingsSchema: { title: { type: 'string', label: 'Title' } },
+            settingsSchema: {
+              title: { type: 'string', label: 'Title', description: 'Shown on the page.' },
+            },
           },
         }),
       ),
@@ -97,10 +99,28 @@ describe('pluginHasConfigure', () => {
             name: 'Shop notes',
             kind: 'page',
             description: '',
-            settingsSchema: { title: { type: 'string', label: 'Title' } },
+            settingsSchema: {
+              title: { type: 'string', label: 'Title', description: 'Shown on the page.' },
+            },
           },
         }),
       ),
     ).toBe('/admin/plugins/shop-notes');
+    expect(
+      pluginHasConfigure(
+        plugin({
+          id: 'tuucho-commerce-gift',
+          kind: 'commerce',
+          manifest: {
+            name: 'Gift',
+            kind: 'commerce',
+            description: '',
+            settingsSchema: {
+              minBudget: { type: 'number', label: 'Minimum budget', description: 'Lowest gift budget.' },
+            },
+          },
+        }),
+      ),
+    ).toBe(true);
   });
 });

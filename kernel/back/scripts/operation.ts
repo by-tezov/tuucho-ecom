@@ -34,7 +34,7 @@
  *
  * generate-key is local-only (does not call the API / does not need OPS_TOKEN):
  * without --replace it prints secrets to stdout; with --replace it upserts
- * into `.env/<mode>/.private.env`. Never requires --confirm — it never
+ * into `config/<mode>/config.private.json`. Never requires --confirm — it never
  * touches the target database/environment, even with --replace --prod (that
  * only rewrites a local file the operator already controls directly).
  *
@@ -159,7 +159,7 @@ async function runDbCommand(
   const { command, json, mode, confirm } = args;
 
   const apiBaseUrl = loadApiBaseUrl(root, mode);
-  if (!apiBaseUrl) fail(`URL_API_BASE not found in .env/.public.env or .env/${mode}/.public.env`);
+  if (!apiBaseUrl) fail(`URL_API_BASE not found in kernel JSON for ${mode} (http.apiBaseUrl).`);
   const opsToken = loadOpsToken(root, mode);
   if (!opsToken) fail(`OPS_TOKEN not found for ${mode}`);
 
@@ -236,7 +236,7 @@ type OpsCall = { method: 'GET' | 'POST' | 'PUT'; path: string; body?: unknown };
  * command can act on it rather than only printing it. */
 async function callOps(mode: Mode, call: OpsCall): Promise<{ status: number; ok: boolean; body: any }> {
   const apiBaseUrl = loadApiBaseUrl(root, mode);
-  if (!apiBaseUrl) fail(`URL_API_BASE not found in .env/.public.env or .env/${mode}/.public.env`);
+  if (!apiBaseUrl) fail(`URL_API_BASE not found in kernel JSON for ${mode} (http.apiBaseUrl).`);
   const opsToken = loadOpsToken(root, mode);
   if (!opsToken) fail(`OPS_TOKEN not found for ${mode}`);
 
@@ -646,7 +646,7 @@ addConfirmOption(addCommonOptions(program.command('database-backup-prune')))
 
 addCommonOptions(program.command('generate-key'))
   .addArgument(new Argument('<kind>', 'ops | jwt | db').choices(['ops', 'jwt', 'db']))
-  .option('--replace', 'upsert the generated secret(s) into .env/<mode>/.private.env')
+  .option('--replace', 'upsert the generated secret(s) into config/<mode>/config.private.json')
   .description('Generate a local secret (local-only; does not contact the target).')
   .action((kind: KeyKind, opts: CommonModeOpts & { replace?: boolean }) =>
     runAction(() => {

@@ -10,12 +10,21 @@ import {
   resetPluginServices,
   resetShells,
   setPluginCacheSealer,
+  setPluginSecretAccess,
+  setPluginSettingsAccess,
+  resetPluginSettingsAccess,
   type PluginRegisterFn,
 } from '@tuucho/plugin-sdk';
 import { decryptJsonPii, encryptJsonPii } from '../../../platform/security/piiCrypto.js';
 import { bindPluginMailShell } from '../../../platform/pluginMailShell.js';
 import { pluginPackageDir } from './discoverPlugins.js';
-import { listPlugins, type InstalledPlugin } from './pluginStore.js';
+import {
+  getCachedPluginSecret,
+  getCachedPluginSettings,
+  listPlugins,
+  patchPluginSecrets,
+  type InstalledPlugin,
+} from './pluginStore.js';
 import { applyPluginMigrations } from './pluginSchema.js';
 import { pluginSurfaceEnabled } from './pluginSurface.js';
 
@@ -35,6 +44,7 @@ export function resetPluginRuntime(): void {
   resetShells();
   resetMailTemplates();
   resetEmailCatalogs();
+  resetPluginSettingsAccess();
   loadedKey = '';
   loadChain = Promise.resolve();
 }
@@ -63,6 +73,13 @@ async function loadEnabledPluginsLocked(force: boolean): Promise<void> {
     (value) => encryptJsonPii(value) ?? value,
     (value) => (typeof value === 'string' ? (decryptJsonPii(value) ?? value) : value),
   );
+  setPluginSecretAccess(
+    (pluginId, key) => getCachedPluginSecret(pluginId, key),
+    async (pluginId, key, value) => {
+      await patchPluginSecrets(pluginId, { [key]: value });
+    },
+  );
+  setPluginSettingsAccess((pluginId) => getCachedPluginSettings(pluginId));
   bindPluginMailShell();
   resetHooks();
   resetPluginServices();

@@ -54,7 +54,7 @@
               "type": "cards",
               "items": [
                 { "title": "Kernel", "text": "Always on: catalogue, cart, checkout, orders, accounts, the admin shell, plugin host, SEO engine, payment-method, courier, and email shells." },
-                { "title": "Plugin", "text": "A folder with plugin.json and back/register.ts. Enable loads it. Disable unloads it. Tables stay until uninstall. For a public page, enable is also the shop menu entry." },
+                { "title": "Plugin", "text": "A folder with package.json (tuucho block) and back/register.ts. Enable loads it. Disable unloads it. Tables stay until uninstall. For a public page, enable is also the shop menu entry." },
                 { "title": "Complement", "text": "dependsOn another plugin id. If a required parent is off, isPluginEffectivelyEnabled is false. The runtime does not auto-enable dependencies." }
               ]
             }
@@ -101,7 +101,7 @@
             {
               "type": "defs",
               "items": [
-                { "term": "pluginId / manifest", "description": "This package id and the parsed plugin.json." },
+                { "term": "pluginId / manifest", "description": "This package id and the parsed leaf package.json tuucho block plus npm version/description/repository." },
                 { "term": "addFilter(name, fn, priority?)", "description": "Transform a value. Lower priority runs first (default 10). Must return the same type." },
                 { "term": "addAction(name, fn, priority?)", "description": "Fire-and-forget. Kernel actions include plugin.enabled.changed and cron.process-shipment-tracking." },
                 { "term": "registerPluginService(id, api)", "description": "Publish a public object under a plugin id. Callers use peekPluginService or getPluginService from the SDK, not from api." },
@@ -366,7 +366,7 @@
               "type": "callout",
               "tone": "important",
               "title": "Do not add plugin codes here",
-              "text": "staffPermissions.ts is kernel sections only. Plugin codes live on plugin.json permissions[] and join the Roles matrix only while that plugin and its dependsOn parents are on."
+              "text": "staffPermissions.ts is kernel sections only. Plugin codes live on package.json tuucho.permissions[] and join the Roles matrix only while that plugin and its dependsOn parents are on."
             },
             {
               "type": "table",
@@ -400,7 +400,7 @@
             {
               "type": "steps",
               "items": [
-                "Put { code, label } on plugin.json permissions[]. Code matches /^[a-z][a-z0-9_]{1,63}$/.",
+                "Put { code, label } on package.json tuucho.permissions[]. Code matches /^[a-z][a-z0-9_]{1,63}$/.",
                 "While the plugin is on, Admin → Roles can grant it. Super-admin still holds every code.",
                 "HTTP: requireAuth, requirePermission('your_code'), requirePluginEnabled('your-id') so a disabled plugin 404s instead of an empty screen.",
                 "Nav: access and pluginId on the adminNav item. Return NotFound when usePluginEnabled is false."
@@ -675,7 +675,7 @@
             {
               "type": "defs",
               "items": [
-                { "term": "Page route", "description": "A page plugin with plugin.json route is already listed while Sitemap pages is on." },
+                { "term": "Page route", "description": "A page plugin with tuucho.route on package.json is already listed while Sitemap pages is on." },
                 { "term": "Extra URL", "description": "Register seo.sitemap.entries yourself for a path that is not that route. Guides does this for /pose and /capsules." },
                 { "term": "Unload", "description": "Register only from back/register.ts so the extras disappear when the plugin is off." }
               ]
@@ -726,7 +726,7 @@
               "items": [
                 { "term": "Bundled", "description": "plugins/tuucho/<group>/<feature>/<id>/. Leaf folder name is the plugin id. Bundled ids start with tuucho-." },
                 { "term": "User", "description": "plugins/user/<group>/<feature>/<id>/. User ids must not start with tuucho-." },
-                { "term": "Minimum", "description": "plugin.json and back/register.ts. Ship docs/handbook.json with real sections if this site should describe you. Empty identity cards are omitted." }
+                { "term": "Minimum", "description": "package.json with a tuucho block and back/register.ts. Ship docs/handbook.json with real sections if this site should describe you. Empty identity cards are omitted." }
               ]
             },
             {
@@ -818,11 +818,11 @@
               "type": "callout",
               "tone": "info",
               "title": "Official Tuucho is one repo",
-              "text": "Kernel and every tuucho-* plugin update only from https://github.com/by-tezov/tuucho-ecom tags (MAJOR.MINOR.PATCH, never a v prefix). There is no per-plugin GitHub for Tuucho. plugins/user/ is never overwritten by a Tuucho Apply. Plugins Core is the root package.json version. Check / Apply walks shop-release.json vs tag release.json. A deployed shop cannot claim a kernel by editing package.json."
+              "text": "Kernel and every tuucho-* plugin update only from https://github.com/by-tezov/tuucho-ecom tags (MAJOR.MINOR.PATCH, never a v prefix). There is no per-plugin GitHub for Tuucho. plugins/user/ is never overwritten by a Tuucho Apply. Plugins Core and Check current are the live root package.json version. Latest is the newest official tag. Local ahead of that tag has no Apply. shop-release.json is last-applied Apply state, not displayed current."
             },
             {
               "type": "p",
-              "text": "A user plugin may set plugin.json repository to an HTTPS GitHub repo root. Check uses that origin for that plugin id only. Missing repository means zip-only. Complements are separate packages."
+              "text": "A user plugin may set npm repository on package.json to an HTTPS GitHub repo root. Check uses that origin for that plugin id only. Missing repository means zip-only. Complements are separate packages."
             }
           ]
         },
@@ -835,8 +835,8 @@
               "rows": [
                 ["Host", "Public GitHub repository"],
                 ["Tags", "MAJOR.MINOR.PATCH. Order is semver. No v prefix. No master HEAD."],
-                ["Version", "plugin.json version equals the tag (1.2.0 means 1.2.0)."],
-                ["Layout", "Repo root is the package: plugin.json and back/register.ts at the zipball root."],
+                ["Version", "package.json version equals the tag (1.2.0 means 1.2.0)."],
+                ["Layout", "Repo root is the package: package.json with a tuucho block and back/register.ts at the zipball root."],
                 ["installPath", "Under plugins/user/..., leaf equals id."],
                 ["Id", "[a-z0-9-]+ and must not start with tuucho-."],
                 ["Description", "Required except locale plugins."],
@@ -854,7 +854,7 @@
             },
             {
               "type": "p",
-              "text": "releaseId strictly increases. Set repository on plugin.json to the repo root URL."
+              "text": "releaseId strictly increases. Set npm repository on package.json to the repo root URL."
             }
           ]
         },
@@ -864,11 +864,11 @@
             {
               "type": "list",
               "items": [
-                "missing plugin.json or back/register.ts",
+                "missing package.json tuucho block or back/register.ts",
                 "tuucho-* id, path escape, absolute installPath, archive members named plugins/ or kernel/",
                 "missing description on a non-locale plugin",
                 "engines.core or dependsOn mismatch",
-                "git tag 1.2.0 with plugin.json version 1.1.0, or a v-prefixed tag",
+                "git tag 1.2.0 with package.json version 1.1.0, or a v-prefixed tag",
                 "releaseId hole or decrease",
                 "non-GitHub or non-HTTPS repository",
                 "private repo (v1 sends no GitHub token)",
@@ -905,7 +905,7 @@
             },
             {
               "type": "p",
-              "text": "You do not git-pull later. Check for updates reads git tags only, never untagged master. Last applied official tag is shop-release.json. Plugins Core is this product's root package.json. A deployed shop cannot claim a kernel by editing package.json."
+              "text": "You do not git-pull later. Check for updates reads git tags only, never untagged master. Plugins Core and Check current are this product's live root package.json. Latest is the newest official tag. A checkout newer than that tag is ahead of the published tag (no Apply). Matching versions: nothing to update. Older local: walk every tag. Last applied official tag is shop-release.json."
             }
           ]
         },

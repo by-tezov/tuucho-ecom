@@ -6,7 +6,7 @@ import { en } from './assets/i18n/strings.en';
 import type { Lang, Strings } from './assets/i18n/types';
 import { StorefrontBootstrapProvider } from './plugins/StorefrontBootstrap';
 import { assembleDictionary } from './plugins/localeCatalog';
-import { shopConfig, legalConfig } from './config/env';
+import { shopConfig } from './config/env';
 import { AuthProvider } from './state/AuthContext';
 import { CartProvider } from './hooks/CartProvider';
 import { GiftReceiverProvider } from './hooks/useGiftReceiver';
@@ -250,28 +250,10 @@ export function renderTitle(page: PrerenderPage): string {
   return `<title>${escapeAttr(`${page.title} · ${shopConfig.shopName}`)}</title>`;
 }
 
-/** Postal code + town, split out of the single-line VITE_LEGAL_ADDRESS
- * ("41800 Montoir-sur-le-Loir") that the legal-notice page prints verbatim.
- * schema.org wants them as separate properties; anything that doesn't match
- * that shape is passed through as the street line rather than guessed at. */
-function postalAddress(): Record<string, string> | undefined {
-  const raw = legalConfig.address.trim();
-  if (!raw) return undefined;
-  const matched = /^(\d{5})\s+(.+)$/.exec(raw);
-  if (matched?.[1] && matched[2]) {
-    return {
-      '@type': 'PostalAddress',
-      addressCountry: 'FR',
-      postalCode: matched[1],
-      addressLocality: matched[2],
-    };
-  }
-  return { '@type': 'PostalAddress', addressCountry: 'FR', streetAddress: raw };
-}
-
 /** The site-wide graph: who the shop is, and the site itself. Emitted on
- * every page — product pages add their own Product node on top (see
- * utils/productSeo.ts).
+ * every page. Product pages add their own Product node on top (see
+ * utils/productSeo.ts). Legal identity lives on the page-legal plugin
+ * (shop name + contact email), not kernel product-default legal env.
  *
  * Deliberately no `aggregateRating`: the home page shows up to three real
  * Vinted reviews hand-picked in the administration (GET /reviews), which is
@@ -282,7 +264,6 @@ function postalAddress(): Record<string, string> | undefined {
  */
 function siteJsonLd(image: string, lang: Lang): Record<string, unknown> {
   const sameAs = Object.values(shopConfig.platformUrls).filter((href) => href.startsWith('http'));
-  const address = postalAddress();
   const t = DICTIONARIES[lang];
   return {
     '@context': 'https://schema.org',
@@ -291,10 +272,6 @@ function siteJsonLd(image: string, lang: Lang): Record<string, unknown> {
         '@type': 'OnlineStore',
         '@id': `${shopConfig.siteUrl}/#shop`,
         name: shopConfig.shopName,
-        // The spellings people type that are not the exact shop name, above
-        // all the plural "Shop". Without it a search engine has no
-        // way to tie that query to this entity, because the singular "Nail"
-        // is the only form that appears in the French title and headings.
         ...(shopConfig.brandAliases.length > 0 && { alternateName: shopConfig.brandAliases }),
         url: `${shopConfig.siteUrl}/`,
         email: shopConfig.contactEmail,
@@ -304,16 +281,6 @@ function siteJsonLd(image: string, lang: Lang): Record<string, unknown> {
         currenciesAccepted: 'EUR',
         description: t.seo.homeDesc,
         keywords: seoKeywords(lang),
-        ...(legalConfig.owner && { founder: { '@type': 'Person', name: legalConfig.owner } }),
-        ...(legalConfig.siren && {
-          identifier: {
-            '@type': 'PropertyValue',
-            propertyID: 'SIREN',
-            value: legalConfig.siren.replace(/\s+/g, ''),
-          },
-        }),
-        ...(address && { address }),
-        ...(legalConfig.phone && { telephone: legalConfig.phone }),
         ...(sameAs.length > 0 && { sameAs }),
       },
       {

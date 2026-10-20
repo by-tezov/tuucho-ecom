@@ -5,10 +5,12 @@ import { requireAuth } from '../../../middleware/requireAuth.js';
 import { requirePermission } from '../../../middleware/requirePermission.js';
 import { buildDocsSite } from '../application/loadPluginDocs.js';
 import {
-  CORE_VERSION,
   isPluginEffectivelyEnabled,
+  readRootPackageVersion,
   listPlugins,
   patchPluginSettings,
+  patchPluginSecrets,
+  secretKeysPresent,
   scanPlugins,
   setPluginEnabled,
   uninstallPlugin,
@@ -44,7 +46,11 @@ adminPluginsRouter.use('/docs', requireAuth, requirePermission('preferences'));
 adminPluginsRouter.use('/store', requireAuth, requirePermission('preferences'));
 
 function withPluginView(plugin: InstalledPlugin) {
-  return { ...plugin, rates: [] as Array<{ code: string; name: string; packets: unknown[] }> };
+  return {
+    ...plugin,
+    rates: [] as Array<{ code: string; name: string; packets: unknown[] }>,
+    secretKeys: secretKeysPresent(plugin.id),
+  };
 }
 
 adminPluginsRouter.get('/plugins', async (_req, res) => {
@@ -52,7 +58,7 @@ adminPluginsRouter.get('/plugins', async (_req, res) => {
   const bundledIds = new Set(bundled.plugins.map((entry) => entry.id));
   res.json({
     success: true,
-    coreVersion: CORE_VERSION,
+    coreVersion: readRootPackageVersion(),
     bundledKernel: bundled.kernel,
     plugins: plugins.map((plugin) => ({
       ...withPluginView(plugin),
@@ -99,7 +105,7 @@ adminPluginsRouter.get('/docs', async (_req, res) => {
     return;
   }
   const site = await buildDocsSite();
-  res.json({ success: true, coreVersion: CORE_VERSION, ...site });
+  res.json({ success: true, coreVersion: readRootPackageVersion(), ...site });
 });
 
 adminPluginsRouter.get('/plugins/:id', async (req, res) => {
@@ -137,7 +143,7 @@ adminPluginsRouter.post('/plugins/scan', async (_req, res) => {
   const { plugins, added, incompatible } = await scanPlugins();
   res.json({
     success: true,
-    coreVersion: CORE_VERSION,
+    coreVersion: readRootPackageVersion(),
     added,
     incompatible,
     plugins: plugins.map((plugin) => withPluginView(plugin)),
@@ -197,7 +203,25 @@ adminPluginsRouter.patch('/plugins/:id', async (req, res) => {
     return;
   }
   if (req.body?.settings && typeof req.body.settings === 'object') {
-    const result = await patchPluginSettings(id, req.body.settings);
+    const schema = (await listPlugins()).find((entry) => entry.id === id)?.manifest.settingsSchema ?? {};
+    const publicSettings: Record<string, unknown> = {};
+    const secretSettings: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(req.body.settings as Record<string, unknown>)) {
+      if (schema[key]?.type === 'secret') secretSettings[key] = value;
+      else publicSettings[key] = value;
+    }
+    const result = await patchPluginSettings(id, publicSettings);
+    if ('error' in result) {
+      res.status(404).json({ success: false, error: { code: 'not_found' } });
+      return;
+    }
+    if (Object.keys(secretSettings).length > 0) await patchPluginSecrets(id, secretSettings);
+    const after = (await listPlugins()).find((entry) => entry.id === id)!;
+    res.json({ success: true, plugin: withPluginView(after) });
+    return;
+  }
+  if (req.body?.secrets && typeof req.body.secrets === 'object') {
+    const result = await patchPluginSecrets(id, req.body.secrets);
     if ('error' in result) {
       res.status(404).json({ success: false, error: { code: 'not_found' } });
       return;

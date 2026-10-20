@@ -6,8 +6,13 @@ var/shop-updates/
 .env/*/.private.env
 **/.env/.private.env
 **/.env/*/.private.env
+kernel/back/.env/
+kernel/front/.env/
 kernel/front/node_modules/
 kernel/back/node_modules/
+kernel/back/config/config.private.json
+kernel/back/config/*/config.private.json
+kernel/back/.compose.env
 kernel/front/dist/
 kernel/back/dist/
 kernel/back/output/

@@ -1,0 +1,21 @@
+{
+  "title": "Facebook Login",
+  "summary": "Registers Facebook into the kernel sign-in shell. Credentials and the OAuth return URL live on this plugin, not kernel JSON.",
+  "sections": [
+    {
+      "heading": "Kernel shell",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Sign-in shell stays in the kernel",
+          "text": "Session, OTP, unlock, and the HTTP routes stay kernel. This plugin owns provider credentials (settingsSchema / secrets). Disable the plugin to hide this method even if shop Preferences still list it."
+        },
+        {
+          "type": "p",
+          "text": "Configure at Admin → Plugins → Facebook Login. Kernel identity reads via getCachedPluginSettings / getCachedPluginSecret using plugin id tuucho-signin-facebook."
+        }
+      ]
+    }
+  ]
+}

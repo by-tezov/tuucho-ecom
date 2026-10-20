@@ -4,6 +4,7 @@ import {
   assertReleaseIdSequence,
   normalizeStoredReleaseTag,
   parseReleaseTag,
+  relateLocalToLatest,
   sortReleaseTags,
   walkTagsBetween,
 } from '../../../../../src/modules/plugins/domain/semverTags.js';
@@ -30,6 +31,14 @@ test('walkTagsBetween applies every tag after current through latest', () => {
     ['1.0.2', '1.0.3', '1.0.4', '1.0.5'],
   );
   assert.deepEqual(walkTagsBetween(from, from, catalog), []);
+});
+
+test('relateLocalToLatest is ahead, equal, or behind', () => {
+  const local = parseReleaseTag('0.0.3')!;
+  const published = parseReleaseTag('0.0.2')!;
+  assert.equal(relateLocalToLatest(local, published), 'ahead');
+  assert.equal(relateLocalToLatest(published, published), 'equal');
+  assert.equal(relateLocalToLatest(published, local), 'behind');
 });
 
 test('assertReleaseIdSequence forbids holes', () => {

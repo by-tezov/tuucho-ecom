@@ -2,13 +2,16 @@
 
 PostgreSQL, `node-pg-migrate` migrations under `src/db/migrations/`, applied
 via `POST /operation/database-migrate` (see README). A fresh database is
-created by `1738000000000_init.js` (tables, constraints, indexes, triggers,
-and the FR/BE / `user`+`admin` / `home` / loyalty-settings /
-payment-method-countries / gift-settings / loyalty+compose-enabled seeds),
-squashed to the final schema as a first deployment (see
-[migration-history.md](./migration-history.md)). Later timestamped migrations
-only appear when a new schema change lands after this file. To wipe a non-prod (or unlocked-prod) DB and re-apply from
-scratch: `POST /operation/database-reset` then `database-migrate` (see
+created by the single kernel baseline `1738000000000_init.js` (tables,
+constraints, indexes, triggers, sealed `plugins.secrets`, and the FR/BE /
+`user`+`super-admin`+staff-role / `home` / loyalty-settings /
+payment-method-countries / gift-settings / loyalty+compose-enabled /
+permissions seeds). Plugin tables (`plugin_<id>_…`) are not in that file —
+each plugin that has SQL ships one baseline under `back/migrations/`. Later
+timestamped kernel migrations only appear when a new schema change lands
+after this reset (see [migration-history.md](./migration-history.md)). To
+wipe a non-prod (or unlocked-prod) DB and re-apply from scratch:
+`POST /operation/database-reset` then `database-migrate` (see
 [api](../api/README.md) / [command](../command/README.md)). This documentation
 describes the result of the **current** schema, not any one historical
 migration file. Update it by hand whenever a new migration lands.

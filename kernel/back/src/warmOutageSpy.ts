@@ -13,6 +13,8 @@
 import nodemailer from 'nodemailer';
 import './config/env.js';
 import { config } from './config/env.js';
+import { listPlugins } from './modules/plugins/application/pluginStore.js';
+import { pluginSettingBool } from './modules/plugins/application/pluginSettingValues.js';
 import { renderEmailTemplate } from './modules/messaging/application/emailTemplates.js';
 import { liveOrCachedOutageSpyTo } from './modules/messaging/application/spyChannels.js';
 
@@ -133,8 +135,9 @@ function buildMessage(args: ReturnType<typeof parseArgs>): {
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  if (config.disableSpyEmail) {
-    console.log('[warm-outage-spy] skipped: DISABLE_SPY_EMAIL=true');
+  await listPlugins();
+  if (pluginSettingBool('tuucho-mail-spy', 'disableEmail')) {
+    console.log('[warm-outage-spy] skipped: spy email disabled');
     return;
   }
   const to = await liveOrCachedOutageSpyTo(args.kind);

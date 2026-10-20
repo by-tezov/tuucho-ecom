@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import type pg from 'pg';
 import { config } from '../../../config/env.js';
+import { signInProviderSecret } from '../../identity/application/signInProviderSettings.js';
 import { pool } from '../../../db/pool.js';
 import {
   clearFacebookUserId,
@@ -42,7 +43,7 @@ function base64UrlToBuffer(value: string): Buffer {
 
 /** Verifies Meta's `signed_request` (HMAC-SHA256) and returns the Facebook user id. */
 function parseFacebookSignedRequest(signedRequest: string): string | undefined {
-  const secret = config.facebook.appSecret;
+  const secret = signInProviderSecret('facebook', 'appSecret');
   if (!secret || !signedRequest.includes('.')) return undefined;
   const [encodedSig, encodedPayload] = signedRequest.split('.', 2);
   if (!encodedSig || !encodedPayload) return undefined;

@@ -2,9 +2,11 @@
 
 PostgreSQL schema for kernel/back. Root [`SCHEMA.md`](../../SCHEMA.md) links here.
 
-Migrations live under `src/db/migrations/` and are applied via
-`POST /operation/database-migrate`. This documentation describes the
-**current** schema result, not any single migration file.
+Kernel schema is the single baseline `src/db/migrations/1738000000000_init.js`,
+applied via `POST /operation/database-migrate`. Plugin-owned tables live in
+that plugin's one `back/migrations/` file, never in the kernel baseline.
+This documentation describes the **current** schema result. New work after
+this reset is a new timestamped migration again.
 
 **To learn what a table holds, run `npm run table -- <name>`**, not a search
 through these sections. It prints columns, types, keys, indexes and the files

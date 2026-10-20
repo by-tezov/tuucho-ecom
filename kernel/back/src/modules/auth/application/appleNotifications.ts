@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type pg from 'pg';
-import { config } from '../../../config/env.js';
+import { signInProviderSetting } from '../../identity/application/signInProviderSettings.js';
 import { pool } from '../../../db/pool.js';
 import { isAppleSignInConfigured, verifyAppleJws } from '../../identity/application/appleAuth.js';
 import { clearAppleSub, findUserByAppleSub } from '../../identity/application/users.js';
@@ -14,8 +14,8 @@ type AppleS2sEvent = {
 };
 
 function audiencesForS2s(): string[] {
-  const list = [config.apple.clientId, config.apple.s2sAudience].filter((value): value is string =>
-    Boolean(value && value.trim()),
+  const list = [signInProviderSetting('apple', 'clientId'), signInProviderSetting('apple', 's2sAudience')].filter(
+    (value): value is string => Boolean(value && value.trim()),
   );
   return [...new Set(list.map((value) => value.trim()))];
 }

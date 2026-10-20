@@ -1,13 +1,21 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useId, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Seo } from '../components/seo/Seo';
 import { Button } from '../components/ui/Button';
+import { ColorField } from '../components/ui/ColorField';
+import { Field } from '../components/ui/Field';
+import { FormSection } from '../components/ui/FormSection';
+import { SecretField } from '../components/ui/SecretField';
+import { SelectField } from '../components/ui/SelectField';
+import { TextareaField } from '../components/ui/TextareaField';
+import { TextField } from '../components/ui/TextField';
 import { ToggleSwitch } from '../components/ui/ToggleSwitch';
 import { AdminDetailBar } from '../components/admin/AdminDetailBar';
 import { useAuthSession } from '../state/AuthContext';
 import { useAdminStrings } from '../assets/i18n/admin';
 import { pluginConfigureElement } from '../plugins/PluginHost';
 import { pluginHasConfigure } from './pluginConfigure';
+import { groupSettingsFields, settingFieldKeys, type SettingsFieldSpec } from './pluginSettingsForm';
 import {
   getAdminPlugin,
   getAdminStore,
@@ -104,9 +112,7 @@ export function AdminPluginConfigurePage() {
       {notice ? <p className={styles.notice}>{notice}</p> : null}
       {error ? <p className={styles.error}>{error}</p> : null}
 
-      {frontConfigure ? (
-        <Suspense fallback={<p className={styles.hint}>{w.loadError}</p>}>{frontConfigure}</Suspense>
-      ) : plugin.manifest.kind === 'theme' ? (
+      {plugin.manifest.kind === 'theme' ? (
         <ThemeForm
           labels={w}
           tokens={themeTokens}
@@ -117,11 +123,16 @@ export function AdminPluginConfigurePage() {
           onSave={() => void save((token) => patchAdminStore(token, { theme: { tokens: themeTokens } }))}
         />
       ) : (
-        <SettingsForm
-          labels={w}
-          plugin={plugin}
-          onSave={(settings) => void save((token) => patchAdminPlugin(token, plugin.id, { settings }))}
-        />
+        <>
+          <SettingsForm
+            labels={w}
+            plugin={plugin}
+            onSave={(settings) => void save((token) => patchAdminPlugin(token, plugin.id, { settings }))}
+          />
+          {frontConfigure ? (
+            <Suspense fallback={<p className={styles.hint}>{w.loadError}</p>}>{frontConfigure}</Suspense>
+          ) : null}
+        </>
       )}
     </div>
   );
@@ -144,43 +155,24 @@ function ThemeForm({
     ['--color-ink', labels.ink],
   ] as const;
   return (
-    <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>{labels.tabTheme}</h2>
-      <p className={styles.hint}>{labels.themeIntro}</p>
-      <div className={styles.formGrid}>
-        {fields.map(([token, label]) => {
-          const value = toColorInput(tokens[token] ?? DEFAULT_THEME_TOKENS[token] ?? '#121212');
-          return (
-            <label key={token} className={styles.field}>
-              <span className={styles.fieldLabel}>{label}</span>
-              <div className={styles.colorRow}>
-                <input
-                  type="color"
-                  value={value}
-                  aria-label={label}
-                  onChange={(event) => onChange({ ...tokens, [token]: event.target.value })}
-                />
-                <input
-                  type="text"
-                  value={value}
-                  spellCheck={false}
-                  aria-label={labels.hex}
-                  onChange={(event) => {
-                    const next = event.target.value.trim();
-                    if (/^#[0-9a-fA-F]{0,6}$/.test(next)) onChange({ ...tokens, [token]: next });
-                  }}
-                />
-              </div>
-            </label>
-          );
-        })}
-      </div>
+    <>
+      <FormSection title={labels.tabTheme} description={labels.themeIntro}>
+        {fields.map(([token, label]) => (
+          <ColorField
+            key={token}
+            label={label}
+            value={tokens[token] ?? DEFAULT_THEME_TOKENS[token] ?? '#121212'}
+            hexLabel={labels.hex}
+            onChange={(next) => onChange({ ...tokens, [token]: next })}
+          />
+        ))}
+      </FormSection>
       <div className={styles.toolbar}>
         <Button type="button" onClick={onSave}>
           {labels.saveAction}
         </Button>
       </div>
-    </section>
+    </>
   );
 }
 
@@ -194,69 +186,163 @@ function SettingsForm({
   onSave: (settings: Record<string, unknown>) => void;
 }) {
   const schema = plugin.manifest.settingsSchema ?? {};
-  const keys = Object.keys(schema).length > 0 ? Object.keys(schema) : Object.keys(plugin.settings ?? {});
+  const keys = settingFieldKeys(plugin);
   const [draft, setDraft] = useState<Record<string, unknown>>(plugin.settings ?? {});
+  const [secretDraft, setSecretDraft] = useState<Record<string, string>>({});
   useEffect(() => {
     setDraft(plugin.settings ?? {});
+    setSecretDraft({});
   }, [plugin]);
   if (keys.length === 0) return null;
+  const groups = groupSettingsFields(keys, schema, labels.settings);
+
+  function commit() {
+    const payload: Record<string, unknown> = { ...draft };
+    for (const key of keys) {
+      if (schema[key]?.type !== 'secret') continue;
+      const next = secretDraft[key]?.trim() ?? '';
+      if (next) payload[key] = next;
+      else delete payload[key];
+    }
+    onSave(payload);
+  }
+
   return (
-    <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>{labels.settings}</h2>
-      <div className={styles.formGrid}>
-        {keys.map((key) => {
-          const spec = schema[key];
-          const label = spec?.label ?? key;
-          const value = draft[key];
-          if (spec?.type === 'boolean' || typeof value === 'boolean') {
-            return (
-              <div key={key} className={styles.toggle}>
-                <span className={styles.toggleLabel}>{label}</span>
-                <ToggleSwitch
-                  checked={Boolean(value)}
-                  aria-label={label}
-                  onChange={(checked) => setDraft({ ...draft, [key]: checked })}
-                />
-              </div>
-            );
-          }
-          if (spec?.type === 'number' || typeof value === 'number') {
-            return (
-              <label key={key} className={styles.field}>
-                <span className={styles.fieldLabel}>{label}</span>
-                <input
-                  type="number"
-                  value={typeof value === 'number' ? value : Number(value) || 0}
-                  onChange={(event) => setDraft({ ...draft, [key]: Number(event.target.value) })}
-                />
-              </label>
-            );
-          }
-          const rows = spec?.type === 'text' || key === 'body' ? 6 : 2;
-          return (
-            <label key={key} className={styles.field}>
-              <span className={styles.fieldLabel}>{label}</span>
-              <textarea
-                rows={rows}
-                value={String(value ?? '')}
-                onChange={(event) => setDraft({ ...draft, [key]: event.target.value })}
-              />
-            </label>
-          );
-        })}
-      </div>
+    <>
+      {groups.map((group) => (
+        <FormSection key={group.id || 'settings'} title={group.title} description={group.description}>
+          {group.keys.map((key) => (
+            <SettingControl
+              key={key}
+              fieldKey={key}
+              spec={schema[key]}
+              value={draft[key]}
+              secretValue={secretDraft[key] ?? ''}
+              secretIsSet={plugin.secretKeys?.includes(key) === true}
+              labels={labels}
+              onChange={(next) => setDraft({ ...draft, [key]: next })}
+              onSecretChange={(next) => setSecretDraft({ ...secretDraft, [key]: next })}
+            />
+          ))}
+        </FormSection>
+      ))}
       <div className={styles.toolbar}>
-        <Button type="button" onClick={() => onSave(draft)}>
+        <Button type="button" onClick={commit}>
           {labels.saveAction}
         </Button>
       </div>
-    </section>
+    </>
   );
 }
 
-function toColorInput(value: string): string {
-  if (/^#[0-9a-fA-F]{6}$/.test(value)) return value;
-  return '#121212';
+function SettingControl({
+  fieldKey,
+  spec,
+  value,
+  secretValue,
+  secretIsSet,
+  labels,
+  onChange,
+  onSecretChange,
+}: {
+  fieldKey: string;
+  spec: SettingsFieldSpec | undefined;
+  value: unknown;
+  secretValue: string;
+  secretIsSet: boolean;
+  labels: ReturnType<typeof useAdminStrings>['whiteLabel'];
+  onChange: (value: unknown) => void;
+  onSecretChange: (value: string) => void;
+}) {
+  const id = `${useId()}-${fieldKey}`;
+  const label = spec?.label?.trim() || fieldKey;
+  const description = spec?.description?.trim() || undefined;
+  const describedBy = description ? `${id}-hint` : undefined;
+  const type = spec?.type;
+
+  if (type === 'boolean' || (type == null && typeof value === 'boolean')) {
+    return (
+      <Field label={label} description={description} layout="inline">
+        <ToggleSwitch
+          checked={Boolean(value)}
+          aria-label={label}
+          onChange={(checked) => onChange(checked)}
+        />
+      </Field>
+    );
+  }
+
+  if (type === 'secret') {
+    return (
+      <SecretField
+        label={label}
+        description={description}
+        isSet={secretIsSet}
+        value={secretValue}
+        onChange={onSecretChange}
+        long={spec?.long === true}
+        setLabel={labels.secretSet}
+        notSetLabel={labels.secretNotSet}
+        placeholder={spec?.placeholder ?? labels.secretReplacePlaceholder}
+      />
+    );
+  }
+
+  if (type === 'number' || (type == null && typeof value === 'number')) {
+    return (
+      <Field label={label} description={description} htmlFor={id}>
+        <TextField
+          id={id}
+          type="number"
+          value={typeof value === 'number' || typeof value === 'string' ? String(value) : '0'}
+          onChange={(next) => onChange(next === '' ? 0 : Number(next))}
+          aria-describedby={describedBy}
+        />
+      </Field>
+    );
+  }
+
+  if (spec?.options && spec.options.length > 0) {
+    return (
+      <SelectField
+        label={label}
+        description={description}
+        options={spec.options}
+        value={String(value ?? spec.options[0]?.value ?? '')}
+        onChange={onChange}
+      />
+    );
+  }
+
+  if (type === 'text') {
+    return (
+      <Field label={label} description={description} htmlFor={id}>
+        <TextareaField
+          id={id}
+          value={String(value ?? '')}
+          onChange={onChange}
+          placeholder={spec?.placeholder}
+          size="compact"
+          aria-describedby={describedBy}
+        />
+      </Field>
+    );
+  }
+
+  const inputType = type === 'url' ? 'url' : type === 'email' ? 'email' : 'text';
+  return (
+    <Field label={label} description={description} htmlFor={id}>
+      <TextField
+        id={id}
+        type={inputType}
+        value={String(value ?? '')}
+        onChange={onChange}
+        placeholder={spec?.placeholder}
+        spellCheck={false}
+        aria-describedby={describedBy}
+      />
+    </Field>
+  );
 }
 
 function applyThemeTokens(tokens: Record<string, string>): void {

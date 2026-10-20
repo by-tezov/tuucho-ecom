@@ -1,8 +1,7 @@
 .idea/
 output/
 node_modules/
-.env/.private.env
-.env/*/.private.env
+.env/
 .env/**/AuthKey_*.p8
 .env/**/*.p8
 dist/

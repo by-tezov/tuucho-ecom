@@ -8,7 +8,14 @@ import { assertUserPluginStaging } from '../../../../../../src/modules/plugins/a
 test('user plugin tag root must be a package, not a nested shop tree', async () => {
   const staging = await mkdtemp(join(tmpdir(), 'tuucho-user-tag-'));
   await mkdir(join(staging, 'back'), { recursive: true });
-  await writeFile(join(staging, 'plugin.json'), '{"id":"gift-wrap"}');
+  await writeFile(
+    join(staging, 'package.json'),
+    JSON.stringify({
+      name: '@tuucho/plugin-gift-wrap',
+      version: '1.0.0',
+      tuucho: { id: 'gift-wrap', kind: 'generic', installPath: 'plugins/user/gift/gift-wrap' },
+    }),
+  );
   await writeFile(join(staging, 'back/register.ts'), 'export {}');
   await assertUserPluginStaging(staging);
 

@@ -15,6 +15,7 @@ description: >-
 - If the needed opening does not exist, stop. Tell the user. Do not invent a kernel patch from this skill.
 - Match existing bundled plugins of the same kind (copy structure, not kernel code).
 - Current branch only; no extra git branch; no PR unless asked.
+- Plugin keys go on that plugin’s `settingsSchema` (public) or `type: "secret"` (secret store), never kernel JSON.
 
 ## Contract
 

@@ -1,8 +1,8 @@
 import { mkdir, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { CORE_VERSION } from '../domain/coreVersion.js';
+import { CORE_VERSION } from '../../../config/appVersion.js';
 import { assessPluginCompatibility } from './pluginCompatibility.js';
-import { resolvePluginDescription } from './discoverPlugins.js';
+import { readPluginPackageFields, resolvePluginDescription } from './discoverPlugins.js';
 import {
   PluginArchiveError,
   extractPluginArchive,
@@ -24,39 +24,42 @@ export type InstalledArchive =
   | { ok: false; error: string; message: string };
 
 function parseManifest(files: ArchiveFile[]): PluginManifest {
-  const manifestFile = files.find((file) => file.path === 'plugin.json');
-  if (!manifestFile) throw new PluginArchiveError('missing_manifest', 'Archive has no plugin.json.');
+  const manifestFile = files.find((file) => file.path === 'package.json');
+  if (!manifestFile) throw new PluginArchiveError('missing_manifest', 'Archive has no package.json.');
   let raw: unknown;
   try {
     raw = JSON.parse(Buffer.from(manifestFile.data).toString('utf8'));
   } catch {
-    throw new PluginArchiveError('invalid_manifest', 'plugin.json is not valid JSON.');
+    throw new PluginArchiveError('invalid_manifest', 'package.json is not valid JSON.');
   }
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new PluginArchiveError('invalid_manifest', 'plugin.json must be an object.');
+  const pkg = readPluginPackageFields(raw);
+  if (!pkg) {
+    throw new PluginArchiveError(
+      'invalid_manifest',
+      'package.json must contain a tuucho object (id, kind, installPath, engines.core).',
+    );
   }
-  const body = raw as Record<string, unknown>;
-  const id = typeof body.id === 'string' ? body.id : '';
-  if (!PLUGIN_ID_RE.test(id)) {
-    throw new PluginArchiveError('invalid_manifest', 'plugin.json id must match [a-z0-9-]+.');
+  if (!PLUGIN_ID_RE.test(pkg.id)) {
+    throw new PluginArchiveError('invalid_manifest', 'tuucho.id must match [a-z0-9-]+.');
   }
   if (!files.some((file) => file.path === 'back/register.ts' || file.path === 'back/register.js')) {
     throw new PluginArchiveError('invalid_manifest', 'Archive needs back/register.ts.');
   }
-  const kind = (typeof body.kind === 'string' ? body.kind : 'generic') as PluginManifest['kind'];
-  const description = resolvePluginDescription(id, kind, body.description);
+  const kind = (typeof pkg.tuucho.kind === 'string' ? pkg.tuucho.kind : 'generic') as PluginManifest['kind'];
+  const description = resolvePluginDescription(pkg.id, kind, pkg.description);
   if (description === undefined) {
-    throw new PluginArchiveError('invalid_manifest', 'plugin.json description is required.');
+    throw new PluginArchiveError('invalid_manifest', 'package.json description is required.');
   }
-  const installPath = normalizePreferredInstallPath(id, body.installPath);
+  const installPath = normalizePreferredInstallPath(pkg.id, pkg.tuucho.installPath);
+  const enginesRaw = pkg.tuucho.engines;
   return {
-    id,
-    name: typeof body.name === 'string' ? body.name : id,
-    version: typeof body.version === 'string' ? body.version : '1.0.0',
+    id: pkg.id,
+    name: typeof pkg.tuucho.name === 'string' ? pkg.tuucho.name : pkg.id,
+    version: pkg.version,
     kind,
     description,
-    engines: body.engines && typeof body.engines === 'object' ? (body.engines as PluginManifest['engines']) : undefined,
-    defaultEnabled: body.defaultEnabled !== false,
+    engines: enginesRaw && typeof enginesRaw === 'object' ? (enginesRaw as PluginManifest['engines']) : undefined,
+    defaultEnabled: pkg.tuucho.defaultEnabled !== false,
     installPath,
   };
 }

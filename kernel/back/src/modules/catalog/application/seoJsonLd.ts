@@ -1,5 +1,6 @@
 import { applyFilters } from '../../plugins/application/hooks.js';
 import { config } from '../../../config/env.js';
+import { peekStoreIdentity } from '../../plugins/application/storeSettings.js';
 import { isPublicSeoTarget, PRIVATE_SEO_ROBOTS, PUBLIC_SEO_ROBOTS } from '../../../config/publicSeo.js';
 
 export type ProductSeoFields = {
@@ -39,7 +40,7 @@ export function productJsonLdGraph(product: ProductSeoFields): Record<string, un
 export function organizationJsonLd(): Record<string, unknown> {
   return {
     '@type': 'Organization',
-    name: config.company.name,
+    name: peekStoreIdentity().name,
     url: config.frontendBaseUrl,
   };
 }

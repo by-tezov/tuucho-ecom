@@ -31,10 +31,9 @@ const migrationsDir = join(moduleDir, '..', '..', '..', 'db', 'migrations');
  * runs on shared hosting. */
 const DEFAULT_BACKUP_KEEP = 3;
 
-/** Running release version from `package.json` via `applicationRoot` (not a
- * relative walk from this module — compiled `api/` is one level shallower than
- * `src/api/`, which is what produced `vunknown` on LWS). Recorded in every
- * archive; reported, never enforced, at restore. */
+/** Running release version from root `package.json` (or the dist copy that
+ * build injects). Recorded in every archive; reported, never enforced, at
+ * restore. */
 function backupContext(): BackupContext {
   return { pool, databaseUrl: config.databaseUrl, migrationsDir, appVersion: packageVersion };
 }

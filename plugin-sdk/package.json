@@ -1,6 +1,5 @@
 {
   "name": "@tuucho/plugin-sdk",
-  "version": "0.0.2",
   "private": true,
   "type": "module",
   "description": "Typed plugin SDK for the tuucho-ecom kernel: hooks, contracts, shells.",

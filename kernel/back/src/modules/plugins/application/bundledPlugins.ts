@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { CORE_VERSION } from '../domain/coreVersion.js';
+import { CORE_VERSION } from '../../../config/appVersion.js';
 import { repoRoot } from './discoverPlugins.js';
 
 export type BundledPluginEntry = {

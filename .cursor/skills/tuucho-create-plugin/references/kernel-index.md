@@ -78,7 +78,7 @@ Sources: `CORE_OPENING_FILTERS` and shells in `plugin-sdk`,
 | `registerPaymentGateway` / payment-method shell | shell | tuucho-plugin-payment |
 | `registerShippingMethod` / courier shell / `courierCodes` | shell | tuucho-plugin-shipping |
 | `registerEmailCatalog` / `locales[]` overlay | locale | tuucho-plugin-locale |
-| `plugin.json` `route` + `nav` | page | tuucho-plugin-page |
+| `package.json` `tuucho.route` + `nav` | page | tuucho-plugin-page |
 | `provides: ["AdminPage"]` / `adminNav` / `settingsSchema` | admin | tuucho-plugin-admin |
 | Theme tokens / `ThemeContract` / `tuucho-theme-default` Configure | admin | tuucho-plugin-admin |
 | `KERNEL_UI` / `pluginFront.ui` use, extend, override | ui | tuucho-plugin-ui |

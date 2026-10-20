@@ -5,8 +5,8 @@
  *   npm run payment-method -- enable|disable <card|paypal|bancontact|google-pay|apple-pay|all>
  *     [--json] --dev|--preprod|--prod
  *
- * `seed` applies the PAYMENT_METHOD_*_ENABLED defaults from `.env/.seed.env`
- * (with the normal target-specific public-env overlay). It intentionally
+ * `seed` applies the PAYMENT_METHOD_*_ENABLED defaults from
+ * `sample/seed-defaults.env`. It intentionally
  * updates only those shop-wide database preferences; individual customer
  * wallet preferences and Stripe Dashboard eligibility stay untouched.
  */
@@ -49,7 +49,7 @@ const fail: (message: string) => never = makeFail(program, 'payment-method');
 function envBoolean(env: Record<string, string>, key: string): boolean {
   const raw = env[key]?.trim();
   if (raw !== 'true' && raw !== 'false') {
-    fail(`${key} must be true or false in .env/.seed.env, got ${JSON.stringify(raw ?? '')}`);
+    fail(`${key} must be true or false in sample/seed-defaults.env, got ${JSON.stringify(raw ?? '')}`);
   }
   return raw === 'true';
 }
@@ -199,7 +199,7 @@ addCommonOptions(program.command('check'))
   );
 
 addConfirmOption(addCommonOptions(program.command('seed')))
-  .description('Apply PAYMENT_METHOD_*_ENABLED defaults from .env/.seed.env.')
+  .description('Apply PAYMENT_METHOD_*_ENABLED defaults from sample/seed-defaults.env.')
   .action((opts: CommonModeOpts) =>
     runAction(() => {
       requireConfirmForProdWrite(opts.mode, opts.confirm, fail, 'seed');

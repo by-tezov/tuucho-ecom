@@ -184,9 +184,9 @@ async function runSetStatus(
 async function runMain(args: Args): Promise<void> {
   const { command, statuses, publicId, nextStatus, reason, json, mode } = args;
   const apiBaseUrl = loadApiBaseUrl(root, mode);
-  if (!apiBaseUrl) fail(`URL_API_BASE not found in .env/.public.env or .env/${mode}/.public.env`);
+  if (!apiBaseUrl) fail(`URL_API_BASE not found in kernel JSON for ${mode} (http.apiBaseUrl).`);
   const opsToken = loadOpsToken(root, mode);
-  if (!opsToken) fail(`OPS_TOKEN not found in .env/.private.env or .env/${mode}/.private.env`);
+  if (!opsToken) fail(`OPS_TOKEN not found in kernel private JSON for ${mode} (ops.token).`);
 
   log(json, `[product-request] command=${command} mode=${mode} api=${apiBaseUrl}`);
   if (command === 'list') {

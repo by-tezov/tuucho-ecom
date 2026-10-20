@@ -9,7 +9,7 @@
           "type": "callout",
           "tone": "info",
           "title": "Page plugin",
-          "text": "plugin.json kind page, route /home. While enabled, the kernel puts the route on the shop menu (nav.key / order). Disable and the URL and menu entry go away. React for home, about, legal, and sizes lives in the kernel; this package is the enablement and SEO listing."
+          "text": "package.json tuucho.kind page, route /home. This plugin mounts the home React page. While enabled, the kernel puts the route on the shop menu (nav.key / order). Disable and the URL and menu entry go away."
         },
         {
           "type": "defs",

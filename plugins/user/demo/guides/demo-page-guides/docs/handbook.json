@@ -10,7 +10,7 @@
           "items": [
             {
               "term": "/sizes",
-              "description": "Page-plugin route. Menu key from plugin.json nav. Listed in the sitemap while Sitemap pages is on."
+              "description": "Page-plugin route. Menu key from package.json tuucho.nav. Listed in the sitemap while Sitemap pages is on."
             },
             {
               "term": "/pose, /capsules",

@@ -33,7 +33,7 @@ async function main(): Promise<void> {
   }
   const json = Boolean(opts.json);
   const apiBaseUrl = loadApiBaseUrl(root, mode);
-  if (!apiBaseUrl) fail(`URL_API_BASE not found in .env/.public.env or .env/${mode}/.public.env`);
+  if (!apiBaseUrl) fail(`URL_API_BASE not found in kernel JSON for ${mode} (http.apiBaseUrl).`);
 
   const startedAt = Date.now();
   try {

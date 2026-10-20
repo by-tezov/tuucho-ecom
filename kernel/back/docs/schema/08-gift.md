@@ -6,7 +6,7 @@ Two-person gift promises. Julie’s confirm is a stock hold, not an
 Cron: [cron/README.md](../cron/README.md).
 
 New offers are always accepted. TTLs, ceilings, PIN knobs, and purge age come
-from `.env/.public.env` (`GIFT_*`). Changing them needs a process restart.
+from tuucho-commerce-gift plugin settings.
 
 ## `gift_settings`
 

@@ -23,9 +23,9 @@
 #
 # How it runs:
 #   1. Reads PRIVATE_DIR and PRIVATE_LOG_CRON_GIFT_FILE
-#      from the release's public env files and resolves the jsonl path
-#      inside PRIVATE_DIR (rejects any '..'). Reads OPS_TOKEN from the
-#      release private env (prod file, else the shared file). The token is
+#      from kernel JSON (`config/`) and resolves the jsonl path
+#      inside PRIVATE_DIR (rejects any '..'). Reads OPS_TOKEN from kernel
+#      private JSON (`ops.token`). The token is
 #      sent as a Bearer header and is never written to the journal.
 #   2. Starts a throwaway opsServer.js (APP_TARGET=prod) on a random loopback
 #      port 40000-49999 with the cPanel Node runtime, and waits up to 30s for
@@ -42,7 +42,7 @@
 # Install: `deploy --prod` copies this file to
 #   ~/bin/main-cron-gift.sh
 # substitutes the active release path below, and adds the crontab entry
-# only when ENABLED_CRON_GIFT=true in prod/.lws.env.
+# on every production deploy (plugin enable still gates gift/loyalty work).
 # Preproduction never installs it.
 #
 # Manual run: ssh lws_shop_example '$HOME/bin/main-cron-gift.sh'
@@ -51,50 +51,10 @@
 set -euo pipefail
 
 release_dir='__TUCHO_RELEASE_DIR__'
-if [[ ! -d "$release_dir/.env" ]]; then
+if [[ ! -d "$release_dir/config" ]]; then
   printf 'Gift release path was not installed.\n' >&2
   exit 1
 fi
-
-read_env_value() {
-  local file="$1"
-  local key="$2"
-  if [[ ! -r "$file" ]]; then
-    printf 'Missing deployment environment file: %s\n' "$file" >&2
-    exit 1
-  fi
-  local value
-  value="$(awk -v key="$key" '
-    index($0, key "=") == 1 {
-      value = substr($0, length(key) + 2)
-      sub(/\r$/, "", value)
-      if ((value ~ /^".*"$/) || (value ~ /^\047.*\047$/)) value = substr(value, 2, length(value) - 2)
-      print value
-      exit
-    }
-  ' "$file")"
-  printf '%s' "$value"
-}
-
-private_dir="$(read_env_value "$release_dir/.env/.public.env" PRIVATE_DIR)"
-target_private_dir="$(read_env_value "$release_dir/.env/prod/.public.env" PRIVATE_DIR)"
-cron_log_file="$(read_env_value "$release_dir/.env/.public.env" PRIVATE_LOG_CRON_GIFT_FILE)"
-private_dir="${target_private_dir:-$private_dir}"
-
-: "${private_dir:?PRIVATE_DIR is missing from the release environment}"
-: "${cron_log_file:?PRIVATE_LOG_CRON_GIFT_FILE is missing from the release environment}"
-
-cron_log_relative="${cron_log_file#/}"
-if [[ -z "$cron_log_relative" || "$cron_log_relative" == *'..'* ]]; then
-  printf 'PRIVATE_LOG_CRON_GIFT_FILE must stay within PRIVATE_DIR.\n' >&2
-  exit 1
-fi
-cron_log_path="${private_dir%/}/$cron_log_relative"
-mkdir -p "$(dirname "$cron_log_path")"
-
-append_json() {
-  printf '%s\n' "$1" >>"$cron_log_path"
-}
 
 node_runtime=''
 for candidate in "$HOME"/nodevenv/private_html/prod/current/*/bin/node; do
@@ -102,14 +62,27 @@ for candidate in "$HOME"/nodevenv/private_html/prod/current/*/bin/node; do
 done
 : "${node_runtime:?cPanel Node runtime is missing}"
 
-read_env_value_optional() {
-  local file="$1"
-  local key="$2"
-  if [[ ! -r "$file" ]]; then
-    printf ''
-    return 0
-  fi
-  read_env_value "$file" "$key"
+read_release() {
+  APP_TARGET=prod TUCHO_RELEASE_DIR="$release_dir" "$node_runtime" "$release_dir/readReleaseConfig.cjs" "$@"
+}
+
+private_dir="$(read_release paths.privateDir)"
+cron_log_file="$(read_release --plugin tuucho-commerce-gift cronLog)"
+cron_log_file="${cron_log_file:-/log/cron-gift.jsonl}"
+
+: "${private_dir:?paths.privateDir is missing from kernel JSON}"
+: "${cron_log_file:?tuucho-commerce-gift.cronLog is missing from kernel JSON/plugin settings}"
+
+cron_log_relative="${cron_log_file#/}"
+if [[ -z "$cron_log_relative" || "$cron_log_relative" == *'..'* ]]; then
+  printf '%s must stay within PRIVATE_DIR.\n' 'tuucho-commerce-gift.cronLog' >&2
+  exit 1
+fi
+cron_log_path="${private_dir%/}/$cron_log_relative"
+mkdir -p "$(dirname "$cron_log_path")"
+
+append_json() {
+  printf '%s\n' "$1" >>"$cron_log_path"
 }
 
 # Fills at and event when the operations body omits them, so the journal
@@ -137,12 +110,7 @@ fs.appendFileSync(logPath, line.endsWith('\n') ? line : `${line}\n`);
 JS
 }
 
-ops_token="$(read_env_value_optional "$release_dir/.env/.private.env" OPS_TOKEN)"
-ops_token_overlay="$(read_env_value_optional "$release_dir/.env/prod/.private.env" OPS_TOKEN)"
-if [[ -n "$ops_token_overlay" ]]; then
-  ops_token="$ops_token_overlay"
-fi
-unset ops_token_overlay
+ops_token="$(read_release ops.token)"
 if [[ -z "$ops_token" || "$ops_token" == *$'\n'* || "$ops_token" == *'"'* || "$ops_token" == *\\* ]]; then
   append_json "$(printf '{"success":false,"error":"ops_token_missing","at":"%s"}' "$(date -u +%Y-%m-%dT%H:%M:%SZ)")"
   exit 1

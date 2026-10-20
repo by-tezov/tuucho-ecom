@@ -4,8 +4,8 @@
  * Usage:
  *   npm run backup-local -- --ssh|--ftp [--out <dir>]
  *
- * Writes `tuucho-<version>.zip` (version from kernel/back's package.json).
- * kernel/front and catalog source must match that version.
+ * Writes `tuucho-<version>.zip` (version from repo-root package.json).
+ * catalog source must match that version.
  * companion shop is included and is not version-locked.
  * Archive root is the `Pam/` folder (repos + `resources` and any other siblings).
  * Written to `Pam/backup/` by default; that folder is never zipped itself.
@@ -37,9 +37,9 @@ const PROJECTS = [
   'companion shop',
 ] as const;
 
-/** Release version is kernel/back. These siblings must carry the same
- * package.json version. companion shop is snapshotted and is not locked. */
-const VERSION_LOCKED = new Set<string>(['kernel/back', 'kernel/front', 'catalog source']);
+/** Product version is repo-root package.json. catalog source must match.
+ * companion shop is snapshotted and is not locked. */
+const VERSION_LOCKED = new Set<string>(['catalog source']);
 
 /** Directory basenames skipped anywhere under Pam. */
 const EXCLUDE_DIRS = ['node_modules', 'output', 'dist', '.idea'] as const;
@@ -109,6 +109,7 @@ function main(): void {
     fail(`expected workspace folder named Pam, got ${pamRoot}`);
   }
 
+  const version = readVersion(join(resolve(root, '../..'), 'package.json'));
   const versions = new Map<string, string>();
   for (const name of PROJECTS) {
     const projectRoot = join(pamRoot, name);
@@ -118,11 +119,10 @@ function main(): void {
     if (VERSION_LOCKED.has(name)) versions.set(name, readVersion(packageJsonPath));
   }
 
-  const version = versions.get('kernel/back')!;
   const mismatched = [...versions.entries()].filter(([, v]) => v !== version);
   if (mismatched.length > 0) {
     const detail = mismatched.map(([name, v]) => `${name}=${v}`).join(', ');
-    fail(`package versions must match kernel/back@${version}; got ${detail}`);
+    fail(`package versions must match root@${version}; got ${detail}`);
   }
 
   const outDir = resolve(opts.out ? opts.out : join(pamRoot, ZIP_DIR));

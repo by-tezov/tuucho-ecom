@@ -1,7 +1,7 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import { pool } from '@kernel/back/db/pool';
 import { optionalAuth } from '@kernel/back/middleware/optionalAuth';
-import { giftCreateRateLimiter } from '@kernel/back/middleware/rateLimiters';
+import { giftCreateRateLimiter } from './giftRateLimiters.js';
 import { requireAuth } from '@kernel/back/middleware/requireAuth';
 import { getGiftSettings } from '../infrastructure/giftSettingsRepo.js';
 import { maxPackedNailQuantity } from '../infrastructure/packedQuantity.js';

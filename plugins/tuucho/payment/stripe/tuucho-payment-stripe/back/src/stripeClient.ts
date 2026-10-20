@@ -1,7 +1,7 @@
 import type { PaymentMethod } from '@kernel/back/contract/checkout';
 import Stripe from 'stripe';
 import type pg from 'pg';
-import { config } from '@kernel/back/config/env';
+import { getPluginSecret } from '@tuucho/plugin-sdk';
 import { findUserById, setStripeCustomerId } from '@kernel/back/modules/identity/application/users';
 
 let stripeClient: Stripe | undefined;
@@ -9,10 +9,11 @@ let stripeClient: Stripe | undefined;
 /** Stripe SDK lives in this plugin. The kernel payment-method shell only
  * receives the client through `registerPaymentGateway({ getClient })`. */
 export function createStripeFromEnv(): Stripe | undefined {
-  if (config.stripe.secretKey === undefined) return undefined;
+  const secretKey = getPluginSecret('tuucho-payment-stripe', 'secretKey');
+  if (!secretKey) return undefined;
   if (!stripeClient) {
-    stripeClient = new Stripe(config.stripe.secretKey, {
-      timeout: config.stripe.timeoutMs,
+    stripeClient = new Stripe(secretKey, {
+      timeout: 12_000,
       maxNetworkRetries: 1,
     });
   }

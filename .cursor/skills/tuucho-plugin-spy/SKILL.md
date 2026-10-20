@@ -15,6 +15,7 @@ description: >-
 - Do not put channel ids in the spy plugin. The owner of the event `addFilter`s `mail.spy.channels`.
 - Role `user` (customers) never receives spy mail. Recipients are existing unlocked staff accounts only.
 - Current branch only; no extra git branch; no PR unless asked.
+- Plugin keys go on that plugin’s `settingsSchema` (public) or `type: "secret"` (secret store), never kernel JSON.
 
 ## Recipe
 

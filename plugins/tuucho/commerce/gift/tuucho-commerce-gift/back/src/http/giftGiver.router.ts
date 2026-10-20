@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { config } from '@kernel/back/config/env';
 import { pool } from '@kernel/back/db/pool';
+import { authRateLimiter } from '@kernel/back/middleware/rateLimiters';
 import {
-  authRateLimiter,
   giftPinRateLimiter,
   giftShareCardDownloadRateLimiter,
   giftShareCardEmailRateLimiter,
   giftShareCardUpdateRateLimiter,
-} from '@kernel/back/middleware/rateLimiters';
+} from './giftRateLimiters.js';
 import { optionalAuth } from '@kernel/back/middleware/optionalAuth';
 import { requireAuth } from '@kernel/back/middleware/requireAuth';
 import { accountCreatedSpyEmail, sendMail, spyTo } from '@kernel/back/modules/messaging/application/email';

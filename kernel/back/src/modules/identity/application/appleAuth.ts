@@ -1,6 +1,6 @@
 import { createHash, createPublicKey, timingSafeEqual, type KeyObject } from 'node:crypto';
 import jwt from 'jsonwebtoken';
-import { config } from '../../../config/env.js';
+import { signInProviderSetting } from './signInProviderSettings.js';
 
 export interface VerifiedAppleProfile {
   sub: string;
@@ -25,7 +25,7 @@ let jwksCache: { fetchedAt: number; keys: AppleJwk[] } | null = null;
 const JWKS_TTL_MS = 60 * 60 * 1000;
 
 export function isAppleSignInConfigured(): boolean {
-  return Boolean(config.apple.clientId);
+  return Boolean(signInProviderSetting('apple', 'clientId'));
 }
 
 async function loadAppleJwks(): Promise<AppleJwk[]> {
@@ -118,7 +118,7 @@ export async function verifyAppleIdentityToken(
   idToken: string,
   rawNonce: string,
 ): Promise<VerifiedAppleProfile> {
-  const clientId = config.apple.clientId;
+  const clientId = signInProviderSetting('apple', 'clientId');
   if (!clientId) {
     throw new Error('apple_sign_in_disabled');
   }

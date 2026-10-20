@@ -58,7 +58,7 @@
  *                    deletes DB-only sets/shapes/colors; `local` removes
  *                    manager-only set folders and vocabulary keys.
  *   --dev|--preprod|--prod  required, no default — picks which deployment to talk
- *                    to and which .env/<mode>/.private.env's OPS_TOKEN to
+ *                    to and which kernel private JSON OPS_TOKEN to
  *                    send.
  *   --source        defaults to catalog import tree/product/library relative
  *                    to this repo, i.e. assumes the repos are checked out as
@@ -2431,9 +2431,9 @@ async function runStockReport(
 
 async function runMain(args: Args | StockReportArgs): Promise<void> {
   const apiBaseUrl = loadApiBaseUrl(root, args.mode);
-  if (!apiBaseUrl) fail(`URL_API_BASE not found in .env/.public.env or .env/${args.mode}/.public.env`);
+  if (!apiBaseUrl) fail(`URL_API_BASE not found in kernel JSON for ${args.mode} (http.apiBaseUrl).`);
   const opsToken = loadOpsToken(root, args.mode);
-  if (!opsToken) fail(`OPS_TOKEN not found in .env/.private.env or .env/${args.mode}/.private.env`);
+  if (!opsToken) fail(`OPS_TOKEN not found in kernel private JSON for ${args.mode} (ops.token).`);
 
   if (args.command === 'stock-report') {
     log(args.json, `[library] command=stock-report mode=${args.mode} api=${apiBaseUrl}`);

@@ -1,7 +1,6 @@
 # Production crons
 
-Production backend deploys install marked crontab entries only when the
-matching `ENABLED_CRON_*` flag is `true` in `prod/.lws.env`. Each job always
+Production backend deploys always install marked crontab entries. Each job always
 **processes** when it runs; the admin preference `cron*LogEnabled` only
 controls whether the detailed HTTP result is written to / readable from the
 private jsonl log. Preproduction never installs these crons.
@@ -24,13 +23,13 @@ The administration Crons page lists these eight jobs and fetches
 operations CLI can clear it too.
 
 The API process drops lines whose `at` is older than `CRON_LOG_RETENTION`
-(`1y` in `.env/.public.env`, 365 days), about once a day and again at
+(`1y` in kernel `config/`, 365 days), about once a day and again at
 process start. The same sweep covers the administration journal file
 `PRIVATE_LOG_ACTIVITY_FILE`. A line with no `at` stays until a clear.
 
 Every job except keep-warm POSTs its `/operation/*` route with
-`Authorization: Bearer <OPS_TOKEN>`, read from the release private env
-(the target file, otherwise the shared file). The token is never written
+`Authorization: Bearer <OPS_TOKEN>`, read from kernel private JSON
+(`ops.token`). The token is never written
 to the journal. `/healthz` on that same process stays open: it is only a
 readiness probe, and a 200 there does not authorize the POST. A missing
 token is `ops_token_missing`. A rejected token is `ops_unauthorized`.
@@ -76,7 +75,7 @@ Order status meanings and the carrier walk sit in [Order lifecycle](../orders.md
 ## Shipment-tracking cron
 
 Production backend deployments install one cron job for Mondial Relay shipment
-tracking when `ENABLED_CRON_SHIPMENT=true` (deploy-time crontab install).
+tracking (installed on every production deploy).
 The job always processes tracking when it runs. The admin preference
 `cronShipmentLogEnabled` only controls whether the detailed result is written
 to / readable from the private cron log. Preproduction has no tracking cron.
@@ -197,7 +196,7 @@ npm run log -- clear --cron-guest-saved-cleanup --prod --confirm
 ## Loyalty wallet cron
 
 Production backend deployments install one daily cron when
-`ENABLED_CRON_LOYALTY=true` (deploy-time crontab install). Preproduction never
+installed on every production deploy. Preproduction never
 installs it.
 
 It runs daily at minute 17 of hour 6:
@@ -228,7 +227,7 @@ Manual ops endpoints `POST /operation/loyalty-expire` and
 ## Gift-offer cron
 
 Production backend deployments install one daily cron when
-`ENABLED_CRON_GIFT=true` (deploy-time crontab install). Preproduction never
+installed on every production deploy. Preproduction never
 installs it.
 
 It runs daily at minute 17 of hour 7:
@@ -340,7 +339,7 @@ npm run log -- clear --cron-warm --prod --confirm
 ## Gift-purge cron
 
 Production backend deployments install one daily cron when
-`ENABLED_CRON_GIFT_PURGE=true` (deploy-time crontab install). Preproduction
+installed on every production deploy. Preproduction
 never installs it.
 
 It runs daily at minute 17 of hour 8, an hour after the gift-offer cron so a
@@ -374,7 +373,7 @@ npm run log -- clear --cron-gift-purge --prod --confirm
 ## Payment-auth-expiry-spy cron
 
 Production backend deployments install one daily cron when
-`ENABLED_CRON_PAYMENT_AUTH_EXPIRY=true` (deploy-time crontab install).
+installed on every production deploy.
 Preproduction never installs it.
 
 It runs daily at minute 17 of hour 9:

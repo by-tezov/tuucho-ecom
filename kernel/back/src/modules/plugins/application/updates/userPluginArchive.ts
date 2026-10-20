@@ -1,11 +1,21 @@
-import { readdir, stat } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
+import { hasTuuchoDiscriminator } from '../discoverPlugins.js';
 
 /** Third-party tag trees must be a package root, never a nested shop tree. */
 export async function assertUserPluginStaging(staging: string): Promise<void> {
   const names = await readdir(staging);
-  if (!names.includes('plugin.json')) {
-    throw new Error('Tag archive is missing plugin.json at the package root.');
+  if (!names.includes('package.json')) {
+    throw new Error('Tag archive is missing package.json at the package root.');
+  }
+  let pkg: unknown;
+  try {
+    pkg = JSON.parse(await readFile(join(staging, 'package.json'), 'utf8')) as unknown;
+  } catch {
+    throw new Error('Tag archive package.json is not valid JSON.');
+  }
+  if (!hasTuuchoDiscriminator(pkg)) {
+    throw new Error('Tag archive package.json is missing the tuucho discriminator.');
   }
   const registerTs = await pathExists(join(staging, 'back/register.ts'));
   const registerJs = await pathExists(join(staging, 'back/register.js'));

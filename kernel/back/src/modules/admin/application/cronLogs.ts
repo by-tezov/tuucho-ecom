@@ -1,4 +1,5 @@
 import { config } from '../../../config/env.js';
+import { resolvePluginPrivatePath } from '../../plugins/application/pluginSettingValues.js';
 import { clearPrivateLog, readPrivateLogTail } from '../../../platform/http/apiLog.js';
 import type { AdminCronLogKind, AdminCronLogTail } from '../../../contract/admin/cronLogs.js';
 import {
@@ -46,17 +47,25 @@ const SOURCES: Record<AdminCronLogKind, CronLogSource> = {
     disabledCode: 'cron_guest_saved_cleanup_log_disabled',
   },
   loyalty: {
-    filePath: () => config.cronLoyaltyLogFilePath,
+    filePath: () =>
+      resolvePluginPrivatePath(config.privateDir, 'tuucho-commerce-loyalty', 'cronLog', '/log/cron-loyalty.jsonl'),
     enabled: isCronLoyaltyLogPreferenceEnabled,
     disabledCode: 'cron_loyalty_log_disabled',
   },
   gift: {
-    filePath: () => config.cronGiftLogFilePath,
+    filePath: () =>
+      resolvePluginPrivatePath(config.privateDir, 'tuucho-commerce-gift', 'cronLog', '/log/cron-gift.jsonl'),
     enabled: isCronGiftLogPreferenceEnabled,
     disabledCode: 'cron_gift_log_disabled',
   },
   'gift-purge': {
-    filePath: () => config.cronGiftPurgeLogFilePath,
+    filePath: () =>
+      resolvePluginPrivatePath(
+        config.privateDir,
+        'tuucho-commerce-gift',
+        'cronPurgeLog',
+        '/log/cron-gift-purge.jsonl',
+      ),
     enabled: isCronGiftPurgeLogPreferenceEnabled,
     disabledCode: 'cron_gift_purge_log_disabled',
   },

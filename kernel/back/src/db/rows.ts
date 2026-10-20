@@ -1088,6 +1088,7 @@ export interface PluginsRow {
   settings: unknown;
   updated_at: string;
   schema_version: string | null;
+  secrets: unknown;
 }
 
 /** `plugins_schema_migrations`, keyed by plugin_id, name. */

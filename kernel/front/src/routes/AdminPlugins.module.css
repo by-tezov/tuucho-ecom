@@ -60,6 +60,12 @@
   background: var(--color-bg-card);
 }
 
+.checkDialogPlan {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .updatePath {
   margin: 0;
   font-size: 0.875rem;

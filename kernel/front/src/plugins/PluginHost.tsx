@@ -41,7 +41,8 @@ export type PluginFrontModule = {
   locales?: PluginLocaleOverlay[];
   /** Use/extend/override kernel UI primitives. See `kernel/front/src/ui`. */
   ui?: PluginUiEntry[];
-  /** Plugins → Configure body at `/admin/plugins/:id` (not settingsSchema). */
+  /** Extra below the schema form on Plugins → Configure (`/admin/plugins/:id`).
+   * Composes with `settingsSchema`; does not replace it. */
   configure?: ReactNode;
 };
 

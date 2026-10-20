@@ -1,0 +1,58 @@
+{
+  "name": "@tuucho/plugin-tuucho-signin-facebook",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Facebook Login into the kernel sign-in shell. App id, OAuth return URL, and app secret live here.",
+  "tuucho": {
+    "id": "tuucho-signin-facebook",
+    "installPath": "plugins/tuucho/identity/facebook/tuucho-signin-facebook",
+    "name": "Facebook Login",
+    "kind": "generic",
+    "defaultEnabled": true,
+    "provides": [
+      "SignInProvider"
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "defaultSettings": {
+      "appId": "",
+      "oauthReturnUrl": "http://localhost:5174/auth/facebook-return",
+      "signupTokenTtl": "10m"
+    },
+    "settingsSchema": {
+      "appId": {
+        "type": "string",
+        "label": "Facebook app id",
+        "description": "Numeric App ID from Meta for Developers. Required before Facebook Login appears on the shop.",
+        "section": "app",
+        "sectionTitle": "Facebook app",
+        "sectionDescription": "Credentials from the Meta app. The kernel sign-in shell stays on Preferences; fill these to actually connect."
+      },
+      "appSecret": {
+        "type": "secret",
+        "label": "Facebook app secret",
+        "description": "App secret from Meta. Never shown after save. Type a new value only to replace it.",
+        "section": "app"
+      },
+      "oauthReturnUrl": {
+        "type": "url",
+        "label": "OAuth return URL",
+        "description": "Must match a Valid OAuth Redirect URI in the Meta app (this shop’s /auth/facebook-return). Wrong host = Facebook error.",
+        "section": "oauth",
+        "sectionTitle": "OAuth return",
+        "sectionDescription": "Where Facebook sends the browser after login, and how long a first-time signup token lives."
+      },
+      "signupTokenTtl": {
+        "type": "string",
+        "label": "Signup token TTL",
+        "description": "How long a first-time Facebook signup token stays valid (for example 10m). Raise only if customers need longer to finish.",
+        "section": "oauth"
+      }
+    }
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"
+  }
+}

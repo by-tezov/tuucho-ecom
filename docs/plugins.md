@@ -25,6 +25,10 @@ admin sidebar, above Accueil, with no group label. It is a small website
 | **Shipping method** | e.g. `tuucho-shipping-home`, registers courier codes into the courier shell |
 | **Complement** | Plugin with `dependsOn` (expedition cron complements shipping; `<id>-locale-fr` complements a parent) |
 | **Locale plugin** | `kind: locale`. Kernel UI is English. `tuucho-locale-fr` adds French. Each bundled plugin ships `<id>-locale-fr`. |
+| **Secret store** | `settingsSchema` field `type: "secret"` → `plugins.secrets`. Never kernel JSON, never bootstrap, never `VITE_*`. |
+
+Public plugin knobs go on that plugin’s `settingsSchema` / `plugins.settings`.
+Do not add `MONDIAL_*`, `STRIPE_*`, or `VITE_SHOP_*` to kernel JSON.
 
 ## Robots: API origin vs storefront origin
 
@@ -40,7 +44,7 @@ Inspect the assembled shop document at **Settings → SEO** or `GET /storefront/
 ## Where plugins live
 
 ```
-plugins/tuucho/<group>/<feature>/<id>/plugin.json   # bundled; id starts with tuucho-
+plugins/tuucho/<group>/<feature>/<id>/package.json  # bundled; tuucho.id starts with tuucho-
 plugins/tuucho/<group>/<feature>/<id>/back/register.ts
 plugins/tuucho/<group>/<feature>/<id>-locale-fr/    # complement sits next to parent
 plugins/tuucho/locale/tuucho-locale-fr/             # standalone locale pack (no parent)
@@ -48,12 +52,12 @@ plugins/user/<group>/<feature>/<id>/                # user / upload; id must not
 plugin-sdk/                                         # @tuucho/plugin-sdk (not a plugin)
 ```
 
-`plugin.json` is the only human-edited plugin manifest (id, version,
-description, installPath, repository, engines). Plugin `package.json` is a
-generated stub: `private: true`, name from id, dependency on
-`@tuucho/plugin-sdk`. No version. `npm install` (root `preinstall`) and
-`node scripts/write-plugin-packages.mjs` regenerate it; `--check` refuses a
-hand-edited version field.
+The leaf `package.json` is the only plugin file. npm `version` /
+`description` / optional `repository` sit at the top. Plugin fields live
+under `"tuucho": { id, kind, installPath, engines.core, … }`. That
+`tuucho` object is the discriminator: scan never treats `node_modules`
+(skipped by name) or a plain npm package as a plugin. There is no
+`plugin.json` and no stub generator.
 
 The plugin host `import()`s `back/register.ts` for every effectively enabled
 plugin. Disk manifests are the catalogue. There is no second shipped list.
@@ -110,15 +114,15 @@ or cart-rules. A page plugin can still ship with only a manifest and settings.
 
 1. Copy `plugins/user/demo/guides/demo-page-guides/` to
    `plugins/user/<group>/your-id/`.
-2. Edit `plugin.json`: set `"id"` to `your-id` (same as the leaf folder, not `tuucho-*`), choose a
-   `"kind"`, and fill `name`, a required `description` of what it does (locale packs may omit it),
-   `engines.core` `>=0.0.1 <1.0.0`, `route` / `nav` for a page, or `courierCodes` for shipping. Omit `nav` for
-   footer-only documents (`page-legal`, `page-accessibility`). Plugin version lives only here. Do not put a version on plugin `package.json`.
+2. Edit leaf `package.json`: npm `version` and `description` (locale packs may omit description),
+   optional HTTPS GitHub `repository` (user plugins only). Under `"tuucho"`, set `"id"` to `your-id`
+   (same as the leaf folder, not `tuucho-*`), `"kind"`, `name`, `engines.core` `>=0.0.1 <1.0.0`,
+   `installPath`, plus `route` / `nav` for a page or `courierCodes` for shipping. Omit `nav` for
+   footer-only documents (`page-legal`, `page-accessibility`). Depend on `@tuucho/plugin-sdk`.
 3. Add `back/register.ts` that calls `addFilter` / `addAction` /
    `registerPluginService` / `registerPaymentGateway` / `registerShippingMethod`.
-4. Run `node scripts/write-plugin-packages.mjs` so the plugin `package.json` stub is regenerated (name from id, `@tuucho/plugin-sdk`, no version).
-5. Open the shop admin: **Plugins** in the sidebar.
-6. Click **Scan for new plugins**. Enable it, then **Configure**.
+4. Open the shop admin: **Plugins** in the sidebar.
+5. Click **Scan for new plugins**. Enable it, then **Configure**.
 
 Toggling a plugin reloads the host. No kernel source edit is required for a
 profile opening or a `checkout.quote` filter. The shipped page-plugin demo is
@@ -147,30 +151,40 @@ codes (es/it/nl/pt/th) are not supported.
 
 ## Manifest
 
+Leaf `package.json` only. npm fields plus a `tuucho` block:
+
 ```json
 {
-  "id": "demo-page-guides",
-  "name": "Guides",
+  "name": "@tuucho/plugin-demo-page-guides",
+  "private": true,
+  "type": "module",
   "version": "1.0.0",
-  "kind": "theme | page | payment | shipping | commerce | docs | generic | seo | locale",
   "description": "A short operator-facing summary.",
-  "required": false,
-  "defaultEnabled": true,
-  "provides": ["StorefrontPage"],
-  "dependsOn": [{ "id": "optional-parent", "version": ">=1.0.0" }],
-  "engines": { "core": ">=0.0.1 <1.0.0" },
-  "installPath": "plugins/user/demo/guides/demo-page-guides",
   "repository": "https://github.com/acme/demo-page-guides",
-  "route": "/sizes",
-  "nav": { "key": "guide", "order": 30, "bottomBar": false },
-  "courierCodes": ["colissimo-home"],
-  "defaultSettings": {
-    "title": "Page title",
-    "body": "Shown on the public page. Editable in Admin, Plugins, Configure."
+  "tuucho": {
+    "id": "demo-page-guides",
+    "name": "Guides",
+    "kind": "theme | page | payment | shipping | commerce | docs | generic | seo | locale",
+    "required": false,
+    "defaultEnabled": true,
+    "provides": ["StorefrontPage"],
+    "dependsOn": [{ "id": "optional-parent", "version": ">=1.0.0" }],
+    "engines": { "core": ">=0.0.1 <1.0.0" },
+    "installPath": "plugins/user/demo/guides/demo-page-guides",
+    "route": "/sizes",
+    "nav": { "key": "guide", "order": 30, "bottomBar": false },
+    "courierCodes": ["colissimo-home"],
+    "defaultSettings": {
+      "title": "Page title",
+      "body": "Shown on the public page. Editable in Admin, Plugins, Configure."
+    },
+    "settingsSchema": {
+      "title": { "type": "string", "label": "Title" },
+      "body": { "type": "text", "label": "Body" }
+    }
   },
-  "settingsSchema": {
-    "title": { "type": "string", "label": "Title" },
-    "body": { "type": "text", "label": "Body" }
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"
   }
 }
 ```
@@ -191,11 +205,11 @@ codes (es/it/nl/pt/th) are not supported.
 | `route` / `nav` | Page plugins: public path and menu placement. |
 | `courierCodes` | Shipping plugins: courier rows this plugin owns. |
 | `defaultSettings` | Seeded into `plugins.settings` on first insert. |
-| `settingsSchema` | `{ type, label }` per field. Types: `string`, `text`, `number`, `boolean`. Admin auto-builds the Configure form. |
+| `settingsSchema` | `{ type, label }` per field. Types: `string`, `text`, `number`, `boolean`, `secret`. Admin auto-builds the Configure form. `secret` is write-only and never sent on storefront bootstrap. |
 
 ## Lifecycle
 
-Scan (Admin, Plugins, Scan for new plugins) reads every `plugin.json` and
+Scan (Admin, Plugins, Scan for new plugins) reads every plugin `package.json` (`tuucho` block) and
 inserts missing rows. That is **install**: the host then applies pending
 `back/migrations/` `up` files for enabled compatible plugins.
 `listPlugins()` also ensures rows on every read.
@@ -216,8 +230,9 @@ you uninstall or restore the folder.
 A plugin **must not ALTER kernel tables**. Extra data lives in tables the
 plugin owns:
 
-1. Add `back/migrations/001_something.js` (filename
-   `^\d{3,}[_-][a-z0-9][a-z0-9_-]*\.js$`).
+1. Add one `back/migrations/001_something.js` baseline (filename
+   `^\d{3,}[_-][a-z0-9][a-z0-9_-]*\.js$`). Do not start a 001-then-002 chain
+   unless new work lands after this reset.
 2. Export `up(client)` and `down(client)`. `up` creates
    `plugin_<id with underscores>_…` (hyphens in the id become underscores).
    Foreign keys may point at kernel entities (`users(id)`, `orders(id)`).
@@ -343,12 +358,12 @@ Each preinstalled plugin ships `docs/handbook.json` (and docs-developer also shi
 
 ## Versioning
 
-Admin, Plugins “Core” is the **root** `package.json` version (the product). Installed shop tag is `shop-release.json`. Check / Apply walks official GitHub tags via `shop-release.json` vs tag `release.json`. A deployed shop cannot claim a kernel by editing `package.json`. Each plugin shows `plugin.json` `version` and `engines.core`. Plugin `package.json` is a generated npm stub (no version).
+Admin, Plugins “Core” and Check current are the live **root** `package.json` version. Latest is the newest official GitHub tag (`MAJOR.MINOR.PATCH`, no `v`). Local greater than latest: this checkout is ahead of the published tag, no Apply. Equal: nothing to update. Local less than latest: walk every tag. `shop-release.json` is last-applied Apply state (hashes, jump cursor), not the displayed current. Each plugin shows npm `version` and `tuucho.engines.core` from its leaf `package.json`. Kernel/all Apply copies root `package.json`. Never `plugins/user/`.
 
 - Scan disables plugins whose `engines.core` or `dependsOn` range fails, and lists them in `incompatible`.
 - `PATCH /admin/plugins/:id` `{ "enabled": true }` returns `409 plugin_incompatible` when the kernel is outside `engines.core`, a `dependsOn` plugin is missing, or its version is out of range.
 
-Bump the product by changing root `package.json` `version`. Official-repo CI (`npm run check:release`) keeps `kernel/back/package.json`, `kernel/front/package.json`, `plugin-sdk/package.json`, `release.json`, and `plugins/tuucho/manifest.json` `kernel` in lockstep. Plugin `engines.core` for this 0.x line is `>=0.0.1 <1.0.0`. A 1.0 kernel needs plugins to raise that range. Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
+Bump the product by changing root `package.json` `version`. Official-repo CI (`npm run check:release`) keeps `release.json` and `plugins/tuucho/manifest.json` `kernel` in lockstep with that root version, and rejects a `version` field on `kernel/back/package.json`, `kernel/front/package.json`, or `plugin-sdk/package.json`. Plugin `engines.core` for this 0.x line is `>=0.0.1 <1.0.0`. A 1.0 kernel needs plugins to raise that range. Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
 
 Worked examples in Admin, Documentation: profile menu, courier on cart, fidélité on cart and order history, permissions.
 
@@ -556,7 +571,7 @@ HTTP (also in `back/docs/api/01-admin.md`):
 
 - `GET /admin/plugins` list
 - `GET /admin/plugins/:id` one plugin
-- `POST /admin/plugins/scan` discover nested `plugin.json` under `plugins/tuucho/` and `plugins/user/` (runs `up` for enabled plugins)
+- `POST /admin/plugins/scan` discover nested plugin `package.json` (`tuucho` block) under `plugins/tuucho/` and `plugins/user/` (runs `up` for enabled plugins)
 - `PATCH /admin/plugins/:id` body: `{ "enabled": true }` or `{ "settings": { ... } }`
 - `GET /admin/courier-catalog` and `PUT /admin/courier-catalog/…` JSON groups (permission `courier_edit`)
 - `POST /admin/plugins/:id/uninstall` body `{ "confirm": true }`

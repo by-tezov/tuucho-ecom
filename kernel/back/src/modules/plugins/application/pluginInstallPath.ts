@@ -13,7 +13,7 @@ const SEGMENT_RE = /^[a-z0-9._-]+$/;
 export function preferredTreeForPluginId(id: string): string {
   if (isTuuchoPluginId(id)) return TUUCHO_PLUGIN_TREE;
   if (isUserPluginId(id)) return USER_PLUGIN_TREE;
-  throw new PluginArchiveError('invalid_manifest', 'plugin.json id must match [a-z0-9-]+.');
+  throw new PluginArchiveError('invalid_manifest', 'tuucho.id must match [a-z0-9-]+.');
 }
 
 /** Repo-relative posix path of the package folder (leaf equals id). */
@@ -21,7 +21,7 @@ export function normalizePreferredInstallPath(id: string, raw: unknown): string 
   if (typeof raw !== 'string' || !raw.trim()) {
     throw new PluginArchiveError(
       'invalid_manifest',
-      'plugin.json installPath is required (repo-relative package folder).',
+      'tuucho.installPath is required (repo-relative package folder).',
     );
   }
   const trimmed = raw.trim().replace(/\\/g, '/').replace(/^\.\/+/, '');

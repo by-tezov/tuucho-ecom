@@ -16,8 +16,8 @@ export interface ShopConfig {
    * notably the plural "Shop" (the shop's own contact address uses
    * it). Emitted as schema.org `alternateName` on the OnlineStore/WebSite
    * nodes, which is how a brand declares its aliases to a search engine.
-   * Visible footer copy is the user plugin `footer-identity`. Comma
-   * separated in VITE_BRAND_ALIASES; `shopName` itself is never repeated. */
+   * Visible footer copy is the user plugin `footer-identity`.
+   * `shopName` itself is never repeated. */
   brandAliases: string[];
   siteUrl: string;
   /** React Router basename. Empty for the shop root (preprod is IP-gated,
@@ -168,73 +168,29 @@ export interface ShopConfig {
   enabledLanguages: Lang[];
 }
 
-/** Mentions légales identity — mandatory on a French business site (LCEN art. 6-III). */
-export interface LegalConfig {
-  owner: string;
-  status: string;
-  siren: string;
-  address: string;
-  vat: string;
-  phone: string;
-}
-
-/** Hosting provider (hébergeur) — also mandatory alongside LegalConfig. */
-export interface HostConfig {
-  name: string;
-  address: string;
-  phone: string;
-  website: string;
-}
-
-/** Consumer mediator (médiateur de la consommation) — mandatory for B2C sales in France (art. L616-1). */
-export interface MediatorConfig {
-  name: string;
-  website: string;
-}
-
 const env = import.meta.env;
-const mondialRelayPickerNetworkCode = required(
-  env.VITE_MONDIAL_RELAY_PICKER_NETWORK_CODE,
-  'VITE_MONDIAL_RELAY_PICKER_NETWORK_CODE',
-);
-const mondialRelayPickerCourierCode =
-  env.VITE_MONDIAL_RELAY_PICKER_COURIER_CODE?.trim() || mondialRelayPickerNetworkCode;
-const mondialRelayHomeNetworkCode = required(
-  env.VITE_MONDIAL_RELAY_HOME_NETWORK_CODE,
-  'VITE_MONDIAL_RELAY_HOME_NETWORK_CODE',
-);
-const mondialRelayHomeCourierCode =
-  env.VITE_MONDIAL_RELAY_HOME_COURIER_CODE?.trim() || mondialRelayHomeNetworkCode;
+const mondialRelayPickerNetworkCode = 'mondial-relay-point';
+const mondialRelayPickerCourierCode = 'mondial-relay-point';
+const mondialRelayHomeNetworkCode = 'home';
+const mondialRelayHomeCourierCode = 'mondial-relay-home';
 
 /** A mandatory env variable — throws at load time if unset, so a missing value fails loudly instead of silently shipping a placeholder. */
 function required(value: string | undefined, name: string): string {
   if (value === undefined || value.trim() === '') {
     throw new Error(
-      `Missing required environment variable ${name} — set it in .env/.public.env (see .env/.public.env.example).`,
+      `Missing required leftover origin ${name} — set kernel http.apiBaseUrl / http.frontendBaseUrl in config/.`,
     );
   }
   return value;
 }
 
-/** A mandatory boolean env flag — throws at load time if unset, same as
- * required() above. "false"/"0"/"no"/"off" (case-insensitive) ⇒ false,
- * anything else ⇒ true. */
-function requiredFlag(value: string | undefined, name: string): boolean {
-  if (value === undefined || value.trim() === '') {
-    throw new Error(
-      `Missing required environment variable ${name} — set it in .env/.public.env (see .env/.public.env.example).`,
-    );
-  }
-  return !/^(false|0|no|off)$/i.test(value.trim());
-}
-
 function requiredPositiveInteger(value: string | undefined, name: string): number {
   if (value === undefined || !/^\d+$/.test(value.trim())) {
-    throw new Error(`Missing or invalid ${name} — set it to a positive whole number in .env/.public.env.`);
+    throw new Error(`Missing or invalid ${name} — set it to a positive whole number.`);
   }
   const number = Number(value);
   if (!Number.isSafeInteger(number) || number <= 0) {
-    throw new Error(`Missing or invalid ${name} — set it to a positive whole number in .env/.public.env.`);
+    throw new Error(`Missing or invalid ${name} — set it to a positive whole number.`);
   }
   return number;
 }
@@ -243,13 +199,13 @@ function requiredPositiveInteger(value: string | undefined, name: string): numbe
 function requiredPositiveNumber(value: string | undefined, name: string): number {
   if (value === undefined || value.trim() === '') {
     throw new Error(
-      `Missing or invalid ${name} — set it to a positive number (e.g. 1.25) in .env/.public.env.`,
+      `Missing or invalid ${name} — set it to a positive number (e.g. 1.25).`,
     );
   }
   const number = Number(value);
   if (!Number.isFinite(number) || number <= 0) {
     throw new Error(
-      `Missing or invalid ${name} — set it to a positive number (e.g. 1.25) in .env/.public.env.`,
+      `Missing or invalid ${name} — set it to a positive number (e.g. 1.25).`,
     );
   }
   return number;
@@ -259,13 +215,13 @@ function requiredPositiveNumber(value: string | undefined, name: string): number
 function requiredNonNegativeInteger(value: string | undefined, name: string): number {
   if (value === undefined || !/^\d+$/.test(value.trim())) {
     throw new Error(
-      `Missing or invalid ${name} — set it to a non-negative whole number (ms) in .env/.public.env.`,
+      `Missing or invalid ${name} — set it to a non-negative whole number (ms).`,
     );
   }
   const number = Number(value);
   if (!Number.isSafeInteger(number) || number < 0) {
     throw new Error(
-      `Missing or invalid ${name} — set it to a non-negative whole number (ms) in .env/.public.env.`,
+      `Missing or invalid ${name} — set it to a non-negative whole number (ms).`,
     );
   }
   return number;
@@ -314,9 +270,7 @@ function requiredNonNegativeDurationMs(value: string | undefined, name: string):
  * preserved and duplicates are dropped. */
 function requiredLanguageList(value: string | undefined, name: string): Lang[] {
   if (value === undefined || value.trim() === '') {
-    throw new Error(
-      `Missing required environment variable ${name} — set it in .env/.public.env (see .env/.public.env.example).`,
-    );
+    throw new Error(`Missing required language list ${name}.`);
   }
   const codes = value
     .split(',')
@@ -357,7 +311,7 @@ function siteOriginFromEnv(raw: string): string {
   return raw.replace(/\/$/, '');
 }
 
-/** Splits VITE_BRAND_ALIASES, dropping blanks, duplicates and any entry that
+/** Splits brand aliases, dropping blanks, duplicates and any entry that
  * merely repeats the shop name (schema.org's `alternateName` is for names
  * *other than* `name`). */
 function brandAliases(raw: string | undefined, shopName: string): string[] {
@@ -377,113 +331,144 @@ const adminRouteToken = resolveAdminRouteToken(env.VITE_ADMIN_ROUTE_TOKEN);
 const siteOrigin = siteOriginFromEnv(required(env.VITE_SITE_URL, 'VITE_SITE_URL'));
 
 export const shopConfig: ShopConfig = {
-  brandName: env.VITE_BRAND_NAME ?? 'Shop',
-  brandSuffix: env.VITE_BRAND_SUFFIX ?? '',
-  shopName: env.VITE_SHOP_NAME ?? 'Shop',
-  brandAliases: brandAliases(env.VITE_BRAND_ALIASES, env.VITE_SHOP_NAME ?? 'Shop'),
+  brandName: 'Shop',
+  brandSuffix: '',
+  shopName: 'Shop',
+  brandAliases: brandAliases(undefined, 'Shop'),
   siteUrl: siteOrigin,
   routerBasename: '',
   adminRouteToken,
   apiBaseUrl: required(env.VITE_API_BASE_URL, 'VITE_API_BASE_URL').replace(/\/$/, ''),
-  googleClientId: env.VITE_GOOGLE_CLIENT_ID?.trim() || undefined,
-  appleClientId: env.VITE_APPLE_CLIENT_ID?.trim() || undefined,
-  // Default to bare origin (Apple Return URL).
-  appleRedirectUri: env.VITE_APPLE_REDIRECT_URI?.trim().replace(/\/$/, '') || siteOrigin,
-  facebookAppId: env.VITE_FACEBOOK_APP_ID?.trim() || undefined,
-  facebookOauthReturnUrl: env.VITE_FACEBOOK_OAUTH_RETURN_URL?.trim().replace(/\/$/, '') || undefined,
-  stripePublishableKey: env.VITE_STRIPE_PUBLISHABLE_KEY?.trim() || 'pk_test_placeholder',
-  mondialRelayBrand: env.VITE_MONDIAL_RELAY_BRAND?.trim() || 'BDTEST13',
+  googleClientId: undefined,
+  appleClientId: undefined,
+  // Default to bare origin (Apple Return URL) until bootstrap overlays the plugin.
+  appleRedirectUri: siteOrigin,
+  facebookAppId: undefined,
+  facebookOauthReturnUrl: undefined,
+  stripePublishableKey: '',
+  mondialRelayBrand: '',
   mondialRelayPickerNetworkCode,
   mondialRelayPickerCourierCode,
   mondialRelayHomeNetworkCode,
   mondialRelayHomeCourierCode,
-  contactEmail: env.VITE_CONTACT_EMAIL ?? 'hello@shop.example',
-  featuredLimit: requiredPositiveInteger(env.VITE_FEATURED_LIMIT, 'VITE_FEATURED_LIMIT'),
+  contactEmail: 'hello@shop.example',
+  featuredLimit: 5,
   galleryLoadMoreDelayMs: requiredDurationMs(
-    env.VITE_GALLERY_LOAD_MORE_DELAY,
+    env.VITE_GALLERY_LOAD_MORE_DELAY ?? '250ms',
     'VITE_GALLERY_LOAD_MORE_DELAY',
   ),
   galleryCardRevealMs: requiredNonNegativeDurationMs(
-    env.VITE_GALLERY_CARD_REVEAL,
+    env.VITE_GALLERY_CARD_REVEAL ?? '120ms',
     'VITE_GALLERY_CARD_REVEAL',
   ),
   galleryCardOverlapRevealMs: requiredNonNegativeDurationMs(
-    env.VITE_GALLERY_CARD_OVERLAP_REVEAL,
+    env.VITE_GALLERY_CARD_OVERLAP_REVEAL ?? '30ms',
     'VITE_GALLERY_CARD_OVERLAP_REVEAL',
   ),
   galleryImageMaxConcurrent: requiredNonNegativeInteger(
-    env.VITE_GALLERY_IMAGE_MAX_CONCURRENT,
+    env.VITE_GALLERY_IMAGE_MAX_CONCURRENT ?? '6',
     'VITE_GALLERY_IMAGE_MAX_CONCURRENT',
   ),
-  galleryImageTimeoutMs: requiredDurationMs(env.VITE_GALLERY_IMAGE_TIMEOUT, 'VITE_GALLERY_IMAGE_TIMEOUT'),
-  galleryRowOverscan: requiredNonNegativeInteger(env.VITE_GALLERY_ROW_OVERSCAN, 'VITE_GALLERY_ROW_OVERSCAN'),
+  galleryImageTimeoutMs: requiredDurationMs(env.VITE_GALLERY_IMAGE_TIMEOUT ?? '10s', 'VITE_GALLERY_IMAGE_TIMEOUT'),
+  galleryRowOverscan: requiredNonNegativeInteger(env.VITE_GALLERY_ROW_OVERSCAN ?? '2', 'VITE_GALLERY_ROW_OVERSCAN'),
   galleryCardRootMarginPx: requiredNonNegativeInteger(
-    env.VITE_GALLERY_CARD_ROOT_MARGIN_PX,
+    env.VITE_GALLERY_CARD_ROOT_MARGIN_PX ?? '200',
     'VITE_GALLERY_CARD_ROOT_MARGIN_PX',
   ),
   quantitySelectThreshold: requiredPositiveInteger(
-    env.VITE_QUANTITY_SELECT_THRESHOLD,
+    env.VITE_QUANTITY_SELECT_THRESHOLD ?? '3',
     'VITE_QUANTITY_SELECT_THRESHOLD',
   ),
   guestStorageRetentionMs: requiredDurationMs(
-    env.VITE_GUEST_STORAGE_RETENTION,
+    env.VITE_GUEST_STORAGE_RETENTION ?? '15d',
     'VITE_GUEST_STORAGE_RETENTION',
   ),
   guestStorageRetentionDays:
-    requiredDurationMs(env.VITE_GUEST_STORAGE_RETENTION, 'VITE_GUEST_STORAGE_RETENTION') / 86_400_000,
-  productCacheTtlMs: requiredDurationMs(env.VITE_PRODUCT_CACHE_TTL, 'VITE_PRODUCT_CACHE_TTL'),
-  cartPageCacheTtlMs: requiredDurationMs(env.VITE_CART_PAGE_CACHE_TTL, 'VITE_CART_PAGE_CACHE_TTL'),
+    requiredDurationMs(env.VITE_GUEST_STORAGE_RETENTION ?? '15d', 'VITE_GUEST_STORAGE_RETENTION') / 86_400_000,
+  productCacheTtlMs: requiredDurationMs(env.VITE_PRODUCT_CACHE_TTL ?? '5m', 'VITE_PRODUCT_CACHE_TTL'),
+  cartPageCacheTtlMs: requiredDurationMs(env.VITE_CART_PAGE_CACHE_TTL ?? '1h', 'VITE_CART_PAGE_CACHE_TTL'),
   loadingMinMs: {
-    short: requiredNonNegativeDurationMs(env.VITE_LOADING_MIN_SHORT, 'VITE_LOADING_MIN_SHORT'),
-    normal: requiredNonNegativeDurationMs(env.VITE_LOADING_MIN, 'VITE_LOADING_MIN'),
-    long: requiredNonNegativeDurationMs(env.VITE_LOADING_MIN_LONG, 'VITE_LOADING_MIN_LONG'),
+    short: requiredNonNegativeDurationMs(env.VITE_LOADING_MIN_SHORT ?? '250ms', 'VITE_LOADING_MIN_SHORT'),
+    normal: requiredNonNegativeDurationMs(env.VITE_LOADING_MIN ?? '450ms', 'VITE_LOADING_MIN'),
+    long: requiredNonNegativeDurationMs(env.VITE_LOADING_MIN_LONG ?? '1250ms', 'VITE_LOADING_MIN_LONG'),
   },
-  noticeMs: requiredNonNegativeDurationMs(env.VITE_NOTICE, 'VITE_NOTICE'),
-  bootSplashSpeed: requiredPositiveNumber(env.VITE_BOOT_SPLASH_SPEED, 'VITE_BOOT_SPLASH_SPEED'),
-  paymentTimeoutMs: requiredDurationMs(env.VITE_PAYMENT_TIMEOUT, 'VITE_PAYMENT_TIMEOUT'),
-  poseVideoGlueUrl: env.VITE_POSE_VIDEO_GLUE_URL ?? '',
-  poseVideoPatchUrl: env.VITE_POSE_VIDEO_PATCH_URL ?? '',
-  poseVideoGlueUploadDate: env.VITE_POSE_VIDEO_GLUE_UPLOADED?.trim() ?? '',
-  poseVideoGlueDuration: env.VITE_POSE_VIDEO_GLUE_DURATION?.trim() ?? '',
-  poseVideoPatchUploadDate: env.VITE_POSE_VIDEO_PATCH_UPLOADED?.trim() ?? '',
-  poseVideoPatchDuration: env.VITE_POSE_VIDEO_PATCH_DURATION?.trim() ?? '',
-  enabledLanguages: requiredLanguageList(env.VITE_ENABLED_LANGUAGES, 'VITE_ENABLED_LANGUAGES'),
+  noticeMs: requiredNonNegativeDurationMs(env.VITE_NOTICE ?? '2400ms', 'VITE_NOTICE'),
+  bootSplashSpeed: requiredPositiveNumber(env.VITE_BOOT_SPLASH_SPEED ?? '2.0', 'VITE_BOOT_SPLASH_SPEED'),
+  paymentTimeoutMs: requiredDurationMs(env.VITE_PAYMENT_TIMEOUT ?? '15s', 'VITE_PAYMENT_TIMEOUT'),
+  poseVideoGlueUrl: '',
+  poseVideoPatchUrl: '',
+  poseVideoGlueUploadDate: '',
+  poseVideoGlueDuration: '',
+  poseVideoPatchUploadDate: '',
+  poseVideoPatchDuration: '',
+  enabledLanguages: requiredLanguageList(env.VITE_ENABLED_LANGUAGES ?? 'en,fr', 'VITE_ENABLED_LANGUAGES'),
   platformUrls: {
-    vinted: env.VITE_SHOP_VINTED_URL ?? '#',
-    tiktok: env.VITE_TIKTOK_URL ?? '#',
-    instagram: env.VITE_INSTAGRAM_URL ?? '#',
-    youtube: env.VITE_YOUTUBE_URL ?? '#',
-    facebook: env.VITE_FACEBOOK_URL ?? '#',
+    vinted: '#',
+    tiktok: '#',
+    instagram: '#',
+    youtube: '#',
+    facebook: '#',
   },
   capsuleFormVisible: {
-    almond: requiredFlag(env.VITE_SHAPE_ALMOND, 'VITE_SHAPE_ALMOND'),
-    oval: requiredFlag(env.VITE_SHAPE_OVAL, 'VITE_SHAPE_OVAL'),
-    square: requiredFlag(env.VITE_SHAPE_SQUARE, 'VITE_SHAPE_SQUARE'),
-    coffin: requiredFlag(env.VITE_SHAPE_COFFIN, 'VITE_SHAPE_COFFIN'),
-    ballerina: requiredFlag(env.VITE_SHAPE_BALLERINA, 'VITE_SHAPE_BALLERINA'),
-    stiletto: requiredFlag(env.VITE_SHAPE_STILETTO, 'VITE_SHAPE_STILETTO'),
+    almond: true,
+    oval: true,
+    square: true,
+    coffin: true,
+    ballerina: true,
+    stiletto: true,
   },
 };
 
 configureGalleryImageGate(shopConfig.galleryImageMaxConcurrent, shopConfig.galleryImageTimeoutMs);
 
-export const legalConfig: LegalConfig = {
-  owner: env.VITE_LEGAL_OWNER ?? '',
-  status: env.VITE_LEGAL_STATUS ?? '',
-  siren: env.VITE_LEGAL_SIREN ?? '',
-  address: env.VITE_LEGAL_ADDRESS ?? '',
-  vat: env.VITE_LEGAL_VAT ?? '',
-  phone: env.VITE_LEGAL_PHONE ?? '',
-};
+function enabledPluginSettings(
+  bootstrap: { plugins: Array<{ id: string; enabled?: boolean; settings?: Record<string, unknown> }> },
+  id: string,
+): Record<string, unknown> | undefined {
+  const plugin = bootstrap.plugins.find((entry) => entry.id === id);
+  if (!plugin || plugin.enabled === false) return undefined;
+  return plugin.settings;
+}
 
-export const hostConfig: HostConfig = {
-  name: env.VITE_HOST_NAME ?? '',
-  address: env.VITE_HOST_ADDRESS ?? '',
-  phone: env.VITE_HOST_PHONE ?? '',
-  website: env.VITE_HOST_WEBSITE ?? '',
-};
+function overlayString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
 
-export const mediatorConfig: MediatorConfig = {
-  name: env.VITE_MEDIATOR_NAME ?? '',
-  website: env.VITE_MEDIATOR_WEBSITE ?? '',
-};
+export function applyStorefrontBootstrap(bootstrap: {
+  store: { name: string; suffix?: string; contactEmail: string };
+  plugins: Array<{ id: string; enabled?: boolean; settings?: Record<string, unknown> }>;
+}): void {
+  shopConfig.shopName = bootstrap.store.name || shopConfig.shopName;
+  shopConfig.brandName = bootstrap.store.name || shopConfig.brandName;
+  shopConfig.brandSuffix = bootstrap.store.suffix ?? shopConfig.brandSuffix;
+  shopConfig.contactEmail = bootstrap.store.contactEmail || shopConfig.contactEmail;
+  const google = enabledPluginSettings(bootstrap, 'tuucho-signin-google');
+  shopConfig.googleClientId = overlayString(google?.clientId);
+  const apple = enabledPluginSettings(bootstrap, 'tuucho-signin-apple');
+  shopConfig.appleClientId = overlayString(apple?.clientId);
+  shopConfig.appleRedirectUri = overlayString(apple?.redirectUri)?.replace(/\/$/, '') || shopConfig.siteUrl;
+  const facebook = enabledPluginSettings(bootstrap, 'tuucho-signin-facebook');
+  shopConfig.facebookAppId = overlayString(facebook?.appId);
+  shopConfig.facebookOauthReturnUrl = facebook
+    ? overlayString(facebook.oauthReturnUrl)?.replace(/\/$/, '') ||
+      `${shopConfig.siteUrl.replace(/\/$/, '')}/auth/facebook-return`
+    : undefined;
+  const stripe = bootstrap.plugins.find((plugin) => plugin.id === 'tuucho-payment-stripe')?.settings;
+  if (typeof stripe?.publishableKey === 'string' && stripe.publishableKey.trim()) {
+    shopConfig.stripePublishableKey = stripe.publishableKey.trim();
+  }
+  const carrier = bootstrap.plugins.find((plugin) => plugin.id === 'tuucho-shipping-mondial-relay')?.settings ?? {};
+  if (typeof carrier.brand === 'string' && carrier.brand.trim()) shopConfig.mondialRelayBrand = carrier.brand.trim();
+  if (typeof carrier.pointNetworkCode === 'string' && carrier.pointNetworkCode.trim()) {
+    shopConfig.mondialRelayPickerNetworkCode = carrier.pointNetworkCode.trim();
+  }
+  if (typeof carrier.pointCourierCode === 'string' && carrier.pointCourierCode.trim()) {
+    shopConfig.mondialRelayPickerCourierCode = carrier.pointCourierCode.trim();
+  }
+  if (typeof carrier.homeNetworkCode === 'string' && carrier.homeNetworkCode.trim()) {
+    shopConfig.mondialRelayHomeNetworkCode = carrier.homeNetworkCode.trim();
+  }
+  if (typeof carrier.homeCourierCode === 'string' && carrier.homeCourierCode.trim()) {
+    shopConfig.mondialRelayHomeCourierCode = carrier.homeCourierCode.trim();
+  }
+}

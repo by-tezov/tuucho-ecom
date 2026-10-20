@@ -2,6 +2,27 @@
   "name": "@tuucho/plugin-tuucho-docs-developer-locale-fr",
   "private": true,
   "type": "module",
+  "version": "1.0.0",
+  "description": "French strings for docs-developer. Enable with locale-fr for French UI; disable to keep this plugin in English.",
+  "tuucho": {
+    "id": "tuucho-docs-developer-locale-fr",
+    "installPath": "plugins/tuucho/docs/developer/tuucho-docs-developer-locale-fr",
+    "name": "docs-developer French",
+    "kind": "locale",
+    "defaultEnabled": false,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "tuucho-docs-developer",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"
   }

@@ -1,4 +1,5 @@
 import { config } from '../../../config/env.js';
+import { peekStoreIdentity } from '../../plugins/application/storeSettings.js';
 import { isPublicSeoTarget, PRIVATE_SEO_ROBOTS, PUBLIC_SEO_ROBOTS } from '../../../config/publicSeo.js';
 import { LANGUAGES, type Language } from '../../../utils/language.js';
 import type { GalleryItem } from '../../../types.js';
@@ -25,7 +26,9 @@ import type { GallerySeoRow } from './gallerySeoQuery.js';
  * out of an attribute or a script body.
  */
 
-const SITE_NAME = config.company.name;
+function SITE_NAME(): string {
+  return peekStoreIdentity().name;
+}
 const DEFAULT_OG_IMAGE = `${config.frontendBaseUrl}/og-image.jpg`;
 
 /** Kernel SEO family: ready-made sets (`/gallery`, pages under `/creations/`).
@@ -144,7 +147,7 @@ export function productJsonLd(
     sku,
     mpn: sku,
     url: canonicalUrl,
-    brand: { '@type': 'Brand', name: SITE_NAME },
+    brand: { '@type': 'Brand', name: SITE_NAME() },
     ...(images.length > 0 && { image: images }),
     ...(option && item.variation?.key === 'color' ? { color: option.label } : {}),
   };
@@ -155,7 +158,7 @@ export function productJsonLd(
       '@id': `${groupUrl}#group`,
       productGroupID: item.productUid,
       name: item.title,
-      brand: { '@type': 'Brand', name: SITE_NAME },
+      brand: { '@type': 'Brand', name: SITE_NAME() },
       ...(item.variation.key === 'color' ? { variesBy: 'https://schema.org/color' } : {}),
       hasVariant: item.variation.options.map((entry) => ({
         '@type': 'Product',
@@ -174,7 +177,7 @@ export function productJsonLd(
       price: item.price.toFixed(2),
       availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
-      seller: { '@type': 'Organization', name: SITE_NAME },
+      seller: { '@type': 'Organization', name: SITE_NAME() },
     };
   }
   return { '@context': 'https://schema.org', ...product };
@@ -188,7 +191,7 @@ function commonHead(
   ogType: 'website' | 'product',
 ): string[] {
   const canonical = frontendUrl(path, language);
-  const escapedTitle = escapeHtml(`${title} \u00b7 ${SITE_NAME}`);
+  const escapedTitle = escapeHtml(`${title} \u00b7 ${SITE_NAME()}`);
   const escapedDescription = escapeHtml(description);
   const escapedImage = escapeHtml(image);
   const publicIndexing = isPublicSeoTarget(config.target);
@@ -206,7 +209,7 @@ function commonHead(
         ]
       : []),
     `<meta property="og:type" content="${ogType}" />`,
-    `<meta property="og:site_name" content="${SITE_NAME}" />`,
+    `<meta property="og:site_name" content="${SITE_NAME()}" />`,
     `<meta property="og:title" content="${escapedTitle}" />`,
     `<meta property="og:description" content="${escapedDescription}" />`,
     `<meta property="og:url" content="${escapeHtml(canonical)}" />`,
@@ -334,7 +337,7 @@ function productPageDocument(
           jsonLdScript(
             breadcrumbJsonLd(
               [
-                { name: SITE_NAME, path: '/home' },
+                { name: SITE_NAME(), path: '/home' },
                 { name: copy.h1, path: family.galleryPath },
                 { name: item.title, path },
               ],
@@ -420,7 +423,7 @@ function indexDocument(rows: GallerySeoRow[], language: Language, family: ExtraS
           jsonLdScript(
             breadcrumbJsonLd(
               [
-                { name: SITE_NAME, path: '/home' },
+                { name: SITE_NAME(), path: '/home' },
                 { name: copy.h1, path: galleryPath },
               ],
               language,
@@ -461,5 +464,5 @@ function indexDocument(rows: GallerySeoRow[], language: Language, family: ExtraS
     '</section>',
   ].join('');
 
-  return { title: `${copy.title} \u00b7 ${SITE_NAME}`, head, body };
+  return { title: `${copy.title} \u00b7 ${SITE_NAME()}`, head, body };
 }

@@ -17,7 +17,7 @@ The source photo library, courier JSON, and voucher sources live in
 `library` / `courier` / `voucher` below. Nothing here depends on
 catalog source at runtime.
 
-Stripe HTTP requests use the bounded `STRIPE_REQUEST_TIMEOUT` (default
+Stripe HTTP requests use the Stripe plugin’s `requestTimeout` setting (default
 `12s`) and one SDK network retry. Capture/cancel operations persist an
 internal idempotent marker before calling Stripe, so network latency does not
 hold a PostgreSQL transaction or pool connection.
@@ -28,25 +28,21 @@ Everything below runs entirely on your machine — no LWS/FTP involved.
 
 ### Config files
 
-Env vars live under `.env/` and load in layers, each overriding the last
-(see `src/config/env.ts`): `.env/.public.env` → `.env/<target>/.public.env`
-→ `.env/.private.env` → `.env/<target>/.private.env`. `.public.env` files
-are committed (safe-to-commit topology/config); `.private.env` files are
-gitignored (actual secrets). The two files directly under `.env/` hold
-values shared across every target; each `.env/<target>/` folder holds
-whatever's genuinely different for that target — `target` is `dev`,
-`preprod`, or `prod`, picked by the `APP_TARGET` var itself (which can only
-ever be set directly, as a real env var — it's what selects which files to
-load, so it can't live inside one of them; deliberately not `NODE_ENV`,
-since cPanel's Node.js Selector has its own Application Mode
-production/development toggle that also drives a real `NODE_ENV` — a
-separate name avoids the two fighting each other). Required, no default:
-the app throws at startup if it's missing or isn't exactly one of those
-three values — `npm run dev` sets `APP_TARGET=dev` for you locally, so
-there's nothing to set by hand there. All eight files already exist in this repo;
-`.env/preprod/.private.env`/`.env/prod/.private.env` ship with `CHANGE_ME`
-placeholders — fill in real values before deploying to each (see
-"Deploying" below).
+Kernel config is JSON under `config/`. Common files sit in `config/` itself;
+each environment is `config/<name>/`. This tree ships **only** `dev/`. Add
+another env by copying `config/dev/` (public + `*.example` only) or
+`npm run config:env -- create <name>`. `APP_TARGET` is that folder name
+(local default `dev` via `npm run dev`). Missing folder → error naming it.
+Unknown names are allowed if the folder exists. Deliberately not `NODE_ENV`.
+
+Merge top to bottom (bottom wins): `config/config.json` →
+`config/<env>/config.json` → common private (or example) → env private (or
+example) → leftover `APP_TARGET` / `PORT` / `DATABASE_URL`. Private files
+are gitignored; each has a committed functional `*.example`. Do not copy
+one env’s private file onto another. Stripe and Mondial keys live in the
+plugin secret store. Shop name lives in Admin / `store.identity`.
+`npm run config:doctor` prints the same missing list as boot, plus every
+folder under `config/`.
 
 `CHECKOUT_PRIVACY_SESSION_IDLE_TTL` is safe public configuration and defaults
 to `30m`. It is the server-authoritative sliding inactivity limit for
@@ -160,12 +156,12 @@ can mute the e-mail sent to the owner when that customer writes (default
 `10m`). The server stores the expiry on the conversation, so it resets even if
 the admin browser is closed.
 
-1. `npm install`
+1. `npm install` at the **repo root** (workspaces). Do not install inside this folder.
 2. `npm run dev` — starts the local Postgres, then
    `scripts/devWithStripe.ts`: `tsx watch src/server.ts` on
-   `http://localhost:3000`, plus (when the Stripe CLI is installed and
+   `http://localhost:3010`, plus (when the Stripe CLI is installed and
    logged in) `stripe listen --all-snapshot --forward-to localhost:<port>/webhooks/stripe`
-   and a sync of `STRIPE_WEBHOOK_SECRET` into `.env/dev/.private.env`.
+   and a sync of the webhook secret into the Stripe plugin secret store.
    Without the CLI, the API still starts; only local webhook forwarding is
    skipped. CORS is wide open in dev — it reflects whatever origin a
    request actually comes from, so the front's dev server can run on any
@@ -188,7 +184,7 @@ the admin browser is closed.
    into this DB. Goes entirely through the `/operation/library-import/*`
    API (see [docs/api](docs/api/README.md)), not a direct DB/filesystem connection — `--dev`/`--preprod`/`--prod` is
    mandatory (`dev`/`preprod`/`prod`, picks both the target API and which
-   `.env/<mode>/.private.env`'s `OPS_TOKEN` to send), same reasoning as
+   `config/<mode>/config.private.json`'s `ops.token` to send), same reasoning as
    `build`'s `--dev`/`--preprod`/`--prod`. Assumes the repos are checked out as siblings; pass
    `-- --source <path>` to override. Safe to re-run: each entry's product-uid
    already present is skipped entirely (set, shapes, colors, photos), never
@@ -245,11 +241,10 @@ the admin browser is closed.
    See docs/command for the directional `--update`/`--delete` workflow and the
    private local usage report.
 
-To also run the front against this local backend: `kernel/front`'s own
-`.env/dev/.public.env` already points `VITE_API_BASE_URL` at
-`http://localhost:3000` (see its README) — just `npm run dev` there as
-usual and the site reads gallery/featured/auth/cart data live from your
-local DB.
+To also run the front against this local backend: Vite reads
+`http.apiBaseUrl` from kernel `config/` (dev overlay points at
+`http://localhost:3010`) — just `npm run dev` there as usual and the site
+reads gallery/featured/auth/cart data live from your local DB.
 
 ### `npm run test`
 
@@ -264,7 +259,7 @@ src/
   config/env.ts                  required env vars, fails loudly if missing
   db/
     pool.ts                        pg Pool (+ a date-type-parser fix, see its comment)
-    migrations/                    node-pg-migrate files
+    migrations/                    single kernel baseline (`1738000000000_init.js`)
   api/                             route modules: gallery, auth, account, contact,
                                    libraryImport, courierImport, voucherImport,
                                    operation (migrate, account lock/unlock,
@@ -308,15 +303,14 @@ silently deleting the proxy rule. Separate subdomains means separate
    The first `npm run deploy -- --preprod|--prod` creates the single cPanel
    app automatically at `private_html/<mode>/current`, with the API
    subdomain as its Application URL and `server.js` as startup file.
-4. Fill in the real values in `.env/preprod/.private.env`/
-   `.env/prod/.private.env` locally (replacing their `CHANGE_ME`
-   placeholders — DB connection details from step 1, and a freshly
-   generated `OPS_TOKEN`, distinct per environment, long/random enough to
-   resist guessing since it's the only thing gating every write).
+4. Create that env folder from `config/dev/` (`npm run config:env -- create preprod`
+   or `prod`). Copy **that** env’s private example to `config/<name>/config.private.json`.
+   Fill placeholders — DB connection details from step 1, and a freshly
+   generated `ops.token`, distinct per environment. Do not copy another env’s
+   private file onto this one.
 
-   Fill in `PUBLIC_DIR`/`PRIVATE_DIR` in `.env/preprod/.public.env`/
-   `.env/prod/.public.env` too, once you know the real filesystem paths on
-   the server:
+   Fill in `paths.*` and `http.*` in `config/<name>/config.json` once you know
+   the real filesystem paths on the server:
    - `PUBLIC_DIR` belongs _inside_ the **front's** docroot (e.g.
      `public_html/preprod`), so Apache serves its contents directly as
      static files — `PUBLIC_MEDIA_DIR` (e.g. `/media`) is joined onto it to
@@ -350,8 +344,8 @@ silently deleting the proxy rule. Separate subdomains means separate
 5. `npm run build -- --preprod` (or `--prod`) locally — wipes
    `dist/v<version>/` first (so deleted migrations/`tsc` outputs cannot
    linger), then compiles (`tsc`), copies migrations, `package.json`,
-   `package-lock.json`, `.env/.public.env`, `.env/.private.env`, and that
-   target's own `.env/<target>/` pair, all straight into `dist/v<version>/`
+   `package-lock.json`, `config/config.json`, `config/<target>/`, and that
+   target's private JSON (or its example), all straight into `dist/v<version>/`
    (version read from `package.json`, matching the front's own
    versioned-folder convention),
    so it's fully self-contained. `--dev`/`--preprod`/`--prod` is mandatory — same reasoning as
@@ -363,7 +357,7 @@ silently deleting the proxy rule. Separate subdomains means separate
    It uploads the release, moves `current`, installs dependencies, restarts,
    and healthchecks it.
 6. The Application Root stays at `private_html/<mode>/current`; deploy sets
-   `APP_TARGET` from `.env/<mode>/.lws.env`. Roll back with
+   leftover process env `APP_TARGET` (and optional `PORT`) on the cPanel app. Roll back with
    `npm run deploy -- --preprod|--prod --rollback X.Y.Z` (plus `--confirm`
    for prod), which repoints both front and back links and restarts the
    stable backend app.

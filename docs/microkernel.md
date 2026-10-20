@@ -28,7 +28,7 @@ Guest form + account chat + admin inbox = **`tuucho-contact`**. Tables stay kern
 
 ## Install / update
 
-One public repo, one tag (`MAJOR.MINOR.PATCH`, no `v` prefix), `release.json` on every tag. In this product repo the version Te publishes is root `package.json`. Shop owners clone a tag, then Admin, Plugins **Check for updates** / **Apply** walks every intermediate tag via `shop-release.json` vs tag `release.json`. A deployed shop cannot claim a kernel by editing `package.json`. Zip install still writes `plugins/user/` (or `plugins/tuucho/` for `tuucho-*` ids). Tuucho Apply never writes `plugins/user/` or the shop root `package.json`.
+One public repo, one tag (`MAJOR.MINOR.PATCH`, no `v` prefix), `release.json` on every tag. In this product repo the version Te publishes is root `package.json`. Shop owners clone a tag, then Admin, Plugins **Check for updates** / **Apply** compares live root `package.json` to the latest official GitHub tag and walks every intermediate tag when local is behind. Local ahead of the published tag has no Apply. `shop-release.json` records last-applied Apply state. Zip install still writes `plugins/user/` (or `plugins/tuucho/` for `tuucho-*` ids). Tuucho Apply never writes `plugins/user/`. Kernel/all Apply copies the shop root `package.json`.
 
 ## Stale claims (do not reuse)
 

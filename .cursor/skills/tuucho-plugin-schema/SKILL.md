@@ -14,6 +14,7 @@ description: >-
 - If the needed opening does not exist, stop. Tell the user. Do not invent a kernel patch from this skill.
 - Match existing bundled plugins of the same kind (copy structure, not kernel code).
 - Current branch only; no extra git branch; no PR unless asked.
+- Plugin keys go on that plugin’s `settingsSchema` (public) or `type: "secret"` (secret store), never kernel JSON.
 
 ## Recipe (moved from the router)
 
@@ -42,6 +43,8 @@ exports.down = async (client) => {
 Rules:
 
 - Filename: `001_notes.js` matching `^\d{3,}[_-][a-z0-9][a-z0-9_-]*\.js$`.
+  Today each plugin that has SQL has **one** baseline file (no 001-then-002
+  chain). New work after this reset is a new numbered file again.
 - Export both `up` and `down`. Uninstall cannot complete without `down`.
 - The host wraps `client.query` and rejects mutation of a table that is not
   `plugin_<id>_…`.
@@ -61,13 +64,12 @@ uninstall shows **Folder missing**.
 `POST /admin/plugins/upload` accepts `.zip` / `.tgz` into `plugins/user/`
 (zip-slip blocked, `engines.core` enforced). That is a kernel API you call as
 an operator, not something to reimplement. After install, Admin, Plugins
-**Check for updates** / **Apply** can walk git tags when `plugin.json`
-`repository` is an HTTPS GitHub repo root (user plugins only). Tags are
+**Check for updates** / **Apply** can walk git tags when npm `repository`
+on that plugin `package.json` is an HTTPS GitHub repo root (user plugins only). Tags are
 `MAJOR.MINOR.PATCH` with no `v` prefix. Plugins “Core” is the root
 `package.json` version. Check / Apply walks `shop-release.json` vs tag
-`release.json`. A deployed shop cannot claim a kernel by editing
-`package.json`. Tuucho Apply never writes `plugins/user/` or the shop root
-`package.json`. Plugin `version` lives only in `plugin.json`.
+`release.json`. Kernel/all Apply copies root `package.json`. Tuucho Apply never writes `plugins/user/`.
+Plugin `version` lives on that leaf `package.json`.
 
 ## Reading kernel data
 

@@ -1,11 +1,20 @@
 import type { Pool } from 'pg';
 import { pool } from '../../../db/pool.js';
-import { CORE_VERSION, listPlugins } from './pluginStore.js';
+import { CORE_VERSION, listPlugins, type InstalledPlugin } from './pluginStore.js';
 import { pluginSurfaceEnabled } from './pluginSurface.js';
 import { getProductAxes, getStoreIdentity, getStoreMenus, getThemeCustomization } from './storeSettings.js';
 import { applyFilters } from './hooks.js';
 import { buildCoreOpenings } from './coreOpenings.js';
 import { ensurePluginsLoaded } from './loadPluginRuntime.js';
+
+function publicPluginSettings(plugin: InstalledPlugin): Record<string, unknown> {
+  const schema = plugin.manifest.settingsSchema ?? {};
+  const settings = { ...plugin.settings };
+  for (const [key, field] of Object.entries(schema)) {
+    if (field.type === 'secret') delete settings[key];
+  }
+  return settings;
+}
 
 export async function buildStorefrontBootstrap(db: Pool = pool) {
   await ensurePluginsLoaded();
@@ -43,7 +52,7 @@ export async function buildStorefrontBootstrap(db: Pool = pool) {
       nav: plugin.manifest.nav,
       dependsOn: plugin.manifest.dependsOn ?? [],
       adminNav: plugin.manifest.adminNav ?? [],
-      settings: plugin.settings,
+      settings: publicPluginSettings(plugin),
     })),
     adminNav: plugins.flatMap((plugin) =>
       pluginSurfaceEnabled(plugin, byId)

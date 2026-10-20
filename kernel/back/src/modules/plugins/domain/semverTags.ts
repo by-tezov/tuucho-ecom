@@ -34,6 +34,16 @@ export function sortReleaseTags(tags: ReleaseTag[]): ReleaseTag[] {
   return [...tags].sort((left, right) => compareSemver(left.semver, right.semver));
 }
 
+export type OfficialTagRelation = 'ahead' | 'equal' | 'behind';
+
+/** Local product version versus the latest official GitHub tag. */
+export function relateLocalToLatest(local: ReleaseTag, latest: ReleaseTag): OfficialTagRelation {
+  const delta = compareSemver(local.semver, latest.semver);
+  if (delta > 0) return 'ahead';
+  if (delta === 0) return 'equal';
+  return 'behind';
+}
+
 /**
  * Exclusive after `from`, inclusive through `to`. Empty when already current.
  * Throws when `to` is not after `from` (except equal, which yields []).

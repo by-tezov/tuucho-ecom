@@ -46,9 +46,25 @@ function allowed(pluginId: string, enabled: LocaleEnablement): boolean {
   return enabled === 'all' || enabled.has(pluginId);
 }
 
-export function localeEnablement(pluginStates: Array<{ id: string; enabled: boolean }>): LocaleEnablement {
+/** Stable identity for which locale plugins are on. A raw `Set` is a new
+ * object every call, so it must never be a React effect/memo dependency. */
+export function localeEnablementKey(pluginStates: Array<{ id: string; enabled: boolean }>): string {
   if (!pluginStates.length) return 'all';
-  return new Set(pluginStates.filter((plugin) => plugin.enabled).map((plugin) => plugin.id));
+  return pluginStates
+    .filter((plugin) => plugin.enabled)
+    .map((plugin) => plugin.id)
+    .sort()
+    .join('\0');
+}
+
+export function localeEnablementFromKey(key: string): LocaleEnablement {
+  if (key === 'all') return 'all';
+  if (!key) return new Set();
+  return new Set(key.split('\0'));
+}
+
+export function localeEnablement(pluginStates: Array<{ id: string; enabled: boolean }>): LocaleEnablement {
+  return localeEnablementFromKey(localeEnablementKey(pluginStates));
 }
 
 export function frenchAvailable(enabled: LocaleEnablement): boolean {

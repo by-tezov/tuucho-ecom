@@ -26,7 +26,8 @@ api.registerShippingMethod({
 });
 ```
 
-Manifest: `kind: "shipping"`, `courierCodes`. Packet prices live in kernel
+Carrier credentials and widget brand belong in this plugin’s
+`settingsSchema` / secret store, never kernel JSON. Manifest: `kind: "shipping"`, `courierCodes`. Packet prices live in kernel
 `courier_packets`. Staff edit them on the kernel Couriers page (JSON groups:
 texts, times, prices, parcels) via `/admin/courier-catalog`, not Plugin
 Configure. Disable the plugin to toggle those courier rows. Plugins

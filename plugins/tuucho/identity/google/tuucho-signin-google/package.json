@@ -1,0 +1,43 @@
+{
+  "name": "@tuucho/plugin-tuucho-signin-google",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Sign in with Google into the kernel sign-in shell. Client id lives here.",
+  "tuucho": {
+    "id": "tuucho-signin-google",
+    "installPath": "plugins/tuucho/identity/google/tuucho-signin-google",
+    "name": "Google Sign-in",
+    "kind": "generic",
+    "defaultEnabled": true,
+    "provides": [
+      "SignInProvider"
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "defaultSettings": {
+      "clientId": "",
+      "signupTokenTtl": "10m"
+    },
+    "settingsSchema": {
+      "clientId": {
+        "type": "string",
+        "label": "Google client id",
+        "description": "OAuth 2.0 Client ID from Google Cloud (….apps.googleusercontent.com). Required before Google Sign-in appears on the shop.",
+        "section": "app",
+        "sectionTitle": "Google client",
+        "sectionDescription": "Web client from Google Cloud. The kernel sign-in shell stays on Preferences; fill the client id to actually connect."
+      },
+      "signupTokenTtl": {
+        "type": "string",
+        "label": "Signup token TTL",
+        "description": "How long a first-time Google signup token stays valid (for example 10m). Raise only if customers need longer to finish.",
+        "section": "app"
+      }
+    }
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../../plugin-sdk"
+  }
+}

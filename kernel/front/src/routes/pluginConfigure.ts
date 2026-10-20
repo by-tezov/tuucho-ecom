@@ -8,14 +8,6 @@ import { adminPath } from '../utils/adminRoute';
 export function pluginHasConfigure(plugin: AdminPlugin): boolean {
   if (pluginHasFrontConfigure(plugin.id)) return true;
   if (plugin.manifest.kind === 'theme') return true;
-  if (
-    plugin.manifest.kind !== 'page' &&
-    plugin.manifest.kind !== 'generic' &&
-    plugin.manifest.kind !== 'shipping' &&
-    plugin.manifest.kind !== 'payment'
-  ) {
-    return false;
-  }
   const schema = plugin.manifest.settingsSchema ?? {};
   const settings = plugin.settings ?? {};
   return Object.keys(schema).length > 0 || Object.keys(settings).length > 0;

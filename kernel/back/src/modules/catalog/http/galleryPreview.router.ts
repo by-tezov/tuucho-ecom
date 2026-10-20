@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { config } from '../../../config/env.js';
+import { peekStoreIdentity } from '../../plugins/application/storeSettings.js';
 import { isPublicSeoTarget, PRIVATE_SEO_ROBOTS, PUBLIC_SEO_ROBOTS } from '../../../config/publicSeo.js';
 import { pool } from '../../../db/pool.js';
 import { getProductByUid } from '../application/products.js';
@@ -27,7 +28,9 @@ import { applyFilters } from '../../plugins/application/hooks.js';
 
 export const galleryPreviewRouter = Router();
 
-const SITE_NAME = config.company.name;
+function SITE_NAME(): string {
+  return peekStoreIdentity().name;
+}
 const DEFAULT_OG_IMAGE = `${config.frontendBaseUrl}/og-image.jpg`;
 
 /** The language segment of a shared front-end URL is passed through the
@@ -45,15 +48,15 @@ function genericPreviewHtml(galleryUrl: string, language: Language): string {
 <html lang="${language}">
 <head>
 <meta charset="utf-8">
-<title>${SITE_NAME}</title>
+<title>${SITE_NAME()}</title>
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="${SITE_NAME}">
-<meta property="og:title" content="${SITE_NAME}">
+<meta property="og:site_name" content="${SITE_NAME()}">
+<meta property="og:title" content="${SITE_NAME()}">
 <meta property="og:image" content="${escapeHtml(DEFAULT_OG_IMAGE)}">
 <meta property="og:url" content="${url}">
 <meta http-equiv="refresh" content="0;url=${url}">
 </head>
-<body><a href="${url}">${SITE_NAME}</a></body>
+<body><a href="${url}">${SITE_NAME()}</a></body>
 </html>`;
 }
 
@@ -118,7 +121,7 @@ function productPreviewHtml(
 <meta name="description" content="${description}">
 ${publicIndexing ? `<link rel="canonical" href="${canonical}">` : ''}
 <meta property="og:type" content="product">
-<meta property="og:site_name" content="${SITE_NAME}">
+<meta property="og:site_name" content="${SITE_NAME()}">
 <meta property="og:title" content="${escapeHtml(seoTitle)}">
 <meta property="og:description" content="${description}">
 <meta property="og:image" content="${image}">
