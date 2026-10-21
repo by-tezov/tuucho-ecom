@@ -4,7 +4,7 @@ Checkout: `/home/tezov/Local/tuucho-ecom`. Product version is root `package.json
 
 ## Must-haves
 
-1. **One product version.** Root `package.json` only. Nested kernel/sdk omit `version`. `check:release` enforces. `release.json` / `plugins/tuucho/manifest.json` `kernel` generated from root. Tags `x.x.x`, no `v`.
+1. **One product version.** Root `package.json` only. Nested kernel/sdk omit `version`. `check:release` enforces. `tuucho/tuucho-versioning.json` / `tuucho/plugins/manifest.json` `kernel` generated from root. Tags `x.x.x`, no `v`.
 2. **One plugin file.** `plugin.json` gone. Leaf `package.json` + `"tuucho": { id, kind, installPath, engines.core, … }` plus npm `version`/`description`/`repository`. Discriminator so `node_modules` is never scanned. Stub generator `write-plugin-packages.mjs` / preinstall removed. Scan, zip, Check, skills, docs read that file.
 3. **Check UX.** Loading, then nothing-to-update / ahead / confirm-close. Uninstall toasts auto-dismiss.
 4. **Apply** copies root `package.json` on kernel/all. Jump every tag. Fail closed. Never write `plugins/user/`.

@@ -24,8 +24,12 @@ test('parseGithubHttpsRepo accepts HTTPS repo roots only', () => {
 test('Check URLs use tag 1.0.9 with no v prefix', () => {
   const ref = parseGithubHttpsRepo(OFFICIAL_ORIGIN)!;
   assert.equal(
-    githubRawFileUrl(ref, '1.0.9', 'release.json'),
-    'https://raw.githubusercontent.com/by-tezov/tuucho-ecom/1.0.9/release.json',
+    githubRawFileUrl(ref, '1.0.9', 'tuucho/tuucho-versioning.json'),
+    'https://raw.githubusercontent.com/by-tezov/tuucho-ecom/1.0.9/tuucho/tuucho-versioning.json',
+  );
+  assert.equal(
+    githubRawFileUrl(ref, '0.0.3', 'release.json'),
+    'https://raw.githubusercontent.com/by-tezov/tuucho-ecom/0.0.3/release.json',
   );
   assert.equal(
     githubCodeloadTarGzUrl(ref, '1.0.9'),

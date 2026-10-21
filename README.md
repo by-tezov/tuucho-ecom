@@ -115,7 +115,11 @@ the latest official tag (`MAJOR.MINOR.PATCH`, never `v0.0.2`, never `master`).
 Plugins “Core” and Check current are the live root `package.json`. Latest is
 the newest official GitHub tag. A checkout newer than that tag is ahead (no
 Apply). Matching tags: nothing to update. Older local: walk every tag.
-`shop-release.json` is last-applied Apply state, not displayed current.
+`tuucho-versioning.lock.json` is gitignored last-applied Apply state (setup / Apply write it locally), not displayed current.
+The Check/Apply catalog is `tuucho/tuucho-versioning.json` (generate with
+`node scripts/tuucho-versioning.mjs` before tagging). Shipped JSON templates
+live in `tuucho/factory-config/`; operator files in `tuucho-config/` survive
+Apply. First install copies factory; later: `npm run config:migrate`.
 `src/plugins/` is not overwritten
 by a Tuucho update (Apply is scoped to `tuucho/`). Kernel/all Apply copies root `package.json`. A user plugin
 with `tuucho.repo` / `branch` / `folder` (or npm `repository`) updates from that GitHub repo only. Disable unloads the plugin and keeps its tables.

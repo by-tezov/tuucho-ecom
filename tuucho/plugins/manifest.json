@@ -1,5 +1,5 @@
 {
-  "kernel": "0.0.4",
+  "kernel": "0.0.5",
   "plugins": [
     {
       "id": "tuucho-commerce-cart-rules",
@@ -143,6 +143,36 @@
     },
     {
       "id": "tuucho-locale-fr",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-apple",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-apple-locale-fr",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-facebook",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-facebook-locale-fr",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-google",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-google-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": true
     },

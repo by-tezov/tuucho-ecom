@@ -1,3 +1,4 @@
+import { TUCHO_VERSIONING_CATALOG } from './releaseFiles.js';
 import { parseSemver } from './semverRange.js';
 import { parseReleaseTag, tagFromKernelVersion } from './semverTags.js';
 
@@ -40,35 +41,41 @@ function asStringArray(value: unknown): string[] | null {
 
 export function parseShopReleaseManifest(raw: unknown): ShopReleaseManifest {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new Error('release.json must be an object.');
+    throw new Error(`${TUCHO_VERSIONING_CATALOG} must be an object.`);
   }
   const body = raw as Record<string, unknown>;
   const tag = asString(body.tag);
   const kernel = asString(body.kernel);
   const releaseId = body.releaseId;
   const kernelMigrations = asStringArray(body.kernelMigrations);
-  if (!tag || !parseReleaseTag(tag)) throw new Error('release.json tag must be MAJOR.MINOR.PATCH (no v prefix).');
-  if (!kernel || !parseSemver(kernel)) throw new Error('release.json kernel must be MAJOR.MINOR.PATCH.');
+  if (!tag || !parseReleaseTag(tag)) {
+    throw new Error(`${TUCHO_VERSIONING_CATALOG} tag must be MAJOR.MINOR.PATCH (no v prefix).`);
+  }
+  if (!kernel || !parseSemver(kernel)) throw new Error(`${TUCHO_VERSIONING_CATALOG} kernel must be MAJOR.MINOR.PATCH.`);
   if (tag !== tagFromKernelVersion(kernel)) {
-    throw new Error(`release.json tag ${tag} does not match kernel ${kernel}.`);
+    throw new Error(`${TUCHO_VERSIONING_CATALOG} tag ${tag} does not match kernel ${kernel}.`);
   }
   if (typeof releaseId !== 'number' || !Number.isInteger(releaseId) || releaseId < 1) {
-    throw new Error('release.json releaseId must be a positive integer.');
+    throw new Error(`${TUCHO_VERSIONING_CATALOG} releaseId must be a positive integer.`);
   }
-  if (!kernelMigrations) throw new Error('release.json kernelMigrations must be a string array.');
-  if (!Array.isArray(body.plugins)) throw new Error('release.json plugins must be an array.');
+  if (!kernelMigrations) throw new Error(`${TUCHO_VERSIONING_CATALOG} kernelMigrations must be a string array.`);
+  if (!Array.isArray(body.plugins)) throw new Error(`${TUCHO_VERSIONING_CATALOG} plugins must be an array.`);
   const plugins: ReleasePluginEntry[] = [];
   for (const entry of body.plugins) {
     if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
-      throw new Error('release.json plugin row is invalid.');
+      throw new Error(`${TUCHO_VERSIONING_CATALOG} plugin row is invalid.`);
     }
     const row = entry as Record<string, unknown>;
     const id = asString(row.id);
     const version = asString(row.version);
     const installPath = asString(row.installPath);
-    if (!id || !version || !installPath) throw new Error('release.json plugin needs id, version, installPath.');
+    if (!id || !version || !installPath) {
+      throw new Error(`${TUCHO_VERSIONING_CATALOG} plugin needs id, version, installPath.`);
+    }
     if (!installPath.startsWith('tuucho/plugins/') || installPath.split('/').pop() !== id) {
-      throw new Error(`release.json installPath for ${id} must be under tuucho/plugins/ and end with the id.`);
+      throw new Error(
+        `${TUCHO_VERSIONING_CATALOG} installPath for ${id} must be under tuucho/plugins/ and end with the id.`,
+      );
     }
     plugins.push({ id, version, installPath });
   }

@@ -1,0 +1,5 @@
+{
+  "appId": "",
+  "oauthReturnUrl": "http://localhost:5174/auth/facebook-return",
+  "signupTokenTtl": "10m"
+}

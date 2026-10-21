@@ -69,7 +69,7 @@ _Not a feature-map entry; it is shared by several features._
   `plugins/user/`. Kernel/all Apply copies the shop root `package.json` so
   Core stays the published tag. Plugins Core and Check current are live
   root `package.json`. Latest is the origin’s newest tag. Local ahead of
-  that tag has no Apply. Last applied official tag is `shop-release.json`
+  that tag has no Apply. Last applied official tag is gitignored `tuucho-versioning.lock.json`
   (Apply cursor, not display). User plugins update only from npm
   `repository` on that plugin `package.json` (HTTPS GitHub). Dirty
   `plugins/` refuses Apply. Failure restores the snapshot.

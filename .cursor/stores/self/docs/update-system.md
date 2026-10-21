@@ -5,9 +5,9 @@ Shipped on U24 `/home/tezov/Local/tuucho-ecom` (product version is root `package
 ## Locked and shipped
 
 - One official Tuucho origin: **https://github.com/by-tezov/tuucho-ecom**. Hardcoded.
-- One product version: root `package.json` only. `kernel/back`, `kernel/front`, and `plugin-sdk` omit `version`. `npm run check:release` enforces that. `release.json` `tag` / `kernel` and `plugins/tuucho/manifest.json` `kernel` are generated from the root version.
+- One product version: root `package.json` only. `kernel/back`, `kernel/front`, and `plugin-sdk` omit `version`. `npm run check:release` enforces that. `tuucho/tuucho-versioning.json` `tag` / `kernel` and `tuucho/plugins/manifest.json` `kernel` are generated from the root version (`node scripts/tuucho-versioning.mjs`).
 - Tags are `MAJOR.MINOR.PATCH` with **no** `v` prefix. Ignore `v…` tags.
-- Plugins Core and Check current re-read live root `package.json`. `shop-release.json` is last-applied Apply state.
+- Plugins Core and Check current re-read live root `package.json`. `tuucho-versioning.lock.json` is last-applied Apply state (gitignored shop instance; setup / Apply write it locally).
 - **One plugin file:** leaf `package.json` with npm `version` / `description` / optional `repository` plus `"tuucho": { id, kind, installPath, engines.core, … }`. That `tuucho` object is the discriminator. Scan skips `node_modules`. There is no `plugin.json` and no stub generator.
 - Check: loading, then nothing-to-update / ahead / confirm-close. Uninstall toasts auto-dismiss (`VITE_NOTICE`).
 - Apply copies root `package.json` on kernel/all. Jump every tag. Fail closed. Never write `plugins/user/` for Tuucho scopes.

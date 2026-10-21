@@ -715,7 +715,7 @@ Installed plugins with manifest (`name`, `description`, `version`, `engines.core
 `compatibility` (`ok` plus `errors[]`, including `missing_from_disk`).
 Packet prices are not on this payload: they are the courier catalog
 (`courier_edit`). Top-level `coreVersion` is the live root `package.json`
-product version (Plugins “Core”), not `shop-release.json`. Requires
+product version (Plugins “Core”), not `tuucho-versioning.lock.json`. Requires
 `requireAuth` plus `preferences`.
 
 ### `GET /admin/docs`
@@ -747,7 +747,7 @@ Incompatible → `409 plugin_incompatible`. Missing file → `400 invalid_reques
 Reads the latest **git tag** (`MAJOR.MINOR.PATCH`, never `v0.0.2`, never
 untagged `master`) on https://github.com/by-tezov/tuucho-ecom and each user
 plugin `repository`. Check `currentTag` is the live root `package.json`
-version, not `shop-release.json`. Latest is that origin’s newest official tag.
+version, not `tuucho-versioning.lock.json`. Latest is that origin’s newest official tag.
 Local greater than latest: ahead of the published tag, no Apply. Equal:
 nothing to update. Local less than latest: walk every tag. Returns the tag
 path, kernel/plugin diffs, dirty `plugins/` paths, and third-party

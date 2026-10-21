@@ -3,9 +3,11 @@ import { cp, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { promisify } from 'node:util';
 import { runner } from 'node-pg-migrate';
+import { migrateStampBehind } from '../../../../config/configMigrate.js';
 import { config } from '../../../../config/env.js';
 import { CORE_VERSION } from '../../../../config/appVersion.js';
 import { OFFICIAL_ORIGIN, parseGithubHttpsRepo } from '../../domain/githubRepository.js';
+import { readReleaseCatalogJson } from '../../domain/releaseFiles.js';
 import { parsePluginReleaseManifest, parseShopReleaseManifest } from '../../domain/releaseManifest.js';
 import { isTuuchoPluginId, isUserPluginId, readPluginPackageFields, repoRoot } from '../discoverPlugins.js';
 import { assessPluginCompatibility } from '../pluginCompatibility.js';
@@ -111,7 +113,10 @@ async function applyOfficial(
 
     const ref = parseGithubHttpsRepo(OFFICIAL_ORIGIN)!;
     let lastManifest = parseShopReleaseManifest(
-      await client.readJson(ref, checked.currentTag, 'release.json').catch(() => ({
+      await readReleaseCatalogJson({
+        readOptionalJson: (path) => client.readOptionalJson(ref, checked.currentTag, path),
+        readJson: (path) => client.readJson(ref, checked.currentTag, path),
+      }).catch(() => ({
         tag: checked.currentTag,
         kernel: checked.currentKernel,
         releaseId: record.releaseId ?? 1,
@@ -128,7 +133,12 @@ async function applyOfficial(
       try {
         const archive = await client.downloadTagArchive(ref, tag);
         await extractTagTarGz(archive, staging);
-        const manifest = parseShopReleaseManifest(await client.readJson(ref, tag, 'release.json'));
+        const manifest = parseShopReleaseManifest(
+          await readReleaseCatalogJson({
+            readOptionalJson: (path) => client.readOptionalJson(ref, tag, path),
+            readJson: (path) => client.readJson(ref, tag, path),
+          }),
+        );
         if (lastManifest.releaseId !== null && lastManifest.releaseId !== undefined) {
           if (manifest.releaseId !== lastManifest.releaseId + 1 && record.releaseId !== null) {
             // Sequence already checked; still refuse a decrease.
@@ -193,6 +203,10 @@ async function applyOfficial(
     finalRelease.tuuchoFiles = hashed.files;
     await writeShopRelease(finalRelease, root);
     if (snapshot) await removeSnapshot(snapshot);
+    const behind = await migrateStampBehind(root, join(root, 'tuucho-config'));
+    if (behind.length > 0) {
+      setLog(log, 'config:migrate', 'ok', `Factory config has pending steps (${behind.join(', ')}). Run npm run config:migrate. Apply never writes tuucho-config/.`);
+    }
     setLog(log, 'done', 'ok', scope === 'all' || scope === 'kernel' ? 'Restart the API process to load the new kernel.' : undefined);
     emit();
     return { ok: true, log, restartRequired: scope === 'all' || scope === 'kernel' };
@@ -356,7 +370,7 @@ export async function recoverInterruptedUpdate(): Promise<void> {
     delete record.updateInProgress;
     await writeShopRelease(record);
     await removeSnapshot(snapshot).catch(() => undefined);
-    console.error('[updates] restored shop-release snapshot after an interrupted Apply');
+    console.error('[updates] restored tuucho-versioning.lock snapshot after an interrupted Apply');
   } catch (error) {
     console.error('[updates] failed to restore interrupted Apply', error);
   }

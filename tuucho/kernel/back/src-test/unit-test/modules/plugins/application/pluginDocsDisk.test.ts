@@ -208,6 +208,8 @@ test('kernel docs article documents tuucho-config JSON and plugin file permissio
   assert.ok(blob.includes('plugin_config_export'));
   assert.ok(blob.includes('preferences'));
   assert.ok(blob.includes('tuucho-config/plugins/'));
+  assert.ok(blob.includes('factory-config'));
+  assert.ok(blob.includes('config:migrate'));
   assert.ok(blob.includes('database.url'));
   assert.ok(blob.includes('jwt.secret'));
   assert.ok(blob.includes('plugins.json'));

@@ -11,26 +11,39 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
+function isPackRoot(dir: string): boolean {
+  const tuucho = join(dir, 'tuucho');
+  return (
+    existsSync(join(tuucho, 'kernel')) &&
+    existsSync(join(tuucho, 'plugin-sdk')) &&
+    existsSync(join(tuucho, 'plugins'))
+  );
+}
+
+/** Pack root: `tuucho/` with kernel, plugin-sdk, plugins. Config may still be missing (first install). */
+export function findPackRoot(startDir: string = dirname(fileURLToPath(import.meta.url))): string {
+  let dir = resolve(startDir);
+  for (let i = 0; i < 16; i += 1) {
+    if (isPackRoot(dir) && existsSync(join(dir, 'tuucho', 'factory-config'))) return dir;
+    if (isPackRoot(dir)) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  throw new Error('Pack root not found. Clone root must contain tuucho/ (kernel, plugin-sdk, plugins).');
+}
+
 /** Shop root is the directory that contains both `tuucho/` and `tuucho-config/`. */
 export function findShopRoot(startDir: string = dirname(fileURLToPath(import.meta.url))): string {
   let dir = resolve(startDir);
   for (let i = 0; i < 16; i += 1) {
-    const tuucho = join(dir, 'tuucho');
-    const config = join(dir, 'tuucho-config');
-    if (
-      existsSync(join(tuucho, 'kernel')) &&
-      existsSync(join(tuucho, 'plugin-sdk')) &&
-      existsSync(join(tuucho, 'plugins')) &&
-      existsSync(config)
-    ) {
-      return dir;
-    }
+    if (isPackRoot(dir) && existsSync(join(dir, 'tuucho-config'))) return dir;
     const parent = dirname(dir);
     if (parent === dir) break;
     dir = parent;
   }
   throw new Error(
-    'Shop root not found. Clone root must contain tuucho/ (kernel, plugin-sdk, plugins) and tuucho-config/.',
+    'Shop root not found. Clone root must contain tuucho/ (kernel, plugin-sdk, plugins) and tuucho-config/. Run npm run config:migrate to copy factory-config.',
   );
 }
 

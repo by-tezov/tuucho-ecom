@@ -1,5 +1,7 @@
 # Config architecture
 
+Related: [config-migrate.md](config-migrate.md) wins for `tuucho/factory-config/`, first-install copy into `tuucho-config/`, and `npm run config:migrate` (add/rename/drop). This file still wins for merge order, required private paths, and warn vs error vs `.example`.
+
 Checkout: `/home/tezov/Local/tuucho-ecom`. Git **read-only** (no commit, no push, no GitHub). Do not steal Vite **5174**.
 
 JSON/DB is the product. Kernel JSON is machine + kernel policy only. Plugin settings in DB (`settingsSchema`); plugin secrets in the secret store. Kernel openings: `getPluginSettings` / `getPluginSecret`. Kernel must not name plugin keys in `config/`, loader maps, leftover `.env`, README, setup, doctor, or skills.

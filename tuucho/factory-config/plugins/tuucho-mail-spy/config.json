@@ -1,0 +1,10 @@
+{
+  "cooldown": "15m",
+  "devEmailDir": "/email-spy",
+  "disableCooldown": false,
+  "disableEmail": false,
+  "seedChatRecipient": "",
+  "seedContactRecipient": "",
+  "seedOrderRecipient": "",
+  "sendVolumeDay": 30
+}

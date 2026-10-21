@@ -1,0 +1,113 @@
+{
+  "paths": {
+    "publicMediaDir": "/media",
+    "privateInvoiceDir": "/invoice",
+    "privateShipmentLabelDir": "/shipment_label",
+    "privateTestDir": "/test",
+    "privateBackupDir": "/backup",
+    "logs": {
+      "api": "/log/api.jsonl",
+      "email": "/log/email.jsonl",
+      "cronShipment": "/log/cron-shipment.jsonl",
+      "cronAccountDeletion": "/log/cron-account-deletion.jsonl",
+      "cronGuestSavedCleanup": "/log/cron-guest-saved-cleanup.jsonl",
+      "cronPaymentAuthExpiry": "/log/cron-payment-auth-expiry.jsonl",
+      "cronWarm": "/log/cron-warm.jsonl",
+      "activity": "/log/activity.jsonl"
+    }
+  },
+  "logs": {
+    "cronRetention": "1y",
+    "apiRotateMaxBytes": "10m",
+    "apiRotateMaxFiles": "7",
+    "apiBodyMaxBytes": "1m"
+  },
+  "http": {
+    "port": 3010,
+    "smallPhotoSize": 400
+  },
+  "session": {
+    "jwtAccessTtl": "15m",
+    "refreshRememberTtl": "7d",
+    "refreshSessionTtl": "1d"
+  },
+  "security": {
+    "passwordResetTokenTtl": "1h",
+    "passwordResetLimit": "5:15",
+    "passwordMinLength": 8,
+    "passwordMaxLength": 128,
+    "accountDeletionGracePeriodDays": 15,
+    "deletionReminderDaysBefore": "5",
+    "guestOrderClaimWindow": "30d",
+    "superAdminSigninAlertIdle": "1h",
+    "loginLockout": "10m:5",
+    "recentLoginsDisplayCount": 5,
+    "stockReservationTtl": "15m",
+    "checkoutPrivacySessionIdleTtl": "45m",
+    "orderRevisionLockTtl": "60m",
+    "orderRevisionMax": 3,
+    "cartMaxPerUser": 10
+  },
+  "fieldLimits": {
+    "emailMax": 254,
+    "firstNameMax": 80,
+    "lastNameMax": 80,
+    "phoneMax": 32,
+    "addressLabelMax": 60,
+    "recipientNameMax": 100,
+    "companyNameMax": 120,
+    "addressLineMax": 120,
+    "deliveryNotesMax": 200,
+    "postalCodeMax": 16,
+    "cityMax": 80,
+    "countryCodeMax": 8,
+    "cardholderNameMax": 100,
+    "cartNameMax": 50,
+    "tokenMax": 128,
+    "galleryCursorMax": 2048,
+    "cartQuantityMax": 99,
+    "cartImportLinesMax": 50,
+    "pickupPointIdMax": 64,
+    "pickupMetadataKeysMax": 10,
+    "pickupMetadataKeyMax": 40,
+    "pickupMetadataValueMax": 200,
+    "jsonBodyLimitKb": 64
+  },
+  "auth": {
+    "disableOtpCooldown": false,
+    "otpTokenTtl": "10m",
+    "otpCooldown": "1m",
+    "otpMaxAttempts": 5,
+    "otpVerifyDelay": "750ms",
+    "unlockTokenTtl": "5m",
+    "securityLockTokenTtl": "48h"
+  },
+  "rateLimits": {
+    "auth": "60s:20",
+    "authRefresh": "60s:30",
+    "checkout": "60s:20",
+    "payment": "60s:20",
+    "gallery": "10s:120",
+    "ops": "60s:5",
+    "invoiceDownload": "15m:5",
+    "invoiceEmail": "15m:5",
+    "disableAuth": false,
+    "disableAuthRefresh": false,
+    "disableCheckout": false,
+    "disablePayment": false,
+    "disableGallery": false,
+    "disableOps": false,
+    "disableLogin": false,
+    "disableInvoiceDownload": false,
+    "disableInvoiceEmail": false
+  },
+  "email": {
+    "disableConfirmationResendCooldown": false,
+    "disableChangeCooldown": false,
+    "confirmationTokenTtl": "24h",
+    "confirmationResendCooldown": "2m",
+    "confirmationMaxAttempts": 5,
+    "changeConfirmationTokenTtl": "10m",
+    "changeCooldown": "5m"
+  }
+}

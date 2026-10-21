@@ -7,9 +7,12 @@ import { config } from '../../../../config/env.js';
 import { resetPublicSchema } from '../../../../db/resetPublicSchema.js';
 import { pool } from '../../../../db/pool.js';
 import { withTransaction } from '../../../../platform/db/transaction.js';
+import { LEGACY_SHOP_RELEASES, TUCHO_VERSIONING_LOCK } from '../../domain/releaseFiles.js';
 import { repoRoot } from '../discoverPlugins.js';
 import { copyScopedPaths, pathExists } from './copyScoped.js';
 import { OFFICIAL_SNAPSHOT_PATHS } from './scopedPaths.js';
+
+const SHOP_RELEASE_SNAPSHOT_NAMES: ReadonlySet<string> = new Set([TUCHO_VERSIONING_LOCK, ...LEGACY_SHOP_RELEASES]);
 
 export { OFFICIAL_SNAPSHOT_PATHS };
 
@@ -36,11 +39,13 @@ export async function createUpdateSnapshot(
   const filesDir = join(dir, 'files');
   const databaseDump = join(dir, 'database.sql');
   await mkdir(filesDir, { recursive: true });
-  const filePaths = paths.filter((path) => path !== 'shop-release.json');
+  const filePaths = paths.filter((path) => !SHOP_RELEASE_SNAPSHOT_NAMES.has(path));
   if (filePaths.length > 0) await copyScopedPaths(root, filesDir, filePaths, options);
-  const shopRelease = join(root, 'shop-release.json');
-  if (paths.includes('shop-release.json') && (await pathExists(shopRelease))) {
-    await cp(shopRelease, join(filesDir, 'shop-release.json'));
+  for (const name of SHOP_RELEASE_SNAPSHOT_NAMES) {
+    const shopRelease = join(root, name);
+    if (paths.includes(name) && (await pathExists(shopRelease))) {
+      await cp(shopRelease, join(filesDir, name));
+    }
   }
   await dumpDatabase(databaseDump, root);
   return { dir, filesDir, databaseDump, paths };
@@ -84,16 +89,18 @@ async function dumpDatabase(target: string, root: string): Promise<void> {
 }
 
 export async function restoreUpdateSnapshot(snapshot: UpdateSnapshot, root = repoRoot()): Promise<void> {
-  const restoreFiles = snapshot.paths.filter((path) => path !== 'shop-release.json');
+  const restoreFiles = snapshot.paths.filter((path) => !SHOP_RELEASE_SNAPSHOT_NAMES.has(path));
   const allowUserTree = restoreFiles.some((path) => path.startsWith('src/plugins/'));
   if (restoreFiles.length > 0) {
     await copyScopedPaths(snapshot.filesDir, root, restoreFiles, { allowUserTree });
   }
-  const snapRelease = join(snapshot.filesDir, 'shop-release.json');
-  if (await pathExists(snapRelease)) {
-    await cp(snapRelease, join(root, 'shop-release.json'));
-  } else if (snapshot.paths.includes('shop-release.json')) {
-    await rm(join(root, 'shop-release.json'), { force: true });
+  for (const name of SHOP_RELEASE_SNAPSHOT_NAMES) {
+    const snapRelease = join(snapshot.filesDir, name);
+    if (await pathExists(snapRelease)) {
+      await cp(snapRelease, join(root, name));
+    } else if (snapshot.paths.includes(name)) {
+      await rm(join(root, name), { force: true });
+    }
   }
   await restoreDatabase(snapshot.databaseDump, root);
 }

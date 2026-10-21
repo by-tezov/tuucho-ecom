@@ -133,7 +133,7 @@
             },
             {
               "type": "p",
-              "text": "Merge matches boot: common public, env public, common private-or-example, env private-or-example. Public JSON is committed. Private JSON is gitignored. Apply / Tuucho updates never write tuucho-config/."
+              "text": "Merge matches boot: common public, env public, common private-or-example, env private-or-example. Public JSON is committed. Private JSON is gitignored. Shipped templates live in tuucho/factory-config/ (Apply may replace them). First install copies factory to tuucho-config/. Existing shops run npm run config:migrate (add/rename/drop). Apply / Tuucho updates never write tuucho-config/."
             },
             {
               "type": "code",
@@ -1483,7 +1483,7 @@
               "type": "callout",
               "tone": "info",
               "title": "Official Tuucho is one repo",
-              "text": "Kernel and every tuucho-* plugin update only from https://github.com/by-tezov/tuucho-ecom tags (MAJOR.MINOR.PATCH, never a v prefix). There is no per-plugin GitHub for Tuucho. plugins/user/ is never overwritten by a Tuucho Apply. Plugins Core and Check current are the live root package.json version. Latest is the newest official tag. Local ahead of that tag has no Apply. shop-release.json is last-applied Apply state, not displayed current."
+              "text": "Kernel and every tuucho-* plugin update only from https://github.com/by-tezov/tuucho-ecom tags (MAJOR.MINOR.PATCH, never a v prefix). There is no per-plugin GitHub for Tuucho. plugins/user/ is never overwritten by a Tuucho Apply. Plugins Core and Check current are the live root package.json version. Latest is the newest official tag. Local ahead of that tag has no Apply. tuucho-versioning.lock.json is gitignored last-applied Apply state, not displayed current."
             },
             {
               "type": "p",
@@ -1601,12 +1601,12 @@
               "items": [
                 "git clone --branch 0.0.2 --depth 1 https://github.com/by-tezov/tuucho-ecom.git",
                 "npm run setup:cli (or npm run setup on :8787)",
-                "npm run dev. Shop on 5174. Setup writes shop-release.json next to installed.lock."
+                "npm run dev. Shop on 5174. Setup writes gitignored tuucho-versioning.lock.json next to installed.lock."
               ]
             },
             {
               "type": "p",
-              "text": "You do not git-pull later. Check for updates reads git tags only, never untagged master. Plugins Core and Check current are this product's live root package.json. Latest is the newest official tag. A checkout newer than that tag is ahead of the published tag (no Apply). Matching versions: nothing to update. Older local: walk every tag. Last applied official tag is shop-release.json."
+              "text": "You do not git-pull later. Check for updates reads git tags only, never untagged master. Plugins Core and Check current are this product's live root package.json. Latest is the newest official tag. A checkout newer than that tag is ahead of the published tag (no Apply). Matching versions: nothing to update. Older local: walk every tag. tuucho-versioning.lock.json is gitignored last-applied Apply state (missing on a fresh clone is never applied until setup or Apply writes it)."
             }
           ]
         },

@@ -1,9 +1,12 @@
 {
-  "tag": "0.0.3",
-  "kernel": "0.0.3",
-  "releaseId": 3,
+  "_comment": "Check/Apply tag catalog generated from shop-root package.json (the only product version). Not Plugins Core or Check current. Historical GitHub tags may still use tuucho-release.json or release.json. Generate before tagging: node scripts/tuucho-versioning.mjs",
+  "tag": "0.0.5",
+  "kernel": "0.0.5",
+  "releaseId": 5,
   "kernelMigrations": [
-    "1738000000000_init"
+    "1738000000000_init",
+    "1738000000001_compat_and_gift_classic",
+    "1738000000002_plugin_config_files"
   ],
   "plugins": [
     {
@@ -255,6 +258,36 @@
       "id": "tuucho-shipping-mondial-relay-locale-fr",
       "version": "1.0.0",
       "installPath": "tuucho/plugins/shipping/mondial-relay/tuucho-shipping-mondial-relay-locale-fr"
+    },
+    {
+      "id": "tuucho-signin-apple",
+      "version": "1.0.0",
+      "installPath": "tuucho/plugins/identity/apple/tuucho-signin-apple"
+    },
+    {
+      "id": "tuucho-signin-apple-locale-fr",
+      "version": "1.0.0",
+      "installPath": "tuucho/plugins/identity/apple/tuucho-signin-apple-locale-fr"
+    },
+    {
+      "id": "tuucho-signin-facebook",
+      "version": "1.0.0",
+      "installPath": "tuucho/plugins/identity/facebook/tuucho-signin-facebook"
+    },
+    {
+      "id": "tuucho-signin-facebook-locale-fr",
+      "version": "1.0.0",
+      "installPath": "tuucho/plugins/identity/facebook/tuucho-signin-facebook-locale-fr"
+    },
+    {
+      "id": "tuucho-signin-google",
+      "version": "1.0.0",
+      "installPath": "tuucho/plugins/identity/google/tuucho-signin-google"
+    },
+    {
+      "id": "tuucho-signin-google-locale-fr",
+      "version": "1.0.0",
+      "installPath": "tuucho/plugins/identity/google/tuucho-signin-google-locale-fr"
     },
     {
       "id": "tuucho-theme-default",

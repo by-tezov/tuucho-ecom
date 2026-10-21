@@ -360,12 +360,12 @@ Each preinstalled plugin ships `docs/handbook.json` (and docs-developer also shi
 
 ## Versioning
 
-Admin, Plugins “Core” and Check current are the live **root** `package.json` version. Latest is the newest official GitHub tag (`MAJOR.MINOR.PATCH`, no `v`). Local greater than latest: this checkout is ahead of the published tag, no Apply. Equal: nothing to update. Local less than latest: walk every tag. `shop-release.json` is last-applied Apply state (hashes, jump cursor), not the displayed current. Each plugin shows npm `version` and `tuucho.engines.core` from its leaf `package.json`. Kernel/all Apply copies root `package.json`. Never `plugins/user/`.
+Admin, Plugins “Core” and Check current are the live **root** `package.json` version. Latest is the newest official GitHub tag (`MAJOR.MINOR.PATCH`, no `v`). Local greater than latest: this checkout is ahead of the published tag, no Apply. Equal: nothing to update. Local less than latest: walk every tag. `tuucho-versioning.lock.json` is last-applied Apply state (gitignored hashes / jump cursor; setup / Apply write it locally), not the displayed current. Each plugin shows npm `version` and `tuucho.engines.core` from its leaf `package.json`. Kernel/all Apply copies root `package.json`. Never `plugins/user/`.
 
 - Scan disables plugins whose `engines.core` or `dependsOn` range fails, and lists them in `incompatible`.
 - `PATCH /admin/plugins/:id` `{ "enabled": true }` returns `409 plugin_incompatible` when the kernel is outside `engines.core`, a `dependsOn` plugin is missing, or its version is out of range.
 
-Bump the product by changing root `package.json` `version`. Official-repo CI (`npm run check:release`) keeps `release.json` and `plugins/tuucho/manifest.json` `kernel` in lockstep with that root version, and rejects a `version` field on `kernel/back/package.json`, `kernel/front/package.json`, or `plugin-sdk/package.json`. Plugin `engines.core` for this 0.x line is `>=0.0.1 <1.0.0`. A 1.0 kernel needs plugins to raise that range. Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
+Bump the product by changing root `package.json` `version`. Official-repo CI (`npm run check:release`) keeps `tuucho/tuucho-versioning.json` and `tuucho/plugins/manifest.json` `kernel` in lockstep with that root version, and rejects a `version` field on `kernel/back/package.json`, `kernel/front/package.json`, or `plugin-sdk/package.json`. Plugin `engines.core` for this 0.x line is `>=0.0.1 <1.0.0`. A 1.0 kernel needs plugins to raise that range. Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
 
 Worked examples in Admin, Documentation: profile menu, courier on cart, fidélité on cart and order history, permissions.
 

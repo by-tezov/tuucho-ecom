@@ -28,7 +28,7 @@ Guest form + account chat + admin inbox = **`tuucho-contact`**. Tables stay kern
 
 ## Install / update
 
-One public repo, one tag (`MAJOR.MINOR.PATCH`, no `v` prefix), `release.json` on every tag. In this product repo the version Te publishes is root `package.json`. Shop owners clone a tag, then Admin, Plugins **Check for updates** / **Apply** compares live root `package.json` to the latest official GitHub tag and walks every intermediate tag when local is behind. Local ahead of the published tag has no Apply. `shop-release.json` records last-applied Apply state. Zip install still writes `plugins/user/` (or `plugins/tuucho/` for `tuucho-*` ids). Tuucho Apply never writes `plugins/user/`. Kernel/all Apply copies the shop root `package.json`.
+One public repo, one tag (`MAJOR.MINOR.PATCH`, no `v` prefix), `tuucho/tuucho-versioning.json` on every tag (historical tags still use `release.json` / `tuucho-release.json`; Check/Apply fall back). In this product repo the version Te publishes is root `package.json`. Shop owners clone a tag, then Admin, Plugins **Check for updates** / **Apply** compares live root `package.json` to the latest official GitHub tag and walks every intermediate tag when local is behind. Local ahead of the published tag has no Apply. `tuucho-versioning.lock.json` records last-applied Apply state (gitignored; missing on a fresh clone is fine until setup or Apply writes it). Zip install still writes `plugins/user/` (or `plugins/tuucho/` for `tuucho-*` ids). Tuucho Apply never writes `plugins/user/`. Kernel/all Apply copies the shop root `package.json`.
 
 ## Stale claims (do not reuse)
 

@@ -385,16 +385,38 @@ reference, documented `npm run` names exist, local Markdown links resolve, and
 every path referenced by [`docs/features.json`](../features.json) exists
 (front routes are resolved under `../front`).
 
+## `npm run config:migrate`
+
+`--dry-run` optional. Copies `tuucho/factory-config/` → `tuucho-config/` on first
+install (public + examples; private from example). If `tuucho-config/` exists,
+applies pending kernel and plugin JSON steps (add / rename / drop) and fills
+missing public keys from factory. Never writes plugin DB. Apply never writes
+`tuucho-config/`. Same at clone root: `npm run config:migrate`.
+
+## `npm run config:doctor`
+
+No arguments. Reports `tuucho-config/` merge / required private keys / env
+folders. Warns when migrate stamp is behind factory. Does not copy files.
+
+## `npm run config:env`
+
+`create <name>`. Copies factory public + private example into
+`tuucho-config/<name>/` if that folder does not exist.
+
 ## `npm run check:release`
 
 No arguments. Read-only. Part of `npm run check`. Runs
-`node ../../scripts/release-manifest.mjs --check` so root `release.json`
-matches the **root** `package.json` version, kernel migration names, and
-every bundled plugin `package.json` under `plugins/` plus
-`plugins/manifest.json`. `kernel/back`, `kernel/front`, and
-`plugin-sdk` `package.json` must not carry a `version`. Drift fails CI. Write `release.json`
-with `node ../../scripts/release-manifest.mjs` (no `--check`) when cutting
-a tag. Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
+`node ../../../scripts/tuucho-versioning.mjs --check` so
+`tuucho/tuucho-versioning.json` matches the **root** `package.json` version,
+kernel migration names, and every bundled plugin `package.json` under
+`tuucho/plugins/` plus `tuucho/plugins/manifest.json`. `kernel/back`,
+`kernel/front`, and `plugin-sdk` `package.json` must not carry a `version`.
+Drift fails CI. Write the catalog with `node ../../../scripts/tuucho-versioning.mjs`
+(no `--check`) before tagging. Last-applied stamp is gitignored shop-instance
+`tuucho-versioning.lock.json` (setup / Apply write it locally; missing lock is
+not a boot error). Git tags are `MAJOR.MINOR.PATCH` with no `v`
+prefix. Historical tags may still publish `release.json` or
+`tuucho-release.json`; Check/Apply fall back.
 
 ## `npm run test:unit`
 

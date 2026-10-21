@@ -105,8 +105,9 @@ walk(join(shop, 'src', 'plugins'), (path) => {
   writeFileSync(path, `${JSON.stringify(raw, null, 2)}\n`);
 });
 
-const releasePath = join(shop, 'release.json');
-if (existsSync(releasePath)) {
+for (const catalogName of ['tuucho/tuucho-versioning.json', 'tuucho-release.json', 'release.json']) {
+  const releasePath = join(shop, catalogName);
+  if (!existsSync(releasePath)) continue;
   const release = JSON.parse(readFileSync(releasePath, 'utf8'));
   if (Array.isArray(release.plugins)) {
     for (const plugin of release.plugins) {

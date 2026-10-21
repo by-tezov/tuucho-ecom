@@ -1,4 +1,10 @@
 import { USER_PLUGIN_TREE } from '../pluginInstallPath.js';
+import {
+  LEGACY_RELEASE_CATALOGS,
+  LEGACY_SHOP_RELEASES,
+  TUCHO_VERSIONING_CATALOG,
+  TUCHO_VERSIONING_LOCK,
+} from '../../domain/releaseFiles.js';
 import type { ShopReleaseManifest } from '../../domain/releaseManifest.js';
 
 export type UpdateScope = 'all' | 'kernel' | 'plugins' | 'plugin';
@@ -8,15 +14,25 @@ export type ApplyRequest = {
   pluginId?: string;
 };
 
-const KERNEL_PATHS = ['tuucho/kernel', 'tuucho/plugin-sdk', 'release.json', 'package.json'] as const;
+const KERNEL_PATHS = [
+  'tuucho/kernel',
+  'tuucho/plugin-sdk',
+  'tuucho/factory-config',
+  TUCHO_VERSIONING_CATALOG,
+  ...LEGACY_RELEASE_CATALOGS,
+  'package.json',
+] as const;
 
 export const OFFICIAL_SNAPSHOT_PATHS = [
   'tuucho/kernel',
   'tuucho/plugin-sdk',
   'tuucho/plugins',
-  'release.json',
+  'tuucho/factory-config',
+  TUCHO_VERSIONING_CATALOG,
+  ...LEGACY_RELEASE_CATALOGS,
   'package.json',
-  'shop-release.json',
+  TUCHO_VERSIONING_LOCK,
+  ...LEGACY_SHOP_RELEASES,
 ];
 
 export function assertNotUserTree(path: string): void {
@@ -33,7 +49,7 @@ export function officialCopyPaths(scope: UpdateScope, manifest: ShopReleaseManif
   if (scope === 'plugin') {
     if (!pluginId) throw new Error('plugin scope needs pluginId.');
     const row = manifest.plugins.find((entry) => entry.id === pluginId);
-    if (!row) throw new Error(`Plugin ${pluginId} is not in this tag's release.json.`);
+    if (!row) throw new Error(`Plugin ${pluginId} is not in this tag's ${TUCHO_VERSIONING_CATALOG}.`);
     assertNotUserTree(row.installPath);
     return [row.installPath];
   }

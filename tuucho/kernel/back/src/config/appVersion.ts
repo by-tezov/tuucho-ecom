@@ -14,7 +14,7 @@ function readPackageVersionAt(dir: string): string | null {
  * Walks toward the filesystem root so source (root package.json) and a dist
  * artifact (version injected at build) both resolve. Admin Plugins "Core"
  * and Check "current" re-read this on each request so a stale
- * shop-release.json or leftover CORE_VERSION cannot win the display. */
+ * tuucho-versioning.lock.json or leftover CORE_VERSION cannot win the display. */
 export function readRootPackageVersion(): string {
   let dir = applicationRoot;
   for (let i = 0; i < 10; i += 1) {

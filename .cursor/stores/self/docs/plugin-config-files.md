@@ -7,7 +7,7 @@ cursor:
 
 Checkout: `/home/tezov/Local/tuucho-ecom`. **Do not execute** until Te says go. Git **read-only**. Do not steal or kill Vite **5174** or API **3010**. Stay generic ecommerce. No shop brands, no extra product languages.
 
-Related: [config-architecture.md](config-architecture.md) (kernel JSON merge, secrets at rest, isolation), [config-ui.md](config-ui.md) (Configure kit + `settingsSchema`), [v0.0.4.md](v0.0.4.md) (`tuucho-config/` lives outside `tuucho/`; Apply never writes it), [plugin-config-bulk.md](plugin-config-bulk.md) (Plugins list Update/Import/Export **all**, archives, compat). **This file wins** for plugin JSON files, first-load, drift, Configure import/export, and where those files are documented. Where [config-architecture.md](config-architecture.md) still says plugin files live “inside that plugin”, bundled plugins use `tuucho-config/plugins/<plugin-id>/` instead.
+Related: [config-architecture.md](config-architecture.md) (kernel JSON merge, secrets at rest, isolation), [config-ui.md](config-ui.md) (Configure kit + `settingsSchema`), [v0.0.4.md](v0.0.4.md) (`tuucho-config/` lives outside `tuucho/`; Apply never writes it), [config-migrate.md](config-migrate.md) (factory templates, first-install copy, `config:migrate` add/rename/drop), [plugin-config-bulk.md](plugin-config-bulk.md) (Plugins list Update/Import/Export **all**, archives, compat). **This file wins** for plugin JSON files, first-load, drift, Configure import/export, and where those files are documented. Where [config-architecture.md](config-architecture.md) still says plugin files live “inside that plugin”, bundled plugins use `tuucho-config/plugins/<plugin-id>/` instead. Shipped templates for those files live in `tuucho/factory-config/plugins/<plugin-id>/` ([config-migrate.md](config-migrate.md)).
 
 **Why:** After 0.0.4, plugin credentials left process env. They only live in Admin Configure + sealed DB. Env cannot be reused. Operators who already keep kernel JSON as public git + gitignored private files need the **same** for plugins. Admin Configure **stays**.
 
@@ -259,6 +259,7 @@ Verify: `/healthz` still up. **Do not bind or kill 5174/3010.** Spot-check Confi
 
 ## Out of scope
 
+- Factory vs shop tree and `config:migrate` (owned by [config-migrate.md](config-migrate.md)).
 - Rewriting kernel JSON vocabulary or leftover env (done / owned by [config-architecture.md](config-architecture.md)).
 - Auto-writing files when Admin saves.
 - Env flatten of plugin keys (`FACEBOOK_*` etc. stay deleted).

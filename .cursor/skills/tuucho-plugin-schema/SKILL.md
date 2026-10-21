@@ -67,8 +67,8 @@ an operator, not something to reimplement. After install, Admin, Plugins
 **Check for updates** / **Apply** can walk git tags when `tuucho.repo` (or npm `repository`)
 on that plugin `package.json` is an HTTPS GitHub repo root (user plugins only). Optional `tuucho.branch` / `tuucho.folder` locate the package inside that repo. Tags are
 `MAJOR.MINOR.PATCH` with no `v` prefix. Plugins “Core” is the root
-`package.json` version. Check / Apply walks `shop-release.json` vs tag
-`release.json`. Kernel/all Apply copies root `package.json`. Tuucho Apply never writes `src/plugins/` or `tuucho-config/`.
+`package.json` version. Check / Apply walks gitignored shop-instance `tuucho-versioning.lock.json` (missing lock = never applied) vs tag
+`tuucho/tuucho-versioning.json` (historical tags still named `release.json`). Kernel/all Apply copies root `package.json`. Tuucho Apply never writes `src/plugins/` or `tuucho-config/`.
 Plugin `version` lives on that leaf `package.json`.
 
 ## Reading kernel data

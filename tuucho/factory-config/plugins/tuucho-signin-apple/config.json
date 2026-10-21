@@ -1,0 +1,8 @@
+{
+  "clientId": "",
+  "keyId": "",
+  "redirectUri": "",
+  "s2sAudience": "",
+  "signupTokenTtl": "10m",
+  "teamId": ""
+}

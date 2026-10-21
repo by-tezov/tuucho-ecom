@@ -16,6 +16,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const lockPath = join(root, 'installed.lock');
 const back = join(root, 'tuucho/kernel/back');
 const configRoot = join(root, 'tuucho-config');
+const factoryRoot = join(root, 'tuucho/factory-config');
 
 function parseArgs(argv) {
   const out = {
@@ -62,7 +63,7 @@ function doctorPack() {
     join(root, 'tuucho/kernel'),
     join(root, 'tuucho/plugin-sdk'),
     join(root, 'tuucho/plugins'),
-    configRoot,
+    factoryRoot,
   ];
   const missing = required.filter((path) => !existsSync(path));
   if (missing.length > 0) {
@@ -140,6 +141,7 @@ async function install(options) {
     return;
   }
   doctorPack();
+  run('npm', ['run', 'config:migrate'], root);
   materialiseConfig();
   writeConfig(options);
   run('node', ['scripts/composeEnv.mjs'], back);

@@ -73,8 +73,9 @@ load the skill it names.
 New keys go on that plugin’s `settingsSchema` (public) or `type: "secret"`
 (plugin secret store). Do not add `MONDIAL_*`, `STRIPE_*`, or `VITE_SHOP_*`
 to kernel JSON or leftover env. A plugin with `settingsSchema` must also ship
-committed `config.json` + `config.private.example.json` (bundled:
-`tuucho-config/plugins/<id>/`; user: next to `package.json` or
+committed `config.json` + `config.private.example.json` (bundled templates:
+`tuucho/factory-config/plugins/<id>/`; shop files: `tuucho-config/plugins/<id>/`;
+upgrades: `npm run config:migrate`; user: next to `package.json` or
 `tuucho.configDir`) and handbook **Config files** JSON code blocks matching
 those files. Schema plugins join Plugins list Update all / Import all /
 Export all automatically (no extra register). Locale packs have no schema →
@@ -94,7 +95,7 @@ the plugin; French is a locale complement. `engines.core` must be
 range). Do not ALTER kernel tables. Scan/enable from Admin, Plugins. Ship
 `docs/handbook.json`. Git tags for Check / Apply are `MAJOR.MINOR.PATCH`
 with no `v` prefix. Plugins “Core” is the **root** `package.json` version.
-Check / Apply walks `shop-release.json` vs tag `release.json`. There is no
+Check / Apply walks gitignored shop-instance `tuucho-versioning.lock.json` (missing lock = never applied) vs tag `tuucho/tuucho-versioning.json` (historical tags still named `release.json`). There is no
 `plugin.json` and no stub generator. The `tuucho` object is the discriminator
 so `node_modules` is never scanned as a plugin.
 

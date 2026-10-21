@@ -1,5 +1,8 @@
 node_modules/
 installed.lock
+# Shop-instance last-Apply stamp (not library source). Setup / Apply write it locally.
+tuucho-versioning.lock.json
+tuucho-shop-release.json
 shop-release.json
 var/shop-updates/
 .env/.private.env

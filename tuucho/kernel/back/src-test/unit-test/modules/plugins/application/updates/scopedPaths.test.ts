@@ -33,6 +33,9 @@ test('official scopes never include src/plugins or tuucho-config', () => {
   assert.deepEqual(officialCopyPaths('kernel', manifest), [
     'tuucho/kernel',
     'tuucho/plugin-sdk',
+    'tuucho/factory-config',
+    'tuucho/tuucho-versioning.json',
+    'tuucho-release.json',
     'release.json',
     'package.json',
   ]);
@@ -49,6 +52,9 @@ test('official snapshot includes root package.json and never src/plugins', () =>
   assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('package.json'));
   assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('tuucho/kernel'));
   assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('tuucho/plugins'));
+  assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('tuucho/tuucho-versioning.json'));
+  assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('tuucho-versioning.lock.json'));
+  assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('tuucho/factory-config'));
   assert.equal(
     OFFICIAL_SNAPSHOT_PATHS.some((path) => path === 'src/plugins' || path.startsWith('src/plugins/')),
     false,

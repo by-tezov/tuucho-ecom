@@ -1,10 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readReleaseCatalogJson } from '../../../../../../src/modules/plugins/domain/releaseFiles.js';
 import { parseShopReleaseManifest } from '../../../../../../src/modules/plugins/domain/releaseManifest.js';
 import { parseReleaseTag, walkTagsBetween } from '../../../../../../src/modules/plugins/domain/semverTags.js';
 
-test('release.json kernel must match tag', () => {
+test('tuucho-versioning.json kernel must match tag and ignores _comment', () => {
   const parsed = parseShopReleaseManifest({
+    _comment: 'Official tag catalog.',
     tag: '1.0.9',
     kernel: '1.0.9',
     releaseId: 9,
@@ -40,6 +42,31 @@ test('release.json kernel must match tag', () => {
       }),
     /does not match kernel/,
   );
+});
+
+test('Check reads tuucho/tuucho-versioning.json then falls back to release.json', async () => {
+  const files = new Map<string, unknown>([
+    ['release.json', { tag: '0.0.3', kernel: '0.0.3' }],
+  ]);
+  const preferred = await readReleaseCatalogJson({
+    readOptionalJson: async (path) => files.get(path) ?? null,
+    readJson: async (path) => {
+      const found = files.get(path);
+      if (found == null) throw new Error(`missing ${path}`);
+      return found;
+    },
+  });
+  assert.deepEqual(preferred, { tag: '0.0.3', kernel: '0.0.3' });
+  files.set('tuucho/tuucho-versioning.json', { tag: '0.0.4', kernel: '0.0.4' });
+  const next = await readReleaseCatalogJson({
+    readOptionalJson: async (path) => files.get(path) ?? null,
+    readJson: async (path) => {
+      const found = files.get(path);
+      if (found == null) throw new Error(`missing ${path}`);
+      return found;
+    },
+  });
+  assert.deepEqual(next, { tag: '0.0.4', kernel: '0.0.4' });
 });
 
 test('jump from tag 1 to 5 lists 2, 3, 4, 5', () => {

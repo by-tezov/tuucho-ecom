@@ -1,0 +1,19 @@
+{
+  "adminOwnerEmailSuppressionTimeout": "10m",
+  "chatImageMaxBytes": "5m",
+  "devEmailChatDir": "/email-chat",
+  "disableRateContactEmail": false,
+  "forwardRecipient": "",
+  "fromEmail": "",
+  "identityMax": 160,
+  "imageMaxBytes": "5m",
+  "maxSessionsPerUser": 15,
+  "mediaChatDir": "/media/chat",
+  "mediaContactDir": "/media/contact",
+  "messageMax": 5000,
+  "rateContactEmail": "15m:5",
+  "seedRecipient": "",
+  "smtpHost": "",
+  "smtpPort": "",
+  "smtpUser": ""
+}

@@ -4,6 +4,7 @@ import {
   parseGithubHttpsRepo,
   type GithubRepoRef,
 } from '../../domain/githubRepository.js';
+import { readReleaseCatalogJson } from '../../domain/releaseFiles.js';
 import {
   parsePluginReleaseManifest,
   parseShopReleaseManifest,
@@ -88,7 +89,7 @@ export async function checkUpdates(client: GithubClient = createGithubClient()):
   };
 
   try {
-    official = { ...official, ...(await checkOfficial(client, shop, dirtyPaths)) };
+    official = { ...official, ...(await checkOfficial(client, shop, dirtyPaths, inferred)) };
   } catch (error) {
     official.officialRefuse = error instanceof Error ? error.message : 'GitHub check failed.';
     official.canApplyOfficial = false;
@@ -110,6 +111,7 @@ async function checkOfficial(
   client: GithubClient,
   shop: ShopReleaseRecord,
   dirtyPaths: string[],
+  inferred: boolean,
 ): Promise<Partial<UpdateCheck>> {
   const ref = officialRef();
   const tags = await client.listReleaseTags(ref);
@@ -143,11 +145,21 @@ async function checkOfficial(
       plugins: [],
     };
   }
-  const latestManifest = parseShopReleaseManifest(await client.readJson(ref, latest.tag, 'release.json'));
+  const latestManifest = parseShopReleaseManifest(
+    await readReleaseCatalogJson({
+      readOptionalJson: (path) => client.readOptionalJson(ref, latest.tag, path),
+      readJson: (path) => client.readJson(ref, latest.tag, path),
+    }),
+  );
   const walked = walkTagsBetween(current, latest, tags);
   const nextIds: number[] = [];
   for (const tag of walked) {
-    const manifest = parseShopReleaseManifest(await client.readJson(ref, tag.tag, 'release.json'));
+    const manifest = parseShopReleaseManifest(
+      await readReleaseCatalogJson({
+        readOptionalJson: (path) => client.readOptionalJson(ref, tag.tag, path),
+        readJson: (path) => client.readJson(ref, tag.tag, path),
+      }),
+    );
     nextIds.push(manifest.releaseId);
   }
   if (shop.releaseId !== null && shop.tag === current.tag) assertReleaseIdSequence(shop.releaseId, nextIds);
@@ -176,9 +188,9 @@ async function checkOfficial(
       ? { id: 'kernel', from: current.version, to: latestManifest.kernel }
       : undefined;
   let officialRefuse: string | undefined;
-  if (shop.tuuchoFiles.length === 0) {
+  if (!inferred && shop.tuuchoFiles.length === 0) {
     officialRefuse =
-      'This shop has no recorded tuucho/ hashes. Apply is refused until setup writes shop-release.json, so local edits are not overwritten.';
+      'This shop has no recorded tuucho/ hashes. Apply is refused until setup writes tuucho-versioning.lock.json, so local edits are not overwritten.';
   } else if (dirtyPaths.length > 0) {
     officialRefuse = `Local edits under tuucho/ (${dirtyPaths.slice(0, 8).join(', ')}). Copy them out before Apply.`;
   }

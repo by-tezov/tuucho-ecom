@@ -7,7 +7,7 @@ cursor:
 
 Checkout: `/home/tezov/Local/tuucho-ecom`. **Do not execute** until Te says go. Git **read-only**. Do not steal or kill Vite **5174** or API **3010**. Stay generic ecommerce. No shop brands, no extra product languages.
 
-Related: **[plugin-config-files.md](plugin-config-files.md)** (per-plugin files, first-launch, drift, Configure chrome, permissions). This file does **not** replace it. Bulk is the list-page + archive layer on top of that loader and those two permission codes. Also [config-ui.md](config-ui.md) (kit), [config-architecture.md](config-architecture.md) (DB remains SoT).
+Related: **[plugin-config-files.md](plugin-config-files.md)** (per-plugin files, first-launch, drift, Configure chrome, permissions). This file does **not** replace it. Bulk is the list-page + archive layer on top of that loader and those two permission codes. Also [config-ui.md](config-ui.md) (kit), [config-architecture.md](config-architecture.md) (DB remains SoT), [config-migrate.md](config-migrate.md) (factory vs shop JSON; migrate does not write DB).
 
 **Why:** Operators move many plugin configs between shops. Per-plugin Configure already Update / Import / Export one id. They need **all**, as **archives**, with each file naming its plugin, and a compat check that **blocks unsafe apply**.
 

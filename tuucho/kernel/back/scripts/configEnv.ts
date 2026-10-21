@@ -1,10 +1,9 @@
-/** Create a new kernel environment folder from config/dev (public + example only). */
+/** Create a new kernel environment folder from factory-config (public + example only). */
 import { cpSync, existsSync, mkdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { isEnvName } from '../src/config/loadJsonConfig.js';
+import { findPackRoot } from '../src/config/shopPaths.js';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const command = process.argv[2];
 const name = process.argv[3];
 
@@ -19,16 +18,23 @@ if (command !== 'create' || !name) {
 if (!isEnvName(name)) fail(`name must match [a-z][a-z0-9-]* (got "${name}")`);
 if (name === 'dev') fail('dev already exists; copy a different name');
 
-const source = join(root, 'config', 'dev');
-const dest = join(root, 'config', name);
-if (!existsSync(join(source, 'config.json')) || !existsSync(join(source, 'config.private.example.json'))) {
-  fail('config/dev/ is missing public JSON or private example');
+const pack = findPackRoot(process.cwd());
+const factoryEnv = existsSync(join(pack, 'tuucho/factory-config', name, 'config.json'))
+  ? join(pack, 'tuucho/factory-config', name)
+  : join(pack, 'tuucho/factory-config', 'dev');
+const dest = join(pack, 'tuucho-config', name);
+if (!existsSync(join(factoryEnv, 'config.json')) || !existsSync(join(factoryEnv, 'config.private.example.json'))) {
+  fail('factory-config is missing public JSON or private example for this env');
 }
 if (existsSync(dest)) fail(`${dest} already exists`);
 
 mkdirSync(dest, { recursive: true });
-cpSync(join(source, 'config.json'), join(dest, 'config.json'));
-cpSync(join(source, 'config.private.example.json'), join(dest, 'config.private.example.json'));
-console.log(`[config:env] created config/${name}/ (public + private example).`);
-console.log(`[config:env] cp config/${name}/config.private.example.json config/${name}/config.private.json`);
-console.log(`[config:env] edit public URLs in config/${name}/config.json (commit). Fill new secrets in the private file (do not commit). APP_TARGET=${name}`);
+cpSync(join(factoryEnv, 'config.json'), join(dest, 'config.json'));
+cpSync(join(factoryEnv, 'config.private.example.json'), join(dest, 'config.private.example.json'));
+console.log(`[config:env] created tuucho-config/${name}/ (public + private example) from factory.`);
+console.log(
+  `[config:env] cp tuucho-config/${name}/config.private.example.json tuucho-config/${name}/config.private.json`,
+);
+console.log(
+  `[config:env] edit public URLs in tuucho-config/${name}/config.json. Fill secrets in the private file (do not commit). APP_TARGET=${name}`,
+);
