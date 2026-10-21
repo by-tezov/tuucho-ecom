@@ -1,0 +1,74 @@
+.card {
+  flex: 1 1 132px;
+  min-width: 132px;
+  text-align: left;
+  border: 1px solid;
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.card:hover {
+  text-decoration: none;
+}
+
+.exception {
+  flex-basis: 100%;
+  background: color-mix(in srgb, var(--color-danger) 10%, var(--color-bg-card));
+  border: 2px solid var(--color-danger);
+  color: var(--color-danger);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--color-danger) 12%, transparent);
+}
+
+.count {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+.red {
+  background: var(--color-alert-soft);
+  border-color: var(--color-alert);
+  color: var(--color-alert);
+}
+
+.orange {
+  background: var(--color-warning-soft);
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+}
+
+.purple {
+  background: var(--color-violet-soft);
+  border-color: var(--color-violet);
+  color: var(--color-violet);
+}
+
+.blue {
+  background: var(--color-info-soft);
+  border-color: var(--color-info);
+  color: var(--color-info);
+}
+
+@media (min-width: 1024px) {
+  .exception {
+    min-height: 112px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .exception .count {
+    font-size: 2.5rem;
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "title": "Footer identity",
+  "summary": "Fills slot.footer.identity with operator-owned shop name, tagline and copyright. Kernel and theme only provide the slot.",
+  "sections": [
+    {
+      "heading": "What it mounts",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Slot only",
+          "text": "front/index.tsx sets slots[CORE_FRONT_SLOTS.footerIdentity] to <FooterIdentity />. PluginSlot in the kernel footer renders it. Edit copy on Plugins \u2192 Configure. Defaults are Shop, empty tagline, empty also-known-as, empty copyright suffix, plus the current year."
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "export const pluginFront: PluginFrontModule = {\n  pluginId: 'footer-identity',\n  slots: { [CORE_FRONT_SLOTS.footerIdentity]: <FooterIdentity /> },\n};",
+          "caption": "front/index.tsx"
+        }
+      ]
+    },
+    {
+      "heading": "Config files",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Default path: same folder as package.json (config.json, gitignored config.private.json, committed config.private.example.json). Optional tuucho.configDir. Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.json",
+          "code": "{\n  \"alsoKnownAs\": \"\",\n  \"copyrightSuffix\": \"\",\n  \"shopName\": \"Shop\",\n  \"tagline\": \"\"\n}"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.private.example.json",
+          "code": "{}"
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "shopName",
+              "description": "string \u2014 public. Name shown in the footer identity slot. This is operator-owned copy, not kernel JSON."
+            },
+            {
+              "term": "tagline",
+              "description": "text \u2014 public. Short line under the shop name. Leave empty to hide it."
+            },
+            {
+              "term": "alsoKnownAs",
+              "description": "string \u2014 public. Optional extra trading name. Leave empty if the shop has only one name."
+            },
+            {
+              "term": "copyrightSuffix",
+              "description": "string \u2014 public. Text after the year in the footer copyright line."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

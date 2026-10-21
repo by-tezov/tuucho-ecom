@@ -1,0 +1,28 @@
+{
+  "name": "@tuucho/plugin-tuucho-shipping-home",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Delivery to a home address. Packet prices are editable in Admin, Plugins.",
+  "tuucho": {
+    "id": "tuucho-shipping-home",
+    "installPath": "tuucho/plugins/shipping/home/tuucho-shipping-home",
+    "name": "Home address delivery",
+    "kind": "shipping",
+    "defaultEnabled": true,
+    "provides": [
+      "ShippingMethod"
+    ],
+    "courierCodes": [
+      "colissimo-home",
+      "chronopost-home",
+      "mondial-relay-home"
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    }
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

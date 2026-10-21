@@ -42,7 +42,7 @@ Default priority 10; lower runs first.
 | Filter | Surface |
 | --- | --- |
 | `core.preferences.entries` | Admin, Préférences — prefer this over a blank Configure page |
-| `core.profile.entries` | Account, My profile |
+| `core.profile.entries` | Bootstrap profile links (not My profile layout — cards use `slot.account.profile.*`) |
 | `core.signIn.methods` | Sign-in methods |
 | `core.notifications.entries` | Notifications rows |
 | `cart.shipping.methods` / `cart.lines` | Cart |

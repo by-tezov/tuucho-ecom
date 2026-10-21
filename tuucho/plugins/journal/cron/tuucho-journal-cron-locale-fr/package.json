@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-tuucho-journal-cron-locale-fr",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "French strings for journal-cron. Enable with locale-fr for French UI; disable to keep this plugin in English.",
+  "tuucho": {
+    "id": "tuucho-journal-cron-locale-fr",
+    "installPath": "tuucho/plugins/journal/cron/tuucho-journal-cron-locale-fr",
+    "name": "journal-cron French",
+    "kind": "locale",
+    "defaultEnabled": false,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "tuucho-journal-cron",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

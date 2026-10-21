@@ -1,0 +1,145 @@
+{
+  "title": "Mondial Relay pickup",
+  "summary": "Pickup at a Point Relais. Same shipping shell as home delivery: courierCodes, registerShippingMethod; packet prices are the kernel Couriers JSON page.",
+  "sections": [
+    {
+      "heading": "Cart",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Checkout keeps the Point Relais courier only while this plugin is on. Packet prices are the kernel Couriers JSON page, not a kernel ALTER. Pair with expedition-cron for tracking."
+        }
+      ]
+    },
+    {
+      "heading": "Config files",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bundled path: tuucho-config/plugins/tuucho-shipping-mondial-relay/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.json",
+          "code": "{\n  \"api1Url\": \"https://api.mondialrelay.com/WebService.asmx\",\n  \"api2Url\": \"https://connect-api-sandbox.mondialrelay.com/api/shipment\",\n  \"brand\": \"BDTEST13\",\n  \"collectionMode\": \"REL\",\n  \"homeCollectionMode\": \"REL\",\n  \"homeCourierCode\": \"mondial-relay-home\",\n  \"homeDeliveryMode\": \"HOM\",\n  \"homeNetworkCode\": \"home\",\n  \"pointCourierCode\": \"mondial-relay-point\",\n  \"pointDeliveryMode\": \"24R\",\n  \"pointNetworkCode\": \"mondial-relay-point\",\n  \"publicTrackingUrl\": \"https://www.mondialrelay.fr/suivi-de-colis/\",\n  \"senderCity\": \"\",\n  \"senderCountryCode\": \"\",\n  \"senderEmail\": \"\",\n  \"senderLine1\": \"\",\n  \"senderName\": \"\",\n  \"senderPhone\": \"\",\n  \"senderPostalCode\": \"\",\n  \"trackingThrottle\": \"1.5s\",\n  \"trackingTimeout\": \"30s\"\n}"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.private.example.json",
+          "code": "{\n  \"api1Enseigne\": \"replace-me\",\n  \"api1PrivateKey\": \"replace-me\",\n  \"api2Enseigne\": \"replace-me\",\n  \"api2Login\": \"replace-me\",\n  \"api2Password\": \"replace-me\"\n}"
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "brand",
+              "description": "string \u2014 public. Mondial Relay widget brand code (sandbox default BDTEST13). Change only if Mondial issued a different brand."
+            },
+            {
+              "term": "api2Url",
+              "description": "url \u2014 public. Connect API endpoint. Keep the sandbox host until you switch the shop to production."
+            },
+            {
+              "term": "api2Enseigne",
+              "description": "secret \u2014 secret. Connect enseigne (merchant code). Fill when Mondial activates API2; leave empty to keep the stored secret."
+            },
+            {
+              "term": "api2Login",
+              "description": "secret \u2014 secret. Connect login. Required together with API2 password to create labels."
+            },
+            {
+              "term": "api2Password",
+              "description": "secret \u2014 secret. Connect password. Never shown after save; type a new value only to replace it."
+            },
+            {
+              "term": "api1Url",
+              "description": "url \u2014 public. SOAP WebService host used for Point Relais search and tracking. Leave the default unless Mondial gives a new endpoint."
+            },
+            {
+              "term": "api1Enseigne",
+              "description": "secret \u2014 secret. WebService enseigne. Fill when you have API1 access; leave empty to keep the stored secret."
+            },
+            {
+              "term": "api1PrivateKey",
+              "description": "secret \u2014 secret. WebService private key used to sign API1 calls. Replace only when Mondial rotates the key."
+            },
+            {
+              "term": "pointCourierCode",
+              "description": "string \u2014 public. Internal courier id for Point Relais. Keep mondial-relay-point unless you registered a different code."
+            },
+            {
+              "term": "pointNetworkCode",
+              "description": "string \u2014 public. Network sent to Mondial for Point Relais. Usually the same as the courier code."
+            },
+            {
+              "term": "pointDeliveryMode",
+              "description": "string \u2014 public. Mondial delivery mode for pickup (24R). Change only if Mondial assigned another product."
+            },
+            {
+              "term": "collectionMode",
+              "description": "string \u2014 public. How the parcel is dropped off (REL = Relais). Leave default unless Mondial tells you otherwise."
+            },
+            {
+              "term": "homeCourierCode",
+              "description": "string \u2014 public. Internal courier id for home delivery. Keep mondial-relay-home unless you registered a different code."
+            },
+            {
+              "term": "homeNetworkCode",
+              "description": "string \u2014 public. Network sent to Mondial for home. Usually home."
+            },
+            {
+              "term": "homeDeliveryMode",
+              "description": "string \u2014 public. Mondial delivery mode for home (HOM). Change only if Mondial assigned another product."
+            },
+            {
+              "term": "homeCollectionMode",
+              "description": "string \u2014 public. How a home parcel is collected (REL). Leave default unless Mondial tells you otherwise."
+            },
+            {
+              "term": "senderName",
+              "description": "string \u2014 public. Name printed on the Mondial label as the shipper. Required before live expeditions."
+            },
+            {
+              "term": "senderLine1",
+              "description": "string \u2014 public. Street and number of the ship-from address."
+            },
+            {
+              "term": "senderPostalCode",
+              "description": "string \u2014 public. Postal code of the ship-from address."
+            },
+            {
+              "term": "senderCity",
+              "description": "string \u2014 public. City of the ship-from address."
+            },
+            {
+              "term": "senderCountryCode",
+              "description": "string \u2014 public. ISO country code (FR). Must match the Mondial contract country."
+            },
+            {
+              "term": "senderPhone",
+              "description": "string \u2014 public. Contact phone printed on the label. Use the shop number customers may call."
+            },
+            {
+              "term": "senderEmail",
+              "description": "email \u2014 public. Contact email printed on the label. Use a mailbox you read."
+            },
+            {
+              "term": "publicTrackingUrl",
+              "description": "url \u2014 public. Customer-facing tracking page. Keep the Mondial suivi URL unless you wrap it."
+            },
+            {
+              "term": "trackingThrottle",
+              "description": "string \u2014 public. Minimum delay between tracking polls (for example 1.5s). Raise it if Mondial rate-limits you."
+            },
+            {
+              "term": "trackingTimeout",
+              "description": "string \u2014 public. How long a tracking request may wait (for example 30s) before the kernel gives up."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

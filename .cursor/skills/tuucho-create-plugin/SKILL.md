@@ -17,10 +17,10 @@ child `SKILL.md` after you pick the kind.
 
 ## Kernel is read-only
 
-Write only `plugins/tuucho/<group>/<feature>/<id>/` (id starts with `tuucho-`;
+Write only `tuucho/plugins/<group>/<feature>/<id>/` (id starts with `tuucho-`;
 put `*-locale-*` complements in that same feature folder) or
-`plugins/user/<group>/<feature>/<id>/` (id must not start with `tuucho-`).
-Standalone locale packs (`tuucho-locale-fr`) live in `plugins/tuucho/locale/`
+`src/plugins/<group>/<feature>/<id>/` (id must not start with `tuucho-`).
+Standalone locale packs (`tuucho-locale-fr`) live in `tuucho/plugins/locale/`
 with no fake parent. Never `kernel/`. Never
 `@tuucho/plugin-sdk` contracts or kernel migrations. If the opening, slot, or
 shell you need is missing, **stop and tell the user**. Do not patch the kernel
@@ -72,7 +72,13 @@ load the skill it names.
 
 New keys go on that plugin’s `settingsSchema` (public) or `type: "secret"`
 (plugin secret store). Do not add `MONDIAL_*`, `STRIPE_*`, or `VITE_SHOP_*`
-to kernel JSON or leftover env.
+to kernel JSON or leftover env. A plugin with `settingsSchema` must also ship
+committed `config.json` + `config.private.example.json` (bundled:
+`tuucho-config/plugins/<id>/`; user: next to `package.json` or
+`tuucho.configDir`) and handbook **Config files** JSON code blocks matching
+those files. Schema plugins join Plugins list Update all / Import all /
+Export all automatically (no extra register). Locale packs have no schema →
+no JSON files. Never commit `config.private.json`.
 
 ## Shared rules
 
@@ -114,7 +120,10 @@ not auto-enable dependencies.
     "provides": ["AdminPage"],
     "dependsOn": [{ "id": "optional-parent", "version": ">=1.0.0" }],
     "engines": { "core": ">=0.0.1 <1.0.0" },
-    "installPath": "plugins/user/<group>/your-id",
+    "installPath": "src/plugins/<group>/your-id",
+    "repo": "https://github.com/example/your-plugin",
+    "branch": "main",
+    "folder": "",
     "permissions": [{ "code": "your_code", "label": "Your section" }],
     "route": "/optional-storefront-path",
     "nav": { "key": "optional", "order": 45, "bottomBar": false },

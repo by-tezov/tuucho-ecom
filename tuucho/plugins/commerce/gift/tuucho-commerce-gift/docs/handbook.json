@@ -1,0 +1,170 @@
+{
+  "title": "Gift orders",
+  "summary": "Create a gift, receiver shop, admin offers. Can replace view.cart for the receiver. Permission gift.",
+  "sections": [
+    {
+      "heading": "HTTP and openings",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "Public mounts",
+              "description": "scope public path /gift (giver and receiver routers)"
+            },
+            {
+              "term": "Admin",
+              "description": "scope admin path /gift, nav Gift, permission gift"
+            },
+            {
+              "term": "view.cart",
+              "description": "Receiver cart can replace the shop cart surface while a lock is on"
+            },
+            {
+              "term": "cart.lines / orders.snapshot / checkout.quote",
+              "description": "Gift bag on the quote and order"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Disable to hide the Offer menu and gift APIs. Do not import gift http/ from another plugin."
+        }
+      ]
+    },
+    {
+      "heading": "Config files",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bundled path: tuucho-config/plugins/tuucho-commerce-gift/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.json",
+          "code": "{\n  \"cronLog\": \"/log/cron-gift.jsonl\",\n  \"cronPurgeLog\": \"/log/cron-gift-purge.jsonl\",\n  \"disableRateGiftCreateEmail\": false,\n  \"disableRateGiftPin\": false,\n  \"disableRateGiftShareCardDownload\": false,\n  \"disableRateGiftShareCardEmail\": false,\n  \"disableRateGiftShareCardUpdate\": false,\n  \"extendCeilingDays\": 60,\n  \"giverPayTtlDays\": 15,\n  \"holdReminderBefore\": \"1d\",\n  \"lockSessionTtlHours\": 12,\n  \"maxAccessoryBudgetCeiling\": 10,\n  \"maxBudgetCeiling\": 150,\n  \"maxOpenPromisesPerGiver\": 10,\n  \"minBudget\": 12,\n  \"payReminderBefore\": \"3d\",\n  \"pinFailures\": \"5:8\",\n  \"purgeAfterDays\": 396,\n  \"rateGiftCreateEmail\": \"15m:10\",\n  \"rateGiftPin\": \"60s:20\",\n  \"rateGiftShareCardDownload\": \"15m:5\",\n  \"rateGiftShareCardEmail\": \"15m:5\",\n  \"rateGiftShareCardUpdate\": \"15m:5\",\n  \"receiverTokenTtlDays\": 30,\n  \"selectReminderBefore\": \"7d\",\n  \"stockHoldTtlDays\": 7,\n  \"visibilityAfterTerminalDays\": 7\n}"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.private.example.json",
+          "code": "{}"
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "receiverTokenTtlDays",
+              "description": "number \u2014 public. Days a receiver link stays valid before the giver must send a new one."
+            },
+            {
+              "term": "extendCeilingDays",
+              "description": "number \u2014 public. Furthest a giver may extend a promise. Raise only if you allow longer gifts."
+            },
+            {
+              "term": "lockSessionTtlHours",
+              "description": "number \u2014 public. Hours a receiver PIN session stays unlocked on that browser."
+            },
+            {
+              "term": "stockHoldTtlDays",
+              "description": "number \u2014 public. Days reserved stock is held after the receiver picks, until the giver pays."
+            },
+            {
+              "term": "giverPayTtlDays",
+              "description": "number \u2014 public. Days the giver has to pay after the receiver chose. After that the hold is released."
+            },
+            {
+              "term": "visibilityAfterTerminalDays",
+              "description": "number \u2014 public. Days a finished gift stays visible in history before it is hidden."
+            },
+            {
+              "term": "purgeAfterDays",
+              "description": "number \u2014 public. Days after terminal before cron deletes leftover gift rows. Keep aligned with legal retention."
+            },
+            {
+              "term": "selectReminderBefore",
+              "description": "string \u2014 public. How early the receiver is reminded to pick (for example 3d) before the select window ends."
+            },
+            {
+              "term": "holdReminderBefore",
+              "description": "string \u2014 public. How early the giver is reminded a stock hold will expire."
+            },
+            {
+              "term": "payReminderBefore",
+              "description": "string \u2014 public. How early the giver is reminded to pay before the pay window ends."
+            },
+            {
+              "term": "minBudget",
+              "description": "number \u2014 public. Lowest gift budget the giver may set, in euros."
+            },
+            {
+              "term": "maxBudgetCeiling",
+              "description": "number \u2014 public. Highest gift budget for products, in euros."
+            },
+            {
+              "term": "maxAccessoryBudgetCeiling",
+              "description": "number \u2014 public. Highest extra budget for accessories, in euros."
+            },
+            {
+              "term": "maxOpenPromisesPerGiver",
+              "description": "number \u2014 public. How many unfinished gifts one giver may have at once."
+            },
+            {
+              "term": "pinFailures",
+              "description": "string \u2014 public. Free guesses then lock (for example 5:8). Raise only if receivers struggle on mobile."
+            },
+            {
+              "term": "cronLog",
+              "description": "string \u2014 public. JSONL path for the gift reminder cron. Change only if you relocated kernel logs."
+            },
+            {
+              "term": "cronPurgeLog",
+              "description": "string \u2014 public. JSONL path for the gift purge cron."
+            },
+            {
+              "term": "rateGiftPin",
+              "description": "string \u2014 public. Window:max for PIN attempts (for example 60s:20)."
+            },
+            {
+              "term": "rateGiftCreateEmail",
+              "description": "string \u2014 public. Window:max for gift-create mails (for example 15m:10)."
+            },
+            {
+              "term": "rateGiftShareCardUpdate",
+              "description": "string \u2014 public. Window:max for share-card edits (for example 15m:5)."
+            },
+            {
+              "term": "rateGiftShareCardDownload",
+              "description": "string \u2014 public. Window:max for share-card downloads (for example 15m:5)."
+            },
+            {
+              "term": "rateGiftShareCardEmail",
+              "description": "string \u2014 public. Window:max for share-card emails (for example 15m:5)."
+            },
+            {
+              "term": "disableRateGiftPin",
+              "description": "boolean \u2014 public. Turn on only on a local shop while testing. Leave off in production."
+            },
+            {
+              "term": "disableRateGiftCreateEmail",
+              "description": "boolean \u2014 public. Turn on only on a local shop while testing. Leave off in production."
+            },
+            {
+              "term": "disableRateGiftShareCardUpdate",
+              "description": "boolean \u2014 public. Turn on only on a local shop while testing. Leave off in production."
+            },
+            {
+              "term": "disableRateGiftShareCardDownload",
+              "description": "boolean \u2014 public. Turn on only on a local shop while testing. Leave off in production."
+            },
+            {
+              "term": "disableRateGiftShareCardEmail",
+              "description": "boolean \u2014 public. Turn on only on a local shop while testing. Leave off in production."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

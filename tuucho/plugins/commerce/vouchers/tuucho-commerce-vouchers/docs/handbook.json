@@ -1,0 +1,74 @@
+{
+  "title": "Vouchers",
+  "summary": "Promo codes at checkout and the Vouchers admin page. checkout.quote priority 20. Permission vouchers.",
+  "sections": [
+    {
+      "heading": "Checkout",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "The quote filter writes itemDiscount, shippingDiscount, and plugins[tuucho-commerce-vouchers]. Loyalty (priority 30) reads that bag so wallet spend happens after the voucher. Disable the plugin to hide admin and checkout fields."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Surface",
+            "Detail"
+          ],
+          "rows": [
+            [
+              "Permission",
+              "vouchers"
+            ],
+            [
+              "orders.snapshot / invoice.render / cart.lines",
+              "Same pattern as loyalty: bag then extraLines"
+            ],
+            [
+              "HTTP",
+              "operation /voucher-import among others"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Config files",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bundled path: tuucho-config/plugins/tuucho-commerce-vouchers/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.json",
+          "code": "{\n  \"codeMax\": 64,\n  \"disableRateVoucher\": false,\n  \"rateVoucher\": \"60s:10\"\n}"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.private.example.json",
+          "code": "{}"
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "codeMax",
+              "description": "number \u2014 public. Maximum characters a voucher code may have. Raise only if you issue longer codes."
+            },
+            {
+              "term": "rateVoucher",
+              "description": "string \u2014 public. Window:max for voucher attempts (for example 60s:10). Protects checkout from guessing."
+            },
+            {
+              "term": "disableRateVoucher",
+              "description": "boolean \u2014 public. Turn on only on a local shop while testing. Leave off in production."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

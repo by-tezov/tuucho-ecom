@@ -1,0 +1,53 @@
+{
+  "name": "@tuucho/plugin-tuucho-commerce-vinted-review",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Vinted reviews on the home page and the Vinted review admin page. Disable to hide both.",
+  "tuucho": {
+    "id": "tuucho-commerce-vinted-review",
+    "installPath": "tuucho/plugins/commerce/vinted-review/tuucho-commerce-vinted-review",
+    "name": "Vinted review",
+    "kind": "commerce",
+    "defaultEnabled": false,
+    "provides": [
+      "StorefrontSlot",
+      "AdminPage"
+    ],
+    "permissions": [
+      {
+        "code": "reviews",
+        "label": "Vinted review"
+      }
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "adminNav": [
+      {
+        "id": "reviews",
+        "group": "customers",
+        "to": "/reviews",
+        "permission": "reviews",
+        "order": 30,
+        "label": "Vinted review"
+      }
+    ],
+    "defaultSettings": {
+      "homeCacheTtl": ""
+    },
+    "settingsSchema": {
+      "homeCacheTtl": {
+        "type": "string",
+        "label": "Home reviews cache TTL",
+        "description": "How long home-page reviews stay cached (for example 10m). Empty disables the cache and fetches every time.",
+        "section": "cache",
+        "sectionTitle": "Home reviews cache",
+        "sectionDescription": "TTL for the Vinted reviews block on home. Empty means no cache."
+      }
+    }
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "@tuucho/plugin-tuucho-shipping-expedition-cron",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Scheduled shipment tracking. Complements home and Mondial Relay shipping. Disable to stop expedition cron work.",
+  "tuucho": {
+    "id": "tuucho-shipping-expedition-cron",
+    "installPath": "tuucho/plugins/shipping/expedition-cron/tuucho-shipping-expedition-cron",
+    "name": "Expedition cron",
+    "kind": "generic",
+    "defaultEnabled": false,
+    "dependsOnMode": "any",
+    "dependsOn": [
+      {
+        "id": "tuucho-shipping-home",
+        "version": ">=1.0.0"
+      },
+      {
+        "id": "tuucho-shipping-mondial-relay",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "CronJob"
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    }
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

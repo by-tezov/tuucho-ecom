@@ -131,8 +131,10 @@ profile opening or a `checkout.quote` filter. The shipped page-plugin demo is
 There is no Menus tab. If a page plugin is on, its header / burger / footer
 entry shows. If it is off, the entry disappears.
 
-Admin Home is kernel chrome (urgent orders, library stats). Plugins add cards
-on `slot.admin.dashboard` (loyalty and product-requests are the examples).
+Admin Home is kernel chrome (urgent orders, library stats). Plugins add **numbers**
+on `slot.admin.dashboard` (`ui.AdminStatCard`, loyalty) and **attention** tiles on
+`slot.admin.dashboard.attention` (`ui.AdminAttentionCard`, product-requests).
+Disabled plugins drop out. New home regions are extra `CORE_FRONT_SLOTS` ids.
 
 ## Languages (en + fr)
 
@@ -348,7 +350,7 @@ Openings (core APIs, prefer these over a blank Configure page):
 - Invoice: `invoice.render`, `invoice.document`
 - Mail: `mail.send`, `mail.templates`, `mail.recipients`
 - SEO: `seo.meta`, `seo.jsonld.graph`, `seo.sitemap.entries`, `seo.robots.rules`, `seo.redirects.rules`
-- Front slots: `slot.cart.summary`, `slot.cart.line`, `slot.checkout.payment`, `slot.product.actions`, `slot.account.profile`, `slot.account.notifications`, `slot.order.detail`, `slot.order.history.row`, `slot.home.faq`, `slot.home.onboarding`, `slot.home.featured`, `slot.admin.dashboard`, `slot.footer.identity`
+- Front slots: `slot.cart.summary`, `slot.cart.line`, `slot.checkout.payment`, `slot.product.actions`, `slot.account.profile`, `slot.account.profile.details`, `slot.account.profile.credentials`, `slot.account.profile.end`, `slot.account.notifications`, `slot.order.detail`, `slot.order.history.row`, `slot.home.faq`, `slot.home.onboarding`, `slot.home.featured`, `slot.admin.dashboard`, `slot.admin.dashboard.attention`, `slot.footer.identity`
 - Front views: `view.cart`, `view.product`, `view.invoice.preview` (plugin may replace the whole view)
 - Cache: `api.cache` (`pluginCache.namespace(pluginId)`), TTL, `sensitivity: public|private`, flushed on uninstall
 - Services: `registerPluginService` / `getPluginService` (never private imports)

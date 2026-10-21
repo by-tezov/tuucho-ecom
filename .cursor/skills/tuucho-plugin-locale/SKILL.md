@@ -23,10 +23,10 @@ French is a locale plugin.
 
 - Locale `package.json` may omit npm `description`; every other plugin must have one.
 - `tuucho-locale-fr` (`kind: locale`): kernel chrome + email + invoice overlay
-  (`invoice.render` copy). Example: `plugins/tuucho/locale/tuucho-locale-fr`.
+  (`invoice.render` copy). Example: `tuucho/plugins/locale/tuucho-locale-fr`.
 - `<id>-locale-fr` with `dependsOn` on the parent: plugin copy. Live in the
   same feature folder as the parent. Example:
-  `plugins/tuucho/home/onboarding/tuucho-onboarding-locale-fr`.
+  `tuucho/plugins/home/onboarding/tuucho-onboarding-locale-fr`.
 - Product languages are **en+fr**. Do not add es/it/nl/pt/th.
 
 Front overlay:

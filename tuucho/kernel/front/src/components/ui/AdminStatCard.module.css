@@ -1,0 +1,41 @@
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: 16px 18px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.card h3 {
+  margin: 0 0 12px;
+  font-size: 1.125rem;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.metrics div {
+  display: grid;
+  gap: 2px;
+}
+
+.metrics dt {
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.metrics dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-size: 1.3125rem;
+  font-weight: 600;
+  line-height: 1.2;
+}

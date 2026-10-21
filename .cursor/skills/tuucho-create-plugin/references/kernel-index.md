@@ -64,6 +64,9 @@ Sources: `CORE_OPENING_FILTERS` and shells in `plugin-sdk`,
 | `slot.checkout.payment` | slot | tuucho-plugin-slot |
 | `slot.product.actions` | slot | tuucho-plugin-slot |
 | `slot.account.profile` | slot | tuucho-plugin-slot |
+| `slot.account.profile.details` | slot | tuucho-plugin-slot |
+| `slot.account.profile.credentials` | slot | tuucho-plugin-slot |
+| `slot.account.profile.end` | slot | tuucho-plugin-slot |
 | `slot.account.notifications` | slot | tuucho-plugin-slot |
 | `slot.order.detail` | slot | tuucho-plugin-slot |
 | `slot.order.history.row` | slot | tuucho-plugin-slot |
@@ -71,6 +74,7 @@ Sources: `CORE_OPENING_FILTERS` and shells in `plugin-sdk`,
 | `slot.home.onboarding` | slot | tuucho-plugin-slot |
 | `slot.home.featured` | slot | tuucho-plugin-slot |
 | `slot.admin.dashboard` | slot | tuucho-plugin-slot |
+| `slot.admin.dashboard.attention` | slot | tuucho-plugin-slot |
 | `slot.footer.identity` | slot | tuucho-plugin-slot |
 | `view.cart` | view | tuucho-plugin-slot |
 | `view.product` | view | tuucho-plugin-slot |

@@ -7,14 +7,15 @@
  */
 import { createServer } from 'node:http';
 import { randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const lockPath = join(root, 'installed.lock');
-const back = join(root, 'kernel/back');
+const back = join(root, 'tuucho/kernel/back');
+const configRoot = join(root, 'tuucho-config');
 
 function parseArgs(argv) {
   const out = {
@@ -56,6 +57,40 @@ function run(command, args, cwd) {
   }
 }
 
+function doctorPack() {
+  const required = [
+    join(root, 'tuucho/kernel'),
+    join(root, 'tuucho/plugin-sdk'),
+    join(root, 'tuucho/plugins'),
+    configRoot,
+  ];
+  const missing = required.filter((path) => !existsSync(path));
+  if (missing.length > 0) {
+    throw new Error(`broken pack, missing: ${missing.join(', ')}`);
+  }
+}
+
+function copyPrivateFromExample(privatePath, examplePath) {
+  if (existsSync(privatePath)) return;
+  if (!existsSync(examplePath)) {
+    throw new Error(`missing ${privatePath} and ${examplePath}. Cannot launch.`);
+  }
+  writeFileSync(privatePath, readFileSync(examplePath));
+  console.warn(`[setup] copied ${examplePath} -> ${privatePath} (edit before production)`);
+}
+
+function materialiseConfig() {
+  mkdirSync(join(configRoot, 'dev'), { recursive: true });
+  copyPrivateFromExample(join(configRoot, 'config.private.json'), join(configRoot, 'config.private.example.json'));
+  copyPrivateFromExample(
+    join(configRoot, 'dev', 'config.private.json'),
+    join(configRoot, 'dev', 'config.private.example.json'),
+  );
+  if (!existsSync(join(configRoot, 'plugins.json'))) {
+    copyPrivateFromExample(join(configRoot, 'plugins.json'), join(configRoot, 'plugins.example.json'));
+  }
+}
+
 function writeConfig(options) {
   const jwt = randomBytes(48).toString('base64url');
   const ops = randomBytes(48).toString('base64url');
@@ -63,10 +98,10 @@ function writeConfig(options) {
   const piiPepper = randomBytes(32).toString('base64');
   const databaseUrl = `postgres://${options.postgresUser}:${encodeURIComponent(options.postgresPassword)}@127.0.0.1:5434/${options.postgresDb}`;
 
-  mkdirSync(join(back, 'config', 'dev'), { recursive: true });
-  writeFileSync(join(back, 'config', 'config.private.json'), '{}\n');
+  mkdirSync(join(configRoot, 'dev'), { recursive: true });
+  if (!existsSync(join(configRoot, 'config.private.json'))) writeFileSync(join(configRoot, 'config.private.json'), '{}\n');
   writeFileSync(
-    join(back, 'config', 'dev', 'config.private.json'),
+    join(configRoot, 'dev', 'config.private.json'),
     JSON.stringify(
       {
         database: {
@@ -79,8 +114,6 @@ function writeConfig(options) {
         ops: { token: ops },
         pii: { encryptionKey: piiKey, lookupPepper: piiPepper },
         smtp: { host: '', user: '', password: '', fromEmail: '' },
-        chat: { smtpPassword: '' },
-        auth: { facebookAppSecret: '' },
       },
       null,
       2,
@@ -106,6 +139,8 @@ async function install(options) {
     console.log('[setup] already installed (installed.lock). Delete it to re-run.');
     return;
   }
+  doctorPack();
+  materialiseConfig();
   writeConfig(options);
   run('node', ['scripts/composeEnv.mjs'], back);
   run('docker', ['compose', '--env-file', '.compose.env', 'up', '-d'], back);

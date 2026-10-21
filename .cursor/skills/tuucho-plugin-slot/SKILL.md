@@ -46,15 +46,32 @@ export const pluginFront: PluginFrontModule = {
 | `slot.home.onboarding` | `tuucho-onboarding` |
 | `slot.home.featured` | `tuucho-home-featured` |
 | `slot.footer.identity` | `footer-identity` (user plugin) |
-| `slot.admin.dashboard` | `tuucho-commerce-loyalty` `AdminDashboardCard` |
-| `slot.account.profile` | onboarding replay settings |
+| `slot.admin.dashboard` | KPI numbers. `tuucho-commerce-loyalty` `AdminDashboardCard` + `ui.AdminStatCard` |
+| `slot.admin.dashboard.attention` | Needs-attention tiles. `tuucho-commerce-product-requests` + `ui.AdminAttentionCard` |
+| `slot.account.profile` | Account extras in a two-column band after Delete / Introduction |
+| `slot.account.profile.details` | Left column under Information |
+| `slot.account.profile.credentials` | Right column after Change email / Recent logins |
+| `slot.account.profile.end` | Same row as Delete (Introduction, `slotOrder` 0) |
 | `view.cart` / `cartSurface` | `tuucho-commerce-gift` receiver cart |
 
 CSS `composes` of kernel classes must use `@kernel/front/components/...`,
 not a leftover `../ui/` or `../../../../../../kernel/front/...` path.
 
-Admin Home is kernel chrome. Add cards on `slot.admin.dashboard`, do not
-replace Accueil.
+Admin Home is kernel chrome. Add number cards on `slot.admin.dashboard` and
+attention tiles on `slot.admin.dashboard.attention`. Do not replace Accueil.
+
+Account profile is kernel chrome. Pick a `slot.account.profile.*` region and
+optional `slotOrder` (default 10, lower first). Use account `.block` CSS +
+kit Button. Disable the plugin → card gone. Do not dump `core.profile.entries`
+titles on My profile.
+
+```tsx
+export const pluginFront: PluginFrontModule = {
+  pluginId: 'your-id',
+  slots: { [CORE_FRONT_SLOTS.accountProfileEnd]: <YourCard /> },
+  slotOrder: { [CORE_FRONT_SLOTS.accountProfileEnd]: 20 },
+};
+```
 
 ## Follow-up
 

@@ -1,0 +1,123 @@
+{
+  "title": "Spy e-mails",
+  "summary": "Who receives staff copies of ops mail. Kernel SMTP unchanged. Permission spy_mail. Register channels with mail.spy.channels.",
+  "sections": [
+    {
+      "heading": "Register",
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Opening",
+            "Priority / note"
+          ],
+          "rows": [
+            [
+              "mail.spy.channels",
+              "Kernel seeds KERNEL_SPY_CHANNELS. Plugins append { id, pluginId, title, description, filters }."
+            ],
+            [
+              "mail.spy.resolve",
+              "This plugin fills { channelId, to }. Empty to skips the send."
+            ]
+          ]
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "import { CORE_OPENING_FILTERS, appendSpyChannel, type SpyChannelDeclaration } from '@tuucho/plugin-sdk';\n\napi.addFilter(CORE_OPENING_FILTERS.mailSpyChannels, (channels: SpyChannelDeclaration[]) =>\n  appendSpyChannel(channels, {\n    id: 'gift_created',\n    pluginId: api.pluginId,\n    title: 'Gift created',\n    description: 'Staff copy when a giver creates a gift offer.',\n    filters: ['role', 'email', 'kind'],\n  }),\n);"
+        },
+        {
+          "type": "callout",
+          "tone": "important",
+          "title": "Safety",
+          "text": "Role user (customers) never receive spy mail. Recipients must be existing unlocked staff accounts. Matching many filters still sends one copy per email."
+        }
+      ]
+    },
+    {
+      "heading": "Admin",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "Permission",
+              "description": "spy_mail on the manifest. Nav Admin \u2192 Spy e-mails."
+            },
+            {
+              "term": "No Configure",
+              "description": "Channels and recipients live on /admin/spy-mail, not /admin/plugins/:id."
+            },
+            {
+              "term": "Contact",
+              "description": "tuucho-contact registers contact.inbound and contact.chat. seedContactRecipient / seedChatRecipient are seed-only plugin settings."
+            },
+            {
+              "term": "Outage",
+              "description": "website_down / website_restore_failed use spyTo. If DB is down, warmOutageSpy reads $PRIVATE_DIR/warm-outage/spy-recipients.json. SMTP_HOST / EMAIL_NO_REPLY_FROM stay kernel SMTP JSON."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Config files",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bundled path: tuucho-config/plugins/tuucho-mail-spy/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.json",
+          "code": "{\n  \"cooldown\": \"15m\",\n  \"devEmailDir\": \"/email-spy\",\n  \"disableCooldown\": false,\n  \"disableEmail\": false,\n  \"seedChatRecipient\": \"\",\n  \"seedContactRecipient\": \"\",\n  \"seedOrderRecipient\": \"\",\n  \"sendVolumeDay\": 30\n}"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.private.example.json",
+          "code": "{}"
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "cooldown",
+              "description": "string \u2014 public. Minimum delay between two spy mails of the same kind to the same person (for example 15m)."
+            },
+            {
+              "term": "sendVolumeDay",
+              "description": "number \u2014 public. Day-of-month used when counting daily spy volume. Leave 30 unless you changed that cron convention."
+            },
+            {
+              "term": "disableCooldown",
+              "description": "boolean \u2014 public. Turn on only while testing locally. Leave off in production."
+            },
+            {
+              "term": "disableEmail",
+              "description": "boolean \u2014 public. Stops every spy copy without disabling the plugin. Use for a quiet maintenance window."
+            },
+            {
+              "term": "seedContactRecipient",
+              "description": "email \u2014 public. First contact spy address used only when that channel has no recipients yet."
+            },
+            {
+              "term": "seedOrderRecipient",
+              "description": "email \u2014 public. First order spy address used only when that channel has no recipients yet."
+            },
+            {
+              "term": "seedChatRecipient",
+              "description": "email \u2014 public. First chat spy address used only when that channel has no recipients yet."
+            },
+            {
+              "term": "devEmailDir",
+              "description": "string \u2014 public. Folder where spy mail is written in development instead of SMTP. Ignore on a live host."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

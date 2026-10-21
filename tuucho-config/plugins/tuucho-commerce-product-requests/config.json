@@ -1,0 +1,7 @@
+{
+  "commentMax": 500,
+  "disableRate": false,
+  "rate": "15m:5",
+  "recipient": "",
+  "smtpUser": ""
+}

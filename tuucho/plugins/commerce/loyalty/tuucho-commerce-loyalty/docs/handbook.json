@@ -1,0 +1,119 @@
+{
+  "title": "Loyalty wallet",
+  "summary": "Wallet spend at checkout and earn on paid orders. Permission loyalty. Dashboard card on slot.admin.dashboard.",
+  "sections": [
+    {
+      "heading": "Register",
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Opening",
+            "Priority / note"
+          ],
+          "rows": [
+            [
+              "checkout.quote",
+              "30. extraLines loyalty-credit and plugins[tuucho-commerce-loyalty] { credit, earn, earnStatus }"
+            ],
+            [
+              "checkout.prepare / release / reserve / confirm",
+              "Holds, consume, write-off on account.delete"
+            ],
+            [
+              "orders.snapshot",
+              "Copy the bag onto the order"
+            ],
+            [
+              "invoice.render",
+              "extraLines from snapshot or order.loyalty_credit"
+            ],
+            [
+              "cart.lines",
+              "Descriptor id loyalty-credit"
+            ]
+          ]
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "api.registerPluginService(api.pluginId, {\n  ...loyalty,\n  priceLoyaltyIfEnabled,\n  extendLoyaltyHold,\n  processLoyaltyReminders,\n  previewGuestItemsLoyalty,\n});\napi.registerHttpMount({ scope: 'admin', path: '/loyalty', router: loyaltyAdminRouter });\napi.registerHttpMount({ scope: 'account', path: '/loyalty', router: accountLoyaltyRouter });"
+        },
+        {
+          "type": "callout",
+          "tone": "important",
+          "title": "Call the service",
+          "text": "peekPluginService('tuucho-commerce-loyalty'). Do not import this plugin's http/ or infrastructure/. Checkout is server-authoritative; the client preview is not trusted."
+        }
+      ]
+    },
+    {
+      "heading": "Admin and account",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "Permission",
+              "description": "loyalty on the manifest. Nav Admin \u2192 Loyalty."
+            },
+            {
+              "term": "Dashboard",
+              "description": "front/AdminDashboardCard.tsx uses ui.AdminStatCard on slot.admin.dashboard. The kernel stats grid owns width."
+            },
+            {
+              "term": "No Configure",
+              "description": "CRUD is the Loyalty admin page, not /admin/plugins/:id."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Config files",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bundled path: tuucho-config/plugins/tuucho-commerce-loyalty/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.json",
+          "code": "{\n  \"burnNoticeWeeks\": 6,\n  \"cronLog\": \"/log/cron-loyalty.jsonl\",\n  \"lotDurationMonths\": 6,\n  \"reminderIntervalDays\": 7,\n  \"valuePer100\": 10\n}"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.private.example.json",
+          "code": "{}"
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "valuePer100",
+              "description": "number \u2014 public. Loyalty points granted per 100 \u20ac spent. Change only when you rewrite the program."
+            },
+            {
+              "term": "lotDurationMonths",
+              "description": "number \u2014 public. Months a points lot stays usable before it burns."
+            },
+            {
+              "term": "burnNoticeWeeks",
+              "description": "number \u2014 public. How many weeks before burn the customer gets a notice."
+            },
+            {
+              "term": "reminderIntervalDays",
+              "description": "number \u2014 public. Days between burn-reminder mails while a lot is in the notice window."
+            },
+            {
+              "term": "cronLog",
+              "description": "string \u2014 public. JSONL path for the loyalty cron. Change only if you relocated kernel logs."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

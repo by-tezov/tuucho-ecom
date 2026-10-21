@@ -1,0 +1,23 @@
+{
+  "name": "@tuucho/plugin-tuucho-home-featured",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Featured products on the home page (slot.home.featured). Disable to hide the row.",
+  "tuucho": {
+    "id": "tuucho-home-featured",
+    "installPath": "tuucho/plugins/home/featured/tuucho-home-featured",
+    "name": "Home featured",
+    "kind": "generic",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "provides": [
+      "StorefrontSlot"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

@@ -1,0 +1,113 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.625rem, 4vw, 2.25rem);
+}
+
+.sectionHeading {
+  margin: 0 0 12px;
+  font-size: 1.1875rem;
+}
+
+.error {
+  color: var(--color-danger);
+  margin: 0 0 12px;
+}
+
+.urgentSection {
+  margin: 0;
+}
+
+.allClear {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.urgentRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.urgentRow:empty {
+  display: none;
+}
+
+.urgentSection:has(.urgentRow:not(:empty)) .allClear {
+  display: none;
+}
+
+.statsSection {
+  margin: 0;
+}
+
+.statsGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.statsGrid:empty {
+  display: none;
+}
+
+.statsSection:has(.statsGrid:empty):not(:has(.error)) {
+  display: none;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  margin-top: 14px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  text-align: right;
+  font-size: 0.84375rem;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.table th[scope='row'] {
+  text-align: left;
+  font-weight: 600;
+}
+
+.table thead th {
+  text-align: right;
+  font-size: 0.65625rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.table thead th:first-child {
+  text-align: left;
+}
+
+.loadingHint {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

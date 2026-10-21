@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-tuucho-commerce-gift-locale-fr",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "French strings for commerce-gift. Enable with locale-fr for French UI; disable to keep this plugin in English.",
+  "tuucho": {
+    "id": "tuucho-commerce-gift-locale-fr",
+    "installPath": "tuucho/plugins/commerce/gift/tuucho-commerce-gift-locale-fr",
+    "name": "commerce-gift French",
+    "kind": "locale",
+    "defaultEnabled": false,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "tuucho-commerce-gift",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

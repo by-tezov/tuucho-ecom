@@ -18,7 +18,7 @@ description: >-
 ## Recipe (moved from the router)
 
 The **payment-method shell** (wallet / stored methods) stays in core.
-Gateways are plugins. Copy `plugins/tuucho/payment/stripe/tuucho-payment-stripe/`.
+Gateways are plugins. Copy `tuucho/plugins/payment/stripe/tuucho-payment-stripe/`.
 
 Read `PaymentGateway` in `plugin-sdk/src/contracts.ts`. Register:
 

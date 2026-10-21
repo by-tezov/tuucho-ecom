@@ -1,0 +1,63 @@
+{
+  "title": "Facebook Login",
+  "summary": "Registers Facebook into the kernel sign-in shell. Credentials and the OAuth return URL live on this plugin, not kernel JSON.",
+  "sections": [
+    {
+      "heading": "Kernel shell",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Sign-in shell stays in the kernel",
+          "text": "Session, OTP, unlock, and the HTTP routes stay kernel. This plugin owns provider credentials (settingsSchema / secrets). Disable the plugin to hide this method even if shop Preferences still list it."
+        },
+        {
+          "type": "p",
+          "text": "Configure at Admin \u2192 Plugins \u2192 Facebook Login. Kernel identity reads via getCachedPluginSettings / getCachedPluginSecret using plugin id tuucho-signin-facebook."
+        }
+      ]
+    },
+    {
+      "heading": "Config files",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bundled path: tuucho-config/plugins/tuucho-signin-facebook/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.json",
+          "code": "{\n  \"appId\": \"\",\n  \"oauthReturnUrl\": \"http://localhost:5174/auth/facebook-return\",\n  \"signupTokenTtl\": \"10m\"\n}"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.private.example.json",
+          "code": "{\n  \"appSecret\": \"replace-me\"\n}"
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "appId",
+              "description": "string \u2014 public. Numeric App ID from Meta for Developers. Required before Facebook Login appears on the shop."
+            },
+            {
+              "term": "appSecret",
+              "description": "secret \u2014 secret. App secret from Meta. Never shown after save. Type a new value only to replace it."
+            },
+            {
+              "term": "oauthReturnUrl",
+              "description": "url \u2014 public. Must match a Valid OAuth Redirect URI in the Meta app (this shop\u2019s /auth/facebook-return). Wrong host = Facebook error."
+            },
+            {
+              "term": "signupTokenTtl",
+              "description": "string \u2014 public. How long a first-time Facebook signup token stays valid (for example 10m). Raise only if customers need longer to finish."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

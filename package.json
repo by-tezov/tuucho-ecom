@@ -1,17 +1,18 @@
 {
   "name": "tuucho-ecom",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Self-hosted batteries-included e-commerce platform: kernel plus bundled plugins.",
   "license": "MIT",
   "engines": {
     "node": ">=22.13"
   },
   "workspaces": [
-    "plugin-sdk",
-    "kernel/back",
-    "kernel/front",
-    "plugins/**"
+    "tuucho/plugin-sdk",
+    "tuucho/kernel/back",
+    "tuucho/kernel/front",
+    "tuucho/plugins/**",
+    "src/plugins/**"
   ],
   "dependencies": {
     "canvas": "^3.2.3",
@@ -26,7 +27,7 @@
     "setup": "node scripts/install.mjs",
     "setup:cli": "node scripts/install.mjs --yes",
     "dev": "node scripts/dev.mjs",
-    "dev:back": "npm --prefix kernel/back run dev",
-    "dev:front": "npm --prefix kernel/front run dev -- --port 5174 --strictPort"
+    "dev:back": "npm --prefix tuucho/kernel/back run dev",
+    "dev:front": "npm --prefix tuucho/kernel/front run dev -- --port 5174 --strictPort"
   }
 }

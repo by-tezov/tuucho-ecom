@@ -1,0 +1,213 @@
+{
+  "name": "@tuucho/plugin-tuucho-shipping-mondial-relay",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Pickup at a Mondial Relay Point Relais. Packet prices are editable in Admin, Plugins.",
+  "tuucho": {
+    "id": "tuucho-shipping-mondial-relay",
+    "installPath": "tuucho/plugins/shipping/mondial-relay/tuucho-shipping-mondial-relay",
+    "name": "Mondial Relay",
+    "kind": "shipping",
+    "defaultEnabled": false,
+    "provides": [
+      "ShippingMethod",
+      "StorefrontPage"
+    ],
+    "courierCodes": [
+      "mondial-relay-point"
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "defaultSettings": {
+      "brand": "BDTEST13",
+      "api2Url": "https://connect-api-sandbox.mondialrelay.com/api/shipment",
+      "api1Url": "https://api.mondialrelay.com/WebService.asmx",
+      "publicTrackingUrl": "https://www.mondialrelay.fr/suivi-de-colis/",
+      "pointCourierCode": "mondial-relay-point",
+      "pointNetworkCode": "mondial-relay-point",
+      "pointDeliveryMode": "24R",
+      "collectionMode": "REL",
+      "homeCourierCode": "mondial-relay-home",
+      "homeNetworkCode": "home",
+      "homeDeliveryMode": "HOM",
+      "homeCollectionMode": "REL",
+      "trackingThrottle": "1.5s",
+      "trackingTimeout": "30s"
+    },
+    "settingsSchema": {
+      "brand": {
+        "type": "string",
+        "label": "Widget brand",
+        "description": "Mondial Relay widget brand code (sandbox default BDTEST13). Change only if Mondial issued a different brand.",
+        "section": "api2",
+        "sectionTitle": "API2 (Connect)",
+        "sectionDescription": "Creates shipments. Use the sandbox URL and test brand until Mondial gives you live credentials."
+      },
+      "api2Url": {
+        "type": "url",
+        "label": "API2 URL",
+        "description": "Connect API endpoint. Keep the sandbox host until you switch the shop to production.",
+        "section": "api2"
+      },
+      "api2Enseigne": {
+        "type": "secret",
+        "label": "API2 enseigne",
+        "description": "Connect enseigne (merchant code). Fill when Mondial activates API2; leave empty to keep the stored secret.",
+        "section": "api2"
+      },
+      "api2Login": {
+        "type": "secret",
+        "label": "API2 login",
+        "description": "Connect login. Required together with API2 password to create labels.",
+        "section": "api2"
+      },
+      "api2Password": {
+        "type": "secret",
+        "label": "API2 password",
+        "description": "Connect password. Never shown after save; type a new value only to replace it.",
+        "section": "api2"
+      },
+      "api1Url": {
+        "type": "url",
+        "label": "API1 URL",
+        "description": "SOAP WebService host used for Point Relais search and tracking. Leave the default unless Mondial gives a new endpoint.",
+        "section": "api1",
+        "sectionTitle": "API1 (WebService)",
+        "sectionDescription": "Point Relais lookup and tracking. Separate credentials from API2."
+      },
+      "api1Enseigne": {
+        "type": "secret",
+        "label": "API1 enseigne",
+        "description": "WebService enseigne. Fill when you have API1 access; leave empty to keep the stored secret.",
+        "section": "api1"
+      },
+      "api1PrivateKey": {
+        "type": "secret",
+        "label": "API1 private key",
+        "description": "WebService private key used to sign API1 calls. Replace only when Mondial rotates the key.",
+        "section": "api1"
+      },
+      "pointCourierCode": {
+        "type": "string",
+        "label": "Point courier code",
+        "description": "Internal courier id for Point Relais. Keep mondial-relay-point unless you registered a different code.",
+        "section": "point",
+        "sectionTitle": "Point Relais",
+        "sectionDescription": "How checkout maps a locker / shop pickup to Mondial delivery modes."
+      },
+      "pointNetworkCode": {
+        "type": "string",
+        "label": "Point network code",
+        "description": "Network sent to Mondial for Point Relais. Usually the same as the courier code.",
+        "section": "point"
+      },
+      "pointDeliveryMode": {
+        "type": "string",
+        "label": "Point delivery mode",
+        "description": "Mondial delivery mode for pickup (24R). Change only if Mondial assigned another product.",
+        "section": "point"
+      },
+      "collectionMode": {
+        "type": "string",
+        "label": "Collection mode",
+        "description": "How the parcel is dropped off (REL = Relais). Leave default unless Mondial tells you otherwise.",
+        "section": "point"
+      },
+      "homeCourierCode": {
+        "type": "string",
+        "label": "Home courier code",
+        "description": "Internal courier id for home delivery. Keep mondial-relay-home unless you registered a different code.",
+        "section": "home",
+        "sectionTitle": "Home delivery",
+        "sectionDescription": "Optional home product. Fill only if this shop offers Mondial home as well as Point Relais."
+      },
+      "homeNetworkCode": {
+        "type": "string",
+        "label": "Home network code",
+        "description": "Network sent to Mondial for home. Usually home.",
+        "section": "home"
+      },
+      "homeDeliveryMode": {
+        "type": "string",
+        "label": "Home delivery mode",
+        "description": "Mondial delivery mode for home (HOM). Change only if Mondial assigned another product.",
+        "section": "home"
+      },
+      "homeCollectionMode": {
+        "type": "string",
+        "label": "Home collection mode",
+        "description": "How a home parcel is collected (REL). Leave default unless Mondial tells you otherwise.",
+        "section": "home"
+      },
+      "senderName": {
+        "type": "string",
+        "label": "Sender name",
+        "description": "Name printed on the Mondial label as the shipper. Required before live expeditions.",
+        "section": "sender",
+        "sectionTitle": "Sender on the label",
+        "sectionDescription": "Shop address Mondial prints as the sender. Fill before you create live shipments."
+      },
+      "senderLine1": {
+        "type": "string",
+        "label": "Sender line 1",
+        "description": "Street and number of the ship-from address.",
+        "section": "sender"
+      },
+      "senderPostalCode": {
+        "type": "string",
+        "label": "Sender postal code",
+        "description": "Postal code of the ship-from address.",
+        "section": "sender"
+      },
+      "senderCity": {
+        "type": "string",
+        "label": "Sender city",
+        "description": "City of the ship-from address.",
+        "section": "sender"
+      },
+      "senderCountryCode": {
+        "type": "string",
+        "label": "Sender country",
+        "description": "ISO country code (FR). Must match the Mondial contract country.",
+        "section": "sender"
+      },
+      "senderPhone": {
+        "type": "string",
+        "label": "Sender phone",
+        "description": "Contact phone printed on the label. Use the shop number customers may call.",
+        "section": "sender"
+      },
+      "senderEmail": {
+        "type": "email",
+        "label": "Sender email",
+        "description": "Contact email printed on the label. Use a mailbox you read.",
+        "section": "sender"
+      },
+      "publicTrackingUrl": {
+        "type": "url",
+        "label": "Public tracking URL",
+        "description": "Customer-facing tracking page. Keep the Mondial suivi URL unless you wrap it.",
+        "section": "tracking",
+        "sectionTitle": "Tracking",
+        "sectionDescription": "How often the kernel polls Mondial and which public page customers open."
+      },
+      "trackingThrottle": {
+        "type": "string",
+        "label": "Tracking throttle",
+        "description": "Minimum delay between tracking polls (for example 1.5s). Raise it if Mondial rate-limits you.",
+        "section": "tracking"
+      },
+      "trackingTimeout": {
+        "type": "string",
+        "label": "Tracking timeout",
+        "description": "How long a tracking request may wait (for example 30s) before the kernel gives up.",
+        "section": "tracking"
+      }
+    }
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

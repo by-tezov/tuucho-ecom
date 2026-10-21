@@ -9,262 +9,262 @@
     {
       "id": "tuucho-commerce-cart-rules",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/cart-rules/tuucho-commerce-cart-rules"
+      "installPath": "tuucho/plugins/commerce/cart-rules/tuucho-commerce-cart-rules"
     },
     {
       "id": "tuucho-commerce-cart-rules-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/cart-rules/tuucho-commerce-cart-rules-locale-fr"
+      "installPath": "tuucho/plugins/commerce/cart-rules/tuucho-commerce-cart-rules-locale-fr"
     },
     {
       "id": "tuucho-commerce-gift",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/gift/tuucho-commerce-gift"
+      "installPath": "tuucho/plugins/commerce/gift/tuucho-commerce-gift"
     },
     {
       "id": "tuucho-commerce-gift-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/gift/tuucho-commerce-gift-locale-fr"
+      "installPath": "tuucho/plugins/commerce/gift/tuucho-commerce-gift-locale-fr"
     },
     {
       "id": "tuucho-commerce-loyalty",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/loyalty/tuucho-commerce-loyalty"
+      "installPath": "tuucho/plugins/commerce/loyalty/tuucho-commerce-loyalty"
     },
     {
       "id": "tuucho-commerce-loyalty-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/loyalty/tuucho-commerce-loyalty-locale-fr"
+      "installPath": "tuucho/plugins/commerce/loyalty/tuucho-commerce-loyalty-locale-fr"
     },
     {
       "id": "tuucho-commerce-product-requests",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/product-requests/tuucho-commerce-product-requests"
+      "installPath": "tuucho/plugins/commerce/product-requests/tuucho-commerce-product-requests"
     },
     {
       "id": "tuucho-commerce-product-requests-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/product-requests/tuucho-commerce-product-requests-locale-fr"
+      "installPath": "tuucho/plugins/commerce/product-requests/tuucho-commerce-product-requests-locale-fr"
     },
     {
       "id": "tuucho-commerce-vinted-review",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/vinted-review/tuucho-commerce-vinted-review"
+      "installPath": "tuucho/plugins/commerce/vinted-review/tuucho-commerce-vinted-review"
     },
     {
       "id": "tuucho-commerce-vinted-review-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/vinted-review/tuucho-commerce-vinted-review-locale-fr"
+      "installPath": "tuucho/plugins/commerce/vinted-review/tuucho-commerce-vinted-review-locale-fr"
     },
     {
       "id": "tuucho-commerce-vouchers",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/vouchers/tuucho-commerce-vouchers"
+      "installPath": "tuucho/plugins/commerce/vouchers/tuucho-commerce-vouchers"
     },
     {
       "id": "tuucho-commerce-vouchers-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/commerce/vouchers/tuucho-commerce-vouchers-locale-fr"
+      "installPath": "tuucho/plugins/commerce/vouchers/tuucho-commerce-vouchers-locale-fr"
     },
     {
       "id": "tuucho-contact",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/messaging/contact/tuucho-contact"
+      "installPath": "tuucho/plugins/messaging/contact/tuucho-contact"
     },
     {
       "id": "tuucho-docs-developer",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/docs/developer/tuucho-docs-developer"
+      "installPath": "tuucho/plugins/docs/developer/tuucho-docs-developer"
     },
     {
       "id": "tuucho-docs-developer-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/docs/developer/tuucho-docs-developer-locale-fr"
+      "installPath": "tuucho/plugins/docs/developer/tuucho-docs-developer-locale-fr"
     },
     {
       "id": "tuucho-home-faq",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/home/faq/tuucho-home-faq"
+      "installPath": "tuucho/plugins/home/faq/tuucho-home-faq"
     },
     {
       "id": "tuucho-home-faq-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/home/faq/tuucho-home-faq-locale-fr"
+      "installPath": "tuucho/plugins/home/faq/tuucho-home-faq-locale-fr"
     },
     {
       "id": "tuucho-home-featured",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/home/featured/tuucho-home-featured"
+      "installPath": "tuucho/plugins/home/featured/tuucho-home-featured"
     },
     {
       "id": "tuucho-home-featured-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/home/featured/tuucho-home-featured-locale-fr"
+      "installPath": "tuucho/plugins/home/featured/tuucho-home-featured-locale-fr"
     },
     {
       "id": "tuucho-journal-admin",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/journal/admin/tuucho-journal-admin"
+      "installPath": "tuucho/plugins/journal/admin/tuucho-journal-admin"
     },
     {
       "id": "tuucho-journal-admin-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/journal/admin/tuucho-journal-admin-locale-fr"
+      "installPath": "tuucho/plugins/journal/admin/tuucho-journal-admin-locale-fr"
     },
     {
       "id": "tuucho-journal-api",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/journal/api/tuucho-journal-api"
+      "installPath": "tuucho/plugins/journal/api/tuucho-journal-api"
     },
     {
       "id": "tuucho-journal-api-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/journal/api/tuucho-journal-api-locale-fr"
+      "installPath": "tuucho/plugins/journal/api/tuucho-journal-api-locale-fr"
     },
     {
       "id": "tuucho-journal-cron",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/journal/cron/tuucho-journal-cron"
+      "installPath": "tuucho/plugins/journal/cron/tuucho-journal-cron"
     },
     {
       "id": "tuucho-journal-cron-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/journal/cron/tuucho-journal-cron-locale-fr"
+      "installPath": "tuucho/plugins/journal/cron/tuucho-journal-cron-locale-fr"
     },
     {
       "id": "tuucho-journal-email",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/journal/email/tuucho-journal-email"
+      "installPath": "tuucho/plugins/journal/email/tuucho-journal-email"
     },
     {
       "id": "tuucho-journal-email-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/journal/email/tuucho-journal-email-locale-fr"
+      "installPath": "tuucho/plugins/journal/email/tuucho-journal-email-locale-fr"
     },
     {
       "id": "tuucho-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/locale/tuucho-locale-fr"
+      "installPath": "tuucho/plugins/locale/tuucho-locale-fr"
     },
     {
       "id": "tuucho-mail-spy",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/messaging/mail-spy/tuucho-mail-spy"
+      "installPath": "tuucho/plugins/messaging/mail-spy/tuucho-mail-spy"
     },
     {
       "id": "tuucho-mail-spy-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/messaging/mail-spy/tuucho-mail-spy-locale-fr"
+      "installPath": "tuucho/plugins/messaging/mail-spy/tuucho-mail-spy-locale-fr"
     },
     {
       "id": "tuucho-onboarding",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/home/onboarding/tuucho-onboarding"
+      "installPath": "tuucho/plugins/home/onboarding/tuucho-onboarding"
     },
     {
       "id": "tuucho-onboarding-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/home/onboarding/tuucho-onboarding-locale-fr"
+      "installPath": "tuucho/plugins/home/onboarding/tuucho-onboarding-locale-fr"
     },
     {
       "id": "tuucho-page-about",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/page/about/tuucho-page-about"
+      "installPath": "tuucho/plugins/page/about/tuucho-page-about"
     },
     {
       "id": "tuucho-page-about-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/page/about/tuucho-page-about-locale-fr"
+      "installPath": "tuucho/plugins/page/about/tuucho-page-about-locale-fr"
     },
     {
       "id": "tuucho-page-home",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/page/home/tuucho-page-home"
+      "installPath": "tuucho/plugins/page/home/tuucho-page-home"
     },
     {
       "id": "tuucho-page-home-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/page/home/tuucho-page-home-locale-fr"
+      "installPath": "tuucho/plugins/page/home/tuucho-page-home-locale-fr"
     },
     {
       "id": "tuucho-payment-stripe",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/payment/stripe/tuucho-payment-stripe"
+      "installPath": "tuucho/plugins/payment/stripe/tuucho-payment-stripe"
     },
     {
       "id": "tuucho-payment-stripe-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/payment/stripe/tuucho-payment-stripe-locale-fr"
+      "installPath": "tuucho/plugins/payment/stripe/tuucho-payment-stripe-locale-fr"
     },
     {
       "id": "tuucho-seo-redirects",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/seo/redirects/tuucho-seo-redirects"
+      "installPath": "tuucho/plugins/seo/redirects/tuucho-seo-redirects"
     },
     {
       "id": "tuucho-seo-redirects-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/seo/redirects/tuucho-seo-redirects-locale-fr"
+      "installPath": "tuucho/plugins/seo/redirects/tuucho-seo-redirects-locale-fr"
     },
     {
       "id": "tuucho-seo-robots",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/seo/robots/tuucho-seo-robots"
+      "installPath": "tuucho/plugins/seo/robots/tuucho-seo-robots"
     },
     {
       "id": "tuucho-seo-robots-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/seo/robots/tuucho-seo-robots-locale-fr"
+      "installPath": "tuucho/plugins/seo/robots/tuucho-seo-robots-locale-fr"
     },
     {
       "id": "tuucho-seo-sitemap",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/seo/sitemap/tuucho-seo-sitemap"
+      "installPath": "tuucho/plugins/seo/sitemap/tuucho-seo-sitemap"
     },
     {
       "id": "tuucho-seo-sitemap-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/seo/sitemap/tuucho-seo-sitemap-locale-fr"
+      "installPath": "tuucho/plugins/seo/sitemap/tuucho-seo-sitemap-locale-fr"
     },
     {
       "id": "tuucho-shipping-expedition-cron",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/shipping/expedition-cron/tuucho-shipping-expedition-cron"
+      "installPath": "tuucho/plugins/shipping/expedition-cron/tuucho-shipping-expedition-cron"
     },
     {
       "id": "tuucho-shipping-expedition-cron-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/shipping/expedition-cron/tuucho-shipping-expedition-cron-locale-fr"
+      "installPath": "tuucho/plugins/shipping/expedition-cron/tuucho-shipping-expedition-cron-locale-fr"
     },
     {
       "id": "tuucho-shipping-home",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/shipping/home/tuucho-shipping-home"
+      "installPath": "tuucho/plugins/shipping/home/tuucho-shipping-home"
     },
     {
       "id": "tuucho-shipping-home-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/shipping/home/tuucho-shipping-home-locale-fr"
+      "installPath": "tuucho/plugins/shipping/home/tuucho-shipping-home-locale-fr"
     },
     {
       "id": "tuucho-shipping-mondial-relay",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/shipping/mondial-relay/tuucho-shipping-mondial-relay"
+      "installPath": "tuucho/plugins/shipping/mondial-relay/tuucho-shipping-mondial-relay"
     },
     {
       "id": "tuucho-shipping-mondial-relay-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/shipping/mondial-relay/tuucho-shipping-mondial-relay-locale-fr"
+      "installPath": "tuucho/plugins/shipping/mondial-relay/tuucho-shipping-mondial-relay-locale-fr"
     },
     {
       "id": "tuucho-theme-default",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/theme/default/tuucho-theme-default"
+      "installPath": "tuucho/plugins/theme/default/tuucho-theme-default"
     },
     {
       "id": "tuucho-theme-default-locale-fr",
       "version": "1.0.0",
-      "installPath": "plugins/tuucho/theme/default/tuucho-theme-default-locale-fr"
+      "installPath": "tuucho/plugins/theme/default/tuucho-theme-default-locale-fr"
     }
   ]
 }

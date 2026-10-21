@@ -1,0 +1,33 @@
+{
+  "title": "Onboarding overlay",
+  "summary": "Home tour on slot.home.onboarding plus a replay control on slot.account.profile.end. Disable to hide the overlay.",
+  "sections": [
+    {
+      "heading": "Slots",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "slot.home.onboarding",
+              "description": "OnboardingController on the home page"
+            },
+            {
+              "term": "slot.account.profile.end",
+              "description": "OnboardingReplaySettings on the same row as Delete my account (slotOrder 0)"
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "slots: {\n  [CORE_FRONT_SLOTS.homeOnboarding]: <OnboardingController />,\n  [CORE_FRONT_SLOTS.accountProfileEnd]: <OnboardingReplaySettings />,\n},\nslotOrder: { [CORE_FRONT_SLOTS.accountProfileEnd]: 0 },"
+        },
+        {
+          "type": "p",
+          "text": "Copy is t.onboarding in kernel English, overlaid by tuucho-onboarding-locale-fr. No Configure form. No plugin table: progress is client state."
+        }
+      ]
+    }
+  ]
+}

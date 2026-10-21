@@ -1,0 +1,23 @@
+{
+  "name": "@tuucho/plugin-tuucho-journal-api",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Persist and query journal events. Other journal plugins depend on this API. Disable it and admin, email and cron journals cannot run.",
+  "tuucho": {
+    "id": "tuucho-journal-api",
+    "installPath": "tuucho/plugins/journal/api/tuucho-journal-api",
+    "name": "Journal API",
+    "kind": "generic",
+    "defaultEnabled": false,
+    "provides": [
+      "JournalApi"
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    }
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

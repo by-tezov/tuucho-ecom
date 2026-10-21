@@ -10,13 +10,15 @@
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "@kernel/front/*": ["kernel/front/src/*"],
-      "@kernel/back/*": ["kernel/back/src/*"],
-      "@tuucho/plugin-sdk": ["plugin-sdk/src/index.ts"]
+      "@kernel/front/*": ["tuucho/kernel/front/src/*"],
+      "@kernel/back/*": ["tuucho/kernel/back/src/*"],
+      "@tuucho/plugin-sdk": ["tuucho/plugin-sdk/src/index.ts"]
     }
   },
   "include": [
-    "plugins/**/*.ts",
-    "plugins/**/*.tsx"
+    "tuucho/plugins/**/*.ts",
+    "tuucho/plugins/**/*.tsx",
+    "src/plugins/**/*.ts",
+    "src/plugins/**/*.tsx"
   ]
 }

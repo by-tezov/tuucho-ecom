@@ -1,0 +1,84 @@
+{
+  "title": "Product requests",
+  "summary": "Sold-out size requests. Public POST /contact/product-request (plugin-gated). Admin inbox permission product_requests. Not the kernel Contact guest form.",
+  "sections": [
+    {
+      "heading": "Versus kernel contact",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "warning",
+          "title": "Different inbox",
+          "text": "Kernel POST /contact writes unconnected_contacts; owner To is tuucho-mail-spy channel contact.inbound. This plugin writes product_requests* and registers spy channel product_request. Admin nav Product requests, not the Contact hub."
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "HTTP",
+              "description": "POST /contact/product-request requires the plugin enabled (optionalAuth + gate). Admin GET /admin/product-requests."
+            },
+            {
+              "term": "Permission",
+              "description": "product_requests"
+            },
+            {
+              "term": "Enable",
+              "description": "Plugins list: enable to allow storefront size requests and the admin inbox. Disable to hide both. No Preferences island and no Configure form."
+            },
+            {
+              "term": "Dashboard",
+              "description": "slot.admin.dashboard.attention ui.AdminAttentionCard linking to requested status"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Config files",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bundled path: tuucho-config/plugins/tuucho-commerce-product-requests/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.json",
+          "code": "{\n  \"commentMax\": 500,\n  \"disableRate\": false,\n  \"rate\": \"15m:5\",\n  \"recipient\": \"\",\n  \"smtpUser\": \"\"\n}"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.private.example.json",
+          "code": "{}"
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "commentMax",
+              "description": "number \u2014 public. Maximum characters on a size / make-request comment."
+            },
+            {
+              "term": "smtpUser",
+              "description": "string \u2014 public. SMTP user used when the shop replies to a request. Leave empty to use kernel no-reply."
+            },
+            {
+              "term": "recipient",
+              "description": "email \u2014 public. Mailbox that receives new product requests. Required for staff to see them by mail."
+            },
+            {
+              "term": "rate",
+              "description": "string \u2014 public. Window:max for product requests (for example 15m:5)."
+            },
+            {
+              "term": "disableRate",
+              "description": "boolean \u2014 public. Turn on only on a local shop while testing. Leave off in production."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

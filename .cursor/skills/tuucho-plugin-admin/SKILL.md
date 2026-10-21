@@ -36,7 +36,11 @@ description: >-
    parcels are the kernel Couriers JSON page (`courier_edit`). A dedicated
    admin page uses `adminNav` + `adminRoutes`.
 7. `docs/handbook.json` (identity, Configure, openings, cart/order/profile).
-   Optional `docs/articles.json`.
+   Optional `docs/articles.json`. If the plugin has `settingsSchema`, add a
+   **Config files** section with JSON code blocks equal to the committed
+   public `config.json` and `config.private.example.json` (placeholders only).
+   Schema plugins join Plugins → Update all / Import all / Export all automatically
+   (no extra register).
 
 Copy structure from `tuucho-docs-developer` (docs site), `tuucho-commerce-loyalty` (CRUD +
 dashboard card is a **slot**), or `tuucho-theme-default` (colour Configure writing
@@ -48,4 +52,5 @@ tables. Uninstall is **tuucho-plugin-schema**.
 ## Follow-up
 
 HTTP + filters → `tuucho-plugin-opening`. Tables → `tuucho-plugin-schema`.
-Admin Home cards → `tuucho-plugin-slot` (`slot.admin.dashboard`).
+Admin Home numbers → `tuucho-plugin-slot` (`slot.admin.dashboard`).
+Attention tiles → `slot.admin.dashboard.attention`.

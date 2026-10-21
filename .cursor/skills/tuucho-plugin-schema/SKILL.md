@@ -51,7 +51,7 @@ Rules:
 - Enable, scan (when enabled), and boot of an enabled plugin apply pending
   files, then set `plugins.schema_version` to the package `version`.
 - Foreign keys to kernel rows are allowed. Do not add columns to kernel tables.
-- Example: `plugins/tuucho/messaging/mail-spy/tuucho-mail-spy/back/migrations/001_spy_mail.js`.
+- Example: `tuucho/plugins/messaging/mail-spy/tuucho-mail-spy/back/migrations/001_spy_mail.js`.
 
 ## Lifecycle
 
@@ -61,14 +61,14 @@ code and **keeps** tables. Uninstall (`POST /admin/plugins/:id/uninstall` with
 deletes the row. Required plugins cannot uninstall. A folder deleted without
 uninstall shows **Folder missing**.
 
-`POST /admin/plugins/upload` accepts `.zip` / `.tgz` into `plugins/user/`
+`POST /admin/plugins/upload` accepts `.zip` / `.tgz` into `src/plugins/`
 (zip-slip blocked, `engines.core` enforced). That is a kernel API you call as
 an operator, not something to reimplement. After install, Admin, Plugins
-**Check for updates** / **Apply** can walk git tags when npm `repository`
-on that plugin `package.json` is an HTTPS GitHub repo root (user plugins only). Tags are
+**Check for updates** / **Apply** can walk git tags when `tuucho.repo` (or npm `repository`)
+on that plugin `package.json` is an HTTPS GitHub repo root (user plugins only). Optional `tuucho.branch` / `tuucho.folder` locate the package inside that repo. Tags are
 `MAJOR.MINOR.PATCH` with no `v` prefix. Plugins “Core” is the root
 `package.json` version. Check / Apply walks `shop-release.json` vs tag
-`release.json`. Kernel/all Apply copies root `package.json`. Tuucho Apply never writes `plugins/user/`.
+`release.json`. Kernel/all Apply copies root `package.json`. Tuucho Apply never writes `src/plugins/` or `tuucho-config/`.
 Plugin `version` lives on that leaf `package.json`.
 
 ## Reading kernel data

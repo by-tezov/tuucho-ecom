@@ -26,8 +26,8 @@ are **footer only** — do not add them to the shop info menu.
 
 ## Recipe (moved from the router)
 
-1. Copy `plugins/user/demo/guides/demo-page-guides/` into `plugins/user/<group>/<id>/`
-   (user: id must not start with `tuucho-`) or `plugins/tuucho/page/<feature>/tuucho-<id>/`
+1. Copy `src/plugins/demo/guides/demo-page-guides/` into `src/plugins/<group>/<id>/`
+   (user: id must not start with `tuucho-`) or `tuucho/plugins/page/<feature>/tuucho-<id>/`
    if bundled. Leaf folder name = `id`. Put any `*-locale-*` complement in that
    same feature folder. Guides is a **demo user plugin**, not a Tuucho product plugin.
 2. `kind: "page"`. Set `route` (no locale prefix) and `nav.key` / `order` /

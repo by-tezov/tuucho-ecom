@@ -17,7 +17,7 @@ description: >-
 
 ## Recipe (moved from the router)
 
-Copy `plugins/tuucho/shipping/home/tuucho-shipping-home/` or `plugins/tuucho/shipping/mondial-relay/tuucho-shipping-mondial-relay/`.
+Copy `tuucho/plugins/shipping/home/tuucho-shipping-home/` or `tuucho/plugins/shipping/mondial-relay/tuucho-shipping-mondial-relay/`.
 
 ```ts
 api.registerShippingMethod({

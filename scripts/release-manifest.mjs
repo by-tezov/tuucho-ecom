@@ -46,28 +46,28 @@ function assertNoProductVersion(pkg, label) {
 
 async function main() {
   const rootPkg = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
-  const backPkg = JSON.parse(await readFile(join(root, 'kernel/back/package.json'), 'utf8'));
-  const frontPkg = JSON.parse(await readFile(join(root, 'kernel/front/package.json'), 'utf8'));
-  const sdkPkg = JSON.parse(await readFile(join(root, 'plugin-sdk/package.json'), 'utf8'));
+  const backPkg = JSON.parse(await readFile(join(root, 'tuucho/kernel/back/package.json'), 'utf8'));
+  const frontPkg = JSON.parse(await readFile(join(root, 'tuucho/kernel/front/package.json'), 'utf8'));
+  const sdkPkg = JSON.parse(await readFile(join(root, 'tuucho/plugin-sdk/package.json'), 'utf8'));
   const kernel = rootPkg.version;
   if (typeof kernel !== 'string' || !/^\d+\.\d+\.\d+$/.test(kernel)) {
     throw new Error('Root package.json must contain a MAJOR.MINOR.PATCH version');
   }
-  assertNoProductVersion(backPkg, 'kernel/back/package.json');
-  assertNoProductVersion(frontPkg, 'kernel/front/package.json');
-  assertNoProductVersion(sdkPkg, 'plugin-sdk/package.json');
-  const bundledPath = join(root, 'plugins/tuucho/manifest.json');
+  assertNoProductVersion(backPkg, 'tuucho/kernel/back/package.json');
+  assertNoProductVersion(frontPkg, 'tuucho/kernel/front/package.json');
+  assertNoProductVersion(sdkPkg, 'tuucho/plugin-sdk/package.json');
+  const bundledPath = join(root, 'tuucho/plugins/manifest.json');
   const bundled = JSON.parse(await readFile(bundledPath, 'utf8'));
   if (checkOnly && bundled.kernel !== kernel) {
-    throw new Error(`plugins/tuucho/manifest.json kernel ${bundled.kernel} != ${kernel}`);
+    throw new Error(`tuucho/plugins/manifest.json kernel ${bundled.kernel} != ${kernel}`);
   }
   bundled.kernel = kernel;
-  const migrationNames = (await readdir(join(root, 'kernel/back/src/db/migrations')))
+  const migrationNames = (await readdir(join(root, 'tuucho/kernel/back/src/db/migrations')))
     .filter((name) => name.endsWith('.js'))
     .sort()
     .map((name) => name.replace(/\.js$/, ''));
   const jsonFiles = [];
-  await walkPluginJson(join(root, 'plugins/tuucho'), jsonFiles);
+  await walkPluginJson(join(root, 'tuucho/plugins'), jsonFiles);
   const diskPlugins = [];
   for (const file of jsonFiles.sort()) {
     const body = JSON.parse(await readFile(file, 'utf8'));
@@ -89,7 +89,11 @@ async function main() {
     if (listed.version !== plugin.version) {
       throw new Error(`${plugin.id} version ${plugin.version} != manifest ${listed.version}`);
     }
-    if (!plugin.installPath?.startsWith('plugins/tuucho/') || plugin.installPath.split('/').pop() !== plugin.id) {
+    if (
+      !plugin.installPath?.startsWith('tuucho/plugins/') ||
+      plugin.installPath.startsWith('tuucho/plugins/tuucho/') ||
+      plugin.installPath.split('/').pop() !== plugin.id
+    ) {
       throw new Error(`${plugin.id} installPath is invalid: ${plugin.installPath}`);
     }
   }

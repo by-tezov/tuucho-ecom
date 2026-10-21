@@ -1,0 +1,45 @@
+{
+  "name": "@tuucho/plugin-tuucho-journal-email",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Admin e-mail journal. Complements Journal API.",
+  "tuucho": {
+    "id": "tuucho-journal-email",
+    "installPath": "tuucho/plugins/journal/email/tuucho-journal-email",
+    "name": "Email journal",
+    "kind": "generic",
+    "defaultEnabled": false,
+    "dependsOn": [
+      {
+        "id": "tuucho-journal-api",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "AdminPage"
+    ],
+    "permissions": [
+      {
+        "code": "email_log",
+        "label": "Email journal"
+      }
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "adminNav": [
+      {
+        "id": "email-log",
+        "group": "journal",
+        "to": "/email-log",
+        "permission": "email_log",
+        "order": 30,
+        "label": "Email journal"
+      }
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "title": "Apple Sign-in",
+  "summary": "Registers Sign in with Apple into the kernel sign-in shell. Services ID, Team/Key IDs, and the AuthKey PEM live on this plugin, not kernel JSON or config/*.p8.",
+  "sections": [
+    {
+      "heading": "Kernel shell",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Sign-in shell stays in the kernel",
+          "text": "Session, OTP, unlock, and the HTTP routes stay kernel. This plugin owns provider credentials (settingsSchema / secrets). Disable the plugin to hide this method even if shop Preferences still list it."
+        },
+        {
+          "type": "p",
+          "text": "Configure at Admin \u2192 Plugins \u2192 Apple Sign-in. Kernel identity reads via getCachedPluginSettings / getCachedPluginSecret using plugin id tuucho-signin-apple."
+        }
+      ]
+    },
+    {
+      "heading": "Config files",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bundled path: tuucho-config/plugins/tuucho-signin-apple/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.json",
+          "code": "{\n  \"clientId\": \"\",\n  \"keyId\": \"\",\n  \"redirectUri\": \"\",\n  \"s2sAudience\": \"\",\n  \"signupTokenTtl\": \"10m\",\n  \"teamId\": \"\"\n}"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.private.example.json",
+          "code": "{\n  \"privateKey\": \"replace-me\"\n}"
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "clientId",
+              "description": "string \u2014 public. Services ID from Apple Developer (com.example.siwa). Required before Sign in with Apple appears on the shop."
+            },
+            {
+              "term": "teamId",
+              "description": "string \u2014 public. 10-character Team ID. Required to sign the client secret with the .p8 key."
+            },
+            {
+              "term": "keyId",
+              "description": "string \u2014 public. Key ID of the Sign in with Apple key (.p8) you downloaded."
+            },
+            {
+              "term": "s2sAudience",
+              "description": "string \u2014 public. Optional App ID used as the server-to-server audience. Leave empty unless Apple documents a separate App ID for this shop."
+            },
+            {
+              "term": "redirectUri",
+              "description": "url \u2014 public. Must match Return URLs in the Services ID (this shop\u2019s Apple return path). Wrong host = Apple error."
+            },
+            {
+              "term": "signupTokenTtl",
+              "description": "string \u2014 public. How long a first-time Apple signup token stays valid (for example 10m). Raise only if customers need longer to finish."
+            },
+            {
+              "term": "privateKey",
+              "description": "secret \u2014 secret. Contents of the .p8 key (-----BEGIN PRIVATE KEY----- \u2026). Paste a new PEM only to replace the stored key."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

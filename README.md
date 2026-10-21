@@ -17,17 +17,17 @@ Needs Node 22+, Docker (Postgres 10 on host port **5434**), and npm.
 Clone a **version tag**, not untagged `master`:
 
 ```bash
-git clone --branch 0.0.3 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
+git clone --branch 0.0.4 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
 cd tuucho-ecom
-# public JSON is already in git: kernel/back/config/config.json and config/dev/
-cp kernel/back/config/config.private.example.json kernel/back/config/config.private.json
-cp kernel/back/config/dev/config.private.example.json kernel/back/config/dev/config.private.json
-# replace placeholders in config/dev/config.private.json (database url, jwt, pii, ops, smtp)
+# public JSON is already in git: tuucho-config/config.json and tuucho-config/dev/
+cp tuucho-config/config.private.example.json tuucho-config/config.private.json
+cp tuucho-config/dev/config.private.example.json tuucho-config/dev/config.private.json
+# replace placeholders in tuucho-config/dev/config.private.json (database url, jwt, pii, ops, smtp)
 npm run setup:cli -- --yes \
   --store-name Shop \
   --admin-email admin@shop.example \
   --admin-password 'ShopAdmin1!'
-# APP_TARGET=dev is the local default (selects config/dev/)
+# APP_TARGET=dev is the local default (selects tuucho-config/dev/)
 npm run dev
 ```
 
@@ -50,8 +50,8 @@ them in kernel JSON.
 
 ## Configuration (JSON, not a mega `.env`)
 
-Files live under `kernel/back/config/`. Common (all envs) sit in `config/`
-itself; each environment is a subfolder. This clone ships **only** `dev/`.
+Files live under `tuucho-config/`. Common (all envs) sit in that folder;
+each environment is a subfolder. This clone ships **only** `dev/`.
 A new env is a folder, not a closed `dev|preprod|prod` list.
 
 Merge, top to bottom (bottom wins): common public → env public → common
@@ -62,17 +62,27 @@ folder name (local default `dev`). Missing folder → error naming it.
 Public JSON is committed. Private JSON is gitignored; each has a committed
 functional `*.example`. Boot: missing private + example present → warning,
 load example, launch. Both missing → error. Private present but required keys
-missing → error naming each key. `npm --prefix kernel/back run config:doctor`
-prints the same list plus every folder under `config/`.
+missing → error naming each key. `npm --prefix tuucho/kernel/back run config:doctor`
+prints the same list plus every folder under `tuucho-config/`.
+
+Plugin credentials use the same public / private / example split under
+`tuucho-config/plugins/<plugin-id>/` (user plugins: next to `package.json`, or
+`tuucho.configDir`). Runtime source of truth is still the shop DB. First
+launch loads files once when that plugin has no operator values; boot never
+overwrites Admin. Import and Update from files need `plugin_config_import`;
+Export (including secrets) needs `plugin_config_export`. Ordinary Configure
+save stays `preferences`. See Admin → Documentation → **Config files**.
 
 | Concern | After first boot | File or Admin |
 | --- | --- | --- |
-| Kernel policy (TTLs, rates) | Committed `kernel/back/config/config.json` | Git (common public) |
-| Env URLs / dirs | Committed `kernel/back/config/<env>/config.json` | Git (env public) |
-| DB / JWT / PII / ops / SMTP passwords | `config/config.private.json` and `config/<env>/config.private.json` (from those `*.example` files) | Gitignored files |
+| Kernel policy (TTLs, rates) | Committed `tuucho-config/config.json` | Git (common public) |
+| Env URLs / dirs | Committed `tuucho-config/<env>/config.json` | Git (env public) |
+| DB / JWT / PII / ops / SMTP passwords | `tuucho-config/config.private.json` and `tuucho-config/<env>/config.private.json` (from those `*.example` files) | Gitignored files |
+| Plugin public settings | Committed `tuucho-config/plugins/<id>/config.json` (user plugins: beside `package.json`) | Git, then first launch / Update from files / Configure |
+| Plugin secrets | Gitignored `config.private.json` next to that public file (`*.example` committed) | Gitignored file, then sealed `plugins.secrets` |
 | Shop name, legal, footer | Admin + `footer-identity` / `page-legal` | Admin (that env’s DB) |
-| Stripe | Plugin Configure (`tuucho-payment-stripe`) | Admin (secret store on that env) |
-| Mondial Relay | Plugin Configure (shipping plugins) | Admin (secret store on that env) |
+| Stripe | Plugin Configure + `tuucho-config/plugins/tuucho-payment-stripe/` | Admin (secret store on that env) |
+| Mondial Relay | Plugin Configure + shipping plugin JSON | Admin (secret store on that env) |
 | Spy recipients | Admin → Spy e-mails (`tuucho-mail-spy`) | Admin |
 | Gift / loyalty / cart rules | Those plugins’ Configure or Admin commerce screens | Admin |
 
@@ -80,24 +90,24 @@ prints the same list plus every folder under `config/`.
 
 ```bash
 # public + example only — do not copy config.private.json
-npm --prefix kernel/back run config:env -- create preprod
+npm --prefix tuucho/kernel/back run config:env -- create preprod
 # or by hand:
-# mkdir -p kernel/back/config/preprod
-# cp kernel/back/config/dev/config.json kernel/back/config/preprod/config.json
-# cp kernel/back/config/dev/config.private.example.json kernel/back/config/preprod/config.private.example.json
-cp kernel/back/config/preprod/config.private.example.json \
-   kernel/back/config/preprod/config.private.json
-# edit URLs/paths/CORS in config/preprod/config.json — commit that
+# mkdir -p tuucho-config/preprod
+# cp tuucho-config/dev/config.json tuucho-config/preprod/config.json
+# cp tuucho-config/dev/config.private.example.json tuucho-config/preprod/config.private.example.json
+cp tuucho-config/preprod/config.private.example.json \
+   tuucho-config/preprod/config.private.json
+# edit URLs/paths/CORS in tuucho-config/preprod/config.json — commit that
 # fill a **new** database URL, JWT, PII, ops in the private file — never commit
 # APP_TARGET=preprod  (or --env preprod on OPS CLIs)
-npm --prefix kernel/back run config:doctor
+npm --prefix tuucho/kernel/back run config:doctor
 ```
 
 Do **not** copy another env’s private file onto this one. `prod` is the only
 indexed name, and only when that folder exists. Same steps for any name
 (`staging`, `prod`, …). There is no `README.todo` on this checkout.
 
-Install from a tag: `npm install` only at the **repo root** (npm workspaces, one lockfile). Do not `cd kernel/front && npm install`.
+Install from a tag: `npm install` only at the **repo root** (npm workspaces, one lockfile). Do not `cd tuucho/kernel/front && npm install`.
 
 Admin, Plugins, Scan is install (runs schema `up` when the plugin is on).
 **Check for updates** then **Apply** walks every git tag between this shop and
@@ -106,9 +116,9 @@ Plugins “Core” and Check current are the live root `package.json`. Latest is
 the newest official GitHub tag. A checkout newer than that tag is ahead (no
 Apply). Matching tags: nothing to update. Older local: walk every tag.
 `shop-release.json` is last-applied Apply state, not displayed current.
-`plugins/user/` is not overwritten
-by a Tuucho update. Kernel/all Apply copies root `package.json`. A user plugin
-with npm `repository` on its `package.json` updates from that GitHub repo only. Disable unloads the plugin and keeps its tables.
+`src/plugins/` is not overwritten
+by a Tuucho update (Apply is scoped to `tuucho/`). Kernel/all Apply copies root `package.json`. A user plugin
+with `tuucho.repo` / `branch` / `folder` (or npm `repository`) updates from that GitHub repo only. Disable unloads the plugin and keeps its tables.
 Uninstall runs `down` and removes the row. Stripe keys and carrier credentials live in that plugin’s Admin Configure
 (secret store), not kernel JSON.
 
@@ -130,7 +140,7 @@ Details: [docs/plugins.md](docs/plugins.md).
 | `tuucho-seo-sitemap` / `tuucho-seo-robots` / `tuucho-seo-redirects` | SEO | Extra sitemap URLs, robots rules, and redirect apply. Hub: Settings → SEO. |
 
 See [docs/plugins.md](docs/plugins.md) (same text as Admin, Documentation).
-User storefront pages: `plugins/user/demo/guides/demo-page-guides` (size / shape / care), `plugins/user/legal/pages/page-legal` (legal notice, privacy, terms of use, terms of sale — footer only), `plugins/user/legal/pages/page-accessibility` (RGAA statement — footer only). Footer identity copy is `plugins/user/footer/identity/footer-identity`.
+User storefront pages: `src/plugins/demo/guides/demo-page-guides` (size / shape / care), `src/plugins/legal/pages/page-legal` (legal notice, privacy, terms of use, terms of sale — footer only), `src/plugins/legal/pages/page-accessibility` (RGAA statement — footer only). Footer identity copy is `src/plugins/footer/identity/footer-identity`.
 
 ## Layout
 
@@ -142,11 +152,13 @@ line), as a store setting.
 ## Layout on disk
 
 ```
-kernel/back     API: plugin host, shells, catalog, orders, users, stock, cart
-kernel/front    Shop chrome (admin nav from bootstrap, plugin UI chunks)
-plugins/tuucho/ Bundled plugins grouped by kind (id starts with tuucho-)
-plugins/user/   Shop / demo / zip upload (id must not start with tuucho-)
-plugin-sdk/     @tuucho/plugin-sdk
-sample/         Fictional catalog + courier JSON
-scripts/        installer
+tuucho/kernel/back     API: plugin host, shells, catalog, orders, users, stock, cart
+tuucho/kernel/front    Shop chrome (admin nav from bootstrap, plugin UI chunks)
+tuucho/plugins/        Bundled plugins grouped by kind (id starts with tuucho-; no extra tuucho/ segment)
+src/plugins/           Shop / demo / zip upload (id must not start with tuucho-)
+tuucho/plugin-sdk/     @tuucho/plugin-sdk
+tuucho-config/         Operator public + private JSON
+tuucho/kernel-surface.json  Published filters, slots, UI, gift peer service
+sample/                Fictional catalog + courier JSON
+scripts/               installer + first-setup
 ```

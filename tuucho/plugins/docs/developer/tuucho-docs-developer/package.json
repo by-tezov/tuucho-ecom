@@ -1,0 +1,33 @@
+{
+  "name": "@tuucho/plugin-tuucho-docs-developer",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Developer handbook in admin: kernel, openings, SEO, and how to ship a plugin.",
+  "tuucho": {
+    "id": "tuucho-docs-developer",
+    "installPath": "tuucho/plugins/docs/developer/tuucho-docs-developer",
+    "name": "Documentation",
+    "kind": "docs",
+    "defaultEnabled": false,
+    "provides": [
+      "AdminPage"
+    ],
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "adminNav": [
+      {
+        "id": "docs",
+        "group": "standalone",
+        "to": "/docs",
+        "permission": "preferences",
+        "order": 1,
+        "label": "Documentation"
+      }
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

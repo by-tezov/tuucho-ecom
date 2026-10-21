@@ -1,0 +1,62 @@
+{
+  "title": "Vinted reviews",
+  "summary": "Reviews on the home page and a Vinted review admin page. Permission reviews. JSON-LD via seo.jsonld.graph.",
+  "sections": [
+    {
+      "heading": "Surfaces",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "Admin",
+              "description": "HTTP /admin/vinted-reviews, permission reviews"
+            },
+            {
+              "term": "Public",
+              "description": "HTTP mount on / for selected reviews"
+            },
+            {
+              "term": "SEO",
+              "description": "addFilter seo.jsonld.graph"
+            },
+            {
+              "term": "Storage",
+              "description": "vinted_reviews rows the admin picks as featured"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Config files",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Bundled path: tuucho-config/plugins/tuucho-commerce-vinted-review/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.json",
+          "code": "{\n  \"homeCacheTtl\": \"\"\n}"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "caption": "config.private.example.json",
+          "code": "{}"
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "homeCacheTtl",
+              "description": "string \u2014 public. How long home-page reviews stay cached (for example 10m). Empty disables the cache and fetches every time."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
