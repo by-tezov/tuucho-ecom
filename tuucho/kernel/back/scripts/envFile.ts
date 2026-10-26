@@ -28,7 +28,7 @@ export function loadPublicEnv(root: string, mode: string): Record<string, string
 }
 
 export function loadSeedEnv(_root: string, _mode: string): Record<string, string> {
-  const fixture = join(_root, '..', '..', 'sample', 'seed-defaults.env');
+  const fixture = join(_root, '..', '..', '..', 'sample', 'seed-defaults.env');
   if (!existsSync(fixture)) return {};
   const values: Record<string, string> = {};
   for (const line of readFileSync(fixture, 'utf-8').split('\n')) {
@@ -68,7 +68,7 @@ function setPath(obj: Record<string, unknown>, path: string, value: string): voi
   current[parts[parts.length - 1]!] = value;
 }
 
-/** Merge leftover kernel private keys into `config/<mode>/config.private.json`.
+/** Merge leftover kernel private keys into `config.private.<mode>.json`.
  * Plugin secrets (Stripe, Mondial) are rejected. */
 export function upsertPrivateEnv(
   root: string,

@@ -231,7 +231,11 @@ export function AccountShell({ children, loading = false }: AccountShellProps) {
       </div>
       <div key={pathname} className={contentClassName}>
         <LegalPageBackLink placement="top" />
-        {loading ? <ContentLoading message={t.nav.loadingAccount} /> : children}
+        {/* Children stay mounted while their data loads (display:contents
+            keeps the wrapper out of layout): unmounting them on every
+            loading flip reset scroll anchors and page-local state. */}
+        <div style={loading ? { display: 'none' } : { display: 'contents' }}>{children}</div>
+        {loading && <ContentLoading message={t.nav.loadingAccount} />}
       </div>
       {confirmLogout && (
         <ConfirmModal

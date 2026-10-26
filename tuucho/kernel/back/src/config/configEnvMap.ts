@@ -7,6 +7,7 @@ export const PUBLIC_ENV_MAP: Record<string, string> = {
   'http.apiBaseUrl': 'URL_API_BASE',
   'http.publicMediaUrl': 'URL_PUBLIC_MEDIA',
   'http.smallPhotoSize': 'SMALL_PHOTO_SIZE',
+  'paths.outputDir': 'OUTPUT_DIR',
   'paths.publicDir': 'PUBLIC_DIR',
   'paths.privateDir': 'PRIVATE_DIR',
   'paths.devDir': 'DEV_DIR',
@@ -111,6 +112,9 @@ export const PUBLIC_ENV_MAP: Record<string, string> = {
   'logs.cronRetention': 'CRON_LOG_RETENTION',
   'ops.gatewayUrl': 'OPS_GATEWAY_URL',
   'identity.allowTestTokens': 'TUUCHO_IDENTITY_ALLOW_TEST_TOKENS',
+  'identity.testTokenPrefix': 'IDENTITY_TEST_TOKEN_PREFIX',
+  'i18n.default': 'I18N_DEFAULT_LANG',
+  'i18n.enabled': 'I18N_ENABLED_LANGS',
 };
 
 export const PRIVATE_ENV_MAP: Record<string, string> = {

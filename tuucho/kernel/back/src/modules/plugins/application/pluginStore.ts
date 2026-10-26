@@ -10,11 +10,7 @@ import { assessPluginCompatibility, type PluginCompatibility } from './pluginCom
 import { applyPluginMigrations, revertPluginMigrations } from './pluginSchema.js';
 import { flushPluginCache } from '@tuucho/plugin-sdk';
 import type { PluginManifest } from '../domain/contracts.js';
-import {
-  pluginSecretsNeedSeal,
-  sealPluginSecrets,
-  unsealPluginSecrets,
-} from './pluginSecretsCrypto.js';
+import { pluginSecretsNeedSeal, sealPluginSecrets, unsealPluginSecrets } from './pluginSecretsCrypto.js';
 
 export { pluginSurfaceEnabled } from './pluginSurface.js';
 
@@ -72,6 +68,24 @@ function isUndefinedTable(error: unknown): boolean {
   return Boolean(error && typeof error === 'object' && 'code' in error && String(error.code) === '42P01');
 }
 
+/** Thrown by mutating plugin-store paths when the `plugins` table does not
+ * exist yet (boot or operation before database-migrate). Read-only paths
+ * degrade to empty/false instead. Routers let it reach the final error
+ * middleware, which answers a clean 500 JSON rather than crashing the
+ * process on an unhandled rejection. */
+export class PluginsTableMissingError extends Error {
+  readonly code = 'plugins_table_missing' as const;
+  constructor(cause?: unknown) {
+    super('The plugins table does not exist yet. Run database-migrate first.', { cause });
+    this.name = 'PluginsTableMissingError';
+  }
+}
+
+function rethrowAsTableMissing(error: unknown): never {
+  if (isUndefinedTable(error)) throw new PluginsTableMissingError(error);
+  throw error;
+}
+
 function postgresCode(error: unknown): string {
   return error && typeof error === 'object' && 'code' in error ? String(error.code) : '';
 }
@@ -80,7 +94,11 @@ function isUndefinedColumn(error: unknown): boolean {
   return postgresCode(error) === '42703';
 }
 
-export async function markPluginLoadFailed(id: string, error: unknown, db: Pool | PoolClient = pool): Promise<void> {
+export async function markPluginLoadFailed(
+  id: string,
+  error: unknown,
+  db: Pool | PoolClient = pool,
+): Promise<void> {
   const message = error instanceof Error ? error.message : String(error);
   try {
     await db.query(
@@ -289,7 +307,12 @@ export async function listPlugins(db: Pool | PoolClient = pool): Promise<Install
 export async function scanPlugins(
   db: Pool = pool,
 ): Promise<{ plugins: InstalledPlugin[]; added: string[]; incompatible: string[] }> {
-  const { rows } = await db.query<{ id: string }>(`select id from plugins`);
+  let rows: Array<{ id: string }>;
+  try {
+    ({ rows } = await db.query<{ id: string }>(`select id from plugins`));
+  } catch (error) {
+    rethrowAsTableMissing(error);
+  }
   const before = new Set(rows.map((row) => row.id));
   let plugins = await listPlugins(db);
   const added = plugins.map((plugin) => plugin.id).filter((id) => !before.has(id));
@@ -319,7 +342,13 @@ export async function scanPlugins(
 export async function isPluginEnabled(id: string, db: Pool | PoolClient = pool): Promise<boolean> {
   const manifest = await manifestById(id);
   if (!manifest) return false;
-  const { rows } = await db.query<{ enabled: boolean }>(`select enabled from plugins where id = $1`, [id]);
+  let rows: Array<{ enabled: boolean }>;
+  try {
+    ({ rows } = await db.query<{ enabled: boolean }>(`select enabled from plugins where id = $1`, [id]));
+  } catch (error) {
+    if (isUndefinedTable(error)) return false;
+    throw error;
+  }
   if (rows[0]) return rows[0].enabled;
   return manifest.defaultEnabled !== false;
 }
@@ -348,7 +377,9 @@ export async function setPluginEnabled(
   id: string,
   enabled: boolean,
   db: Pool = pool,
-): Promise<InstalledPlugin | { error: 'not_found' | 'required' | 'incompatible'; compatibility?: PluginCompatibility }> {
+): Promise<
+  InstalledPlugin | { error: 'not_found' | 'required' | 'incompatible'; compatibility?: PluginCompatibility }
+> {
   const manifest = await manifestById(id);
   if (!manifest) return { error: 'not_found' };
   if (manifest.required && !enabled) return { error: 'required' };
@@ -387,7 +418,12 @@ export async function uninstallPlugin(
   db: Pool = pool,
 ): Promise<{ ok: true; reverted: string[] } | { error: 'not_found' | 'required' | 'unconfirmed' }> {
   if (!confirm) return { error: 'unconfirmed' };
-  const { rows } = await db.query<{ id: string }>(`select id from plugins where id = $1`, [id]);
+  let rows: Array<{ id: string }>;
+  try {
+    ({ rows } = await db.query<{ id: string }>(`select id from plugins where id = $1`, [id]));
+  } catch (error) {
+    rethrowAsTableMissing(error);
+  }
   if (!rows[0]) return { error: 'not_found' };
   const manifest = await manifestById(id);
   if (manifest?.required) return { error: 'required' };
@@ -422,13 +458,17 @@ export async function patchPluginSettings(
 ): Promise<InstalledPlugin | { error: 'not_found' }> {
   if (!(await manifestById(id))) return { error: 'not_found' };
   await ensurePluginRows(db);
-  await db.query(
-    `update plugins
-        set settings = coalesce(settings, '{}'::jsonb) || $2::jsonb,
-            updated_at = now()
-      where id = $1`,
-    [id, JSON.stringify(settings)],
-  );
+  try {
+    await db.query(
+      `update plugins
+          set settings = coalesce(settings, '{}'::jsonb) || $2::jsonb,
+              updated_at = now()
+        where id = $1`,
+      [id, JSON.stringify(settings)],
+    );
+  } catch (error) {
+    rethrowAsTableMissing(error);
+  }
   const list = await listPlugins(db);
   return list.find((plugin) => plugin.id === id)!;
 }
@@ -446,8 +486,14 @@ export async function patchPluginSecrets(
     cleaned[key] = value;
   }
   if (Object.keys(cleaned).length > 0) {
-    const { rows } = await db.query<{ secrets: unknown }>(`select secrets from plugins where id = $1`, [id]);
-    await persistSealedSecrets(id, { ...unsealPluginSecrets(rows[0]?.secrets), ...cleaned }, db);
+    try {
+      const { rows } = await db.query<{ secrets: unknown }>(`select secrets from plugins where id = $1`, [
+        id,
+      ]);
+      await persistSealedSecrets(id, { ...unsealPluginSecrets(rows[0]?.secrets), ...cleaned }, db);
+    } catch (error) {
+      rethrowAsTableMissing(error);
+    }
   }
   const list = await listPlugins(db);
   return list.find((plugin) => plugin.id === id)!;

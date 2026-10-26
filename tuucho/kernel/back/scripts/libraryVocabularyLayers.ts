@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 /**
- * Layered vocabulary for the library CLIs (docs/plans/nail-variations.md).
+ * Layered vocabulary for the library CLIs (tuucho/docs/plans/nail-variations.md).
  *
  * catalog source keeps a root `product/data-common.json` (shape, length,
  * color) and each catalogue folder may add its own `data-common.json`

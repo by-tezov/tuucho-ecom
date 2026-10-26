@@ -23,7 +23,7 @@ import {
   outOfStockProductsEnabled,
 } from '../application/outOfStockVisibility.js';
 
-import { PRODUCT_UID_PATTERN } from '../domain/productUid.js';
+import { isProductUid } from '../domain/productUid.js';
 import { applyFilters } from '../../plugins/application/hooks.js';
 
 export const galleryPreviewRouter = Router();
@@ -176,7 +176,7 @@ function previewHandler(family: PreviewFamily) {
     const galleryPath = open ? family.galleryPath : '/gallery';
     res.setHeader('Cache-Control', open ? 'public, max-age=300' : 'no-store');
     const galleryUrl = `${config.frontendBaseUrl}${localizedFrontendPath(galleryPath, language)}`;
-    if (!PRODUCT_UID_PATTERN.test(uid) || !open) {
+    if (!isProductUid(uid) || !open) {
       res.status(404).type('html').send(genericPreviewHtml(galleryUrl, language));
       return;
     }

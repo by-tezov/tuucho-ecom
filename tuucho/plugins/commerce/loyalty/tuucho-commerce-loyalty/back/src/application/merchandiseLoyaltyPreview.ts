@@ -1,4 +1,5 @@
 import type pg from 'pg';
+import { applyFilters, CORE_OPENING_FILTERS } from '@tuucho/plugin-sdk';
 import { type LoyaltyPricingResult } from './loyalty.js';
 import { priceLoyaltyIfEnabled } from './loyaltyPlugin.js';
 import {
@@ -60,6 +61,72 @@ function lineEconomics(line: {
   return { unitPrice: catalogUnit, stockUnits: line.quantity, minUnits: 1 };
 }
 
+/** Availability for quoting: units covered by the cart's own excluded
+ * reservation (the gift/checkout hold passed as `excludeReservationId`) count
+ * as available even when the availability math alone would show the line as
+ * gone, so user lines stay in the earn quote while that covering id is
+ * present. */
+export function quotableAvailability(line: { available_quantity: number; held_by_excluded?: number }): number {
+  return line.available_quantity + (line.held_by_excluded ?? 0);
+}
+
+/** Extra merchandise line a peer plugin contributes to the earn quote through
+ * the `loyalty.preview.cartExtras` filter (composed sets and the like). */
+export type LoyaltyPreviewExtraLine = {
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+  size?: string;
+};
+
+/** Set-unit contribution for volume tiers and gift-per-set rules. */
+export type LoyaltyPreviewExtraSet = {
+  quantity: number;
+  nailCount: number;
+  lineTotal: number;
+};
+
+export type LoyaltyPreviewCartExtras = {
+  lines: LoyaltyPreviewExtraLine[];
+  extraSets: LoyaltyPreviewExtraSet[];
+};
+
+export type LoyaltyPreviewCartExtrasContext = {
+  userId: string | null;
+  source: 'account' | 'guest';
+  /** The cart lines already in the quote, so a peer can avoid double-counting. */
+  lines: Array<{ productId: string; productType: string; quantity: number; unitPrice: number; size: string }>;
+};
+
+/** Peer-plugin cart extras for the preview: extra merchandise lines merged
+ * into the earn math, and set contributions merged into the volume-tier /
+ * gift-per-set rules. The narrowest contribution point: peers never touch
+ * availability, vouchers, or wallet spend. */
+export async function collectLoyaltyPreviewCartExtras(
+  ctx: LoyaltyPreviewCartExtrasContext,
+): Promise<LoyaltyPreviewCartExtras> {
+  return applyFilters(CORE_OPENING_FILTERS.loyaltyPreviewCartExtras, { lines: [], extraSets: [] }, ctx);
+}
+
+/** Extra lines earn as nail merchandise (a composed set is nail merchandise,
+ * never an accessory) at the base multiplier. */
+function extrasToPricedLines(extras: LoyaltyPreviewExtraLine[]): PricedLine[] {
+  return extras.map((extra) => ({
+    line: {
+      product_id: extra.productId,
+      product_type: 'composition',
+      shape_key: '',
+      length_key: '',
+      size: extra.size ?? '',
+      origin: 'user' as const,
+      loyalty_multiplier: 1,
+    },
+    unitPrice: extra.unitPrice,
+    lineTotal: round2(extra.unitPrice * extra.quantity),
+    quantity: extra.quantity,
+  }));
+}
+
 /**
  * Loyalty earn/spend quote for the active account cart.
  * Paid merchandise only (after cart rules / voucher / wallet credit).
@@ -71,7 +138,7 @@ export async function previewAccountCartLoyalty(
   userId: string,
   options: { applyLoyalty?: boolean; voucherCode?: string; excludeReservationId?: string } = {},
 ): Promise<{ ok: true; preview: MerchandiseLoyaltyPreview } | { ok: false; reason: string }> {
-  await cartRulesApi()?.syncGiftLinesForActiveCart(db, userId);
+  await cartRulesApi()?.syncGiftLinesForActiveCart(db, userId, options.excludeReservationId);
 
   const { rows: cartLines } = await db.query<{
     product_id: string;
@@ -86,6 +153,7 @@ export async function previewAccountCartLoyalty(
     quantity: number;
     unit_price: string | null;
     available_quantity: number;
+    held_by_excluded: number;
     origin: 'user' | 'rule';
     rule_code: string | null;
     loyalty_multiplier: number;
@@ -112,6 +180,16 @@ export async function previewAccountCartLoyalty(
               where gsa.product_id = ci.product_id and gsa.shape_key = ci.shape_key
                 and gsa.length_key = ci.length_key and gsa.size = ci.size
             ), 0) as available_quantity,
+            coalesce((
+              select sum(sri_own.quantity)
+              from stock_reservation_items sri_own
+              where $2::uuid is not null
+                and sri_own.reservation_id = $2
+                and sri_own.product_id = ci.product_id
+                and sri_own.shape_key = ci.shape_key
+                and sri_own.length_key = ci.length_key
+                and sri_own.size = ci.size
+            ), 0)::integer as held_by_excluded,
             ci.origin, cr.code as rule_code
      from cart_items ci
      join carts c on c.id = ci.cart_id
@@ -132,11 +210,23 @@ export async function previewAccountCartLoyalty(
   const sellable = cartLines.filter((line) => {
     if (line.origin === 'rule') return true;
     const { minUnits } = lineEconomics(line);
-    return minUnits !== undefined && line.available_quantity >= minUnits;
+    return minUnits !== undefined && quotableAvailability(line) >= minUnits;
   });
   if (sellable.length === 0) {
     return { ok: false, reason: 'empty_cart' };
   }
+
+  const cartExtras = await collectLoyaltyPreviewCartExtras({
+    userId,
+    source: 'account',
+    lines: sellable.map((line) => ({
+      productId: line.product_id,
+      productType: line.product_type,
+      quantity: line.quantity,
+      unitPrice: Number(line.unit_price ?? 0),
+      size: line.size,
+    })),
+  });
 
   const desiredGiftByRuleCode = new Map(
     (
@@ -144,6 +234,7 @@ export async function previewAccountCartLoyalty(
         setUnits: sellable
           .filter((line) => line.origin === 'user' && line.product_type === 'nail')
           .reduce((sum, line) => sum + line.quantity, 0),
+        extraSets: cartExtras.extraSets,
       }) ?? []
     ).map((gift) => [gift.ruleCode, gift.quantity]),
   );
@@ -181,6 +272,7 @@ export async function previewAccountCartLoyalty(
       rule_code: cartLine.rule_code,
     });
   }
+  items.push(...extrasToPricedLines(cartExtras.lines));
 
   const applyLoyalty =
     options.applyLoyalty ??
@@ -209,6 +301,7 @@ export async function previewAccountCartLoyalty(
   const cartRules = cartRulesApi()?.evaluateCartRules({
     rules,
     nailLines,
+    extraSets: cartExtras.extraSets,
     merchandiseSubtotal,
     shippingListFee: 0,
     countryCode: '',
@@ -234,7 +327,8 @@ export async function previewAccountCartLoyalty(
             .map((item) => ({
               unitPrice: item.unitPrice,
               quantity: item.quantity,
-              productType: item.line.product_type as 'nail' | 'accessory',
+              // Composition-like extras are nail merchandise for voucher scoping.
+              productType: item.line.product_type === 'accessory' ? ('accessory' as const) : ('nail' as const),
             })),
         },
         userId,
@@ -254,7 +348,7 @@ export async function previewAccountCartLoyalty(
     voucherItemDiscount: voucher?.itemDiscount ?? 0,
     voucherShippingDiscount: 0,
     shippingFee: 0,
-    voucherOfferType: voucher?.offer.type ?? null,
+    voucherOfferType: voucher?.offer?.type ?? null,
   });
 
   const total = round2(
@@ -362,6 +456,19 @@ export async function previewGuestItemsLoyalty(
     });
   }
 
+  const cartExtras = await collectLoyaltyPreviewCartExtras({
+    userId: null,
+    source: 'guest',
+    lines: priced.map((item) => ({
+      productId: item.line.product_id,
+      productType: item.line.product_type,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      size: item.line.size,
+    })),
+  });
+  priced.push(...extrasToPricedLines(cartExtras.lines));
+
   const merchandiseSubtotal = round2(priced.reduce((sum, item) => sum + item.lineTotal, 0));
   const rules = (await cartRulesApi()?.listCartRules(db)) ?? [];
   const nailLines = priced
@@ -371,6 +478,7 @@ export async function previewGuestItemsLoyalty(
     cartRulesApi()?.evaluateCartRules({
       rules,
       nailLines,
+      extraSets: cartExtras.extraSets,
       merchandiseSubtotal,
       shippingListFee: 0,
       countryCode: '',
@@ -389,7 +497,8 @@ export async function previewGuestItemsLoyalty(
         itemUnitPrices: priced.map((item) => ({
           unitPrice: item.unitPrice,
           quantity: item.quantity,
-          productType: item.line.product_type as 'nail' | 'accessory',
+          // Composition-like extras are nail merchandise for voucher scoping.
+          productType: item.line.product_type === 'accessory' ? ('accessory' as const) : ('nail' as const),
         })),
       })) ?? { ok: false as const, reason: 'voucher_not_found' })
     : undefined;
@@ -407,7 +516,7 @@ export async function previewGuestItemsLoyalty(
     voucherItemDiscount: voucher?.itemDiscount ?? 0,
     voucherShippingDiscount: 0,
     shippingFee: 0,
-    voucherOfferType: voucher?.offer.type ?? null,
+    voucherOfferType: voucher?.offer?.type ?? null,
   });
 
   const total = round2(merchandiseSubtotal - cartRules.rulesItemDiscount - (voucher?.itemDiscount ?? 0));

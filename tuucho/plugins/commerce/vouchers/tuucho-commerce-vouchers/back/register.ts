@@ -175,7 +175,7 @@ const register: PluginRegisterFn = async (api) => {
         itemUnitPrices: paidItems.map((item) => ({
           unitPrice: item.unitPrice,
           quantity: item.line.quantity,
-          productType: item.line.product_type,
+          productType: item.line.product_type as 'nail' | 'accessory',
         })),
       };
       const held = ctx.guest

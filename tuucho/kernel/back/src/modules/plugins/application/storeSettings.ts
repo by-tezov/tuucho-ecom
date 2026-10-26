@@ -92,15 +92,16 @@ const DEFAULT_THEME: ThemeCustomization = {
 };
 
 const DEFAULT_MENUS: StoreMenuItem[] = [
-  { key: 'home', pluginId: 'tuucho-page-home', label: 'Home', visible: true, order: 10, bottomBar: true },
+  { key: 'home', pluginId: 'page-home', label: 'Home', visible: true, order: 10, bottomBar: true },
   { key: 'gallery', pluginId: 'core-catalog', label: 'Collection', visible: true, order: 20, bottomBar: true },
-  { key: 'guide', pluginId: 'demo-page-guides', label: 'Guides', visible: true, order: 30, bottomBar: false },
-  { key: 'about', pluginId: 'tuucho-page-about', label: 'About', visible: true, order: 40, bottomBar: false },
+  { key: 'guide', pluginId: 'page-guides', label: 'Guides', visible: true, order: 30, bottomBar: false },
+  { key: 'about', pluginId: 'page-about', label: 'About', visible: true, order: 40, bottomBar: false },
 ];
 
 /** Legal pages are footer-only (user plugin page-legal, formerly
  * tuucho-page-legal). Studio-note and the demo profile plugin are gone.
- * Guides moved from tuucho-page-guides to demo-page-guides. */
+ * Guides moved from tuucho-page-guides to page-guides. Home/About
+ * moved from tuucho-page-* to user example packs page-home / page-about. */
 const DROPPED_MENU_KEYS = new Set(['legal', 'studio-note']);
 const DROPPED_MENU_PLUGIN_IDS = new Set([
   'page-legal',
@@ -110,14 +111,23 @@ const DROPPED_MENU_PLUGIN_IDS = new Set([
   'demo-checkout-profile',
 ]);
 
+function remapMenuPluginId(item: StoreMenuItem): StoreMenuItem {
+  if (item.key === 'guide' || item.pluginId === 'tuucho-page-guides' || item.pluginId === 'demo-page-guides') {
+    return { ...item, key: 'guide', pluginId: 'page-guides' };
+  }
+  if (item.key === 'home' || item.pluginId === 'tuucho-page-home' || item.pluginId === 'page-home') {
+    return { ...item, key: 'home', pluginId: 'page-home' };
+  }
+  if (item.key === 'about' || item.pluginId === 'tuucho-page-about' || item.pluginId === 'page-about') {
+    return { ...item, key: 'about', pluginId: 'page-about' };
+  }
+  return item;
+}
+
 function canonicalStoreMenus(menus: StoreMenuItem[]): StoreMenuItem[] {
   return menus
     .filter((item) => !DROPPED_MENU_KEYS.has(item.key) && !DROPPED_MENU_PLUGIN_IDS.has(item.pluginId))
-    .map((item) =>
-      item.key === 'guide' || item.pluginId === 'tuucho-page-guides'
-        ? { ...item, key: 'guide', pluginId: 'demo-page-guides' }
-        : item,
-    );
+    .map(remapMenuPluginId);
 }
 
 async function readJson<T>(key: string, fallback: T, db: Pool): Promise<T> {

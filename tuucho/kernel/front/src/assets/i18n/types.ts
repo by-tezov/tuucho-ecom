@@ -1,7 +1,8 @@
-/** Assembled from `types/`, one file per screen, mirroring
- * `strings/<lang>/`. Nothing is authored here except the top-level labels that
- * belong to no screen and the `Strings` assembly itself: add a key with
- * `npm run i18n`, and it lands in the namespace file. */
+/** Key shapes for storefront copy. Values live in locale packs
+ * (`tuucho-kernel-locale-en` / `tuucho-kernel-locale-fr` and plugin complements). Nothing is
+ * authored here except the top-level labels that belong to no screen and the
+ * `Strings` assembly itself: add a key with `npm run i18n`, and it lands in the
+ * namespace type file. */
 import type { AboutStrings } from './types/about';
 import type { AccessibilityStatementStrings } from './types/accessibilityStatement';
 import type { AccountStrings } from './types/account';
@@ -72,6 +73,8 @@ export interface Strings {
   continueAction: string;
   /** Explains the `*` marking a required field, shown once above each form. */
   requiredFieldsNote: string;
+  /** Accessible label for the language switcher control group. */
+  languageSwitcherLabel: string;
   bootSplash: BootSplashStrings;
   seo: SeoStrings;
   notFound: NotFoundStrings;

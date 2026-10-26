@@ -1,4 +1,4 @@
-/** Shapes only — English lives in emailStrings.ts; French is locale-fr. */
+/** Shapes only — values live in `tuucho-kernel-locale-en` / `tuucho-kernel-locale-fr`. */
 
 /** One entry per email "context" (order confirmation, order shipped) per
  * language — every key is required for every language (no en/fr fallback
@@ -110,6 +110,13 @@ export interface LoyaltyExpiryReminderStrings {
   footer: string;
 }
 
+/** Words around an item line: customer note heading, size, product reference. */
+export interface OrderItemLabels {
+  comment: string;
+  size: string;
+  ref: string;
+}
+
 export interface EmailStrings {
   orderConfirmation: OrderConfirmationStrings;
   orderShipped: OrderShippedStrings;
@@ -117,4 +124,5 @@ export interface EmailStrings {
   orderUpdated: OrderUpdatedStrings;
   loyaltyExpiryReminder: LoyaltyExpiryReminderStrings;
   itemGroupLabels: OrderItemGroupLabels;
+  itemLabels: OrderItemLabels;
 }

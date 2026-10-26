@@ -171,7 +171,7 @@ Chrome on `/admin/plugins/:id` when `settingsSchema` has keys. Extra **below** t
 - `ui.FileField` (or `ui.FilePicker`) — labelled file input, 44px, help text, multiple. **No** native `<input type="file">` on the Configure page itself.
 - Existing `Button`, `ConfirmModal`, `DocsCallout` / `FormSection` for the files panel.
 
-English chrome strings on `admin.whiteLabel` + `tuucho-locale-fr` overlay. Do not hardcode field copy.
+English chrome strings on `admin.whiteLabel` + `tuucho-kernel-locale-fr` overlay. Do not hardcode field copy.
 
 HTTP: `/admin/plugins` stays `requireAuth` + `requirePermission('preferences')` for list and ordinary Configure PATCH (today). File routes add a **second** gate (403 `forbidden` without it). Do not reuse `preferences` for file bodies.
 
@@ -185,7 +185,7 @@ Do not print secrets in logs, activity detail, or handbook.
 
 ## Permissions (locked)
 
-Kernel codes on `CORE_PERMISSIONS` (not plugin-manifest permissions). Same wiring as `orders` / `preferences`: vocabulary migration row, Admin → Roles toggle, `admin.whiteLabel` / `tuucho-locale-fr` labels. Pattern `^[a-z][a-z0-9_]{1,63}$`.
+Kernel codes on `CORE_PERMISSIONS` (not plugin-manifest permissions). Same wiring as `orders` / `preferences`: vocabulary migration row, Admin → Roles toggle, `admin.whiteLabel` / `tuucho-kernel-locale-fr` labels. Pattern `^[a-z][a-z0-9_]{1,63}$`.
 
 | Code | Grants | Why separate |
 | --- | --- | --- |
@@ -250,7 +250,7 @@ Skills (`tuucho-create-plugin`, `tuucho-plugin-admin`): new schema plugin must a
 2. **DB** — `config_files_hash`, `config_files_applied_at` on `plugins` (kernel migration, not a plugin table). First-launch hook after `ensurePluginRows` / scan, before runtime register. Tests: empty → load once; second boot no-op; Admin values not overwritten.
 3. **Admin API + Configure chrome** — kit `FileField` first ([config-ui.md](config-ui.md) order), then files panel, apply/import/export, drift callout. Add `plugin_config_import` / `plugin_config_export` to `CORE_PERMISSIONS` + permissions vocabulary migration + Roles copy. Tests: public export has no secret keys; import mixed file 400; apply/import 403 without import permission; export 403 without export permission; Save still `preferences`; buttons hidden without grants.
 4. **Ship files** — for every bundled plugin with `settingsSchema` (sign-in, Stripe, Mondial, contact, spy, gift, loyalty, vouchers, product-requests, vinted-review, …): committed public + private example under `tuucho-config/plugins/<id>/`. Placeholders only.
-5. **Docs** — handbook JSON sections + kernel `config-files` article + README. Disk tests as above. `tuucho-locale-fr` chrome strings only.
+5. **Docs** — handbook JSON sections + kernel `config-files` article + README. Disk tests as above. `tuucho-kernel-locale-fr` chrome strings only.
 6. **Doctor / setup** — first-setup does **not** copy plugin private examples over existing privates. Missing plugin examples for a schema plugin → check error. Shop still boots if a plugin file set is absent (Configure-only).
 
 Verify: `/healthz` still up. **Do not bind or kill 5174/3010.** Spot-check Configure: switch gone stays a different bug; this pass is files + docs. Do not print secrets.

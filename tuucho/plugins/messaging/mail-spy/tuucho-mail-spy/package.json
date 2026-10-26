@@ -10,37 +10,16 @@
     "name": "Spy e-mails",
     "kind": "generic",
     "defaultEnabled": true,
-    "provides": [
-      "AdminPage"
-    ],
-    "permissions": [
-      {
-        "code": "spy_mail",
-        "label": "Spy e-mails"
-      }
-    ],
     "engines": {
       "core": ">=0.0.1 <1.0.0"
     },
-    "adminNav": [
-      {
-        "id": "spy-mail",
-        "group": "settings",
-        "to": "/spy-mail",
-        "permission": "spy_mail",
-        "order": 45,
-        "label": "Spy e-mails"
-      }
-    ],
     "defaultSettings": {
       "cooldown": "15m",
       "sendVolumeDay": 30,
       "disableCooldown": false,
       "disableEmail": false,
-      "seedContactRecipient": "",
-      "seedOrderRecipient": "",
-      "seedChatRecipient": "",
-      "devEmailDir": "/email-spy"
+      "devEmailDir": "/email-spy",
+      "rules": []
     },
     "settingsSchema": {
       "cooldown": {
@@ -49,7 +28,7 @@
         "description": "Minimum delay between two spy mails of the same kind to the same person (for example 15m).",
         "section": "limits",
         "sectionTitle": "Volume",
-        "sectionDescription": "How hard spy copies may hit staff inboxes. Recipients themselves live on Admin → Spy e-mails."
+        "sectionDescription": "How hard spy copies may hit staff inboxes. Who receives each channel is the rules list."
       },
       "sendVolumeDay": {
         "type": "number",
@@ -69,31 +48,19 @@
         "description": "Stops every spy copy without disabling the plugin. Use for a quiet maintenance window.",
         "section": "limits"
       },
-      "seedContactRecipient": {
-        "type": "email",
-        "label": "Seed contact recipient",
-        "description": "First contact spy address used only when that channel has no recipients yet.",
-        "section": "seeds",
-        "sectionTitle": "Seed recipients",
-        "sectionDescription": "Used once when a channel table is empty. After that, edit recipients on Admin → Spy e-mails."
-      },
-      "seedOrderRecipient": {
-        "type": "email",
-        "label": "Seed order recipient",
-        "description": "First order spy address used only when that channel has no recipients yet.",
-        "section": "seeds"
-      },
-      "seedChatRecipient": {
-        "type": "email",
-        "label": "Seed chat recipient",
-        "description": "First chat spy address used only when that channel has no recipients yet.",
-        "section": "seeds"
-      },
       "devEmailDir": {
         "type": "string",
         "label": "Dev spy email dump dir",
         "description": "Folder where spy mail is written in development instead of SMTP. Ignore on a live host.",
-        "section": "seeds"
+        "section": "limits"
+      },
+      "rules": {
+        "type": "text",
+        "hidden": true,
+        "label": "Rules",
+        "description": "Edited on the Rules tab. Each item is { \"channel\", \"role\" } or { \"channel\", \"email\" }, plus enabled. enabled false turns that channel off. Missing enabled means on. Customers (role user) are ignored.",
+        "section": "rules",
+        "placeholder": "[{\"channel\":\"login\",\"email\":\"ops@shop.example\"}]"
       }
     }
   },

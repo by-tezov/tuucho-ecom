@@ -30,7 +30,7 @@
  * they belong to, and every media tree; a restore replaces all of that in one
  * step and refuses when the archive's migration list is not a prefix of this
  * release's — unless `--bypass-preflight` (operator accepts incompatibility,
- * e.g. after squashing migrations). See docs/command/03-ops.md.
+ * e.g. after squashing migrations). See tuucho/docs/command/03-ops.md.
  *
  * generate-key is local-only (does not call the API / does not need OPS_TOKEN):
  * without --replace it prints secrets to stdout; with --replace it upserts

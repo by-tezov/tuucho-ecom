@@ -49,7 +49,7 @@ export function groupSettingsFields(
 
 export function settingFieldKeys(plugin: AdminPlugin): string[] {
   const schema = plugin.manifest.settingsSchema ?? {};
-  const fromSchema = Object.keys(schema);
-  if (fromSchema.length > 0) return fromSchema;
+  const fromSchema = Object.keys(schema).filter((key) => schema[key]?.hidden !== true);
+  if (Object.keys(schema).length > 0) return fromSchema;
   return Object.keys(plugin.settings ?? {});
 }

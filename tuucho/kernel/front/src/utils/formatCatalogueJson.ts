@@ -181,6 +181,116 @@ export function reorderCataloguePhotos(
   return formatCatalogueJson(JSON.stringify(doc));
 }
 
+const OPTION_ENTRY_RE = /^\$([^.$]+)\.([^.$]+)$/;
+
+function appendStem(list: unknown, stem: string): unknown[] {
+  const entries = Array.isArray(list) ? [...list] : [];
+  if (entries.some((entry) => photoLabel(entry) === stem)) return entries;
+  entries.push({ photo: stem });
+  return entries;
+}
+
+/** Drop one `{ photo }` entry that has no hash. Stored photos keep their hash
+ * and stay. A second unhashed copy of the same stem is left in place. */
+function dropUnhashedStem(list: unknown, stem: string): unknown {
+  if (!Array.isArray(list)) return list;
+  let dropped = false;
+  return list.filter((entry) => {
+    if (dropped || photoLabel(entry) !== stem) return true;
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return true;
+    const hash = (entry as { hash?: unknown }).hash;
+    if (typeof hash === 'string' && hash.length > 0) return true;
+    dropped = true;
+    return false;
+  });
+}
+
+function firstPhotoList(tree: unknown): { shapeKey: string; lengthKey: string } | null {
+  if (!tree || typeof tree !== 'object' || Array.isArray(tree)) return null;
+  for (const [shapeRef, lengths] of Object.entries(tree as Record<string, unknown>)) {
+    if (Array.isArray(lengths)) return { shapeKey: bare(shapeRef), lengthKey: '' };
+    if (!lengths || typeof lengths !== 'object') continue;
+    const lengthRef = Object.keys(lengths as object)[0];
+    if (!lengthRef) continue;
+    return { shapeKey: bare(shapeRef), lengthKey: bare(lengthRef) };
+  }
+  return null;
+}
+
+/** Where a newly picked file is named. One list: the first variation option,
+ * otherwise the first pack or shape/length, otherwise the flat accessory
+ * array. An empty nail document uses the first `available` pair. */
+function photoAddTarget(doc: Record<string, unknown>): Pick<CataloguePhotoTarget, 'shapeKey' | 'lengthKey' | 'variationKey'> {
+  if (doc['is-variation'] === true) {
+    for (const [key, value] of Object.entries(doc)) {
+      if (!OPTION_ENTRY_RE.test(key) || !value || typeof value !== 'object' || Array.isArray(value)) continue;
+      const host = value as { photos?: unknown };
+      const found = firstPhotoList(host.photos) ?? firstPhotoList(doc.available);
+      return {
+        shapeKey: found?.shapeKey ?? '',
+        lengthKey: found?.lengthKey ?? '',
+        variationKey: key.slice(key.indexOf('.') + 1),
+      };
+    }
+  }
+  if (Array.isArray(doc.photos)) return { shapeKey: '', lengthKey: '', variationKey: '' };
+  const found = firstPhotoList(doc.photos) ?? (typeof doc.available === 'number' ? null : firstPhotoList(doc.available));
+  if (found) return { shapeKey: found.shapeKey, lengthKey: found.lengthKey, variationKey: '' };
+  return { shapeKey: '', lengthKey: '', variationKey: '' };
+}
+
+function ensurePhotoList(photos: unknown, shapeKey: string, lengthKey: string): unknown {
+  if (!shapeKey && !lengthKey) return Array.isArray(photos) ? photos : [];
+  const root: Record<string, unknown> =
+    photos && typeof photos === 'object' && !Array.isArray(photos) ? { ...(photos as Record<string, unknown>) } : {};
+  const shapeRef = Object.keys(root).find((key) => bare(key) === shapeKey) ?? `$${shapeKey}`;
+  if (!lengthKey) {
+    if (!Array.isArray(root[shapeRef])) root[shapeRef] = [];
+    return root;
+  }
+  const lengthsRaw = root[shapeRef];
+  const lengths: Record<string, unknown> =
+    lengthsRaw && typeof lengthsRaw === 'object' && !Array.isArray(lengthsRaw)
+      ? { ...(lengthsRaw as Record<string, unknown>) }
+      : {};
+  const lengthRef = Object.keys(lengths).find((key) => bare(key) === lengthKey) ?? `$${lengthKey}`;
+  if (!Array.isArray(lengths[lengthRef])) lengths[lengthRef] = [];
+  root[shapeRef] = lengths;
+  return root;
+}
+
+function preparePhotoAdd(doc: Record<string, unknown>): Record<string, unknown> {
+  const target = photoAddTarget(doc);
+  if (target.variationKey) {
+    for (const [key, value] of Object.entries(doc)) {
+      const dot = key.indexOf('.');
+      if (!key.startsWith('$') || dot < 2 || key.slice(dot + 1) !== target.variationKey) continue;
+      if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
+      doc[key] = {
+        ...(value as Record<string, unknown>),
+        photos: ensurePhotoList((value as { photos?: unknown }).photos, target.shapeKey, target.lengthKey),
+      };
+    }
+    return doc;
+  }
+  doc.photos = ensurePhotoList(doc.photos, target.shapeKey, target.lengthKey);
+  return doc;
+}
+
+/** Name an uploaded file in the document so save can reconcile it. */
+export function addCataloguePhoto(text: string, stem: string): string {
+  const doc = preparePhotoAdd(parseCatalogueDocument(text));
+  const next = editPhotoTree(doc, photoAddTarget(doc), (list) => appendStem(list, stem));
+  return formatCatalogueJson(JSON.stringify(next));
+}
+
+/** Undo {@link addCataloguePhoto} for a file the editor has not saved yet. */
+export function removeUnhashedCataloguePhoto(text: string, stem: string): string {
+  const doc = parseCatalogueDocument(text);
+  const next = editPhotoTree(doc, photoAddTarget(doc), (list) => dropUnhashedStem(list, stem));
+  return formatCatalogueJson(JSON.stringify(next));
+}
+
 /** Parse and rewrite with a 2-space indent. Throws CatalogueJsonFormatError. */
 export function formatCatalogueJson(text: string): string {
   let parsed: unknown;

@@ -1,4 +1,7 @@
 export const adminCatalog = {
+  configureTabs: {
+    'tuucho-mail-spy': 'Règles',
+  },
   spyMail: {
     title: 'E-mails espions',
     intro:
@@ -20,7 +23,7 @@ export const adminCatalog = {
     remove: 'Retirer',
     empty: 'Aucun canal enregistré. Activez les greffons qui envoient du courrier espion, puis actualisez.',
     loadError: 'Impossible de charger les e-mails espions.',
-    forbidden: 'Votre rôle ne peut pas ouvrir les e-mails espions (permission spy_mail). Demandez à un super-admin de l’accorder.',
+    forbidden: 'Votre rôle ne peut pas ouvrir la configuration des plugins (permission preferences). Demandez à un super-admin de l’accorder.',
     missingRoute: 'L’API des e-mails espions n’est pas montée. Relancez le processus API sur le port 3010.',
     saveError: 'Enregistrement impossible.',
     notStaff: 'Cette adresse n’est pas un compte staff existant et déverrouillé.',

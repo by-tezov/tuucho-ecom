@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  addCataloguePhoto,
   CatalogueJsonFormatError,
   formatCatalogueJson,
   removeCataloguePhoto,
+  removeUnhashedCataloguePhoto,
   reorderCataloguePhotos,
 } from '@/utils/formatCatalogueJson';
 
@@ -150,5 +152,58 @@ describe('reorderCataloguePhotos', () => {
     };
     expect(out['$color.honey-glow'].photos.$almond.$medium.map((entry) => entry.photo)).toEqual(['2', '1']);
     expect(out['$color.dark-honey-glow'].photos.$almond.$medium.map((entry) => entry.photo)).toEqual(['1']);
+  });
+});
+
+describe('addCataloguePhoto', () => {
+  it('appends a stem to a flat accessory list and drops it while unhashed', () => {
+    const text = JSON.stringify({ photos: [{ photo: '1', hash: 'a' }] });
+    const added = addCataloguePhoto(text, 'kit');
+    const parsed = JSON.parse(added) as { photos: Array<{ photo: string; hash?: string }> };
+    expect(parsed.photos.map((entry) => entry.photo)).toEqual(['1', 'kit']);
+    const removed = JSON.parse(removeUnhashedCataloguePhoto(added, 'kit')) as {
+      photos: Array<{ photo: string }>;
+    };
+    expect(removed.photos.map((entry) => entry.photo)).toEqual(['1']);
+  });
+
+  it('appends into the first shape and length and does not duplicate a stem', () => {
+    const text = JSON.stringify({
+      available: { $almond: { $medium: { XS: 1 } } },
+      photos: { $almond: { $medium: [{ photo: '1', hash: 'a' }] }, $square: { $short: [] } },
+    });
+    const once = addCataloguePhoto(text, 'kit');
+    const twice = addCataloguePhoto(once, 'kit');
+    const parsed = JSON.parse(twice) as {
+      photos: { $almond: { $medium: Array<{ photo: string }> }; $square: { $short: unknown[] } };
+    };
+    expect(parsed.photos.$almond.$medium.map((entry) => entry.photo)).toEqual(['1', 'kit']);
+    expect(parsed.photos.$square.$short).toEqual([]);
+  });
+
+  it('creates the first available list when photos are empty', () => {
+    const text = JSON.stringify({
+      available: { $almond: { $medium: { XS: 1 } } },
+      photos: {},
+    });
+    const parsed = JSON.parse(addCataloguePhoto(text, 'kit')) as {
+      photos: { $almond: { $medium: Array<{ photo: string }> } };
+    };
+    expect(parsed.photos.$almond.$medium).toEqual([{ photo: 'kit' }]);
+  });
+
+  it('names the file on the first variation option only', () => {
+    const text = JSON.stringify({
+      'is-variation': true,
+      available: { $almond: { $medium: { XS: 1 } } },
+      '$color.honey-glow': { photos: { $almond: { $medium: [{ photo: '1', hash: 'a' }] } } },
+      '$color.dark-honey-glow': { photos: { $almond: { $medium: [{ photo: '1', hash: 'b' }] } } },
+    });
+    const parsed = JSON.parse(addCataloguePhoto(text, 'kit')) as {
+      '$color.honey-glow': { photos: { $almond: { $medium: Array<{ photo: string }> } } };
+      '$color.dark-honey-glow': { photos: { $almond: { $medium: Array<{ photo: string }> } } };
+    };
+    expect(parsed['$color.honey-glow'].photos.$almond.$medium.map((entry) => entry.photo)).toEqual(['1', 'kit']);
+    expect(parsed['$color.dark-honey-glow'].photos.$almond.$medium.map((entry) => entry.photo)).toEqual(['1']);
   });
 });

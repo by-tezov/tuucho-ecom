@@ -58,7 +58,7 @@ export async function replaceGiftCartLines(
     );
   }
   await peekPluginService<{
-    syncGiftLinesForCart: (client: typeof client, cartId: string) => Promise<void>;
+    syncGiftLinesForCart: (client: pg.PoolClient, cartId: string) => Promise<void>;
   }>('tuucho-commerce-cart-rules')?.syncGiftLinesForCart(client, cartId);
 }
 

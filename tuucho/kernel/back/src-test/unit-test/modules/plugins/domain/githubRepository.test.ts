@@ -4,6 +4,7 @@ import {
   OFFICIAL_ORIGIN,
   githubCodeloadTarGzUrl,
   githubRawFileUrl,
+  githubRepositoryKey,
   isOfficialGithubRepo,
   parseGithubHttpsRepo,
 } from '../../../../../src/modules/plugins/domain/githubRepository.js';
@@ -19,6 +20,10 @@ test('parseGithubHttpsRepo accepts HTTPS repo roots only', () => {
   assert.equal(parseGithubHttpsRepo('https://gitlab.com/acme/gift-wrap'), null);
   assert.equal(parseGithubHttpsRepo('https://github.com/acme/gift-wrap/tree/main'), null);
   assert.ok(isOfficialGithubRepo(parseGithubHttpsRepo(OFFICIAL_ORIGIN)!));
+  assert.equal(
+    githubRepositoryKey(parseGithubHttpsRepo('https://github.com/By-Tezov/Tuucho-Ecom.git')!),
+    OFFICIAL_ORIGIN,
+  );
 });
 
 test('Check URLs use tag 1.0.9 with no v prefix', () => {

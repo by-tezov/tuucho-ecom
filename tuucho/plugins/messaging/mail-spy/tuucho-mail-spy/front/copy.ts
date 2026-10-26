@@ -1,28 +1,29 @@
-export const spyMailCopy = {
-  title: 'Spy e-mails',
-  intro:
-    'Staff copies of ops mail. Each channel is registered by the kernel or a plugin. Customers (role user) never receive these. Recipients must be existing unlocked staff accounts. Matching several filters still sends one copy.',
-  plugin: 'Plugin',
-  filterRole: 'Role',
-  filterEmail: 'Email',
-  recipientType: 'Recipient',
-  enabled: 'Enabled',
-  recipients: 'Recipients',
-  noneYet: 'No recipients yet.',
-  add: 'Add',
-  roleSearch: 'Find a role',
-  roleSearchEmpty: 'No role matches.',
-  emailPlaceholder: 'staff@shop.example',
-  searchLabel: 'Search channels',
-  searchPlaceholder: 'Title, description or plugin id',
-  searchEmpty: 'No channel matches.',
-  remove: 'Remove',
-  empty: 'No channels registered. Enable plugins that send spy mail, then refresh.',
-  loadError: 'Could not load spy e-mails.',
-  forbidden: 'Your role cannot open Spy e-mails (needs spy_mail). Ask a super-admin to grant it.',
-  missingRoute: 'Spy e-mails API is not mounted. Restart the API process on port 3010.',
-  saveError: 'Could not save.',
-  notStaff: 'That address is not an existing unlocked staff account.',
-  invalidRole: 'That role cannot receive spy mail.',
-  loading: 'Loading spy e-mails…',
+/** Spy-mail admin keys. Values come from `tuucho-mail-spy-locale-en` /
+ * `tuucho-mail-spy-locale-fr` admin catalogs. */
+export type SpyMailCopy = {
+  title: string;
+  intro: string;
+  plugin: string;
+  filterRole: string;
+  filterEmail: string;
+  recipientType: string;
+  enabled: string;
+  recipients: string;
+  noneYet: string;
+  add: string;
+  roleSearch: string;
+  roleSearchEmpty: string;
+  emailPlaceholder: string;
+  searchLabel: string;
+  searchPlaceholder: string;
+  searchEmpty: string;
+  remove: string;
+  empty: string;
+  loadError: string;
+  forbidden: string;
+  missingRoute: string;
+  saveError: string;
+  notStaff: string;
+  invalidRole: string;
+  loading: string;
 };

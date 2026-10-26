@@ -50,12 +50,13 @@ export function extraSetPreviewUnits(
   });
 }
 
-/** Paid catalogue set quantity: sized user lines only. Extra-set qty is added
- * by the caller from `extraSetUnitCount`. */
+/** Paid catalogue set quantity: every user line counts, sized or not (the
+ * kernel's CART_SET_UNITS_SQL has no size condition either). Extra-set qty is
+ * added by the caller from `extraSetUnitCount`. */
 export function paidCatalogueSetQuantity(
   items: ReadonlyArray<{ origin?: string; size: string; quantity: number }>,
 ): number {
   return items
-    .filter((item) => item.origin !== 'rule' && item.size !== '')
+    .filter((item) => item.origin !== 'rule')
     .reduce((sum, item) => sum + item.quantity, 0);
 }

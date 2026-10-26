@@ -22,7 +22,7 @@ import {
 import { loginSpyEmail, sendMail, spyTo } from '../../messaging/application/email.js';
 import { resolveLoginLocation } from '../../../platform/network/geoLocation.js';
 import { summarizeUserAgent } from '../../../utils/userAgent.js';
-import { notifySuperAdminSession } from '../application/superAdminSignInAlert.js';
+import { recordSuperAdminSignIn } from '../application/recordSuperAdminSignIn.js';
 import {
   issueSocialAuthPending,
   type SocialAuthProvider,
@@ -84,7 +84,7 @@ export async function issueUserSession(
     accessTokenExpiresAt: accessTokenExpiresAt(),
     ...(reactivated ? { reactivated: true } : {}),
   });
-  notifySuperAdminSession(pool, sessionUser, meta, 'signin');
+  recordSuperAdminSignIn(pool, sessionUser, meta);
   return { reactivated };
 }
 

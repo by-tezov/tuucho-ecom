@@ -115,7 +115,7 @@ ${Object.entries(db.peak ?? {})
   ${dbTable}`;
 }
 
-/** Write output/report/load/index.html from an existing summary.json. */
+/** Write <outputDir>/report/load/index.html from an existing summary.json. */
 export function writeLoadHtmlReport(loadDir: string): string | null {
   const summaryPath = join(loadDir, 'summary.json');
   if (!existsSync(summaryPath)) return null;

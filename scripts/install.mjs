@@ -73,19 +73,18 @@ function doctorPack() {
 
 function copyPrivateFromExample(privatePath, examplePath) {
   if (existsSync(privatePath)) return;
-  if (!existsSync(examplePath)) {
-    throw new Error(`missing ${privatePath} and ${examplePath}. Cannot launch.`);
-  }
+  if (!existsSync(examplePath)) return;
+  const parsed = JSON.parse(readFileSync(examplePath, 'utf8'));
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || Object.keys(parsed).length === 0) return;
   writeFileSync(privatePath, readFileSync(examplePath));
   console.warn(`[setup] copied ${examplePath} -> ${privatePath} (edit before production)`);
 }
 
 function materialiseConfig() {
-  mkdirSync(join(configRoot, 'dev'), { recursive: true });
   copyPrivateFromExample(join(configRoot, 'config.private.json'), join(configRoot, 'config.private.example.json'));
   copyPrivateFromExample(
-    join(configRoot, 'dev', 'config.private.json'),
-    join(configRoot, 'dev', 'config.private.example.json'),
+    join(configRoot, 'config.private.dev.json'),
+    join(configRoot, 'config.private.dev.example.json'),
   );
   if (!existsSync(join(configRoot, 'plugins.json'))) {
     copyPrivateFromExample(join(configRoot, 'plugins.json'), join(configRoot, 'plugins.example.json'));
@@ -99,10 +98,9 @@ function writeConfig(options) {
   const piiPepper = randomBytes(32).toString('base64');
   const databaseUrl = `postgres://${options.postgresUser}:${encodeURIComponent(options.postgresPassword)}@127.0.0.1:5434/${options.postgresDb}`;
 
-  mkdirSync(join(configRoot, 'dev'), { recursive: true });
-  if (!existsSync(join(configRoot, 'config.private.json'))) writeFileSync(join(configRoot, 'config.private.json'), '{}\n');
+  mkdirSync(configRoot, { recursive: true });
   writeFileSync(
-    join(configRoot, 'dev', 'config.private.json'),
+    join(configRoot, 'config.private.dev.json'),
     JSON.stringify(
       {
         database: {
@@ -150,6 +148,8 @@ async function install(options) {
   run('npm', ['install'], root);
   run('npm', ['run', 'operation', '--', 'database-migrate', '--dev'], back);
   run('npm', ['run', 'library', '--', 'seed', '--dev', '--source', join(root, 'sample/product/library')], back);
+  run('npm', ['run', 'library', '--', 'seed', '--dev', '--source', join(root, 'sample/product/library-user')], back);
+  run('npm', ['run', 'accessory', '--', 'seed', '--dev', '--source', join(root, 'sample/product/accessory')], back);
   run('npm', ['run', 'courier', '--', 'seed', '--dev', '--source', join(root, 'sample/courier')], back);
   run('npm', ['run', 'payment-method', '--', 'seed', '--dev'], back);
   run('npm', ['run', 'payment-method-countries', '--', 'seed', '--dev'], back);
@@ -166,6 +166,7 @@ async function install(options) {
     ],
     back,
   );
+  run('npx', ['tsx', 'scripts/assignSampleUserLibrary.ts'], back);
   writeFileSync(
     lockPath,
     JSON.stringify(

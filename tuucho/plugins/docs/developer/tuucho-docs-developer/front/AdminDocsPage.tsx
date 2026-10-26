@@ -5,7 +5,10 @@ import { useAdminStrings } from '@kernel/front/assets/i18n/admin';
 import { useAuthSession } from '@kernel/front/state/AuthContext';
 import { usePluginEnabled } from '@kernel/front/plugins/StorefrontBootstrap';
 import { getAdminDocs, type AdminDocsArticle, type AdminDocsGroup } from '@kernel/front/api/admin/shopSetup';
+import { ContentLoading } from '@kernel/front/components/ui/ContentLoading';
+import { shopConfig } from '@kernel/front/config/env';
 import { adminPath } from '@kernel/front/utils/adminRoute';
+import { withMinDuration } from '@kernel/front/utils/withMinDuration';
 import { NotFoundPage } from '@kernel/front/routes/NotFoundPage';
 import {
   DocsBlocks,
@@ -46,11 +49,13 @@ export function AdminDocsPage() {
   const [articles, setArticles] = useState<AdminDocsArticle[]>([]);
   const [coreVersion, setCoreVersion] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
   const currentId = articleId || 'welcome';
 
   useEffect(() => {
     let cancelled = false;
-    void authedRequest((token) => getAdminDocs(token))
+    setLoading(true);
+    void withMinDuration(authedRequest((token) => getAdminDocs(token)), shopConfig.loadingMinMs.short)
       .then((result) => {
         if (cancelled) return;
         setGroups(result.groups);
@@ -60,6 +65,9 @@ export function AdminDocsPage() {
       })
       .catch(() => {
         if (!cancelled) setError(w.loadError);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
@@ -118,12 +126,13 @@ export function AdminDocsPage() {
                   ))}
               </div>
             ))}
-          {filtered.length === 0 && !error ? <p className={styles.empty}>{w.docsEmpty}</p> : null}
+          {filtered.length === 0 && !error && !loading ? <p className={styles.empty}>{w.docsEmpty}</p> : null}
         </div>
       </nav>
       <article className={styles.article}>
+        {loading ? <ContentLoading message={w.docsLoading} /> : null}
         {error ? <p className={styles.error}>{error}</p> : null}
-        {article ? (
+        {!loading && article ? (
           <>
             <p className={styles.kicker}>{article.groupTitle}</p>
             <h1 className={styles.title}>{article.title}</h1>

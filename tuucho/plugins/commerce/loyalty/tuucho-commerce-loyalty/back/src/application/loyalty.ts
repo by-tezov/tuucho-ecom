@@ -149,7 +149,7 @@ export function computeLoyaltyPricing(
     : 0;
 
   // Earn base per line, in pricing order: volume remise, then voucher, then
-  // loyalty credit (docs/schema/07-loyalty.md). Earn follows the price the
+  // loyalty credit (tuucho/docs/schema/07-loyalty.md). Earn follows the price the
   // shopper pays, not the gross sous-total.
   const paid = paidUserLines(input.lines);
   const rulesByLine = allocateByWeight(

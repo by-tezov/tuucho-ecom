@@ -28,11 +28,11 @@ function plugin(partial: Partial<AdminPlugin> & { id: string; kind?: string }): 
 
 describe('pluginHasConfigure', () => {
   it('hides Configure when there is no plugin settings form', () => {
-    expect(pluginHasConfigure(plugin({ id: 'tuucho-page-home', kind: 'page' }))).toBe(false);
-    expect(pluginHasConfigure(plugin({ id: 'tuucho-page-about', kind: 'page' }))).toBe(false);
-    expect(pluginConfigurePath(plugin({ id: 'tuucho-page-home', kind: 'page' }))).toBeNull();
+    expect(pluginHasConfigure(plugin({ id: 'page-home', kind: 'page' }))).toBe(false);
+    expect(pluginHasConfigure(plugin({ id: 'page-about', kind: 'page' }))).toBe(false);
+    expect(pluginConfigurePath(plugin({ id: 'page-home', kind: 'page' }))).toBeNull();
     expect(pluginHasConfigure(plugin({ id: 'tuucho-journal-api', kind: 'generic' }))).toBe(false);
-    expect(pluginHasConfigure(plugin({ id: 'demo-page-guides', kind: 'page' }))).toBe(false);
+    expect(pluginHasConfigure(plugin({ id: 'page-guides', kind: 'page' }))).toBe(false);
   });
 
   it('does not reuse Configure for host or plugin admin screens', () => {

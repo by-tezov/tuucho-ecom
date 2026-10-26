@@ -154,6 +154,7 @@ export function PhotoLightbox({
     setSizeRequest({ open: false });
   }
   const multi = images.length > 1;
+  const composeSlotProps = { product: item, media: images[index] };
 
   useEffect(() => {
     resetZoom();
@@ -513,7 +514,7 @@ export function PhotoLightbox({
                 data-testid="gallery-lightbox-share"
               />
             )}
-            <PluginSlot name={CORE_FRONT_SLOTS.galleryLightboxCompose} />
+            <PluginSlot name={CORE_FRONT_SLOTS.galleryLightboxCompose} props={composeSlotProps} />
           </div>
 
           <div className={styles.panel}>

@@ -3,7 +3,7 @@
  * The per-feature context budget, enforced from the side that now dominates it.
  *
  * The budget is computed in `../back/scripts/featureContext.mjs`,
- * because `docs/features.json` lives there and spans both repositories. But the
+ * because `tuucho/docs/features.json` lives beside it and spans both workspaces. But the
  * front is the larger half of 9 of the 15 features (payments is 5,255 front
  * lines against 1,132 back), so a front-side change was the one most likely to
  * blow a budget and the least likely to be measured before it did.

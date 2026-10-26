@@ -1,0 +1,23 @@
+{
+  "name": "@tuucho/plugin-onboarding",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Shop introduction overlay (slot.home.onboarding). Disable to hide the tour.",
+  "tuucho": {
+    "id": "onboarding",
+    "installPath": "src/plugins/onboarding/onboarding",
+    "name": "Onboarding",
+    "kind": "generic",
+    "defaultEnabled": false,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "provides": [
+      "StorefrontSlot"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../tuucho/plugin-sdk"
+  }
+}

@@ -233,7 +233,7 @@ for (const [path, source] of sources) {
     }
     if (/success:\s*false[\s\S]{0,120}?error:\s*['"`]/.test(source)) {
       errors.push(
-        `${name} returns a string \`error\`; use { error: { code: '…' } } (see docs/api/00-conventions.md).`,
+        `${name} returns a string \`error\`; use { error: { code: '…' } } (see tuucho/docs/api/00-conventions.md).`,
       );
     }
   }

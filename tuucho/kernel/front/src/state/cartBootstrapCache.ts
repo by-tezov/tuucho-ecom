@@ -3,6 +3,7 @@ import type { CacheAudience } from './productCache';
 import type { DeliveryBootstrap } from './cartDeliveryBootstrap';
 import type { PaymentBootstrap } from './cartPaymentBootstrap';
 import type { WalletAvailability } from '../hooks/useWalletAvailability';
+import { deletedCheckoutIds, noteCheckoutEntityDeleted } from './checkoutDeletedIds';
 
 /**
  * Tab-scoped, memory-only cache for the cart page Phase B snapshot
@@ -12,6 +13,9 @@ import type { WalletAvailability } from '../hooks/useWalletAvailability';
  * A refresh, new tab, or reopening the browser always starts cold. Guest
  * card/address ciphertext stays in guestCardVault with a RAM-only AES key —
  * this module must not become a plaintext persistence path for pm_… ids.
+ * (The deleted-ids registry in checkoutDeletedIds is the one deliberate
+ * exception: bare ids, no payload, so a module reinstantiation cannot
+ * resurrect a checkout entity the customer already deleted.)
  *
  * Not a source of truth: checkout APIs remain authoritative; this only
  * avoids re-blocking the UI on Galerie ↔ Panier navigation while the SPA
@@ -39,17 +43,9 @@ let entry: CacheEntry | null = null;
 /** Last user/app activity in this tab — drives idle cold start. */
 let lastSpaActivityAt = 0;
 
-/**
- * Address and payment method ids the customer explicitly deleted in this tab.
- * Cart edits only touch React state, so without this the snapshot above (or a
- * revalidate that raced the delete) repaints the deleted entry on the next
- * /cart visit and re-selects it. Ids are unique and deletes are permanent,
- * so the set never needs clearing.
- */
-const deletedIds = new Set<string>();
-
 /** Drops ids deleted in this tab from a snapshot, and any pick naming them. */
 export function scrubDeletedCheckoutEntities(data: CartBootstrapData): CartBootstrapData {
+  const deletedIds = deletedCheckoutIds();
   if (deletedIds.size === 0) return data;
   const keep = <T extends { id: string }>(list: T[]) => list.filter((item) => !deletedIds.has(item.id));
   const { delivery, payment } = data;
@@ -88,8 +84,26 @@ export function scrubDeletedCheckoutEntities(data: CartBootstrapData): CartBoots
 
 /** Call after deleting an address or payment method anywhere in the shop. */
 export function markCheckoutEntityDeleted(id: string): void {
-  deletedIds.add(id);
+  noteCheckoutEntityDeleted(id);
   if (entry) entry = { ...entry, data: scrubDeletedCheckoutEntities(entry.data) };
+}
+
+/** Merges a checkout edit into the live snapshot (scrubbed like any write),
+ * so leaving /cart (Layout unmounts CartPage off the route) and coming back
+ * never paints the pre-edit bootstrap. No-op without a warm entry. */
+function patchEntry(patch: (data: CartBootstrapData) => CartBootstrapData): void {
+  if (!entry) return;
+  entry = { ...entry, data: scrubDeletedCheckoutEntities(patch(entry.data)) };
+}
+
+/** Delivery half of patchEntry: address add/edit/delete during checkout. */
+export function patchCartBootstrapDelivery(patch: Partial<DeliveryBootstrap>): void {
+  patchEntry((data) => ({ ...data, delivery: { ...data.delivery, ...patch } }));
+}
+
+/** Payment half of patchEntry: card list or default changes during checkout. */
+export function patchCartBootstrapPayment(patch: Partial<PaymentBootstrap>): void {
+  patchEntry((data) => ({ ...data, payment: { ...data.payment, ...patch } }));
 }
 
 export function touchCartSpaActivity(): void {
@@ -117,7 +131,7 @@ export function readCartBootstrapCache(
   if (!entry || entry.generation !== generation || entry.audience !== audience) {
     return null;
   }
-  return entry.data;
+  return scrubDeletedCheckoutEntities(entry.data);
 }
 
 export function writeCartBootstrapCache(
@@ -125,7 +139,7 @@ export function writeCartBootstrapCache(
   audience: CacheAudience,
   data: CartBootstrapData,
 ): void {
-  entry = { generation, audience, data, fetchedAt: Date.now() };
+  entry = { generation, audience, data: scrubDeletedCheckoutEntities(data), fetchedAt: Date.now() };
   touchCartSpaActivity();
 }
 

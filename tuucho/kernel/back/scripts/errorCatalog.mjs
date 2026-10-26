@@ -3,12 +3,12 @@
  * Every error code this API can return, and who reacts to it.
  *
  * There are 84 distinct codes across 664 `res.status(4xx|5xx)` sites,
- * explained in prose spread through `docs/api/`. An agent adding a branch had
+ * explained in prose spread through `tuucho/docs/api/`. An agent adding a branch had
  * no way to see the existing vocabulary, so it either grepped for a near match
  * or invented a synonym, and nothing noticed when the front kept branching on
  * a code the backend had stopped emitting.
  *
- * `--write` regenerates `docs/api/errors.json`: each code with the statuses it
+ * `--write` regenerates `tuucho/docs/api/errors.json`: each code with the statuses it
  * is returned with, the files that emit it, and whether the front-end names it.
  *
  * `--check` (used by `npm run check:errors`) fails when that file is stale, and
@@ -21,7 +21,7 @@ import { extname, relative, resolve } from 'node:path';
 const root = resolve('.');
 const sourceRoot = resolve(root, 'src');
 const frontRoot = resolve(root, '../front');
-const outputPath = resolve(root, 'docs/api/errors.json');
+const outputPath = resolve(root, '../../docs/api/errors.json');
 
 async function walk(directory, extensions) {
   let entries;
@@ -108,7 +108,7 @@ if (!process.argv.includes('--check')) {
   await writeFile(outputPath, rendered);
   const handled = Object.values(catalog.codes).filter((entry) => entry.handledByFront.length > 0).length;
   console.log(
-    `Wrote docs/api/errors.json (${Object.keys(catalog.codes).length} codes, ${handled} named by the front).`,
+    `Wrote tuucho/docs/api/errors.json (${Object.keys(catalog.codes).length} codes, ${handled} named by the front).`,
   );
   process.exit(0);
 }
@@ -118,10 +118,10 @@ let current = '';
 try {
   current = await readFile(outputPath, 'utf8');
 } catch {
-  errors.push('docs/api/errors.json is missing. Run `npm run sync:errors`.');
+  errors.push('tuucho/docs/api/errors.json is missing. Run `npm run sync:errors`.');
 }
 if (current && current !== rendered) {
-  errors.push('docs/api/errors.json is stale. Run `npm run sync:errors`.');
+  errors.push('tuucho/docs/api/errors.json is stale. Run `npm run sync:errors`.');
 }
 
 if (errors.length > 0) {

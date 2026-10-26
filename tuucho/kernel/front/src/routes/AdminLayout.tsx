@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent } from 'react';
+import { Suspense, useEffect, useState, type MouseEvent } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useLang } from '../assets/i18n';
 import { adminPath } from '../utils/adminRoute';
@@ -8,6 +8,7 @@ import { getAdminAccess, type AdminAccess } from '../api/admin/roles';
 import { AdminAccessProvider, canAccess, useAdminAccess } from '../state/AdminAccessContext';
 import { useAuthSession } from '../state/AuthContext';
 import { AdminStringsProvider, useAdminStrings, type AdminUiStrings } from '../assets/i18n/admin';
+import { ContentLoading } from '../components/ui/ContentLoading';
 import { LoadingModal } from '../components/ui/LoadingModal';
 import { OrdersTileIcon, ProductRequestsTileIcon, ChatsTileIcon, PluginsTileIcon } from './AdminPageIcons';
 import { AdminChromeProvider, useAdminChromeResetSectionRef } from '../state/AdminChromeContext';
@@ -327,12 +328,16 @@ function AdminLayoutInner() {
           </div>
         </header>
 
-        <main id="admin-main" className={styles.content}>
-          {blockedSection ? (
-            <Navigate to={homePath} replace />
-          ) : (
-            <Outlet context={{ counts, refreshAttentionCounts }} />
-          )}
+        <main id="admin-main" className={styles.contentPane}>
+          <div className={styles.content}>
+            {blockedSection ? (
+              <Navigate to={homePath} replace />
+            ) : (
+              <Suspense fallback={<ContentLoading message={t.admin.contentLoading} />}>
+                <Outlet context={{ counts, refreshAttentionCounts }} />
+              </Suspense>
+            )}
+          </div>
         </main>
       </div>
 

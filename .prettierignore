@@ -1,0 +1,12 @@
+node_modules/
+dist/
+output/
+coverage/
+package-lock.json
+installed.lock
+tuucho-versioning.lock.json
+**/*.tsbuildinfo
+.compose.env
+tuucho/kernel/front/dist/
+tuucho/kernel/back/dist/
+tuucho/kernel/back/output/

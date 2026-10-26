@@ -17,6 +17,8 @@ import { getGiftSettings } from './src/application/giftSettings.js';
 import { listPublicGiftCartMetaByCartId } from './src/application/giverCartMeta.js';
 import { processGift } from './src/application/processGift.js';
 import { processGiftPurge } from './src/application/processGiftPurge.js';
+import { isAccessoryGiftItem, isNailGiftItem } from './src/domain/remaining.js';
+import { remainingFrom } from './src/application/presenters.js';
 import { giftOpsRouter } from '@kernel/back/modules/operations/http/giftOps.router';
 import './src/application/giftMailJob.js';
 
@@ -29,6 +31,11 @@ const register: PluginRegisterFn = async (api) => {
     putReceiverItem: receiverAccess.putReceiverItem,
     removeReceiverItem: receiverAccess.removeReceiverItem,
     putReceiverDestination: receiverAccess.putReceiverDestination,
+    // Receiver budget surface for peer plugins (composed sets and the like):
+    // classification and remaining math, so peers never private-import them.
+    isNailGiftItem,
+    isAccessoryGiftItem,
+    remainingFrom,
     getGiftSettings,
     listPublicGiftCartMetaByCartId,
     processGift,

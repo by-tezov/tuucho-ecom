@@ -30,7 +30,7 @@ describe('Account profile slots', () => {
 
   it('registers Introduction on the end region with order 0', () => {
     const front = readFileSync(
-      resolve(here, '../../../../../plugins/home/onboarding/tuucho-onboarding/front/index.tsx'),
+      resolve(here, '../../../../../../src/plugins/onboarding/onboarding/front/index.tsx'),
       'utf8',
     );
     expect(front).toMatch(/CORE_FRONT_SLOTS\.accountProfileEnd/);

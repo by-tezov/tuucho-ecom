@@ -1,6 +1,6 @@
 /** Network lock stress probe — storms cache-busted front images and/or
  * GET /operation/lock-probe with concurrency controls, dual-stack probes,
- * and a metrics report under output/test/lock/<stamp>/.
+ * and a metrics report under <outputDir>/test/lock/<stamp>/.
  *
  * Invoked via: npm run test -- lock [--image] [--api] ... --dev|--preprod|--prod
  * Optional queue on top of --concurrency: npm run test -- lock --queue 15 --preprod
@@ -14,6 +14,7 @@ import { randomBytes } from 'node:crypto';
 import type { Mode } from './envFile.js';
 import { loadOpsToken, loadPublicEnv } from './envFile.js';
 import { log } from './cliOutput.js';
+import { outputRoot } from '../src/config/shopPaths.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -602,7 +603,7 @@ export async function runLockProbe(args: LockProbeArgs): Promise<void> {
     throw new Error('[lock] internal: neither image nor api selected');
   }
 
-  const outDir = join(args.root, 'output', 'test', 'lock', stampNow());
+  const outDir = join(outputRoot(), 'test', 'lock', stampNow());
   mkdirSync(outDir, { recursive: true });
   const ndjsonPath = join(outDir, 'requests.ndjson');
   const timelinePath = join(outDir, 'dualstack.ndjson');

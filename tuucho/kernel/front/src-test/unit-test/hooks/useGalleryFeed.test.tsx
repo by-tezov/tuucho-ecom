@@ -189,6 +189,37 @@ describe('useGalleryFeed next pages', () => {
     expect(result.current).toMatchObject({ loadingMore: false, hasMore: false });
     expect(api.fetchGalleryFeed).toHaveBeenLastCalledWith(expect.objectContaining({ cursor: 'c2' }), 'fr');
   });
+
+  it('clears loadingMore when an initial refetch supersedes an in-flight append', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const { result } = renderHook(() => useGalleryFeed([]));
+    await waitFor(() => expect(result.current.loadingInitial).toBe(false));
+
+    const slow = deferred<ReturnType<typeof page>>();
+    api.fetchGalleryFeed.mockReturnValueOnce(slow.promise).mockResolvedValueOnce(page(['wedding-1'], 'c3'));
+    act(() => result.current.loadMore());
+    expect(result.current.loadingMore).toBe(true);
+
+    // A filter change starts a new initial fetch, which bumps requestId and
+    // makes the in-flight append stale.
+    act(() => result.current.applyFilters(draft, null));
+    await waitFor(() => expect(result.current.items.map((i) => i.id)).toEqual(['wedding-1']));
+
+    await act(async () => slow.resolve(page(['stale-append'])));
+    await act(() => vi.advanceTimersByTimeAsync(2_000));
+
+    // The stale append neither merges its items nor strands the latch.
+    expect(result.current.items.map((i) => i.id)).toEqual(['wedding-1']);
+    expect(result.current.loadingMore).toBe(false);
+
+    // Paging still works afterwards.
+    api.fetchGalleryFeed.mockResolvedValueOnce(page(['next-1']));
+    act(() => result.current.loadMore());
+    expect(result.current.loadingMore).toBe(true);
+    await act(() => vi.advanceTimersByTimeAsync(5_000));
+    expect(result.current.items.map((i) => i.id)).toEqual(['wedding-1', 'next-1']);
+    expect(result.current.loadingMore).toBe(false);
+  });
 });
 
 describe('useGalleryFeed in a gift', () => {

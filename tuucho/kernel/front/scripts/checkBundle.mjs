@@ -30,11 +30,16 @@ function formatKb(bytes) {
 
 rmSync(outDir, { recursive: true, force: true });
 
+// npm workspaces hoist vite to the repo root: prefer the local install,
+// fall back to the hoisted one.
+const viteLocal = join(root, 'node_modules/vite/bin/vite.js');
+const viteBin = existsSync(viteLocal) ? viteLocal : join(root, '..', '..', '..', 'node_modules/vite/bin/vite.js');
+
 try {
   execFileSync(
     process.execPath,
     [
-      join(root, 'node_modules/vite/bin/vite.js'),
+      viteBin,
       'build',
       '--outDir',
       outDir,

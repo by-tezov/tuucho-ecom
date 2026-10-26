@@ -108,8 +108,8 @@ test('docs-developer ships the core handbook and loyalty example', async () => {
 
 test('FAQ handbook explains slot, entry shape, and how to add items', async () => {
   const plugins = await loadManifests();
-  const faq = plugins.find((plugin) => plugin.id === 'tuucho-home-faq');
-  assert.ok(faq?.sourceDir, 'tuucho-home-faq');
+  const faq = plugins.find((plugin) => plugin.id === 'home-faq');
+  assert.ok(faq?.sourceDir, 'home-faq');
   const text = await readFile(join(faq.sourceDir, 'docs', 'handbook.json'), 'utf8');
   const blob = text;
   assert.ok(blob.includes('slot.home.faq'));
@@ -153,14 +153,20 @@ test('schema plugins ship committed examples and matching handbook JSON blocks',
     const publicPath = join(dir, 'config.json');
     const examplePath = join(dir, 'config.private.example.json');
     assert.equal(existsSync(publicPath), true, `${plugin.id} missing ${publicPath}`);
-    assert.equal(existsSync(examplePath), true, `${plugin.id} missing ${examplePath}`);
     const publicObj = JSON.parse(await readFile(publicPath, 'utf8')) as Record<string, unknown>;
-    const privateObj = JSON.parse(await readFile(examplePath, 'utf8')) as Record<string, unknown>;
     const { publicKeys, secretKeys } = splitSchemaKeys(schema);
     assert.deepEqual(Object.keys(publicObj).sort(), [...publicKeys].sort(), plugin.id);
-    assert.deepEqual(Object.keys(privateObj).sort(), [...secretKeys].sort(), plugin.id);
     for (const key of secretKeys) {
       assert.equal(key in publicObj, false, `${plugin.id} secret ${key} in public file`);
+    }
+    const privateObj = secretKeys.length === 0
+      ? null
+      : (JSON.parse(await readFile(examplePath, 'utf8')) as Record<string, unknown>);
+    if (secretKeys.length === 0) {
+      assert.equal(existsSync(examplePath), false, `${plugin.id} has no private keys, so ${examplePath} must not exist`);
+    } else {
+      assert.equal(existsSync(examplePath), true, `${plugin.id} missing ${examplePath}`);
+      assert.deepEqual(Object.keys(privateObj!).sort(), [...secretKeys].sort(), plugin.id);
     }
     const handbook = JSON.parse(
       await readFile(join(plugin.sourceDir!, 'docs', 'handbook.json'), 'utf8'),
@@ -182,17 +188,21 @@ test('schema plugins ship committed examples and matching handbook JSON blocks',
         block.caption === 'config.private.example.json',
     );
     assert.ok(publicBlock?.code, `${plugin.id} handbook public JSON`);
-    assert.ok(privateBlock?.code, `${plugin.id} handbook private example JSON`);
     assert.equal(
       JSON.stringify(canon(JSON.parse(publicBlock!.code!))),
       JSON.stringify(canon(publicObj)),
       plugin.id,
     );
-    assert.equal(
-      JSON.stringify(canon(JSON.parse(privateBlock!.code!))),
-      JSON.stringify(canon(privateObj)),
-      plugin.id,
-    );
+    if (secretKeys.length === 0) {
+      assert.equal(privateBlock, undefined, `${plugin.id} handbook must not show an empty private example`);
+    } else {
+      assert.ok(privateBlock?.code, `${plugin.id} handbook private example JSON`);
+      assert.equal(
+        JSON.stringify(canon(JSON.parse(privateBlock!.code!))),
+        JSON.stringify(canon(privateObj)),
+        plugin.id,
+      );
+    }
   }
 });
 

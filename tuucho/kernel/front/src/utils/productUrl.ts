@@ -6,8 +6,8 @@ import type { GalleryItem } from '../data/types';
  * for the whole catalogue, so without these there is nothing for a search
  * for a specific design to land on.
  *
- * A page's URL is its reference alone (kernel/back's `LL-LL-DDD` short
- * code, lowercased): unique, stable across library re-imports and title
+ * A page's URL is its reference alone (A-Z, 0-9, single dashes, 1-20
+ * characters, lowercased): unique, stable across library re-imports and title
  * edits, and the same URL every server-side surface declares as canonical
  * (SSR relay, product sitemap, link preview). Links from before this rule
  * carried the slugified title in front of the reference
@@ -15,8 +15,11 @@ import type { GalleryItem } from '../data/types';
  * page declares the reference URL as canonical.
  */
 
-/** `LL-LL-DDD`, lowercased — the tail of an older title-prefixed slug. */
-const UID_IN_SLUG = /-([a-z]{2}-[a-z]{2}-\d{3})$/;
+/** Older title-prefixed slugs end in the generated LL-LL-DDD code. */
+const LEGACY_UID_IN_SLUG = /-([a-z]{2}-[a-z]{2}-\d{3})$/;
+/** Current codes: A-Z, 0-9, single dashes, 1-20 characters, compared lowercased. */
+const UID_SHAPE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const UID_MAX_LENGTH = 20;
 
 /** The full route path for a set, e.g. "/creations/aq-yz-367". */
 export function productPath(item: Pick<GalleryItem, 'productUid'>): string {
@@ -57,7 +60,10 @@ export function productGalleryDeepLinkPath(item: Pick<GalleryItem, 'productUid'>
  * older title-prefixed slug ("cerises-elegantes-aq-yz-367"). */
 export function uidFromSlug(slug: string): string | undefined {
   const value = slug.trim().toLowerCase();
-  const matched = UID_IN_SLUG.exec(value);
-  if (matched?.[1]) return matched[1].toUpperCase();
-  return /^[a-z]{2}-[a-z]{2}-\d{3}$/.test(value) ? value.toUpperCase() : undefined;
+  const legacy = LEGACY_UID_IN_SLUG.exec(value);
+  if (legacy?.[1]) return legacy[1].toUpperCase();
+  if (value.length >= 1 && value.length <= UID_MAX_LENGTH && UID_SHAPE.test(value)) {
+    return value.toUpperCase();
+  }
+  return undefined;
 }

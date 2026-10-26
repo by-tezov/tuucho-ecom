@@ -634,6 +634,14 @@ export interface GiftSettingsRow {
   updated_by: string | null;
 }
 
+/** `github_repository_access`, keyed by repository. */
+export interface GithubRepositoryAccessRow {
+  repository: string;
+  token_enc: string;
+  updated_at: string;
+  updated_by: string | null;
+}
+
 /** `google_link_tokens`, keyed by id. */
 export interface GoogleLinkTokensRow {
   id: string;
@@ -1655,6 +1663,7 @@ export interface Rows {
   gift_pin_sessions: GiftPinSessionsRow;
   gift_reminder_sends: GiftReminderSendsRow;
   gift_settings: GiftSettingsRow;
+  github_repository_access: GithubRepositoryAccessRow;
   google_link_tokens: GoogleLinkTokensRow;
   google_signup_tokens: GoogleSignupTokensRow;
   guest_order_dismissals: GuestOrderDismissalsRow;

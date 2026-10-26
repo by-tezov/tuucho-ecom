@@ -1,5 +1,5 @@
 {
   "title": "mail-spy French",
-  "summary": "French overlay for Spy e-mails admin chrome. Depends on tuucho-mail-spy.",
+  "summary": "French overlay kept for tuucho-mail-spy. Recipients are the plugin rules list, not an admin page.",
   "sections": []
 }

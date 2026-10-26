@@ -72,7 +72,7 @@ interface VariationRow {
   option_title: PartialTrilingual;
   price: string | null;
   /** The option's own copy; null on rows imported before per-option copy,
-   * which then read the product's (docs/plans/nail-variation-copy.md). */
+   * which then read the product's (tuucho/docs/plans/nail-variation-copy.md). */
   title: PartialTrilingual | null;
   desc: PartialTrilingual | null;
   alt: PartialTrilingual | null;

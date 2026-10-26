@@ -3,7 +3,7 @@ import { Seo } from '../components/seo/Seo';
 import { LoadingModal } from '../components/ui/LoadingModal';
 import { ApiError } from '../api/errors';
 import { impersonateUser } from '../api/identity';
-import { writeImpersonationHandoff } from '../api/session/giftPinSession';
+import { writeImpersonationHandoff, writeImpersonationHandoffFallback } from '../api/session/giftPinSession';
 import { useAuthSession } from '../state/AuthContext';
 import { useLang } from '../assets/i18n';
 import { localizedPath } from '../config/i18nRoutes';
@@ -33,6 +33,10 @@ export function AdminImpersonatePage() {
         shopConfig.loadingMinMs.short,
       );
       writeImpersonationHandoff(popup.sessionStorage, session);
+      // The about:blank → /account navigation can drop the popup's
+      // sessionStorage; the localStorage one-shot (read + deleted by the new
+      // tab's auth bootstrap) covers that loss.
+      writeImpersonationHandoffFallback(session);
       popup.location.href = localizedPath('/account', lang);
     } catch (reason) {
       popup.close();

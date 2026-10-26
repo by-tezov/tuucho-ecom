@@ -279,8 +279,14 @@ export async function syncGiftHoldToActiveCart(...args: unknown[]): Promise<any>
   return call('syncGiftHoldToActiveCart', ...args);
 }
 
-export async function listPublicGiftCartMetaByCartId(...args: unknown[]): Promise<any> {
-  return call('listPublicGiftCartMetaByCartId', ...args);
+export async function listPublicGiftCartMetaByCartId(
+  ...args: unknown[]
+): Promise<Map<string, unknown>> {
+  const value = (await call('listPublicGiftCartMetaByCartId', ...args)) as
+    | Map<string, unknown>
+    | undefined;
+  // Gift plugin off / not loaded: empty map so cart list still works.
+  return value ?? new Map();
 }
 
 export async function getGiftSettings(...args: unknown[]): Promise<any> {

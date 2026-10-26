@@ -1,9 +1,5 @@
 import { CORE_VERSION, readRootPackageVersion } from '../../../../config/appVersion.js';
-import {
-  OFFICIAL_ORIGIN,
-  parseGithubHttpsRepo,
-  type GithubRepoRef,
-} from '../../domain/githubRepository.js';
+import { OFFICIAL_ORIGIN, parseGithubHttpsRepo, type GithubRepoRef } from '../../domain/githubRepository.js';
 import { readReleaseCatalogJson } from '../../domain/releaseFiles.js';
 import {
   parsePluginReleaseManifest,
@@ -18,8 +14,9 @@ import {
   type ReleaseTag,
 } from '../../domain/semverTags.js';
 import { isTuuchoPluginId, isUserPluginId } from '../discoverPlugins.js';
+import { createUpdatingGithubClient } from '../githubRepositoryAccess.js';
 import { listPlugins } from '../pluginStore.js';
-import { createGithubClient, type GithubClient } from './githubClient.js';
+import type { GithubClient } from './githubClient.js';
 import { diffTreeHashes, hashTree } from './treeHash.js';
 import { inferredShopRelease, readShopRelease, type ShopReleaseRecord } from './shopRelease.js';
 import { join } from 'node:path';
@@ -67,7 +64,9 @@ function officialRef(): GithubRepoRef {
   return parsed;
 }
 
-export async function checkUpdates(client: GithubClient = createGithubClient()): Promise<UpdateCheck> {
+export async function checkUpdates(
+  client: GithubClient = createUpdatingGithubClient(),
+): Promise<UpdateCheck> {
   const recorded = await readShopRelease();
   const shop = recorded ?? (await inferredShopRelease());
   const inferred = !recorded;
@@ -181,7 +180,12 @@ async function checkOfficial(
   }
   for (const entry of latestManifest.plugins) {
     if (installed.some((plugin) => plugin.id === entry.id)) continue;
-    pluginChanges.push({ id: entry.id, from: '(missing)', to: entry.version, installPath: entry.installPath });
+    pluginChanges.push({
+      id: entry.id,
+      from: '(missing)',
+      to: entry.version,
+      installPath: entry.installPath,
+    });
   }
   const kernelChange =
     latestManifest.kernel !== current.version

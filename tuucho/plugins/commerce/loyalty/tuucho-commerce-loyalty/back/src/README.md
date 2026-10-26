@@ -12,7 +12,7 @@ May import: `account`, `activity`, `catalog`, `commerce`, `customers`, `delivery
 
 Currently imports: `activity`, `catalog`, `commerce`, `gift`, `identity`, `messaging`, `plugins`, `vouchers`.
 
-Feature map entry: `loyalty` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- loyalty` for its full span.
+Feature map entry: `loyalty` in [docs/features.json](../../../../../../docs/features.json). Run `npm --prefix tuucho/kernel/back run feature -- loyalty` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |

@@ -5,7 +5,7 @@ import { drawCustomSetHands } from './invoiceCustomSetPdf.js';
 import { drawItemComment } from './invoiceCommentPdf.js';
 import { drawInvoiceHeader } from './invoiceHeaderPdf.js';
 import { openTaggedInvoice } from './invoicePdfTags.js';
-import { KERNEL_INVOICE_COPY, type InvoiceData, type InvoiceItem } from './invoiceDocument.js';
+import { type InvoiceData, type InvoiceItem } from './invoiceDocument.js';
 
 export type { InvoiceData, InvoiceItem };
 
@@ -43,7 +43,7 @@ const HEADER_BAND_HEIGHT = 108;
  * see invoices.service.ts. The PDF is tagged: every drawing below runs inside
  * a `tags` drawer (invoicePdfTags.ts). */
 export async function writeInvoicePdf(absolutePath: string, data: InvoiceData): Promise<void> {
-  const copy = data.copy ?? KERNEL_INVOICE_COPY;
+  const copy = data.copy;
   const { doc, tags } = await openTaggedInvoice(copy.documentTitle(data.invoiceNumber));
   const stream = createWriteStream(absolutePath);
   const finished = new Promise<void>((resolve, reject) => {

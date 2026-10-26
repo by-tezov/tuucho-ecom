@@ -56,7 +56,7 @@ chatOpsRouter.get('/sessions', async (req, res) => {
         messageCount: Number(session.message_count) || 0,
         // Is the customer still on the page: a reply read now, or one that has
         // to become an email. Per audience because the operator's own panel
-        // subscribes to the same session. See docs/api/05-contact-chat.md.
+        // subscribes to the same session. See tuucho/docs/api/05-contact-chat.md.
         visitorLive: hasChatSessionSubscribers(session.id, 'visitor'),
       })),
     },

@@ -1,5 +1,6 @@
 {
   "paths": {
+    "outputDir": "./output",
     "publicMediaDir": "/media",
     "privateInvoiceDir": "/invoice",
     "privateShipmentLabelDir": "/shipment_label",
@@ -25,6 +26,10 @@
   "http": {
     "port": 3010,
     "smallPhotoSize": 400
+  },
+  "i18n": {
+    "default": "en",
+    "enabled": ["en", "fr"]
   },
   "session": {
     "jwtAccessTtl": "15m",

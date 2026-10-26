@@ -1,0 +1,15 @@
+{
+  "title": {
+    "fr": "Tissu exemple",
+    "en": "Sample cloth"
+  },
+  "desc": {
+    "fr": "Accessoire exemple pour le panier.",
+    "en": "Sample accessory for the cart."
+  },
+  "photos": [
+    {
+      "photo": "1"
+    }
+  ]
+}

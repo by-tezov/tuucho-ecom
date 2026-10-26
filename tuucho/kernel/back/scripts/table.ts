@@ -1,11 +1,11 @@
 /**
  * What one database table holds, in about twenty lines.
  *
- * The alternative is reading a 100 KB `docs/schema/` section or grepping a
+ * The alternative is reading a 100 KB `tuucho/docs/schema/` section or grepping a
  * 120 KB migration, which is the most expensive lookup in this repository for
  * something that changes rarely and is fully derivable.
  *
- * Reads `docs/schema/tables.json` (see `npm run sync:schema`) and cross
+ * Reads `tuucho/docs/schema/tables.json` (see `npm run sync:schema`) and cross
  * references it against the source tree, so it also answers the question the
  * snapshot cannot: which module owns this table, and which files query it.
  *
@@ -20,7 +20,7 @@ import { relative, resolve } from 'node:path';
 import type { SchemaSnapshot, TableSnapshot } from './schemaSnapshot.js';
 
 const root = resolve('.');
-const snapshotPath = resolve(root, 'docs/schema/tables.json');
+const snapshotPath = resolve(root, '../../docs/schema/tables.json');
 const sourceRoot = resolve(root, 'src');
 
 async function walk(directory: string): Promise<string[]> {

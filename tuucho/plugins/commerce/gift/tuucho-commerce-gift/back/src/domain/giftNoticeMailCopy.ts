@@ -16,19 +16,6 @@ export interface GiftNoticeMailCopy {
   ctaFallbackHint: string;
 }
 
-export const GIFT_NOTICE_MAIL: { en: GiftNoticeMailCopy } = {
-  en: {
-    cancelledTitle: 'Unpaid gift',
-    cancelledBody: (receiver) => `The gift for ${receiver} has been cancelled. No order was created.`,
-    someone: 'the recipient',
-    holdTitle: 'Stock will soon no longer be guaranteed',
-    payTitle: 'Last days to pay',
-    reminderBody: 'Open the gift link to pay. Nothing is charged automatically.',
-    reminderCta: 'Pay for the gift',
-    ctaFallbackHint: 'If the button does not work, you can use this link:',
-  },
-};
-
 export function giftNoticeMail(language: Language): GiftNoticeMailCopy {
-  return localizedCatalog(GIFT_NOTICE_MAIL.en, language, 'gift-notice');
+  return localizedCatalog(language, 'gift-notice');
 }

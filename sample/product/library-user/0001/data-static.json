@@ -1,0 +1,26 @@
+{
+  "product-uid": "UL-AA-001",
+  "creation-date": "2026-10-01",
+  "price": 42,
+  "available": {
+    "$almond": {
+      "$medium": {
+        "XS": 2,
+        "S": 4,
+        "M": 6,
+        "L": 3
+      },
+      "$long": {
+        "XS": 2,
+        "S": 4,
+        "M": 6,
+        "L": 3
+      }
+    }
+  },
+  "featured": {
+    "from": "2026-10-01",
+    "for": 365
+  },
+  "users": []
+}

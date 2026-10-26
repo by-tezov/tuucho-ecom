@@ -1,13 +1,18 @@
 import { useMemo } from 'react';
 import { useAdminStrings } from '@kernel/front/assets/i18n/admin';
-import { spyMailCopy } from './copy';
+import type { SpyMailCopy } from './copy';
 
-export type SpyMailCopy = typeof spyMailCopy;
+export type { SpyMailCopy };
 
 export function useSpyMailCopy(): SpyMailCopy {
-  const a = useAdminStrings() as ReturnType<typeof useAdminStrings> & { spyMail?: Partial<SpyMailCopy> };
-  const overlay = a.spyMail;
-  return useMemo(() => ({ ...spyMailCopy, ...(overlay ?? {}) }), [overlay]);
+  const a = useAdminStrings() as ReturnType<typeof useAdminStrings> & { spyMail?: SpyMailCopy };
+  const copy = a.spyMail;
+  return useMemo(() => {
+    if (!copy) {
+      throw new Error('Spy mail admin copy missing: enable tuucho-mail-spy-locale-en or locale-fr');
+    }
+    return copy;
+  }, [copy]);
 }
 
 export function spyMailLoadError(status: number, copy: SpyMailCopy): string {

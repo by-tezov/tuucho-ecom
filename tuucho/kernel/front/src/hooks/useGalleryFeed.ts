@@ -177,6 +177,10 @@ export function useGalleryFeed(favoriteIds: string[], options?: { catalog?: 'set
       return;
     }
     const requestId = ++requestIdRef.current;
+    // A new initial fetch supersedes any in-flight loadMore: that append's
+    // then/catch will bail on the stale requestId, so clear the flag it set
+    // here — otherwise the grid stays latched on "loading more" forever.
+    setLoadingMore(false);
 
     // An empty `ids` array isn't "no filter" to the API (an omitted `ids`
     // param and an empty one are indistinguishable over the wire, and the
@@ -330,7 +334,12 @@ export function useGalleryFeed(favoriteIds: string[], options?: { catalog?: 'set
       delay(shopConfig.galleryLoadMoreDelayMs),
     ])
       .then(([result]) => {
-        if (requestIdRef.current !== requestId) return;
+        if (requestIdRef.current !== requestId) {
+          // Stale (a newer initial fetch owns the grid now): this call still
+          // owes the loadingMore flag it set, or paging never re-arms.
+          setLoadingMore(false);
+          return;
+        }
         const audience = audienceForCatalogue(status, gift.active);
         if (audience) seedProducts(apiLanguage, audience, { sets: result.items });
         setItems((current) => [...current, ...result.items]);
@@ -338,7 +347,10 @@ export function useGalleryFeed(favoriteIds: string[], options?: { catalog?: 'set
         setLoadingMore(false);
       })
       .catch((error) => {
-        if (requestIdRef.current !== requestId) return;
+        if (requestIdRef.current !== requestId) {
+          setLoadingMore(false);
+          return;
+        }
         if (!isRetry && !isBackendUnavailableError(error)) {
           window.setTimeout(() => attemptLoadMore(cursor, requestId, true), LOAD_MORE_RETRY_DELAY_MS);
           return;

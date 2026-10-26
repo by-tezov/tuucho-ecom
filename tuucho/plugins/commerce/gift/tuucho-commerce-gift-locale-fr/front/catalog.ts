@@ -1,7 +1,7 @@
 import type { Strings } from '@kernel/front/assets/i18n/types';
 import { gift } from './strings/gift';
 
-/** French overlay. Merged onto kernel English when this locale plugin is on. */
+/** French values for this plugin's keys. */
 export const catalog: Partial<Strings> = {
   gift,
 };

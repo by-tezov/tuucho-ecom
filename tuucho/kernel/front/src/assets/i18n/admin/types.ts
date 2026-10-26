@@ -356,6 +356,8 @@ export interface AdminUiStrings {
     requestsTab: string;
     rolesLabel: string;
     rolesDescription: string;
+    coreLabel: string;
+    coreDescription: string;
     vocabularyLabel: string;
     vocabularyDescription: string;
     courierLabel: string;
@@ -636,6 +638,11 @@ export interface AdminUiStrings {
     errVisibilityCreation: string;
     userLibraryEmpty: string;
     nobody: string;
+    ownersLabel: string;
+    ownerEmailPlaceholder: string;
+    addOwner: string;
+    removeOwner: string;
+    ownerEmailInvalid: string;
     nailLoadError: string;
     sizesUpdated: (title: string, n: number) => string;
     errSaveSizes: string;
@@ -808,11 +815,17 @@ export interface AdminUiStrings {
   /** Staff roles and their section access (Rôles page, Users role field). */
   roles: {
     intro: string;
+    configHint: string;
     create: string;
     createTitle: string;
     nameLabel: string;
     namePlaceholder: string;
     nameHint: string;
+    nameFromLocale: string;
+    names: {
+      preparator: string;
+      manager: string;
+    };
     permissionsLabel: string;
     statsLabel: string;
     catalogueEditLabel: string;
@@ -924,6 +937,9 @@ export interface AdminUiStrings {
     scanEmpty: string;
     scanAdded: (count: number) => string;
     scanError: string;
+    scanningPlugins: string;
+    savingPlugin: string;
+    uninstallingPlugin: string;
     version: string;
     kind: string;
     kindTheme: string;
@@ -988,6 +1004,7 @@ export interface AdminUiStrings {
     docsNavDescription: string;
     docsSearch: string;
     docsEmpty: string;
+    docsLoading: string;
     docsContents: string;
     docsOnThisPage: string;
     docsPrevious: string;
@@ -1096,5 +1113,37 @@ export interface AdminUiStrings {
     saveError: string;
     deleteError: string;
     saved: string;
+  };
+  core: {
+    title: string;
+    navDescription: string;
+    intro: string;
+    jsonLabel: string;
+    save: string;
+    saved: string;
+    filesHint: string;
+    loadError: string;
+    saveError: string;
+    githubTitle: string;
+    githubHint: string;
+    githubEmpty: string;
+    githubRepositoryLabel: string;
+    githubRepositoryHint: string;
+    githubTokenLabel: string;
+    githubTokenHint: string;
+    githubSave: string;
+    githubSaved: string;
+    githubRemove: string;
+    githubTokenSet: string;
+    githubLoadError: string;
+    githubSaveError: string;
+    githubInvalidRepository: string;
+    githubInvalidToken: string;
+    githubTooMany: string;
+    githubRemoveError: string;
+    localesTitle: string;
+    localesIntro: string;
+    localesLoadError: string;
+    localesSaveError: string;
   };
 }

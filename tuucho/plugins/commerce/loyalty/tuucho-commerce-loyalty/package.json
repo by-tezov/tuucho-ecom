@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "1.0.0",
-  "description": "Fidélité / cagnotte: wallet, checkout spend, admin credits. Disable to hide wallet UI and checkout credit.",
+  "description": "Cagnotte: wallet, checkout spend, admin credits. Disable to hide wallet UI and checkout credit.",
   "tuucho": {
     "id": "tuucho-commerce-loyalty",
     "installPath": "tuucho/plugins/commerce/loyalty/tuucho-commerce-loyalty",

@@ -361,6 +361,7 @@ export async function priceCheckout(
       cartId,
       voucherCode,
       applyLoyalty,
+      excludeReservationId,
       pluginRequest: { voucherCode, applyLoyalty },
       countryCode: address.country_code,
     });

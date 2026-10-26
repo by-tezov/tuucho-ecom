@@ -107,6 +107,7 @@ import { existsSync, writeFileSync } from 'node:fs';
 import { readdir, readFile, rm } from 'node:fs/promises';
 import { basename, dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isProductUid } from '../src/modules/catalog/domain/productUid.js';
 import { addCommonOptions, addConfirmOption, makeFail, requireConfirmForProdWrite } from './cliCommon.js';
 import { loadApiBaseUrl, loadOpsToken } from './envFile.js';
 import type { Mode } from './envFile.js';
@@ -353,12 +354,12 @@ interface GeneratedMeta {
   'color-main'?: string[];
   'color-secondary'?: string[];
   /** Single nails: one axis and its options in display order
-   * (docs/plans/nail-variations.md). Either the list form
+   * (tuucho/docs/plans/nail-variations.md). Either the list form
    * `{ "$color": ["$pink", "$emerald"] }`, or the object form
    * `{ "$color": { "$pink": { title, desc, alt, occasion, color-main,
    * color-secondary }, … } }` where each option carries its own copy and any
    * field it leaves out falls back to the nail-level one
-   * (docs/plans/nail-variation-copy.md). */
+   * (tuucho/docs/plans/nail-variation-copy.md). */
   variation?: Record<string, string[] | Record<string, OptionMeta>>;
   /** Per-shape/length modal SHA-256 hashes from prepare-library. `photo` is
    * the filename stem; numeric `photo` and temporary `file` stay readable.
@@ -398,7 +399,7 @@ interface StaticMeta extends GeneratedMeta {
   'creation-date'?: string;
   /** `true`/`false` for the whole product, or `{ "$shape": true }` /
    * `{ "$shape": { "$length": true } }` for part of it
-   * (docs/plans/variant-visibility.md). */
+   * (tuucho/docs/plans/variant-visibility.md). */
   hidden?: boolean | Record<string, boolean | Record<string, boolean>>;
   featured?: { from: string; for: number };
   /** A number, or (single nails with variations) `{ default, $<option>: … }`. */
@@ -496,7 +497,11 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-const NAIL_UID_RE = /^[a-z]{2}-[a-z]{2}-\d{3}$/i;
+const NAIL_UID_RE = {
+  test(value: string) {
+    return isProductUid(value);
+  },
+};
 const FOLDER_ID_RE = /^\d{4}$/;
 
 async function listFolderIds(sourceDir: string): Promise<string[]> {
@@ -521,7 +526,7 @@ async function resolveFolderIdsForCreate(sourceDir: string, target: string | und
   }
 
   fail(
-    `"${target}" is not a folder in ${sourceDir}, and isn't a product-uid-shaped identifier (LL-LL-DDD) either.`,
+    `"${target}" is not a folder in ${sourceDir}, and isn't a product-uid (A-Z, 0-9, single dashes, 1-20 characters).`,
   );
 }
 
@@ -536,7 +541,7 @@ async function resolveProductUidForDelete(sourceDir: string, target: string): Pr
       );
     return productUid;
   }
-  fail(`"${target}" must be a four-digit folder id or a product-uid (LL-LL-DDD).`);
+  fail(`"${target}" must be a four-digit folder id or a product-uid (A-Z, 0-9, single dashes, 1-20 characters).`);
 }
 
 /** Vocabulary source-of-truth lives in product/data-common.json — shared by
@@ -958,8 +963,8 @@ async function buildFolderView(
 
   // Single-nail variations: one axis, its options must exist in the layered
   // vocabulary, and every option needs a photo in every shape/length
-  // (docs/plans/nail-variations.md, decision 1). In the object form each
-  // option carries its own copy (docs/plans/nail-variation-copy.md).
+  // (tuucho/docs/plans/nail-variations.md, decision 1). In the object form each
+  // option carries its own copy (tuucho/docs/plans/nail-variation-copy.md).
   const variationRefs = Object.entries(generated.variation ?? staticMeta.variation ?? {});
   if (variationRefs.length > 1) return { ok: false, folderId, reason: 'more than one variation axis' };
   const variationAxis = variationRefs[0] ? variationRefs[0][0].replace(/^\$/, '') : null;
@@ -982,7 +987,7 @@ async function buildFolderView(
   const alt = mergeTrilingual(generated.alt ?? firstOption.alt, staticMeta.alt);
 
   // The folders are the only source of shapes and lengths, in vocabulary
-  // order (docs/plans/variant-visibility.md): a `shape` map in either file
+  // order (tuucho/docs/plans/variant-visibility.md): a `shape` map in either file
   // is a leftover prepare removes.
   const { shapeKeys, shapeLengths, ignored } = folderShapeLengths(setDir, vocab.shapes);
   if (ignored.length > 0) {
@@ -1664,7 +1669,7 @@ function staticMetaFromDbSet(productUid: string, dbSet: DbSet, generated: Genera
   const alt = trilingualOverride(generated.alt, dbSet.alt);
   if (alt) meta.alt = alt;
 
-  // Shapes and lengths come from the folders (docs/plans/variant-visibility.md):
+  // Shapes and lengths come from the folders (tuucho/docs/plans/variant-visibility.md):
   // never written back.
 
   const colorMain = dbSet.colorMainKeys.map((key) => `$${key}`);
@@ -2443,7 +2448,7 @@ async function runMain(args: Args | StockReportArgs): Promise<void> {
   }
 
   const { command, target, update, deleteMissing, direction, mode, source, json } = args;
-  const sourceDir = source ?? join(root, '..', 'sample', 'product', 'library');
+  const sourceDir = source ?? join(root, '..', '..', '..', 'sample', 'product', 'library');
   if (!existsSync(sourceDir)) {
     throw new Error(`Source library directory not found: ${sourceDir} (pass --source <path> to override).`);
   }

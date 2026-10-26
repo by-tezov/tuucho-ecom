@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CartBootstrapData } from '@/state/cartBootstrapCache';
+import type { DeliveryBootstrap } from '@/state/cartDeliveryBootstrap';
+import type { PaymentBootstrap } from '@/state/cartPaymentBootstrap';
 
 type CartBootstrapModule = typeof import('@/state/cartBootstrapCache');
 let cache: CartBootstrapModule;
@@ -90,5 +92,70 @@ describe('cart bootstrap cache', () => {
     expect(cache.scrubDeletedCheckoutEntities(snapshot()).payment.paymentMethods.map((m) => m.id)).toEqual([
       'pm_2',
     ]);
+  });
+
+  it('persists deleted ids to sessionStorage and rehydrates them after a module reinstantiation', async () => {
+    cache.markCheckoutEntityDeleted('addr-work');
+    expect(sessionStorage.getItem('tuucho-checkout-deleted-ids')).toBe(JSON.stringify(['addr-work']));
+
+    // Vite dual-lane / chunk remount: a fresh module instance must still
+    // scrub the id the customer deleted before the reinstantiation.
+    vi.resetModules();
+    const fresh: CartBootstrapModule = await import('@/state/cartBootstrapCache');
+    const scrubbed = fresh.scrubDeletedCheckoutEntities(snapshot());
+    expect(scrubbed.delivery.addresses.map((a) => a.id)).toEqual(['addr-home', 'addr-bill']);
+    expect(scrubbed.delivery.selection.addressId).toBe('addr-home');
+  });
+
+  it('scrubs deleted ids on write, not just on read', () => {
+    cache.markCheckoutEntityDeleted('pm_1');
+    cache.writeCartBootstrapCache('g1', 'user', snapshot());
+
+    const cached = cache.readCartBootstrapCache('g1', 'user');
+    expect(cached?.payment.paymentMethods.map((m) => m.id)).toEqual(['pm_2']);
+    expect(cached?.delivery.selection.paymentMethodId).toBeNull();
+  });
+
+  it('merges checkout delivery edits into the live snapshot, scrubbed through deleted ids', () => {
+    cache.writeCartBootstrapCache('g1', 'user', snapshot());
+    cache.markCheckoutEntityDeleted('addr-work');
+
+    cache.patchCartBootstrapDelivery({
+      addresses: [
+        { id: 'addr-work', kind: 'livraison', isDefault: false },
+        { id: 'addr-new', kind: 'livraison', isDefault: true },
+      ] as unknown as DeliveryBootstrap['addresses'],
+    });
+
+    const cached = cache.readCartBootstrapCache('g1', 'user');
+    // The deleted id stays gone even though the writer's list still named it.
+    expect(cached?.delivery.addresses.map((a) => a.id)).toEqual(['addr-new']);
+    // The selection was already remapped to the then-default livraison
+    // address when the delete landed (markCheckoutEntityDeleted scrubs the
+    // live entry); the later list patch does not re-point it.
+    expect(cached?.delivery.selection.addressId).toBe('addr-home');
+  });
+
+  it('merges checkout payment edits into the live snapshot', () => {
+    cache.writeCartBootstrapCache('g1', 'user', snapshot());
+
+    cache.patchCartBootstrapPayment({
+      paymentMethods: [{ id: 'pm_9' }] as unknown as PaymentBootstrap['paymentMethods'],
+      sessionMethods: [],
+    });
+
+    const cached = cache.readCartBootstrapCache('g1', 'user');
+    expect(cached?.payment.paymentMethods.map((m) => m.id)).toEqual(['pm_9']);
+    expect(cached?.delivery.addresses).toHaveLength(3);
+  });
+
+  it('patch helpers are a no-op without a warm entry', () => {
+    expect(() =>
+      cache.patchCartBootstrapDelivery({
+        addresses: [] as unknown as DeliveryBootstrap['addresses'],
+      }),
+    ).not.toThrow();
+    expect(() => cache.patchCartBootstrapPayment({ sessionMethods: [] })).not.toThrow();
+    expect(cache.readCartBootstrapCache('g1', 'user')).toBeNull();
   });
 });

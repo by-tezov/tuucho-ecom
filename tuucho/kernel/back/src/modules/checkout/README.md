@@ -12,7 +12,7 @@ May import: `account`, `activity`, `auth`, `cart`, `catalog`, `chat`, `commerce`
 
 Currently imports: `commerce`, `customers`, `delivery`, `orders`, `payments`, `plugins`, `settings`, `settlement`.
 
-Feature map entry: `checkout` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- checkout` for its full span.
+Feature map entry: `checkout` in [tuucho/docs/features.json](../../../../../docs/features.json). Run `npm run feature -- checkout` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |

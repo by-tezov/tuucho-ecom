@@ -123,7 +123,7 @@ export interface GalleryItem {
    * `shape`/`lengthsByShape` — a variant with stock but not offered in the
    * gallery is never surfaced to a customer. */
   available: Record<string, Record<string, Partial<Record<'XS' | 'S' | 'M' | 'L', number>>>>;
-  /** Single nails with a variation axis (docs/plans/nail-variations.md):
+  /** Single nails with a variation axis (tuucho/docs/plans/nail-variations.md):
    * the axis and its options in display order. Absent otherwise. The item
    * opens on `initialVariation`, else the first option: `photosByShapeLength`
    * and the top-level copy and colours are that option's. */
@@ -143,7 +143,7 @@ export interface GalleryItem {
 
 /** A single nail's variation axis ("Couleur") and its options. Each option
  * is its own product for everything a visitor reads
- * (docs/plans/nail-variation-copy.md): same fields and meaning as the item's
+ * (tuucho/docs/plans/nail-variation-copy.md): same fields and meaning as the item's
  * top-level ones. */
 export interface GalleryVariation {
   key: string;

@@ -15,6 +15,9 @@ import {
   genericNoticeHtml,
   renderEmailTemplate,
 } from '../../../../../src/modules/messaging/application/emailTemplates.js';
+import { registerFrEmailCatalogs } from '../../../support/registerFrEmailCatalogs.js';
+
+registerFrEmailCatalogs();
 
 const templatesDir = join(
   dirname(fileURLToPath(import.meta.url)),

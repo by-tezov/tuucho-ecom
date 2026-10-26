@@ -2,7 +2,7 @@
 /**
  * Keeps every restatement of a hard rule identical to its one source.
  *
- * Source of truth: `docs/policy/hard-rules.md`. Embeds exist only where a
+ * Source of truth: `tuucho/docs/policy/hard-rules.md`. Embeds exist only where a
  * tool needs the rule without opening that file (see the consumer table
  * there). `CLAUDE.md` is a router and must not embed rules: Cursor already
  * loads `AGENTS.md`, and Claude Code is told to read `AGENTS.md` first.
@@ -20,8 +20,8 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { extname, relative, resolve } from 'node:path';
 
 const root = resolve('.');
-const frontRoot = resolve(root, '../front');
-const sourcePath = resolve(root, 'docs/policy/hard-rules.md');
+const repoRoot = resolve(root, '../../..');
+const sourcePath = resolve(root, '../../docs/policy/hard-rules.md');
 
 const source = await readFile(sourcePath, 'utf8');
 const rules = new Map();
@@ -31,7 +31,7 @@ for (const match of source.matchAll(
   rules.set(match[1], match[2].trim());
 }
 if (rules.size === 0) {
-  console.error('docs/policy/hard-rules.md declares no rules.');
+  console.error('tuucho/docs/policy/hard-rules.md declares no rules.');
   process.exit(1);
 }
 
@@ -39,14 +39,14 @@ if (rules.size === 0) {
  * file should be a mistake to notice, not something silently rewritten.
  * `CLAUDE.md` is deliberately absent: it must stay a thin router. */
 async function consumers() {
-  const paths = [resolve(root, 'AGENTS.md'), resolve(frontRoot, 'AGENTS.md')];
-  for (const base of [resolve(root, '.cursor/rules'), resolve(frontRoot, '.cursor/rules')]) {
+  const paths = [resolve(repoRoot, 'AGENTS.md')];
+  for (const base of [resolve(repoRoot, '.cursor/rules')]) {
     const entries = await readdir(base, { withFileTypes: true }).catch(() => []);
     for (const entry of entries) {
       if (entry.isFile() && extname(entry.name) === '.mdc') paths.push(resolve(base, entry.name));
     }
   }
-  for (const base of [resolve(root, '.agents/skills')]) {
+  for (const base of [resolve(repoRoot, '.agents/skills')]) {
     const walk = async (directory) => {
       const entries = await readdir(directory, { withFileTypes: true }).catch(() => []);
       for (const entry of entries) {
@@ -65,7 +65,7 @@ const errors = [];
 let embedded = 0;
 let rewritten = 0;
 
-const claudePath = resolve(root, 'CLAUDE.md');
+const claudePath = resolve(repoRoot, 'CLAUDE.md');
 const claude = await readFile(claudePath, 'utf8').catch(() => undefined);
 if (claude !== undefined && /<!-- policy:[a-z0-9-]+ (?:start|source) -->/.test(claude)) {
   errors.push(
@@ -83,7 +83,7 @@ for (const path of await consumers()) {
   )) {
     const id = match[1];
     const rule = rules.get(id);
-    const where = relative(root, path);
+    const where = relative(repoRoot, path);
     if (rule === undefined) {
       errors.push(`${where} embeds unknown rule \`${id}\`. Known: ${[...rules.keys()].join(', ')}.`);
       continue;
@@ -96,7 +96,7 @@ for (const path of await consumers()) {
   }
   if (after === before) continue;
   if (check) {
-    errors.push(`${relative(root, path)} has an edited copy of a hard rule. Run \`npm run sync:policy\`.`);
+    errors.push(`${relative(repoRoot, path)} has an edited copy of a hard rule. Run \`npm run sync:policy\`.`);
   } else {
     await writeFile(path, after);
     rewritten += 1;
@@ -106,7 +106,7 @@ for (const path of await consumers()) {
 if (errors.length > 0) {
   console.error(`Policy check failed (${errors.length}):`);
   for (const error of errors) console.error(`- ${error}`);
-  console.error('Edit docs/policy/hard-rules.md, never an embedded copy.');
+  console.error('Edit tuucho/docs/policy/hard-rules.md, never an embedded copy.');
   process.exit(1);
 }
 

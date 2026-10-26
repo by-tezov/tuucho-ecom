@@ -51,18 +51,8 @@ function formatQrCaption(date: Date, language: Language, useBefore: string): str
   return `${useBefore}\n${formatQrExpiry(date, language)}`;
 }
 
-const EN_CARD_COPY: CardCopy = {
-  title: 'Shop gift card',
-  printHint:
-    'Print this page, cut out the 5 x 3 inch card along the dotted line, and give it. The 4-digit code is not on this sheet: give it separately.',
-  footer: 'Shop',
-  useBefore: 'Use before',
-  faceAlt: 'Shop gift card from {giver} to {receiver}, with a QR code that opens the gift page.',
-  messageLabel: 'Message:',
-};
-
 function cardCopy(language: Language): CardCopy {
-  return localizedCatalog(EN_CARD_COPY, language, 'gift-share-card-pdf');
+  return localizedCatalog(language, 'gift-share-card-pdf');
 }
 
 function drawDashedRect(doc: PDFKit.PDFDocument, rect: GiftShareCardRect): void {

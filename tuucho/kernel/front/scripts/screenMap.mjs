@@ -8,7 +8,7 @@
  * started with several rounds of grep even though the front is now the larger
  * half of most features (payments is 5,255 front lines against 1,132 back).
  *
- * `--write` regenerates `docs/screens.md`: every URL the router serves, the
+ * `--write` regenerates `tuucho/docs/front/screens.md`: every URL the router serves, the
  * page component behind it, the components directories that page draws from,
  * the API modules it calls and the i18n namespaces it reads.
  *
@@ -19,15 +19,15 @@
  * out of three plain arrays and one nested admin block, all of which say what
  * they mean without a React runtime.
  */
-import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { extname, relative, resolve } from 'node:path';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, extname, relative, resolve } from 'node:path';
 import * as prettier from 'prettier';
 
 const root = resolve('.');
 const appPath = resolve(root, 'src/App.tsx');
 const routesRoot = resolve(root, 'src/routes');
 const componentsRoot = resolve(root, 'src/components');
-const outputPath = resolve(root, 'docs/screens.md');
+const outputPath = resolve(root, '../../docs/front/screens.md');
 
 async function walk(directory) {
   let entries;
@@ -250,7 +250,7 @@ for (const section of sections) {
     '| --- | --- | --- | --- | --- |',
   );
   for (const row of section.rows) {
-    const file = row.file ? `[${row.file}](../${row.file})` : '(redirect)';
+    const file = row.file ? `[${row.file}](../../kernel/front/${row.file})` : '(redirect)';
     lines.push(
       `| \`${row.url}\` | ${file} | ${row.components.join(', ') || '-'} | ${row.apis.join(', ') || '-'} | ${row.namespaces.slice(0, 4).join(', ') || '-'} |`,
     );
@@ -279,19 +279,20 @@ if (process.argv.includes('--check')) {
   try {
     current = await readFile(outputPath, 'utf8');
   } catch {
-    console.error('screens check failed: docs/screens.md is missing. Run `npm run sync:screens`.');
+    console.error('screens check failed: tuucho/docs/front/screens.md is missing. Run `npm run sync:screens`.');
     process.exit(1);
   }
   if (current !== rendered) {
-    console.error('screens check failed: docs/screens.md is stale. Run `npm run sync:screens`.');
+    console.error('screens check failed: tuucho/docs/front/screens.md is stale. Run `npm run sync:screens`.');
     process.exit(1);
   }
   console.log(
     `screens check passed (${sections.reduce((total, section) => total + section.rows.length, 0)} routes).`,
   );
 } else {
+  await mkdir(dirname(outputPath), { recursive: true });
   await writeFile(outputPath, rendered);
   console.log(
-    `Wrote docs/screens.md (${sections.reduce((total, section) => total + section.rows.length, 0)} routes, ${unrouted.length} unrouted files).`,
+    `Wrote tuucho/docs/front/screens.md (${sections.reduce((total, section) => total + section.rows.length, 0)} routes, ${unrouted.length} unrouted files).`,
   );
 }

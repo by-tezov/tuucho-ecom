@@ -1,6 +1,7 @@
-/** Shop product-uid, same shape as catalog source prepare-library.
+/** Shop product-uid generator, same alphabet as catalog source prepare-library.
  *
- * LL-LL-DDD. Letters drop French look-alikes and O/I. Digits drop 0 and 1.
+ * Output is LL-LL-DDD, a subset of the stored rule (A-Z, 0-9, single dashes,
+ * 1-20 characters). Letters drop French look-alikes and O/I. Digits drop 0 and 1.
  * A blank uid on create is filled here; a uid already on a product is skipped. */
 import { CatalogueDocumentError } from './catalogueDocumentTypes.js';
 

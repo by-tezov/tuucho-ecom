@@ -43,7 +43,7 @@ export const ARGON2_OPTIONS = {
 /** argon2 is a native addon, loaded on the first hash or verify instead of
  * at server start: Passenger on the LWS host stops an idle app after a few
  * seconds, so most visitors meet a cold start, and loading it there cost
- * ~0.12s of every one of them (docs/command/01-dev-build-deploy.md). */
+ * ~0.12s of every one of them (tuucho/docs/command/01-dev-build-deploy.md). */
 let argon2Loaded: Promise<typeof argon2Module> | undefined;
 
 export function loadArgon2(): Promise<typeof argon2Module> {

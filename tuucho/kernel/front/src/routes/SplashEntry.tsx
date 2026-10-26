@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { BootSplash } from '../components/boot/BootSplash';
 import { bootSplashExitAfterMs } from '../components/boot/splashTiming';
+import { CORE_FRONT_VIEWS, PluginView } from '../plugins/PluginHost';
 import { useLang } from '../assets/i18n';
 import { preferredLanguage } from '../assets/i18n/languagePreference';
 import { localizeIfBare } from '../config/i18nRoutes';
@@ -149,13 +150,30 @@ export function SplashEntry() {
   }, [showSplash, exitAfterMs, exitDestination, navigate]);
 
   if (showSplash) {
+    // An enabled plugin owning `view.boot.splash` replaces the kernel
+    // BootSplash. Copy/timing go through SlotPropsContext (`useSlotProps`) so
+    // the replacement keeps the kernel's RGAA labels and reduced-motion
+    // behavior: ariaLabel, markAria, tagline, instant, speed.
+    const splashProps = {
+      ariaLabel: t.bootSplash.ariaLabel,
+      markAria: t.bootSplash.nailFanAria,
+      tagline: t.bootSplash.tagline,
+      instant,
+      speed: shopConfig.bootSplashSpeed,
+    };
     return (
       <div className={styles.stage}>
-        <BootSplash
-          ariaLabel={t.bootSplash.ariaLabel}
-          markAria={t.bootSplash.nailFanAria}
-          tagline={t.bootSplash.tagline}
-          instant={instant}
+        <PluginView
+          name={CORE_FRONT_VIEWS.bootSplash}
+          props={splashProps}
+          fallback={
+            <BootSplash
+              ariaLabel={splashProps.ariaLabel}
+              markAria={splashProps.markAria}
+              tagline={splashProps.tagline}
+              instant={splashProps.instant}
+            />
+          }
         />
       </div>
     );

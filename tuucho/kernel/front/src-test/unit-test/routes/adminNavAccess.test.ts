@@ -12,8 +12,8 @@ import {
 } from '@/routes/adminNav';
 import { isStaffRole } from '@/utils/adminRoute';
 import type { AdminAccess, AdminPermissionCode } from '@/api/admin/roles';
-import { admin as enAdmin } from '@/assets/i18n/strings/en/admin';
-import { adminUi as enAdminUi } from '@/assets/i18n/admin/strings/en';
+import { admin as enAdmin } from '@plugins-bundled/kernel-locale/tuucho-kernel-locale-en/front/strings/admin';
+import { adminCatalog as enAdminUi } from '@plugins-bundled/kernel-locale/tuucho-kernel-locale-en/front/adminCatalog';
 
 const ALL_PERMISSIONS: AdminPermissionCode[] = [
   'stats',

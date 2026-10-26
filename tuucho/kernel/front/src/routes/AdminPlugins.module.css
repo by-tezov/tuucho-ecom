@@ -293,6 +293,50 @@
   font-size: 1.125rem;
 }
 
+.kernelLocales {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.accessList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.accessRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.accessRow:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.accessRepo {
+  min-width: 0;
+  flex: 1 1 16rem;
+  overflow-wrap: anywhere;
+  font-size: 0.875rem;
+}
+
+.accessActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
 .formGrid {
   display: grid;
   gap: 14px;

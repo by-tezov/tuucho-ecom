@@ -109,7 +109,7 @@ Sections: consecutive keys with the same `section` id wrap in `FormSection`. Fir
 
 Secrets: draft starts empty. `secretKeys` from the API (names only) drives the Chip. PATCH omits empty secret strings (`patchPluginSecrets` already skips blanks; still do not send them). Encrypted at rest is already done (`plugins.secrets` sealed JSONB).
 
-English strings live on the schema. Chrome strings (set / not set / leave empty) live on `admin.whiteLabel` + `tuucho-locale-fr` `adminCatalog`. Do not hardcode field copy on the Configure page.
+English strings live on the schema. Chrome strings (set / not set / leave empty) live on `admin.whiteLabel` + `tuucho-kernel-locale-fr` `adminCatalog`. Do not hardcode field copy on the Configure page.
 
 ---
 

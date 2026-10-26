@@ -32,7 +32,7 @@ export async function listPublicProductUidsForSitemap(
       : productHasStockSql('products.id');
   const stockSql = inStockOnly ? `and ${hasStock}` : '';
   // A single nail with options lists one URL per option (each is its own
-  // page, docs/plans/nail-variation-copy.md); the left join keeps one row
+  // page, tuucho/docs/plans/nail-variation-copy.md); the left join keeps one row
   // with a null option for everything else.
   const { rows } = await client.query<{ product_uid: string; option_key: string | null; lastmod: string }>(
     `select products.product_uid, pv.option_key,

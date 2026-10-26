@@ -75,7 +75,7 @@ function toShapeLengthPairs(
   );
 }
 
-/** `[{ shapeKey, lengthKey }]` hidden pairs (docs/plans/variant-visibility.md);
+/** `[{ shapeKey, lengthKey }]` hidden pairs (tuucho/docs/plans/variant-visibility.md);
  * a pair the product does not offer is refused. */
 function hiddenPairsFrom(
   value: unknown,
@@ -197,7 +197,10 @@ function parseLoyaltyMultiplier(value: unknown): number {
 
 /** Manager source accepts durable account ids or human-friendly emails. The
  * DB stores only ids, so email changes never change access rights. */
-async function resolveUserLibraryUsers(value: unknown): Promise<string[]> {
+export async function resolveUserLibraryUsers(
+  value: unknown,
+  findUser: (identifier: string) => Promise<{ id: string } | null> = findLibraryUser,
+): Promise<string[]> {
   if (!Array.isArray(value)) return [];
   const rawIdentifiers = value
     .filter((entry): entry is string => typeof entry === 'string')
@@ -209,14 +212,19 @@ async function resolveUserLibraryUsers(value: unknown): Promise<string[]> {
   const ids: string[] = [];
   const unknown: string[] = [];
   for (const identifier of identifiers) {
-    const user = UUID_RE.test(identifier)
-      ? await findUserById(pool, identifier)
-      : await findUserByEmailLower(pool, identifier.toLowerCase());
+    const user = await findUser(identifier);
     if (!user) unknown.push(identifier);
     else ids.push(user.id);
   }
   if (unknown.length) throw new InvalidLibrarySet(`Unknown user(s): ${unknown.join(', ')}`);
-  return ids;
+  return [...new Set(ids)];
+}
+
+async function findLibraryUser(identifier: string): Promise<{ id: string } | null> {
+  const user = UUID_RE.test(identifier)
+    ? await findUserById(pool, identifier)
+    : await findUserByEmailLower(pool, identifier.toLowerCase());
+  return user ?? null;
 }
 
 /** Shared by the single-set and batch endpoints so batching changes only

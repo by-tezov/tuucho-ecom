@@ -1,6 +1,7 @@
 import type { CapsuleFormKey } from '../data/capsuleForms';
 import type { Lang } from '../assets/i18n/types';
 import { configureGalleryImageGate } from '../utils/galleryImageGate';
+import { narrowEnabledLanguages, resolveRuntimeDefaultLang, setRuntimeDefaultLang } from './runtimeI18n';
 
 export type ShopPlatformKey = 'vinted';
 export type SocialPlatformKey = 'tiktok' | 'instagram' | 'youtube' | 'facebook';
@@ -198,15 +199,11 @@ function requiredPositiveInteger(value: string | undefined, name: string): numbe
 /** Positive finite number (e.g. splash speed 1.25). */
 function requiredPositiveNumber(value: string | undefined, name: string): number {
   if (value === undefined || value.trim() === '') {
-    throw new Error(
-      `Missing or invalid ${name} — set it to a positive number (e.g. 1.25).`,
-    );
+    throw new Error(`Missing or invalid ${name} — set it to a positive number (e.g. 1.25).`);
   }
   const number = Number(value);
   if (!Number.isFinite(number) || number <= 0) {
-    throw new Error(
-      `Missing or invalid ${name} — set it to a positive number (e.g. 1.25).`,
-    );
+    throw new Error(`Missing or invalid ${name} — set it to a positive number (e.g. 1.25).`);
   }
   return number;
 }
@@ -214,15 +211,11 @@ function requiredPositiveNumber(value: string | undefined, name: string): number
 /** Non-negative whole ms (including 0 to disable a delay floor). */
 function requiredNonNegativeInteger(value: string | undefined, name: string): number {
   if (value === undefined || !/^\d+$/.test(value.trim())) {
-    throw new Error(
-      `Missing or invalid ${name} — set it to a non-negative whole number (ms).`,
-    );
+    throw new Error(`Missing or invalid ${name} — set it to a non-negative whole number (ms).`);
   }
   const number = Number(value);
   if (!Number.isSafeInteger(number) || number < 0) {
-    throw new Error(
-      `Missing or invalid ${name} — set it to a non-negative whole number (ms).`,
-    );
+    throw new Error(`Missing or invalid ${name} — set it to a non-negative whole number (ms).`);
   }
   return number;
 }
@@ -369,8 +362,14 @@ export const shopConfig: ShopConfig = {
     env.VITE_GALLERY_IMAGE_MAX_CONCURRENT ?? '6',
     'VITE_GALLERY_IMAGE_MAX_CONCURRENT',
   ),
-  galleryImageTimeoutMs: requiredDurationMs(env.VITE_GALLERY_IMAGE_TIMEOUT ?? '10s', 'VITE_GALLERY_IMAGE_TIMEOUT'),
-  galleryRowOverscan: requiredNonNegativeInteger(env.VITE_GALLERY_ROW_OVERSCAN ?? '2', 'VITE_GALLERY_ROW_OVERSCAN'),
+  galleryImageTimeoutMs: requiredDurationMs(
+    env.VITE_GALLERY_IMAGE_TIMEOUT ?? '10s',
+    'VITE_GALLERY_IMAGE_TIMEOUT',
+  ),
+  galleryRowOverscan: requiredNonNegativeInteger(
+    env.VITE_GALLERY_ROW_OVERSCAN ?? '2',
+    'VITE_GALLERY_ROW_OVERSCAN',
+  ),
   galleryCardRootMarginPx: requiredNonNegativeInteger(
     env.VITE_GALLERY_CARD_ROOT_MARGIN_PX ?? '200',
     'VITE_GALLERY_CARD_ROOT_MARGIN_PX',
@@ -384,7 +383,8 @@ export const shopConfig: ShopConfig = {
     'VITE_GUEST_STORAGE_RETENTION',
   ),
   guestStorageRetentionDays:
-    requiredDurationMs(env.VITE_GUEST_STORAGE_RETENTION ?? '15d', 'VITE_GUEST_STORAGE_RETENTION') / 86_400_000,
+    requiredDurationMs(env.VITE_GUEST_STORAGE_RETENTION ?? '15d', 'VITE_GUEST_STORAGE_RETENTION') /
+    86_400_000,
   productCacheTtlMs: requiredDurationMs(env.VITE_PRODUCT_CACHE_TTL ?? '5m', 'VITE_PRODUCT_CACHE_TTL'),
   cartPageCacheTtlMs: requiredDurationMs(env.VITE_CART_PAGE_CACHE_TTL ?? '1h', 'VITE_CART_PAGE_CACHE_TTL'),
   loadingMinMs: {
@@ -437,11 +437,21 @@ function overlayString(value: unknown): string | undefined {
 export function applyStorefrontBootstrap(bootstrap: {
   store: { name: string; suffix?: string; contactEmail: string };
   plugins: Array<{ id: string; enabled?: boolean; settings?: Record<string, unknown> }>;
+  i18n?: { default: string; enabled: string[] };
 }): void {
   shopConfig.shopName = bootstrap.store.name || shopConfig.shopName;
   shopConfig.brandName = bootstrap.store.name || shopConfig.brandName;
   shopConfig.brandSuffix = bootstrap.store.suffix ?? shopConfig.brandSuffix;
   shopConfig.contactEmail = bootstrap.store.contactEmail || shopConfig.contactEmail;
+  // Runtime i18n: bootstrap `enabled` narrows the build-time
+  // VITE_ENABLED_LANGUAGES set in place (module-level readers keep the same
+  // array reference), then a valid `default` becomes the runtime default
+  // language (runtimeDefaultLang).
+  if (bootstrap.i18n) {
+    const narrowed = narrowEnabledLanguages(shopConfig.enabledLanguages, bootstrap.i18n.enabled);
+    shopConfig.enabledLanguages.splice(0, shopConfig.enabledLanguages.length, ...narrowed);
+    setRuntimeDefaultLang(resolveRuntimeDefaultLang(bootstrap.i18n.default, narrowed));
+  }
   const google = enabledPluginSettings(bootstrap, 'tuucho-signin-google');
   shopConfig.googleClientId = overlayString(google?.clientId);
   const apple = enabledPluginSettings(bootstrap, 'tuucho-signin-apple');
@@ -457,8 +467,10 @@ export function applyStorefrontBootstrap(bootstrap: {
   if (typeof stripe?.publishableKey === 'string' && stripe.publishableKey.trim()) {
     shopConfig.stripePublishableKey = stripe.publishableKey.trim();
   }
-  const carrier = bootstrap.plugins.find((plugin) => plugin.id === 'tuucho-shipping-mondial-relay')?.settings ?? {};
-  if (typeof carrier.brand === 'string' && carrier.brand.trim()) shopConfig.mondialRelayBrand = carrier.brand.trim();
+  const carrier =
+    bootstrap.plugins.find((plugin) => plugin.id === 'tuucho-shipping-mondial-relay')?.settings ?? {};
+  if (typeof carrier.brand === 'string' && carrier.brand.trim())
+    shopConfig.mondialRelayBrand = carrier.brand.trim();
   if (typeof carrier.pointNetworkCode === 'string' && carrier.pointNetworkCode.trim()) {
     shopConfig.mondialRelayPickerNetworkCode = carrier.pointNetworkCode.trim();
   }

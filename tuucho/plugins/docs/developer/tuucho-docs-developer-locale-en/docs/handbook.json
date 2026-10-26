@@ -1,0 +1,15 @@
+{
+  "title": "docs-developer English",
+  "summary": "English strings for docs-developer. Enable with locale-en for English UI; disable to keep this plugin in English.",
+  "configure": "No Configure form. Enable or disable this plugin.",
+  "preferences": "None.",
+  "openingsUsed": [
+    "dependsOn"
+  ],
+  "openingsProvided": [
+    "Locale"
+  ],
+  "cart": "None.",
+  "orders": "None.",
+  "profile": "None."
+}

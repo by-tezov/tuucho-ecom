@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-home-featured-locale-en",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "English strings for home-featured. Enable with locale-en for English UI.",
+  "tuucho": {
+    "id": "home-featured-locale-en",
+    "installPath": "src/plugins/home/featured/home-featured-locale-en",
+    "name": "home-featured English",
+    "kind": "locale",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "home-featured",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../../tuucho/plugin-sdk"
+  }
+}

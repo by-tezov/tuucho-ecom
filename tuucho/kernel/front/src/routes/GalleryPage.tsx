@@ -111,9 +111,13 @@ export function GalleryPage() {
     totalCount === 0 &&
     unfiltered &&
     (gift.summary?.remaining.quantity ?? 0) > 0;
-  const budgetExhaustedMessage = gift.summary?.giverDisplayName
-    ? t.gift.budgetExhaustedFrom.replace('{name}', gift.summary.giverDisplayName)
-    : t.gift.budgetExhausted;
+  // Gift copy lives in tuucho-commerce-gift-locale-*; skip when the gift
+  // surface is off so a disabled gift pack does not blank GalleryPage.
+  const budgetExhaustedMessage = !giftBudgetExhausted
+    ? ''
+    : gift.summary?.giverDisplayName
+      ? t.gift.budgetExhaustedFrom.replace('{name}', gift.summary.giverDisplayName)
+      : t.gift.budgetExhausted;
 
   useEffect(() => {
     setGalleryLightboxRestorePending(restoreLightbox != null);
@@ -172,7 +176,10 @@ export function GalleryPage() {
         <GalleryGrid
           items={revealedItems}
           hasMore={hasMore}
-          loadingMore={loadingMore || revealedItems.length < items.length}
+          // Only the real next-page fetch gates paging: the staggered card
+          // reveal drip (revealedItems catching up to items) must not hold
+          // loadingMore, or a slow drip would block the scroll trigger.
+          loadingMore={loadingMore}
           onLoadMore={loadMore}
           animateEnter={animateEnter}
           cardRevealMs={shopConfig.galleryCardRevealMs}

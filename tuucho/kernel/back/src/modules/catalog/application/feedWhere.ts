@@ -93,7 +93,7 @@ export function buildFeedWhere(
 } {
   const productType = params.productType === 'nail_single' ? 'nail_single' : 'nail';
   // A product whose every shape/length is hidden is hidden too
-  // (docs/plans/variant-visibility.md).
+  // (tuucho/docs/plans/variant-visibility.md).
   const clauses = [
     `hidden = false`,
     `product_type = '${productType}'`,

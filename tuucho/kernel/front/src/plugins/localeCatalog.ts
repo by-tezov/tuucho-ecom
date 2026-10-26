@@ -9,18 +9,23 @@ export type LocaleEnablement = Set<string> | 'all';
 type CatalogModule = { catalog?: Record<string, unknown> };
 type AdminCatalogModule = { adminCatalog?: Record<string, unknown> };
 
+// Aliased globs (see `importAliases.ts`): the old relative chains escaped the
+// repo for user plugins, so their catalogs never loaded. Bundled first, user
+// last: later overlays win in `deepMerge`, so a user plugin can override
+// bundled strings.
 const catalogLoaders = {
-  ...import.meta.glob('../../../../plugins/**/front/catalog.ts'),
-  ...import.meta.glob('../../../../../../src/plugins/**/front/catalog.ts'),
+  ...import.meta.glob('@plugins-bundled/**/front/catalog.ts'),
+  ...import.meta.glob('@plugins-user/**/front/catalog.ts'),
 } as Record<string, () => Promise<CatalogModule>>;
 
 const adminCatalogLoaders = {
-  ...import.meta.glob('../../../../plugins/**/front/adminCatalog.ts'),
-  ...import.meta.glob('../../../../../../src/plugins/**/front/adminCatalog.ts'),
+  ...import.meta.glob('@plugins-bundled/**/front/adminCatalog.ts'),
+  ...import.meta.glob('@plugins-user/**/front/adminCatalog.ts'),
 } as Record<string, () => Promise<AdminCatalogModule>>;
 
 function pluginIdFromPath(path: string): string | null {
-  const match = path.match(/\/plugins\/(?:.*\/)?([^/]+)\/front\//);
+  // Leaf folder name is the plugin id; glob keys may be aliased or absolute.
+  const match = path.match(/([^/]+)\/front\/[^/]+$/);
   return match?.[1] ?? null;
 }
 
@@ -120,46 +125,45 @@ export function localeEnablement(pluginStates: Array<{ id: string; enabled: bool
   return localeEnablementFromKey(localeEnablementKey(pluginStates));
 }
 
-export function frenchAvailable(enabled: LocaleEnablement): boolean {
-  if (enabled === 'all') {
-    return catalogOverlays().some((entry) => entry.pluginId === 'tuucho-locale-fr');
-  }
-  return enabled.has('tuucho-locale-fr');
+/** True when the standalone kernel pack for `lang` is on. Before bootstrap
+ * lists plugins (`enabled === 'all'`), every product language is treated as
+ * available so cold paint is not empty while catalogs settle. */
+export function localeAvailable(lang: Lang, enabled: LocaleEnablement): boolean {
+  if (enabled === 'all') return true;
+  return enabled.has(`tuucho-kernel-locale-${lang}`);
 }
 
-/** `tuucho-locale-fr` and `*-locale-<lang>` packs for the active language. */
+/** @deprecated Prefer {@link localeAvailable}. */
+export function frenchAvailable(enabled: LocaleEnablement): boolean {
+  return localeAvailable('fr', enabled);
+}
+
+/** `tuucho-kernel-locale-<lang>` and `*-locale-<lang>` packs for the active language. */
 export function localePackLang(pluginId: string): string | null {
-  const match = /^tuucho-locale-([a-z]{2})$/.exec(pluginId) ?? /^.+-locale-([a-z]{2})$/.exec(pluginId);
+  const match = /^tuucho-kernel-locale-([a-z]{2})$/.exec(pluginId) ?? /^.+-locale-([a-z]{2})$/.exec(pluginId);
   return match?.[1] ?? null;
 }
 
-export function assembleDictionary(base: Strings, lang: Lang, enabled: LocaleEnablement): Strings {
-  let dict = base;
+/** Assemble storefront copy from locale packs only. Kernel and feature
+ * plugins contribute keys via `t.*`; values come from `*-locale-<lang>`. */
+export function assembleDictionary(lang: Lang, enabled: LocaleEnablement): Strings {
+  let dict: Record<string, unknown> = {};
   for (const overlay of catalogOverlays()) {
     if (!allowed(overlay.pluginId, enabled)) continue;
     const packLang = localePackLang(overlay.pluginId);
-    if (packLang) {
-      if (packLang !== lang) continue;
-    } else if (lang === 'fr') {
-      continue;
-    }
+    if (!packLang || packLang !== lang) continue;
     dict = deepMerge(dict, overlay.catalog);
   }
-  return dict;
+  return dict as unknown as Strings;
 }
 
-export function assembleAdminDictionary(
-  base: AdminUiStrings,
-  lang: Lang,
-  enabled: LocaleEnablement,
-): AdminUiStrings {
-  let dict = base;
+export function assembleAdminDictionary(lang: Lang, enabled: LocaleEnablement): AdminUiStrings {
+  let dict: Record<string, unknown> = {};
   for (const overlay of adminCatalogOverlays()) {
     if (!allowed(overlay.pluginId, enabled)) continue;
     const packLang = localePackLang(overlay.pluginId);
-    if (packLang && packLang !== lang) continue;
-    if (!packLang && lang !== 'en') continue;
+    if (!packLang || packLang !== lang) continue;
     dict = deepMerge(dict, overlay.adminCatalog);
   }
-  return dict;
+  return dict as unknown as AdminUiStrings;
 }

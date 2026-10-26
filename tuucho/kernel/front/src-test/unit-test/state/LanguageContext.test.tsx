@@ -19,7 +19,10 @@ vi.mock('@/config/i18nRoutes', () => ({
 }));
 vi.mock('@/state/PrerenderPayload', () => ({ usePrerenderedLanguage: () => null }));
 vi.mock('@/plugins/StorefrontBootstrap', () => ({
-  useStorefrontBootstrap: () => ({ plugins: [{ id: 'tuucho-locale-fr', enabled: true }] }),
+  useStorefrontBootstrap: () => ({ plugins: [
+    { id: 'tuucho-kernel-locale-en', enabled: true },
+    { id: 'tuucho-kernel-locale-fr', enabled: true },
+  ] }),
 }));
 vi.mock('@/assets/i18n/languagePreference', () => ({
   preferredLanguage: () => testState.preference,
@@ -31,8 +34,11 @@ vi.mock('@/assets/i18n/dictionaryCache', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/assets/i18n/dictionaryCache')>();
   return {
     ...actual,
-    defaultLang: 'en',
+    defaultLang: () => 'en',
     getCachedDictionary: () => undefined,
+    // Unit tests do not load locale catalog chunks; treat any shell as ready
+    // so LanguageProvider mounts children under test.
+    isRuntimeDictionary: () => true,
     loadDictionary: testState.loadDictionary,
   };
 });

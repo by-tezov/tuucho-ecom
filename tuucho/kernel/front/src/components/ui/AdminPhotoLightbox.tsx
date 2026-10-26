@@ -18,7 +18,7 @@ function AdminPhotoLightboxRoot({ src, alt, onClose, closeLabel }: AdminPhotoLig
   useLockBodyScroll();
   const requestClose = useHistoryBackClose(onClose);
   return createPortal(
-    <ModalBackdrop className={styles.panel} label={alt} onClose={requestClose}>
+    <ModalBackdrop className={styles.panel ?? ''} label={alt} onClose={requestClose}>
       <div className={styles.panel} role="dialog" aria-modal="true" aria-label={alt}>
         <button type="button" className={styles.close} onClick={requestClose} aria-label={closeLabel}>
           <CloseIcon />

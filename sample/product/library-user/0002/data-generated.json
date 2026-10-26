@@ -1,0 +1,39 @@
+{
+  "title": {
+    "fr": "Étole Cedar privée",
+    "en": "Private Cedar wrap"
+  },
+  "desc": {
+    "fr": "Tissage $shape.attributive en laine merinos, teinte terre cuite.",
+    "en": "$Shape.title merino weave in terracotta."
+  },
+  "alt": {
+    "fr": "Tissage $shape.attributive en laine merinos, teinte terre cuite.",
+    "en": "$Shape.title merino weave in terracotta."
+  },
+  "occasion": {
+    "fr": "hiver",
+    "en": "winter"
+  },
+  "color-main": [
+    "$orange",
+    "$brown"
+  ],
+  "color-secondary": [
+    "$gold"
+  ],
+  "photos": {
+    "$oval": {
+      "$medium": [
+        {
+          "photo": "1",
+          "hash": "9cdff6ac4218cae35823ddad23e6a52f5a6dc17fcaec6db69c4caf57c81c9525"
+        },
+        {
+          "photo": "2",
+          "hash": "9cdff6ac4218cae35823ddad23e6a52f5a6dc17fcaec6db69c4caf57c81c9525"
+        }
+      ]
+    }
+  }
+}

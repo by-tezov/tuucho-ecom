@@ -14,18 +14,6 @@ export interface GiftSelectReminderMailCopy {
   ctaFallbackHint: string;
 }
 
-export const GIFT_SELECT_REMINDER_MAIL: { en: GiftSelectReminderMailCopy } = {
-  en: {
-    subject: (n) => `${n} has not chosen their gift yet`,
-    title: (n) => `${n} has not chosen their gift yet`,
-    notChosen: (n) => `${n} has not confirmed a choice yet. You can send them the link again from your gift space.`,
-    activeUntil: (date) => `The gift offer expires on ${date}.`,
-    extend: (days) => `Need more time? From your gift space, you can extend the offer by ${days} days.`,
-    ctaLabel: 'Your gift space',
-    ctaFallbackHint: 'If the button does not work, you can use this link:',
-  },
-};
-
 export function giftSelectReminderMail(language: Language): GiftSelectReminderMailCopy {
-  return localizedCatalog(GIFT_SELECT_REMINDER_MAIL.en, language, 'gift-select-reminder');
+  return localizedCatalog(language, 'gift-select-reminder');
 }

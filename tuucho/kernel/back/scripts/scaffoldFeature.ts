@@ -137,7 +137,7 @@ plan(
 --
 -- Apply immediately with: npm run operation -- database-migrate --dev
 
--- Postgres 10 everywhere (see docs/schema/00-overview.md): no
+-- Postgres 10 everywhere (see tuucho/docs/schema/00-overview.md): no
 -- gen_random_uuid(), ids come from crypto.randomUUID() in application code.
 -- create table if not exists ${name.replace(/-/g, '_')} (
 --   id uuid primary key,
@@ -190,7 +190,7 @@ if (skipped.length > 0) {
   for (const path of skipped) console.log(`  ${path}`);
 }
 
-const featuresPath = resolve(root, 'docs/features.json');
+const featuresPath = resolve(root, '../../docs/features.json');
 const features = JSON.parse(await readFile(featuresPath, 'utf8')) as Record<string, unknown>;
 const hasEntry = Object.prototype.hasOwnProperty.call(features, name);
 
@@ -200,9 +200,9 @@ Still to do by hand, because each needs a decision this cannot make:
   1. Mount the router in src/app.ts (or src/opsRoutes.ts for an ops surface).
   2. Write the migration body, then run:
        npm run operation -- database-migrate --dev
-  3. Add a docs/api/ section for every route, and a docs/schema/ section for
+  3. Add a tuucho/docs/api/ section for every route, and a tuucho/docs/schema/ section for
      every table. npm run check:routes fails until each route is documented.
-  4. ${hasEntry ? `docs/features.json already has \`${name}\`.` : `Add a \`${name}\` entry to docs/features.json.`}
+  4. ${hasEntry ? `tuucho/docs/features.json already has \`${name}\`.` : `Add a \`${name}\` entry to tuucho/docs/features.json.`}
   5. Add the front route and wire the API client.
   6. npm run sync:routes && npm run check
 `);

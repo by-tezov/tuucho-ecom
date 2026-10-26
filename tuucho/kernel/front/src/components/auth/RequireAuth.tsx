@@ -27,7 +27,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   // itself is available synchronously, so prefer it whenever present.
   const effectiveLang = stripLangPrefix(location.pathname).lang ?? lang;
 
-  if (status === 'loading') return <MainAreaFallback />;
+  if (status === 'loading') return <MainAreaFallback>{children}</MainAreaFallback>;
   if (status === 'anonymous') {
     return <Navigate to={localizedPath(defaultSplashDestination(isDesktop), effectiveLang)} replace />;
   }
@@ -44,7 +44,7 @@ export function RequireAnonymous({ children }: { children: ReactNode }) {
   // and race-free, unlike context `lang` right after a fresh navigation.
   const effectiveLang = stripLangPrefix(location.pathname).lang ?? lang;
 
-  if (status === 'loading') return <MainAreaFallback />;
+  if (status === 'loading') return <MainAreaFallback>{children}</MainAreaFallback>;
   if (status === 'authenticated') {
     return <Navigate to={authReturnTo(location.state, effectiveLang)} replace />;
   }

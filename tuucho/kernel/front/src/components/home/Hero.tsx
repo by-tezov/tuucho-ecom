@@ -4,6 +4,7 @@ import { useSectionNav } from '../../hooks/useSectionNav';
 import { Button } from '../ui/Button';
 import { Figure } from '../ui/Figure';
 import { images } from '../../assets/images/manifest';
+import { resolveBrandAsset, useBrandAssets } from '../../plugins/BrandAssetsContext';
 import { localizedPath } from '../../config/i18nRoutes';
 import styles from './Hero.module.css';
 
@@ -12,6 +13,7 @@ const HeroRating = lazy(() => import('./HeroRating'));
 export function Hero() {
   const { t, lang } = useLang();
   const sectionNav = useSectionNav();
+  const brandAssets = useBrandAssets();
 
   return (
     <section id="accueil" aria-labelledby="hero-h" className={styles.section}>
@@ -52,7 +54,7 @@ export function Hero() {
           </div>
         </div>
         <Figure
-          src={images.hero}
+          src={resolveBrandAsset(brandAssets, 'hero', images.hero)}
           alt={t.hero.imgAlt}
           aspectRatio="4 / 5"
           className={styles.imageWrap}

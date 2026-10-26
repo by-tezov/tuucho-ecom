@@ -22,19 +22,13 @@
       "blocks": [
         {
           "type": "p",
-          "text": "Bundled path: tuucho-config/plugins/tuucho-signin-google/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+          "text": "Bundled path: tuucho-config/plugins/tuucho-signin-google/ (public config.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
         },
         {
           "type": "code",
           "language": "json",
           "caption": "config.json",
           "code": "{\n  \"clientId\": \"\",\n  \"signupTokenTtl\": \"10m\"\n}"
-        },
-        {
-          "type": "code",
-          "language": "json",
-          "caption": "config.private.example.json",
-          "code": "{}"
         },
         {
           "type": "defs",

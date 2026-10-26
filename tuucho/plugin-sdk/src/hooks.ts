@@ -1,5 +1,5 @@
-export type HookFn = (...args: unknown[]) => unknown | Promise<unknown>;
-export type FilterFn<T = unknown> = (value: T, ...args: unknown[]) => T | Promise<T>;
+export type HookFn = (...args: any[]) => unknown | Promise<unknown>;
+export type FilterFn<T = unknown> = (value: T, ...args: any[]) => T | Promise<T>;
 
 type Ranked<T> = { fn: T; priority: number };
 

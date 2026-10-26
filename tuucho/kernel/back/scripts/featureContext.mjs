@@ -127,16 +127,18 @@ async function countLines(path, counted = CODE) {
   return (await readFile(path, 'utf8')).split('\n').length;
 }
 
-const features = JSON.parse(await readFile(resolve(root, 'docs/features.json'), 'utf8'));
+const features = JSON.parse(await readFile(resolve(root, '../../docs/features.json'), 'utf8'));
 const frontAvailable = await stat(frontRoot).then(() => true).catch(() => false);
 
 const rows = [];
 for (const [name, entry] of Object.entries(features)) {
   if (name.startsWith('$')) continue;
   const backend = await countLines(resolve(root, entry.module));
+  // apiDoc/schemaDoc are relative to `tuucho/`, where the docs tree now lives.
+  const tuuchoRoot = resolve(root, '../..');
   const docs =
-    (await countLines(resolve(root, entry.apiDoc), PROSE)) +
-    (await countLines(resolve(root, entry.schemaDoc), PROSE));
+    (await countLines(resolve(tuuchoRoot, entry.apiDoc), PROSE)) +
+    (await countLines(resolve(tuuchoRoot, entry.schemaDoc), PROSE));
   const tests = (await Promise.all(entry.tests.map((p) => countLines(resolve(root, p))))).reduce(
     (total, value) => total + value,
     0,
@@ -160,7 +162,7 @@ rows.sort((a, b) => b.total - a.total);
  * check near the bottom of this file for why it exists. */
 const ALLOWED_SLACK = 2000;
 
-const budgetPath = resolve(root, 'docs/features.context.json');
+const budgetPath = resolve(root, '../../docs/features.context.json');
 const budgets = JSON.parse(await readFile(budgetPath, 'utf8').catch(() => '{}'));
 
 if (process.argv.includes('--update')) {

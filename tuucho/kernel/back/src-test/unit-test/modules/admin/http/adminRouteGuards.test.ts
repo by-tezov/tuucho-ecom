@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 type RouteEntry = {
   method: string;
@@ -9,9 +10,11 @@ type RouteEntry = {
   middleware: string[];
 };
 
-const inventory = JSON.parse(
-  readFileSync(resolve('docs/api/routes.json'), 'utf8'),
-) as { publicSurface: RouteEntry[] };
+const inventoryPath = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  '../../../../../../../docs/api/routes.json',
+);
+const inventory = JSON.parse(readFileSync(inventoryPath, 'utf8')) as { publicSurface: RouteEntry[] };
 
 const adminRoutes = inventory.publicSurface.filter((route) => route.path.startsWith('/admin'));
 
@@ -65,6 +68,17 @@ test('role management is requireAdmin, access and delegated assignment are requi
   const access = adminRoutes.find((route) => route.method === 'GET' && route.path === '/admin/access');
   assert.ok(access);
   assert.ok(access!.middleware.includes('requireStaff'));
+});
+
+test('user library stock requires user_library_stock', () => {
+  const routes = adminRoutes.filter((route) => route.path.startsWith('/admin/user-library-stock'));
+  assert.ok(routes.length >= 3, `got ${routes.map((route) => route.path).join(', ')}`);
+  for (const route of routes) {
+    assert.ok(
+      route.middleware.includes('requirePermission(user_library_stock)'),
+      `${route.method} ${route.path} got ${route.middleware.join(',')}`,
+    );
+  }
 });
 
 test('shared reads use requirePermission with both codes', () => {

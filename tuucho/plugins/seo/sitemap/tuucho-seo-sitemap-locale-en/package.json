@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-tuucho-seo-sitemap-locale-en",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "English strings for seo-sitemap. Enable with locale-en for English UI.",
+  "tuucho": {
+    "id": "tuucho-seo-sitemap-locale-en",
+    "installPath": "tuucho/plugins/seo/sitemap/tuucho-seo-sitemap-locale-en",
+    "name": "seo-sitemap English",
+    "kind": "locale",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "tuucho-seo-sitemap",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

@@ -73,7 +73,7 @@
           "type": "callout",
           "tone": "info",
           "title": "Kernel email shell",
-          "text": "This plugin does not own SMTP. It calls kernel sendMail / enqueueMailJob (PluginRegisterApi.sendMail). Folder routing still writes under DEV_DIR when SMTP is off. Who receives inbound and chat-owner copies is Plugins \u2192 Contact \u2192 Configure (same tuucho-mail-spy recipient store as Admin \u2192 Spy e-mails, channels contact.inbound and contact.chat)."
+          "text": "This plugin does not own SMTP. It calls kernel sendMail / enqueueMailJob (PluginRegisterApi.sendMail). Folder routing still writes under DEV_DIR when SMTP is off. Who receives inbound and chat-owner copies is tuucho-mail-spy rules (channels contact.inbound and contact.chat). An empty list sends nothing."
         }
       ]
     },
@@ -149,7 +149,7 @@
             },
             {
               "term": "seedRecipient",
-              "description": "email \u2014 public. First inbound contact recipient used only when the recipient table is empty. After that, manage recipients in the extra below."
+              "description": "email, public. Reply-To when staff answer a guest from admin. Leave empty to use the chat SMTP user. It does not choose spy recipients."
             },
             {
               "term": "forwardRecipient",

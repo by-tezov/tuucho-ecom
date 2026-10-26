@@ -1,7 +1,7 @@
+/** Tables stay so a rollback can still read them. Sends do not. Recipients are plugin settings `rules`. */
 import { randomUUID } from 'node:crypto';
 import { pool } from '@kernel/back/db/pool';
-import { pluginSettingOptionalString } from '@kernel/back/modules/plugins/application/pluginSettingValues';
-import { CUSTOMER_ROLE, staffEmailIfUnlocked } from '@kernel/back/modules/identity/application/staffMailTargets';
+import { CUSTOMER_ROLE } from '@kernel/back/modules/identity/application/staffMailTargets';
 
 export type SpyFilterType = 'role' | 'email';
 
@@ -86,44 +86,6 @@ export async function addRecipient(
 export async function removeRecipient(id: string): Promise<boolean> {
   const { rowCount } = await pool.query(`delete from plugin_tuucho_mail_spy_recipients where id = $1`, [id]);
   return (rowCount ?? 0) > 0;
-}
-
-export async function recipientCount(): Promise<number> {
-  const { rows } = await pool.query<{ n: string }>(`select count(*)::text as n from plugin_tuucho_mail_spy_recipients`);
-  return Number(rows[0]?.n ?? 0);
-}
-
-export function envSeedMailboxForChannel(channelId: string): string | undefined {
-  if (channelId === 'contact.inbound') {
-    return (
-      pluginSettingOptionalString('tuucho-mail-spy', 'seedContactRecipient') ??
-      pluginSettingOptionalString('tuucho-contact', 'seedRecipient')
-    );
-  }
-  if (channelId === 'contact.chat') {
-    return (
-      pluginSettingOptionalString('tuucho-mail-spy', 'seedChatRecipient') ??
-      pluginSettingOptionalString('tuucho-contact', 'seedRecipient')
-    );
-  }
-  return pluginSettingOptionalString('tuucho-mail-spy', 'seedOrderRecipient');
-}
-
-/** One-shot: if nobody configured recipients yet, copy a matching staff env mailbox. */
-export async function seedEnvRecipientsIfEmpty(channelIds: readonly string[]): Promise<void> {
-  if (channelIds.length === 0) return;
-  if ((await recipientCount()) > 0) return;
-  const envByChannel = new Map<string, string | undefined>();
-  for (const id of channelIds) {
-    envByChannel.set(id, envSeedMailboxForChannel(id));
-  }
-  for (const channelId of channelIds) {
-    const env = envByChannel.get(channelId)?.trim();
-    if (!env) continue;
-    const staff = await staffEmailIfUnlocked(env);
-    if (!staff) continue;
-    await addRecipient(channelId, 'email', staff);
-  }
 }
 
 export function normalizeRoleFilter(value: string): string | null {

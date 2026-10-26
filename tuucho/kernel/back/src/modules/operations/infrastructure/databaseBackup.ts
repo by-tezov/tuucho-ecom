@@ -175,7 +175,7 @@ async function appliedMigrations(client: PoolClient): Promise<string[]> {
 type ColumnRef = { name: string; type: string };
 
 /** `pg_attribute.attgenerated` exists only on PostgreSQL ≥ 12. LWS managed
- * preprod/prod is still on v10 (see docs/schema/00-overview.md), so the
+ * preprod/prod is still on v10 (see tuucho/docs/schema/00-overview.md), so the
  * filter must be omitted there — referencing the column fails at parse time
  * even inside an OR with a version guard. */
 async function postgresMajorAtLeast(client: PoolClient, major: number): Promise<boolean> {

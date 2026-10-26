@@ -149,7 +149,7 @@ Hide without the matching permission (no disabled tease). `preferences` alone is
 
 Kit: `FormSection`, `Button`, `FileField`, `ConfirmModal`, `DocsCallout`, `LoadingModal`. **No** native `<input type="file">` on the page. Extract `AdminPluginConfigBulk.tsx` so `AdminPluginsPage.tsx` does not grow past its ratchet.
 
-Chrome strings: `admin.whiteLabel` + `tuucho-locale-fr`. Report line for applied/skipped/blocked counts.
+Chrome strings: `admin.whiteLabel` + `tuucho-kernel-locale-fr`. Report line for applied/skipped/blocked counts.
 
 ### Configure (`/admin/plugins/:id`)
 

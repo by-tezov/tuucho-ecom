@@ -3,7 +3,11 @@ import { peekPluginService } from '@tuucho/plugin-sdk';
 
 export function cartRulesApi() {
   return peekPluginService<{
-    syncGiftLinesForActiveCart: (db: pg.Pool, userId: string) => Promise<void>;
+    syncGiftLinesForActiveCart: (
+      db: pg.Pool,
+      userId: string,
+      excludeReservationId?: string,
+    ) => Promise<void>;
     listCartRules: (db: pg.Pool | pg.PoolClient) => Promise<unknown[]>;
     evaluateCartRules: (input: Record<string, unknown>) => {
       shippingFee: number;

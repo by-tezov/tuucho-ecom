@@ -52,8 +52,11 @@ function positiveInt(value: unknown): number {
   return typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : 0;
 }
 
-/** 1 to 10, else 0. A composed set below this count is not a set unit. */
+/** 1 to 10, else 0. Omitted means 1, the catalogue-tier behavior: every set
+ * counts (mirrors kernel/back parseMinNails). A composed set below this count
+ * is not a set unit. */
 function minNailsParam(value: unknown): number {
+  if (value === undefined || value === null) return 1;
   const nails = positiveInt(value);
   return nails >= 1 && nails <= 10 ? nails : 0;
 }

@@ -5,6 +5,10 @@
     "LU-MN-763": "library/0003",
     "SO-ST-845": "library/0004",
     "HA-TR-426": "library/0005",
-    "AT-BX-917": "library/0006"
+    "AT-BX-917": "library/0006",
+    "UL-AA-001": "library-user/0001",
+    "UL-BB-002": "library-user/0002",
+    "AC-AA-001": "accessory/0001",
+    "AC-BB-002": "accessory/0002"
   }
 }

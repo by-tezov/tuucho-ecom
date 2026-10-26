@@ -12,7 +12,7 @@ May import: `account`, `activity`, `auth`, `catalog`, `chat`, `commerce`, `conta
 
 Currently imports: `catalog`, `commerce`, `messaging`, `plugins`, `settings`.
 
-Feature map entry: `cart` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- cart` for its full span.
+Feature map entry: `cart` in [tuucho/docs/features.json](../../../../../docs/features.json). Run `npm run feature -- cart` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |

@@ -1,17 +1,20 @@
 /** Runs the dev server together with `stripe listen`, so a plain `npm run
- * dev` is enough to get webhook forwarding locally — Ctrl+C stops both.
+ * dev` is enough to get webhook forwarding locally. Ctrl+C stops both.
  *
- * Best-effort: if the Stripe CLI isn't installed or isn't logged in, this
- * warns and starts the server anyway without a forwarding tunnel. */
+ * The credential is the user project's Stripe secret key (plugin private
+ * config, or the plugin secret store). The tuucho platform tree has none,
+ * so it does not contact Stripe. A saved `stripe login` on the machine is
+ * not used. If the CLI is missing or Stripe rejects the project key, the
+ * API still starts without forwarding.
+ */
 import { execSync, spawn, type ChildProcess } from 'node:child_process';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import pg from 'pg';
 import { inspectConfig } from '../src/config/loadJsonConfig.js';
 import { configRoot } from '../src/config/shopPaths.js';
-import { stripeListenArgs } from './stripeListenArgs.js';
+import { isUsableStripeSecretKey, stripeListenArgs } from './stripeListenArgs.js';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const port = process.env.APP_PORT ?? '3010';
 const forwardTo = `localhost:${port}/webhooks/stripe`;
 const appTarget = process.env.APP_TARGET || 'dev';
@@ -36,28 +39,85 @@ function mergedDevPrivate(): { databaseUrl?: string; encryptionKey?: string } {
   return { databaseUrl, encryptionKey };
 }
 
+function stripeEnv(secretKey: string): NodeJS.ProcessEnv {
+  return { ...process.env, STRIPE_API_KEY: secretKey };
+}
+
+/** Real private files only. The committed example (`replace-me`) is not a key. */
+function secretFromPrivateFiles(): string | undefined {
+  const dir = join(configRoot, 'plugins', 'tuucho-payment-stripe');
+  let value: unknown;
+  let seen = false;
+  for (const name of ['config.private.json', `config.private.${appTarget}.json`]) {
+    const path = join(dir, name);
+    if (!existsSync(path)) continue;
+    try {
+      const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || !('secretKey' in parsed))
+        continue;
+      seen = true;
+      value = (parsed as { secretKey: unknown }).secretKey;
+    } catch {
+      // Ignore a broken layer and keep looking.
+    }
+  }
+  return seen && typeof value === 'string' && isUsableStripeSecretKey(value) ? value.trim() : undefined;
+}
+
+async function secretFromStore(): Promise<string | undefined> {
+  const { databaseUrl, encryptionKey } = mergedDevPrivate();
+  if (!databaseUrl || !encryptionKey) return undefined;
+  const pool = new pg.Pool({ connectionString: databaseUrl });
+  try {
+    const { unsealPluginSecrets } = await import('../src/modules/plugins/application/pluginSecretsCrypto.js');
+    const { rows } = await pool.query<{ secrets: unknown }>(`select secrets from plugins where id = $1`, [
+      'tuucho-payment-stripe',
+    ]);
+    const secret = unsealPluginSecrets(rows[0]?.secrets, encryptionKey).secretKey;
+    return isUsableStripeSecretKey(secret) ? secret.trim() : undefined;
+  } catch {
+    return undefined;
+  } finally {
+    await pool.end();
+  }
+}
+
+async function projectSecretKey(): Promise<string | undefined> {
+  return secretFromPrivateFiles() ?? (await secretFromStore());
+}
+
+let stripeSecretKey: string | undefined;
+
 async function syncWebhookSecret(): Promise<boolean> {
+  stripeSecretKey = await projectSecretKey();
+  if (!stripeSecretKey) {
+    console.warn('[dev] this project has no Stripe secret key. Starting without webhook forwarding.');
+    return false;
+  }
   let currentSecret: string;
   try {
-    currentSecret = execSync('stripe listen --print-secret', { encoding: 'utf-8' }).trim();
+    currentSecret = execSync('stripe listen --print-secret', {
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: stripeEnv(stripeSecretKey),
+    }).trim();
   } catch {
-    console.warn('[dev] stripe CLI not available or not logged in — starting without webhook forwarding.');
+    console.warn('[dev] Stripe rejected the project secret key. Starting without webhook forwarding.');
     return false;
   }
   const { databaseUrl, encryptionKey } = mergedDevPrivate();
   if (!databaseUrl) {
-    console.warn('[dev] no private JSON database.url — skipping webhook secret store.');
+    console.warn('[dev] no private JSON database.url. Skipping webhook secret store.');
     return true;
   }
   if (!encryptionKey) {
-    console.warn('[dev] no pii.encryptionKey — skipping webhook secret store.');
+    console.warn('[dev] no pii.encryptionKey. Skipping webhook secret store.');
     return true;
   }
   const pool = new pg.Pool({ connectionString: databaseUrl });
   try {
-    const { sealPluginSecrets, unsealPluginSecrets } = await import(
-      '../src/modules/plugins/application/pluginSecretsCrypto.js'
-    );
+    const { sealPluginSecrets, unsealPluginSecrets } =
+      await import('../src/modules/plugins/application/pluginSecretsCrypto.js');
     const { rows } = await pool.query<{ secrets: unknown }>(`select secrets from plugins where id = $1`, [
       'tuucho-payment-stripe',
     ]);
@@ -86,8 +146,10 @@ const stripeAvailable = await syncWebhookSecret();
 const children: ChildProcess[] = [
   spawn('tsx', ['watch', 'src/server.ts'], { stdio: 'inherit', env: { ...process.env, APP_TARGET: 'dev' } }),
 ];
-if (stripeAvailable) {
-  children.push(spawn('stripe', stripeListenArgs(forwardTo), { stdio: 'inherit' }));
+if (stripeAvailable && stripeSecretKey) {
+  children.push(
+    spawn('stripe', stripeListenArgs(forwardTo), { stdio: 'inherit', env: stripeEnv(stripeSecretKey) }),
+  );
 }
 
 let shuttingDown = false;

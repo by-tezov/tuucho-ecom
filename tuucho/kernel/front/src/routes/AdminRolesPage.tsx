@@ -27,8 +27,10 @@ import { withMinDuration } from '../utils/withMinDuration';
 import { adminNavGroups, adminPermissionRows, type AdminNavGroup, type AdminPermissionRow } from './adminNav';
 import { useStorefrontBootstrap } from '../plugins/StorefrontBootstrap';
 import { BackButton, Chevron } from './adminBackButton';
+import { staffRoleLabel } from '../assets/i18n/admin/roleLabel';
 import styles from './AdminRolesPage.module.css';
 import { shopConfig } from '../config/env';
+import { AdminRoleConfigFiles } from './AdminRoleConfigFiles';
 
 type GrantState = { granted: boolean; dominant: boolean };
 type RoleDraft = {
@@ -90,21 +92,24 @@ function labelValid(value: string): boolean {
   return label.length >= LABEL_MIN && label.length <= LABEL_MAX;
 }
 
-/** The two built-in roles show their localized name, not the stored one. */
 function roleName(role: AdminRole, t: ReturnType<typeof useLang>['t'], a: AdminUiStrings): string {
-  if (role.code === SUPER_ADMIN_ROLE) return t.admin.userAdministrator;
-  if (role.code === 'user') return a.roles.customerRole;
-  return role.label;
+  return staffRoleLabel(role.code, role.label, a, t.admin.userAdministrator);
 }
 
-function roleSummary(role: AdminRole, roles: readonly AdminRole[], a: AdminUiStrings, total: number): string {
+function roleSummary(
+  role: AdminRole,
+  roles: readonly AdminRole[],
+  t: ReturnType<typeof useLang>['t'],
+  a: AdminUiStrings,
+  total: number,
+): string {
   const access =
     role.code === SUPER_ADMIN_ROLE || role.permissions.length >= total
       ? a.roles.allPermissions
       : role.permissions.length === 0
         ? a.roles.noPermission
         : a.roles.permissionCount(role.permissions.length);
-  const parents = roles.filter((entry) => role.parents.includes(entry.code)).map((entry) => entry.label);
+  const parents = roles.filter((entry) => role.parents.includes(entry.code)).map((entry) => roleName(entry, t, a));
   return parents.length > 0 ? `${access} · ${a.roles.inheritsSummary(parents.join(', '))}` : access;
 }
 
@@ -243,14 +248,14 @@ function RolesManager() {
           shopConfig.loadingMinMs.short,
         );
         setRoles((current) => [...current, result.role]);
-        setNotice(a.roles.createdNotice(result.role.label));
+        setNotice(a.roles.createdNotice(roleName(result.role, t, a)));
       } else {
         const result = await withMinDuration(
           authedRequest((token) => updateAdminRole(token, view.code, write)),
           shopConfig.loadingMinMs.short,
         );
         setRoles((current) => current.map((entry) => (entry.code === view.code ? result.role : entry)));
-        setNotice(a.roles.savedNotice(result.role.label));
+        setNotice(a.roles.savedNotice(roleName(result.role, t, a)));
       }
       backToList();
     } catch (err) {
@@ -270,7 +275,7 @@ function RolesManager() {
         shopConfig.loadingMinMs.short,
       );
       setRoles((current) => current.filter((entry) => entry.code !== role.code));
-      setNotice(a.roles.deletedNotice(role.label));
+      setNotice(a.roles.deletedNotice(roleName(role, t, a)));
       backToList();
     } catch (err) {
       setViewError(errorMessage(err, a, a.roles.errDelete));
@@ -311,6 +316,7 @@ function RolesManager() {
             {a.nav.rolesLabel}
           </h1>
           <p className={styles.note}>{a.roles.intro}</p>
+          <AdminRoleConfigFiles onApplied={() => void load()} />
 
           {error && (
             <p className={styles.error} role="alert">
@@ -344,7 +350,7 @@ function RolesManager() {
                         )}
                       </span>
                       <span className={styles.hint}>
-                        {roleSummary(role, roles, a, permissionRows.length)} ·{' '}
+                        {roleSummary(role, roles, t, a, permissionRows.length)} ·{' '}
                         {a.roles.userCount(role.userCount)}
                       </span>
                     </span>
@@ -411,18 +417,23 @@ function RoleDetailView({
   const system = role?.system ?? false;
   // Any staff role can be on either list (itself included); never super-admin.
   // Customers ("user") can be targeted, not assigned.
+  const nameOf = (entry: AdminRole) => roleName(entry, t, a);
   const staffOptions = roles
     .filter((entry) => !entry.system)
-    .map((entry) => ({ value: entry.code, label: entry.label }));
+    .map((entry) => ({ value: entry.code, label: nameOf(entry) }));
   const targetOptions = [{ value: 'user', label: a.roles.customerRole }, ...staffOptions];
-  const labelOf = (code: string) =>
-    code === 'user' ? a.roles.customerRole : (roles.find((entry) => entry.code === code)?.label ?? code);
+  const labelOf = (code: string) => {
+    const match = roles.find((entry) => entry.code === code);
+    return match ? nameOf(match) : code === 'user' ? a.roles.customerRole : code;
+  };
   const self = role?.code ?? null;
-  const inheritedPermissions = system ? new Map() : inheritedGrants(draft.parents, roles, self);
+  const inheritedPermissions = system ? new Map() : inheritedGrants(draft.parents, roles, self, nameOf);
   // A role can inherit from any other staff role; the API refuses a loop.
   const parentOptions = roles
     .filter((entry) => !entry.system && entry.code !== role?.code)
-    .map((entry) => ({ value: entry.code, label: entry.label }));
+    .map((entry) => ({ value: entry.code, label: nameOf(entry) }));
+  const localeName = role ? staffRoleLabel(role.code, '', a, t.admin.userAdministrator) : '';
+  const nameFromLocale = localeName !== '';
 
   return (
     <section className={styles.section} aria-labelledby="admin-role-h">
@@ -444,6 +455,12 @@ function RoleDetailView({
         {system ? (
           <p className={styles.systemNote}>
             {role?.code === SUPER_ADMIN_ROLE ? a.roles.systemAdminNote : a.roles.systemUserNote}
+          </p>
+        ) : nameFromLocale ? (
+          <p className={styles.field}>
+            <span>{a.roles.nameLabel}</span>
+            <strong>{localeName}</strong>
+            <small className={styles.hint}>{a.roles.nameFromLocale}</small>
           </p>
         ) : (
           <label className={styles.field}>
@@ -550,10 +567,11 @@ function RoleDetailView({
  * the role is detached from (accounts holding it, roles inheriting it). */
 function DeleteImpact({ role, roles }: { role: AdminRole; roles: readonly AdminRole[] }) {
   const a = useAdminStrings();
-  const heirs = roles.filter((entry) => entry.parents.includes(role.code)).map((entry) => entry.label);
+  const { t } = useLang();
+  const heirs = roles.filter((entry) => entry.parents.includes(role.code)).map((entry) => roleName(entry, t, a));
   return (
     <span className={styles.deleteImpact}>
-      <span>{a.roles.deleteMessage(role.label)}</span>
+      <span>{a.roles.deleteMessage(roleName(role, t, a))}</span>
       {role.userCount === 0 && heirs.length === 0 ? (
         <span className={styles.deleteImpactNote}>{a.roles.deleteImpactNone}</span>
       ) : (
@@ -622,7 +640,7 @@ function inheritedLists(
     const list = kind === 'assignable' ? role.assignable : role.targetable;
     const dominant = kind === 'assignable' ? role.assignableDominant : role.targetableDominant;
     if (dominant || list.length > 0) {
-      lines.push({ role: role.label, roles: list.map(labelOf).join(', ') || none, dominant });
+      lines.push({ role: labelOf(role.code), roles: list.map(labelOf).join(', ') || none, dominant });
     }
     stack.push(...role.parents);
   }
@@ -720,6 +738,7 @@ function inheritedGrants(
   parents: readonly string[],
   roles: readonly AdminRole[],
   self: string | null,
+  nameOf: (role: AdminRole) => string,
 ): Map<AdminPermissionCode, InheritedGrant[]> {
   const byCode = new Map(roles.map((role) => [role.code, role]));
   const seen = new Set<string>(self ? [self] : []);
@@ -732,7 +751,7 @@ function inheritedGrants(
     const role = byCode.get(code);
     if (!role) continue;
     for (const grant of role.grants) {
-      const entry = { role: role.label, granted: grant.granted, dominant: grant.dominant };
+      const entry = { role: nameOf(role), granted: grant.granted, dominant: grant.dominant };
       result.set(grant.permission, [...(result.get(grant.permission) ?? []), entry]);
     }
     stack.push(...role.parents);

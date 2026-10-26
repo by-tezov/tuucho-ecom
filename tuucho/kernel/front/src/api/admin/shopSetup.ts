@@ -48,6 +48,7 @@ export interface AdminPlugin {
         placeholder?: string;
         options?: Array<{ value: string; label: string }>;
         long?: boolean;
+        hidden?: boolean;
       }
     >;
   };

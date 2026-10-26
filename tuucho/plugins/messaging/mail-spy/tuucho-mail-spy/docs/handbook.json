@@ -1,6 +1,6 @@
 {
   "title": "Spy e-mails",
-  "summary": "Who receives staff copies of ops mail. Kernel SMTP unchanged. Permission spy_mail. Register channels with mail.spy.channels.",
+  "summary": "Who receives staff copies of ops mail. Kernel SMTP unchanged. Recipients are the rules list in this plugin config. Register channels with mail.spy.channels.",
   "sections": [
     {
       "heading": "Register",
@@ -42,16 +42,12 @@
           "type": "defs",
           "items": [
             {
-              "term": "Permission",
-              "description": "spy_mail on the manifest. Nav Admin \u2192 Spy e-mails."
-            },
-            {
-              "term": "No Configure",
-              "description": "Channels and recipients live on /admin/spy-mail, not /admin/plugins/:id."
+              "term": "Configure",
+              "description": "Plugins, Spy e-mails, Configure, Rules tab. That screen edits the rules list, including enabled, and writes config.json. There is no separate Spy e-mails menu."
             },
             {
               "term": "Contact",
-              "description": "tuucho-contact registers contact.inbound and contact.chat. seedContactRecipient / seedChatRecipient are seed-only plugin settings."
+              "description": "tuucho-contact registers contact.inbound and contact.chat. Add those channel ids in rules to deliver them."
             },
             {
               "term": "Outage",
@@ -66,54 +62,40 @@
       "blocks": [
         {
           "type": "p",
-          "text": "Bundled path: tuucho-config/plugins/tuucho-mail-spy/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+          "text": "Bundled path: tuucho-config/plugins/tuucho-mail-spy/ (public config.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin → Plugins → Configure, or Update from files / Import / Export there. Admin → Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
         },
         {
           "type": "code",
           "language": "json",
           "caption": "config.json",
-          "code": "{\n  \"cooldown\": \"15m\",\n  \"devEmailDir\": \"/email-spy\",\n  \"disableCooldown\": false,\n  \"disableEmail\": false,\n  \"seedChatRecipient\": \"\",\n  \"seedContactRecipient\": \"\",\n  \"seedOrderRecipient\": \"\",\n  \"sendVolumeDay\": 30\n}"
-        },
-        {
-          "type": "code",
-          "language": "json",
-          "caption": "config.private.example.json",
-          "code": "{}"
+          "code": "{\n  \"cooldown\": \"15m\",\n  \"devEmailDir\": \"/email-spy\",\n  \"disableCooldown\": false,\n  \"disableEmail\": false,\n  \"rules\": [\n    {\n      \"channel\": \"account_created\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"login\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"email_changed\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"account_deletion\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"order_confirmation\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"order_cancelled\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"order_updated\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"payment_failed\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"payment_authorization_expired\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"payment_authorization_expiring\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"cart_abandoned\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"product_request\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"gift_created\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"website_down\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"website_restore_failed\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_login\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_auth\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_contact_email\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_refresh\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_voucher\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_checkout\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_payment\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_gallery\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_ops\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_gift_pin\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_gift_create_email\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_gift_share_card_update\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_gift_share_card_download\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_gift_share_card_email\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_otp_email\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_email_confirmation\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_email_change\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_invoice_download\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_invoice_email\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_password_reset_email\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"rate_limit_login_lockout\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"contact.inbound\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    },\n    {\n      \"channel\": \"contact.chat\",\n      \"role\": \"super-admin\",\n      \"enabled\": true\n    }\n  ],\n  \"sendVolumeDay\": 30\n}"
         },
         {
           "type": "defs",
           "items": [
             {
               "term": "cooldown",
-              "description": "string \u2014 public. Minimum delay between two spy mails of the same kind to the same person (for example 15m)."
+              "description": "string — public. Minimum delay between two spy mails of the same kind to the same person (for example 15m)."
             },
             {
               "term": "sendVolumeDay",
-              "description": "number \u2014 public. Day-of-month used when counting daily spy volume. Leave 30 unless you changed that cron convention."
+              "description": "number — public. Day-of-month used when counting daily spy volume. Leave 30 unless you changed that cron convention."
             },
             {
               "term": "disableCooldown",
-              "description": "boolean \u2014 public. Turn on only while testing locally. Leave off in production."
+              "description": "boolean — public. Turn on only while testing locally. Leave off in production."
             },
             {
               "term": "disableEmail",
-              "description": "boolean \u2014 public. Stops every spy copy without disabling the plugin. Use for a quiet maintenance window."
+              "description": "boolean — public. Stops every spy copy without disabling the plugin. Use for a quiet maintenance window."
             },
             {
-              "term": "seedContactRecipient",
-              "description": "email \u2014 public. First contact spy address used only when that channel has no recipients yet."
-            },
-            {
-              "term": "seedOrderRecipient",
-              "description": "email \u2014 public. First order spy address used only when that channel has no recipients yet."
-            },
-            {
-              "term": "seedChatRecipient",
-              "description": "email \u2014 public. First chat spy address used only when that channel has no recipients yet."
+              "term": "rules",
+              "description": "text, public. JSON list of { channel, role } or { channel, email }. channel is a channel id or * for every channel. enabled false turns that channel off. Empty sends nothing."
             },
             {
               "term": "devEmailDir",
-              "description": "string \u2014 public. Folder where spy mail is written in development instead of SMTP. Ignore on a live host."
+              "description": "string — public. Folder where spy mail is written in development instead of SMTP. Ignore on a live host."
             }
           ]
         }

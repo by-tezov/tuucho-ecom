@@ -1,7 +1,7 @@
-import type { GiftNoticeMailCopy } from '../../commerce-gift/back/src/domain/giftNoticeMailCopy.js';
-import type { GiftSelectReminderMailCopy } from '../../commerce-gift/back/src/domain/giftSelectReminderMailCopy.js';
-import type { GiftShareCardMailCopy } from '../../commerce-gift/back/src/domain/giftShareCardMailCopy.js';
-import type { GiverPromiseMailCopy } from '../../commerce-gift/back/src/domain/giverPromiseMailCopy.js';
+import type { GiftNoticeMailCopy } from '../../tuucho-commerce-gift/back/src/domain/giftNoticeMailCopy.js';
+import type { GiftSelectReminderMailCopy } from '../../tuucho-commerce-gift/back/src/domain/giftSelectReminderMailCopy.js';
+import type { GiftShareCardMailCopy } from '../../tuucho-commerce-gift/back/src/domain/giftShareCardMailCopy.js';
+import type { GiverPromiseMailCopy } from '../../tuucho-commerce-gift/back/src/domain/giverPromiseMailCopy.js';
 
 export const frGiftShareCard: GiftShareCardMailCopy = {
   subject: (receiverName) => `Carte cadeau pour ${receiverName}`,

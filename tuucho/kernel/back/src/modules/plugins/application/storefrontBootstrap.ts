@@ -1,8 +1,16 @@
 import type { Pool } from 'pg';
 import { pool } from '../../../db/pool.js';
+import { config } from '../../../config/env.js';
+import { isLanguage } from '../../../utils/language.js';
 import { CORE_VERSION, listPlugins, type InstalledPlugin } from './pluginStore.js';
 import { pluginSurfaceEnabled } from './pluginSurface.js';
-import { getProductAxes, getStoreIdentity, getStoreMenus, getThemeCustomization } from './storeSettings.js';
+import {
+  getProductAxes,
+  getStoreIdentity,
+  getStoreMenus,
+  getThemeCustomization,
+  type StoreMenuItem,
+} from './storeSettings.js';
 import { applyFilters } from './hooks.js';
 import { buildCoreOpenings } from './coreOpenings.js';
 import { ensurePluginsLoaded } from './loadPluginRuntime.js';
@@ -14,6 +22,24 @@ function publicPluginSettings(plugin: InstalledPlugin): Record<string, unknown> 
     if (field.type === 'secret') delete settings[key];
   }
   return settings;
+}
+
+/** Filters see the full payload, including menus of disabled plugins, so a
+ * filter can remap such a menu onto its own enabled plugin id. Pruning runs
+ * after `applyFilters`; `core-catalog` menus always survive. Extracted from
+ * `buildStorefrontBootstrap` so the ordering is unit-testable without a
+ * database. */
+export async function finalizeStorefrontBootstrap<P extends { menus: StoreMenuItem[] }>(
+  payload: P,
+  enabled: ReadonlySet<string>,
+): Promise<P> {
+  const filtered = await applyFilters('storefront.bootstrap', payload);
+  return {
+    ...filtered,
+    menus: filtered.menus
+      .filter((item) => item.pluginId === 'core-catalog' || enabled.has(item.pluginId))
+      .sort((a, b) => a.order - b.order),
+  };
 }
 
 export async function buildStorefrontBootstrap(db: Pool = pool) {
@@ -30,9 +56,6 @@ export async function buildStorefrontBootstrap(db: Pool = pool) {
   const enabled = new Set(
     plugins.filter((plugin) => pluginSurfaceEnabled(plugin, byId)).map((plugin) => plugin.id),
   );
-  const visibleMenus = menus
-    .filter((item) => item.pluginId === 'core-catalog' || enabled.has(item.pluginId))
-    .sort((a, b) => a.order - b.order);
 
   const payload = {
     installed: true,
@@ -41,7 +64,15 @@ export async function buildStorefrontBootstrap(db: Pool = pool) {
     taxMode: identity.taxMode,
     productAxes: axes,
     theme,
-    menus: visibleMenus,
+    i18n: {
+      default: config.i18n.defaultLanguage,
+      enabled: config.i18n.enabledLanguages.filter(isLanguage),
+    },
+    /** Static brand artwork overrides (key -> absolute image URL), empty until
+     * a plugin sets entries through the `storefront.bootstrap` filter. Keys are
+     * the front's BRAND_ASSET_KEYS (`kernel/front/src/plugins/BrandAssetsContext`). */
+    brandAssets: {} as Record<string, string>,
+    menus: [...menus].sort((a, b) => a.order - b.order),
     plugins: plugins.map((plugin) => ({
       id: plugin.id,
       enabled: pluginSurfaceEnabled(plugin, byId),
@@ -66,5 +97,5 @@ export async function buildStorefrontBootstrap(db: Pool = pool) {
     openings,
     homeRequired: true,
   };
-  return applyFilters('storefront.bootstrap', payload);
+  return finalizeStorefrontBootstrap(payload, enabled);
 }

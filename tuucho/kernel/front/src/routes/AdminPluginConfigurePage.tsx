@@ -2,6 +2,9 @@ import { Suspense, useEffect, useId, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Seo } from '../components/seo/Seo';
 import { Button } from '../components/ui/Button';
+import { ConfirmModal } from '../components/ui/ConfirmModal';
+import { LoadingModal } from '../components/ui/LoadingModal';
+import { StatusModal } from '../components/ui/StatusModal';
 import { ColorField } from '../components/ui/ColorField';
 import { Field } from '../components/ui/Field';
 import { FormSection } from '../components/ui/FormSection';
@@ -9,12 +12,13 @@ import { SecretField } from '../components/ui/SecretField';
 import { SelectField } from '../components/ui/SelectField';
 import { TextareaField } from '../components/ui/TextareaField';
 import { TextField } from '../components/ui/TextField';
+import { SegmentedSwitch } from '../components/ui/SegmentedSwitch';
 import { ToggleSwitch } from '../components/ui/ToggleSwitch';
 import { AdminDetailBar } from '../components/admin/AdminDetailBar';
 import { AdminPluginConfigFiles } from './AdminPluginConfigFiles';
 import { useAuthSession } from '../state/AuthContext';
 import { useAdminStrings } from '../assets/i18n/admin';
-import { pluginConfigureElement } from '../plugins/PluginHost';
+import { pluginConfigureElement, pluginConfigureTab } from '../plugins/PluginHost';
 import { pluginHasConfigure } from './pluginConfigure';
 import { groupSettingsFields, settingFieldKeys, type SettingsFieldSpec } from './pluginSettingsForm';
 import {
@@ -24,10 +28,14 @@ import {
   patchAdminStore,
   type AdminPlugin,
 } from '../api/admin/shopSetup';
+import { shopConfig } from '../config/env';
+import { withMinDuration } from '../utils/withMinDuration';
 import { useRefreshStorefrontBootstrap } from '../plugins/StorefrontBootstrap';
 import { adminPath } from '../utils/adminRoute';
 import { NotFoundPage } from './NotFoundPage';
 import styles from './AdminPlugins.module.css';
+
+type ActionResult = { tone: 'success' | 'error'; message: string };
 
 const DEFAULT_THEME_TOKENS: Record<string, string> = {
   '--color-bg': '#ffffff',
@@ -44,9 +52,10 @@ export function AdminPluginConfigurePage() {
   const refreshBootstrap = useRefreshStorefrontBootstrap();
   const [plugin, setPlugin] = useState<AdminPlugin | null>(null);
   const [missing, setMissing] = useState(false);
-  const [notice, setNotice] = useState('');
-  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveResult, setSaveResult] = useState<ActionResult | null>(null);
   const [themeTokens, setThemeTokens] = useState(DEFAULT_THEME_TOKENS);
+  const [configureTab, setConfigureTab] = useState<'settings' | 'extra'>('settings');
 
   async function reload() {
     if (!pluginId) return;
@@ -54,7 +63,6 @@ export function AdminPluginConfigurePage() {
       const result = await authedRequest((token) => getAdminPlugin(token, pluginId));
       setPlugin(result.plugin);
       setMissing(false);
-      setError('');
       if (result.plugin.manifest.kind === 'theme') {
         const store = await authedRequest((token) => getAdminStore(token));
         setThemeTokens({ ...DEFAULT_THEME_TOKENS, ...(store.theme.tokens ?? {}) });
@@ -65,9 +73,19 @@ export function AdminPluginConfigurePage() {
   }
 
   useEffect(() => {
+    setConfigureTab('settings');
     void reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authedRequest, pluginId]);
+
+  useEffect(() => {
+    function onSaved(event: Event) {
+      const detail = (event as CustomEvent<{ pluginId?: string }>).detail;
+      if (detail?.pluginId === pluginId) void reload();
+    }
+    window.addEventListener('tuucho-plugin-config-saved', onSaved);
+    return () => window.removeEventListener('tuucho-plugin-config-saved', onSaved);
+  }, [pluginId]);
 
   if (missing) return <NotFoundPage />;
   if (!plugin) {
@@ -84,19 +102,25 @@ export function AdminPluginConfigurePage() {
   }
 
   const frontConfigure = pluginConfigureElement(plugin.id);
+  const extraTabFallback = pluginConfigureTab(plugin.id);
+  const extraTabLabel = extraTabFallback
+    ? ((a as { configureTabs?: Record<string, string> }).configureTabs?.[plugin.id] ?? extraTabFallback)
+    : null;
 
   if (!pluginHasConfigure(plugin)) return <Navigate to={adminPath('/plugins')} replace />;
 
   async function save(work: (token: string) => Promise<unknown>) {
-    setNotice('');
-    setError('');
+    setSaveResult(null);
+    setSaving(true);
     try {
-      await authedRequest(work);
+      await withMinDuration(authedRequest(work), shopConfig.loadingMinMs.short);
       await reload();
       refreshBootstrap();
-      setNotice(w.saved);
+      setSaveResult({ tone: 'success', message: w.saved });
     } catch {
-      setError(w.saveError);
+      setSaveResult({ tone: 'error', message: w.saveError });
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -110,8 +134,22 @@ export function AdminPluginConfigurePage() {
       <AdminDetailBar backLabel={a.cronLogs.back} onBack={() => navigate(adminPath('/plugins'))} />
       <h1 className={styles.title}>{plugin.manifest.name}</h1>
       <p className={styles.intro}>{plugin.manifest.description}</p>
-      {notice ? <p className={styles.notice}>{notice}</p> : null}
-      {error ? <p className={styles.error}>{error}</p> : null}
+      {saving ? <LoadingModal message={w.savingPlugin} /> : null}
+      {saveResult && !saving ? (
+        saveResult.tone === 'success' ? (
+          <StatusModal message={saveResult.message} onClose={() => setSaveResult(null)} />
+        ) : (
+          <ConfirmModal
+            variant="dialog"
+            title={saveResult.message}
+            message={null}
+            confirmLabel={w.applyDismiss}
+            closeIcon={false}
+            onConfirm={() => setSaveResult(null)}
+            onCancel={() => setSaveResult(null)}
+          />
+        )
+      ) : null}
 
       <AdminPluginConfigFiles
         plugin={plugin}
@@ -120,6 +158,17 @@ export function AdminPluginConfigurePage() {
           refreshBootstrap();
         }}
       />
+      {extraTabLabel ? (
+        <SegmentedSwitch
+          ariaLabel={plugin.manifest.name}
+          activeKey={configureTab}
+          onSelect={(key) => setConfigureTab(key === 'extra' ? 'extra' : 'settings')}
+          options={[
+            { key: 'settings', label: w.settings },
+            { key: 'extra', label: extraTabLabel },
+          ]}
+        />
+      ) : null}
       {plugin.manifest.kind === 'theme' ? (
         <ThemeForm
           labels={w}
@@ -132,12 +181,14 @@ export function AdminPluginConfigurePage() {
         />
       ) : (
         <>
-          <SettingsForm
-            labels={w}
-            plugin={plugin}
-            onSave={(settings) => void save((token) => patchAdminPlugin(token, plugin.id, { settings }))}
-          />
-          {frontConfigure ? (
+          {configureTab === 'settings' || !extraTabLabel ? (
+            <SettingsForm
+              labels={w}
+              plugin={plugin}
+              onSave={(settings) => void save((token) => patchAdminPlugin(token, plugin.id, { settings }))}
+            />
+          ) : null}
+          {frontConfigure && (configureTab === 'extra' || !extraTabLabel) ? (
             <Suspense fallback={<p className={styles.hint}>{w.loadError}</p>}>{frontConfigure}</Suspense>
           ) : null}
         </>
@@ -206,6 +257,9 @@ function SettingsForm({
 
   function commit() {
     const payload: Record<string, unknown> = { ...draft };
+    for (const [key, spec] of Object.entries(schema)) {
+      if (spec?.hidden) delete payload[key];
+    }
     for (const key of keys) {
       if (schema[key]?.type !== 'secret') continue;
       const next = secretDraft[key]?.trim() ?? '';
@@ -323,11 +377,12 @@ function SettingControl({
   }
 
   if (type === 'text') {
+    const shown = typeof value === 'string' ? value : value == null ? '' : JSON.stringify(value, null, 2);
     return (
       <Field label={label} description={description} htmlFor={id}>
         <TextareaField
           id={id}
-          value={String(value ?? '')}
+          value={shown}
           onChange={onChange}
           placeholder={spec?.placeholder}
           size="compact"

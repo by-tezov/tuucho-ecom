@@ -47,7 +47,7 @@ export interface LibrarySetDesiredState {
   colorSecondaryKeys: string[];
   hidden: boolean;
   /** `shape/length` pairs hidden while the rest of the product stays
-   * visible (docs/plans/variant-visibility.md). */
+   * visible (tuucho/docs/plans/variant-visibility.md). */
   hiddenShapeLengths: Array<{ shapeKey: string; lengthKey: string }>;
   featuredFrom: string | null;
   featuredFor: number | null;

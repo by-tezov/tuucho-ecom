@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-tuucho-shipping-mondial-relay-locale-en",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "English strings for shipping-mondial-relay. Enable with locale-en for English UI.",
+  "tuucho": {
+    "id": "tuucho-shipping-mondial-relay-locale-en",
+    "installPath": "tuucho/plugins/shipping/mondial-relay/tuucho-shipping-mondial-relay-locale-en",
+    "name": "shipping-mondial-relay English",
+    "kind": "locale",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "tuucho-shipping-mondial-relay",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

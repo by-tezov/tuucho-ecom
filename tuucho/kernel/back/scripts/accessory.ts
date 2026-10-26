@@ -38,6 +38,7 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { basename, dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isProductUid } from '../src/modules/catalog/domain/productUid.js';
 import { addCommonOptions, addConfirmOption, makeFail, requireConfirmForProdWrite } from './cliCommon.js';
 import { loadApiBaseUrl, loadOpsToken } from './envFile.js';
 import type { Mode } from './envFile.js';
@@ -57,7 +58,11 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 /** URL sentinel for accessory shape_key '' — see libraryImport.routes.ts. */
 const EMPTY_SHAPE_SENTINEL = '-';
 
-const PRODUCT_UID_RE = /^[a-z]{2}-[a-z]{2}-\d{3}$/i;
+const PRODUCT_UID_RE = {
+  test(value: string) {
+    return isProductUid(value);
+  },
+};
 const FOLDER_ID_RE = /^\d{4}$/;
 
 type Command = 'seed' | 'delete' | 'check' | 'stock-report';
@@ -398,7 +403,7 @@ async function resolveFolderIds(sourceDir: string, target: string | undefined): 
   if (FOLDER_ID_RE.test(target)) {
     fail(`"${target}" is not a folder in ${sourceDir}.`);
   }
-  fail(`"${target}" must be a four-digit folder id or a product-uid (LL-LL-DDD).`);
+  fail(`"${target}" must be a four-digit folder id or a product-uid (A-Z, 0-9, single dashes, 1-20 characters).`);
 }
 
 async function resolveProductUidForDelete(sourceDir: string, target: string): Promise<string> {
@@ -413,7 +418,7 @@ async function resolveProductUidForDelete(sourceDir: string, target: string): Pr
     }
     return productUid.toUpperCase();
   }
-  fail(`"${target}" must be a four-digit folder id or a product-uid (LL-LL-DDD).`);
+  fail(`"${target}" must be a four-digit folder id or a product-uid (A-Z, 0-9, single dashes, 1-20 characters).`);
 }
 
 function hashMapFromEntries(

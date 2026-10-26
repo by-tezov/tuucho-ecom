@@ -133,7 +133,7 @@
             },
             {
               "type": "p",
-              "text": "Merge matches boot: common public, env public, common private-or-example, env private-or-example. Public JSON is committed. Private JSON is gitignored. Shipped templates live in tuucho/factory-config/ (Apply may replace them). First install copies factory to tuucho-config/. Existing shops run npm run config:migrate (add/rename/drop). Apply / Tuucho updates never write tuucho-config/."
+              "text": "Merge matches boot: config.json, then config.<env>.json, then config.private.json or its example, then config.private.<env>.json or its example. Files are siblings, not an environment folder. Public JSON is committed. Private JSON is gitignored. An example with no keys is skipped. Shipped templates live in tuucho/factory-config/ (Apply may replace them). First install copies factory to tuucho-config/. Existing shops run npm run config:migrate (add/rename/drop). Apply / Tuucho updates never write tuucho-config/."
             },
             {
               "type": "code",
@@ -144,19 +144,13 @@
             {
               "type": "code",
               "language": "json",
-              "caption": "tuucho-config/config.private.example.json",
-              "code": "{}"
-            },
-            {
-              "type": "code",
-              "language": "json",
-              "caption": "tuucho-config/dev/config.json",
+              "caption": "tuucho-config/config.dev.json",
               "code": "{\n  \"paths\": {\n    \"publicDir\": \"./output/public\",\n    \"privateDir\": \"./output/private\",\n    \"devDir\": \"./output/dev\",\n    \"devEmailUserDir\": \"/email-user\"\n  },\n  \"http\": {\n    \"publicMediaUrl\": \"http://localhost:3010/media\",\n    \"apiBaseUrl\": \"http://localhost:3010\",\n    \"frontendBaseUrl\": \"http://localhost:5174\"\n  },\n  \"auth\": {\n    \"disableOtpCooldown\": true,\n    \"otpCooldown\": \"1m\",\n    \"otpMaxAttempts\": 100000,\n    \"otpVerifyDelay\": \"1ms\"\n  },\n  \"smtp\": {\n    \"fromNamePrefix\": \"Dev:\",\n    \"port\": \"\"\n  },\n  \"rateLimits\": {\n    \"ops\": \"60s:100000\",\n    \"auth\": \"60s:1000\",\n    \"authRefresh\": \"60s:1000\",\n    \"disableAuth\": true,\n    \"disableAuthRefresh\": true,\n    \"disableCheckout\": true,\n    \"disablePayment\": true,\n    \"disableGallery\": true,\n    \"disableOps\": true,\n    \"disableLogin\": true,\n    \"disableInvoiceDownload\": true,\n    \"disableInvoiceEmail\": true\n  },\n  \"email\": {\n    \"disableConfirmationResendCooldown\": true,\n    \"disableChangeCooldown\": true,\n    \"confirmationResendCooldown\": \"2m\",\n    \"changeCooldown\": \"5m\"\n  },\n  \"security\": {\n    \"loginLockout\": \"1s:1000\",\n    \"passwordResetLimit\": \"100000:100000\"\n  }\n}"
             },
             {
               "type": "code",
               "language": "json",
-              "caption": "tuucho-config/dev/config.private.example.json",
+              "caption": "tuucho-config/config.private.dev.example.json",
               "code": "{\n  \"database\": {\n    \"url\": \"postgres://tuucho:changeme@127.0.0.1:5434/tuucho_ecom\",\n    \"user\": \"tuucho\",\n    \"password\": \"changeme\",\n    \"name\": \"tuucho_ecom\"\n  },\n  \"jwt\": {\n    \"secret\": \"dummy-jwt-dev-change-me-not-a-real-secret\"\n  },\n  \"ops\": {\n    \"token\": \"dummy-ops-token-change-me\"\n  },\n  \"pii\": {\n    \"encryptionKey\": \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\n    \"lookupPepper\": \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=\"\n  },\n  \"smtp\": {\n    \"host\": \"\",\n    \"user\": \"\",\n    \"password\": \"\",\n    \"fromEmail\": \"\"\n  }\n}"
             },
             {
@@ -187,7 +181,7 @@
               "items": [
                 {
                   "term": "Bundled",
-                  "description": "tuucho-config/plugins/<plugin-id>/config.json, gitignored config.private.json, committed config.private.example.json, optional <APP_TARGET>/ overlays."
+                  "description": "tuucho-config/plugins/<plugin-id>/config.json. A private file and config.private.example.json exist only when the plugin has secret settings. Optional config.<APP_TARGET>.json overlays."
                 },
                 {
                   "term": "User plugin",
@@ -569,7 +563,7 @@
               "type": "code",
               "language": "ts",
               "caption": "front/index.tsx",
-              "code": "import type { PluginFrontModule } from '@kernel/front/plugins/PluginHost';\nimport { CORE_FRONT_SLOTS } from '@kernel/front/plugins/frontSlots';\nimport { ContactFaq } from './ContactFaq';\n\nexport const pluginFront: PluginFrontModule = {\n  pluginId: 'tuucho-home-faq',\n  slots: { [CORE_FRONT_SLOTS.homeFaq]: <ContactFaq /> },\n};"
+              "code": "import type { PluginFrontModule } from '@kernel/front/plugins/PluginHost';\nimport { CORE_FRONT_SLOTS } from '@kernel/front/plugins/frontSlots';\nimport { ContactFaq } from './ContactFaq';\n\nexport const pluginFront: PluginFrontModule = {\n  pluginId: 'home-faq',\n  slots: { [CORE_FRONT_SLOTS.homeFaq]: <ContactFaq /> },\n};"
             }
           ]
         },
@@ -933,7 +927,7 @@
               "type": "callout",
               "tone": "important",
               "title": "Kernel surface",
-              "text": "Contact is tuucho-contact (plugins/tuucho/messaging/contact/tuucho-contact). Enable shows /contact and Admin → Contact. Disable unloads HTTP and UI. Tables unconnected_contacts and chat_* stay kernel-named. tuucho-home-faq fills slot.home.faq. Product-requests owns POST /contact/product-request."
+              "text": "Contact is tuucho-contact (plugins/tuucho/messaging/contact/tuucho-contact). Enable shows /contact and Admin → Contact. Disable unloads HTTP and UI. Tables unconnected_contacts and chat_* stay kernel-named. home-faq fills slot.home.faq. Product-requests owns POST /contact/product-request."
             },
             {
               "type": "cards",
@@ -974,7 +968,7 @@
                 },
                 {
                   "term": "Copy",
-                  "description": "kernel/front/src/assets/i18n/strings/en/contact.ts. Overlay French via tuucho-locale-fr, not via a contact plugin."
+                  "description": "kernel/front/src/assets/i18n/strings/en/contact.ts. Overlay French via tuucho-kernel-locale-fr, not via a contact plugin."
                 }
               ]
             }
@@ -1098,11 +1092,11 @@
               "items": [
                 {
                   "term": "EMAIL_CONTACT_RECIPIENT",
-                  "description": "Legacy env. Contact inbound uses tuucho-mail-spy channel contact.inbound. Seeded only if it matches an unlocked staff account and no recipients exist yet."
+                  "description": "Unused for delivery. Contact inbound uses tuucho-mail-spy rules with channel contact.inbound. An empty list sends nothing."
                 },
                 {
                   "term": "EMAIL_CHAT_RECIPIENT",
-                  "description": "Legacy env. Chat owner-notify uses tuucho-mail-spy channel contact.chat. Same seed rule. EMAIL_CHAT_FROM / SMTP_CHAT_* stay the piped mailbox transport."
+                  "description": "Unused for delivery. Chat owner-notify uses tuucho-mail-spy rules with channel contact.chat. EMAIL_CHAT_FROM / SMTP_CHAT_* stay the piped mailbox transport."
                 },
                 {
                   "term": "contact_email_guest_enabled",
@@ -1215,16 +1209,16 @@
               "type": "steps",
               "items": [
                 "Kernel dictionaries are English (strings/en, admin/strings/en.ts).",
-                "tuucho-locale-fr (kind locale) overlays kernel chrome, email, invoice.render copy.",
+                "tuucho-kernel-locale-fr (kind locale) overlays kernel chrome, email, invoice.render copy.",
                 "<id>-locale-fr dependsOn the parent and ships front/catalog.ts (and adminCatalog.ts when needed).",
-                "assembleDictionary deep-merges enabled overlays when lang is fr. Disable the complement and that plugin stays English even if tuucho-locale-fr is on."
+                "assembleDictionary deep-merges enabled overlays when lang is fr. Disable the complement and that plugin stays English even if tuucho-kernel-locale-fr is on."
               ]
             },
             {
               "type": "code",
               "language": "ts",
               "caption": "front/index.tsx of a complement",
-              "code": "export const pluginFront: PluginFrontModule = {\n  pluginId: 'tuucho-home-faq-locale-fr',\n  locales: [{ lang: 'fr', catalog }],\n};"
+              "code": "export const pluginFront: PluginFrontModule = {\n  pluginId: 'home-faq-locale-fr',\n  locales: [{ lang: 'fr', catalog }],\n};"
             },
             {
               "type": "callout",
@@ -1745,7 +1739,7 @@
             {
               "type": "steps",
               "items": [
-                "Copy a page plugin (demo-page-guides is the shipped example).",
+                "Copy a page plugin (page-guides is the shipped example).",
                 "In front/index.tsx, fill a slot.account.profile.* region. slotOrder lower runs first (default 10).",
                 "Use the account block CSS plus kit Button. Disable the plugin and the card disappears. Do not append core.profile.entries for layout."
               ]
@@ -1854,7 +1848,7 @@
               "items": [
                 "addFilter mail.spy.channels with appendSpyChannel: id, pluginId, title, description, filters (role, email, kind).",
                 "Send with spyTo('your_id') then sendMail. Empty To skips.",
-                "Operators pick roles and/or staff emails on Admin → Spy e-mails. Customers never receive. One address, one copy."
+                "Operators list roles and staff emails in tuucho-mail-spy config rules (Plugins, Configure). An empty list sends nothing. Customers never receive. One address, one copy."
               ]
             },
             {

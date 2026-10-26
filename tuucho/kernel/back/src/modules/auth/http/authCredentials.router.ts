@@ -39,6 +39,7 @@ import {
 import { summarizeUserAgent } from '../../../utils/userAgent.js';
 import { GDPR_CONSENT_VERSION } from '../../../config/gdpr.js';
 
+import { recordSuperAdminSignIn } from '../application/recordSuperAdminSignIn.js';
 import { formOrRequestLanguage, requestMeta, sendSpy, spyLoginLocation } from './authSessionSupport.js';
 
 export const authCredentialsRouter = Router();
@@ -218,9 +219,8 @@ authCredentialsRouter.post('/login', loginRateLimiter, async (req, res) => {
     accessTokenExpiresAt: accessTokenExpiresAt(),
     reactivated,
   });
-
-  // Geo for the spy mail is resolved after the response (createRefreshToken
-  // no longer awaits geo-IP on the login path).
+  recordSuperAdminSignIn(pool, user, meta);
+  // Spy geo is resolved after the response.
   await sendSpy('login', async (to) => {
     await sendMail({
       to,
@@ -344,7 +344,7 @@ authCredentialsRouter.post('/login-or-register', authRateLimiter, loginRateLimit
     accessTokenExpiresAt: accessTokenExpiresAt(),
     reactivated,
   });
-
+  recordSuperAdminSignIn(pool, existing, meta);
   await sendSpy('login', async (to) => {
     await sendMail({
       to,

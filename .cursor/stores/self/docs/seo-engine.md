@@ -27,7 +27,7 @@ Settings → SEO Overview shows `APP_TARGET` and whether public indexing is on, 
 | `tuucho-seo-sitemap` | Extra sitemap URLs: enabled page-plugin `route`s. |
 | `tuucho-seo-robots` | Extra robots directives (private shop paths), used on prod. |
 | `tuucho-seo-redirects` | Feature gate for applying stored + plugin redirect rules. |
-| `demo-page-guides` | Extra sitemap URLs `/pose` and `/capsules` (not the `/sizes` route). Demo extension. |
+| `page-guides` | Extra sitemap URLs `/pose` and `/capsules` (not the `/sizes` route). Demo extension. |
 | Any plugin | `seo.meta`, `seo.jsonld.graph`, `seo.sitemap.entries`, `seo.robots.rules`, `seo.redirects.rules`. |
 
 Disable a contributor and its extras drop out. Kernel product/page URLs and the hub stay. On non-prod, extras still register so the hub can preview; crawlers do not see them.

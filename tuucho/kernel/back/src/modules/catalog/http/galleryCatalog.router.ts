@@ -21,7 +21,7 @@ import {
   resolveGalleryFeedStock,
 } from '../application/outOfStockVisibility.js';
 
-import { PRODUCT_UID_PATTERN } from '../domain/productUid.js';
+import { isProductUid } from '../domain/productUid.js';
 
 export const galleryCatalogRouter = Router();
 
@@ -119,7 +119,7 @@ galleryCatalogRouter.get('/gallery/featured', async (req, res) => {
  * the end of the slug before calling this. */
 galleryCatalogRouter.get('/gallery/set/:uid', async (req, res) => {
   const uid = req.params.uid;
-  if (!PRODUCT_UID_PATTERN.test(uid)) {
+  if (!isProductUid(uid)) {
     res.status(404).json({ success: false, error: { code: 'unknown_product' } });
     return;
   }

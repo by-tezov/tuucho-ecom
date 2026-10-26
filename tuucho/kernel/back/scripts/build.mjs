@@ -30,7 +30,9 @@ async function bundleServerEntry(outDir) {
     target: 'node24',
     external: SERVER_BUNDLE_EXTERNALS,
     // CommonJS dependencies call require(); an ESM bundle has none of its own.
-    banner: { js: "import { createRequire as __bundleRequire } from 'node:module'; const require = __bundleRequire(import.meta.url);" },
+    banner: {
+      js: "import { createRequire as __bundleRequire } from 'node:module'; const require = __bundleRequire(import.meta.url);",
+    },
     logLevel: 'warning',
   });
 }
@@ -65,9 +67,7 @@ function parseArgs(argv) {
     } else if (token === '--version') args.version = rest.shift();
     else if (token === '--patch-version') args.patchVersion = rest.shift();
     else if (token === '--preprod-access-token') {
-      usageError(
-        '--preprod-access-token was removed. Preprod has no access token and no IP allowlist.',
-      );
+      usageError('--preprod-access-token was removed. Preprod has no access token and no IP allowlist.');
     } else usageError(`unknown argument "${token}"`);
   }
   // Mandatory, deliberately no default — same reasoning as the front: a
@@ -84,7 +84,9 @@ function parseArgs(argv) {
     usageError(`--patch-version must be X.Y.Z (got "${args.patchVersion}")`);
   }
   if (args.patchVersion !== null && args.version !== null) {
-    usageError('--patch-version and --version cannot be combined — --version permanently bumps root package.json, --patch-version deliberately does not');
+    usageError(
+      '--patch-version and --version cannot be combined — --version permanently bumps root package.json, --patch-version deliberately does not',
+    );
   }
   return args;
 }
@@ -110,7 +112,9 @@ function resolveVersion(versionArg, currentVersion) {
 
   const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(currentVersion);
   if (!match) {
-    usageError(`--version ${versionArg} needs the current root package.json version to be X.Y.Z (got "${currentVersion}")`);
+    usageError(
+      `--version ${versionArg} needs the current root package.json version to be X.Y.Z (got "${currentVersion}")`,
+    );
   }
   let [major, minor, patch] = [Number(match[1]), Number(match[2]), Number(match[3])];
   if (versionArg === 'bump-patch') patch += 1;
@@ -161,13 +165,22 @@ async function fullBuild(mode, patchVersion) {
   mkdirSync(join(outDir, 'pipe'), { recursive: true });
   // The release handler is versioned with the backend. The stable dispatcher
   // is also shipped in the artifact so deploy can refresh ~/bin safely.
-  cpSync(join(root, 'src', 'pipe', 'pipe-program-chat-handler.sh'), join(outDir, 'pipe', 'pipe-program-chat-handler.sh'));
+  cpSync(
+    join(root, 'src', 'pipe', 'pipe-program-chat-handler.sh'),
+    join(outDir, 'pipe', 'pipe-program-chat-handler.sh'),
+  );
   cpSync(
     join(root, 'src', 'pipe', 'pipe-program-product-request-handler.sh'),
     join(outDir, 'pipe', 'pipe-program-product-request-handler.sh'),
   );
-  cpSync(join(root, 'src', 'pipe', 'pipe-contact-dispatcher.sh'), join(outDir, 'pipe', 'pipe-contact-dispatcher.sh'));
-  cpSync(join(root, 'operation', 'pipe', 'main-pipe-contact-dispatcher.sh'), join(outDir, 'pipe', 'main-pipe-contact-dispatcher.sh'));
+  cpSync(
+    join(root, 'src', 'pipe', 'pipe-contact-dispatcher.sh'),
+    join(outDir, 'pipe', 'pipe-contact-dispatcher.sh'),
+  );
+  cpSync(
+    join(root, 'operation', 'pipe', 'main-pipe-contact-dispatcher.sh'),
+    join(outDir, 'pipe', 'main-pipe-contact-dispatcher.sh'),
+  );
   cpSync(join(root, 'scripts', 'readReleaseConfig.cjs'), join(outDir, 'readReleaseConfig.cjs'));
 
   // devDependencies (tsx, typescript, oxlint, ...) are dev/test-only
@@ -185,24 +198,27 @@ async function fullBuild(mode, patchVersion) {
   delete pkg.scripts;
   writeFileSync(join(outDir, 'package.json'), JSON.stringify(pkg, null, 2) + '\n');
   cpSync(join(root, 'package-lock.json'), join(outDir, 'package-lock.json'));
-  const copyConfig = (relative) => {
-    const src = join(root, relative);
-    if (!existsSync(src)) usageError(`missing ${relative}`);
-    mkdirSync(join(outDir, relative, '..'), { recursive: true });
-    cpSync(src, join(outDir, relative));
+  const shopConfig = join(repoRoot, '..', 'tuucho-config');
+  const copyShopConfig = (name) => {
+    const src = join(shopConfig, name);
+    if (!existsSync(src)) return;
+    mkdirSync(join(outDir, 'config'), { recursive: true });
+    cpSync(src, join(outDir, 'config', name));
   };
-  copyConfig('config/config.json');
-  copyConfig('config/config.private.example.json');
-  if (existsSync(join(root, 'config', 'config.private.json'))) {
-    copyConfig('config/config.private.json');
-  }
-  copyConfig(`config/${mode}/config.json`);
-  copyConfig(`config/${mode}/config.private.example.json`);
-  if (existsSync(join(root, 'config', mode, 'config.private.json'))) {
-    copyConfig(`config/${mode}/config.private.json`);
+  for (const name of [
+    'config.json',
+    'config.role.json',
+    `config.role.${mode}.json`,
+    `config.${mode}.json`,
+    'config.private.json',
+    'config.private.example.json',
+    `config.private.${mode}.json`,
+    `config.private.${mode}.example.json`,
+  ]) {
+    copyShopConfig(name);
   }
 
-  for (const dir of [join(root, 'config', mode), join(root, 'config')]) {
+  for (const dir of [shopConfig]) {
     if (!existsSync(dir)) continue;
     for (const name of readdirSync(dir)) {
       if (!/^AuthKey_[A-Z0-9]{10}\.p8$/.test(name)) continue;
@@ -219,7 +235,9 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.version) bumpVersion(args.version);
   if (args.patchVersion) {
-    console.log(`[build] --patch-version ${args.patchVersion}: package.json stays untouched, only dist/v${args.patchVersion}/ is produced`);
+    console.log(
+      `[build] --patch-version ${args.patchVersion}: package.json stays untouched, only dist/v${args.patchVersion}/ is produced`,
+    );
   }
   await fullBuild(args.mode, args.patchVersion);
 }

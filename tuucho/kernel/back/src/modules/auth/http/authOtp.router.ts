@@ -39,6 +39,7 @@ import {
 import { GDPR_CONSENT_VERSION } from '../../../config/gdpr.js';
 import { notifyRateLimitedFromRequest } from '../../../platform/http/rateLimitSpy.js';
 
+import { recordSuperAdminSignIn } from '../application/recordSuperAdminSignIn.js';
 import { requestMeta, sendSpy, spyLoginLocation } from './authSessionSupport.js';
 
 export const authOtpRouter = Router();
@@ -110,9 +111,6 @@ authOtpRouter.post('/request-otp', authRateLimiter, async (req, res) => {
     return;
   }
 
-  // Login OTP is unauthenticated and anti-enumerating — always the same
-  // success body, whether or not the address exists, is locked, or just
-  // hit its send cap (silent skip, same as request-password-reset).
   const user = await findUserByEmailLower(pool, email);
   if (user && user.status !== 'deleted' && user.status !== 'locked') {
     const issued = await issueAuthOtp(pool, { email: user.email, purpose: 'login', userId: user.id });
@@ -179,6 +177,7 @@ authOtpRouter.post('/verify-otp', authRateLimiter, loginRateLimiter, async (req,
           accessTokenExpiresAt: accessTokenExpiresAt(),
           reactivated,
         });
+        recordSuperAdminSignIn(pool, existing, meta);
         await sendSpy('login', async (to) => {
           await sendMail({
             to,
@@ -269,6 +268,7 @@ authOtpRouter.post('/verify-otp', authRateLimiter, loginRateLimiter, async (req,
         accessTokenExpiresAt: accessTokenExpiresAt(),
         reactivated,
       });
+      recordSuperAdminSignIn(pool, existingForLogin, meta);
       await sendSpy('login', async (to) => {
         await sendMail({
           to,
@@ -333,7 +333,7 @@ authOtpRouter.post('/verify-otp', authRateLimiter, loginRateLimiter, async (req,
     accessTokenExpiresAt: accessTokenExpiresAt(),
     reactivated,
   });
-
+  recordSuperAdminSignIn(pool, user, meta);
   await sendSpy('login', async (to) => {
     await sendMail({
       to,

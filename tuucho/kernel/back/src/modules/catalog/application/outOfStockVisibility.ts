@@ -34,7 +34,7 @@ export function resolveGalleryFeedStock(
 }
 
 export function isGalleryItemPubliclyAccessible(item: GalleryItem, enabled: boolean): boolean {
-  // Every shape/length hidden (docs/plans/variant-visibility.md): assembleItems
+  // Every shape/length hidden (tuucho/docs/plans/variant-visibility.md): assembleItems
   // left no shape, and the product is as unreachable as a hidden one.
   if (Object.keys(item.shape).length === 0) return false;
   return enabled || galleryItemHasPurchasableStock(item.available);

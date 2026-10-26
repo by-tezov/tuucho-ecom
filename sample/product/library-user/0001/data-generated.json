@@ -1,0 +1,49 @@
+{
+  "title": {
+    "fr": "Vase Aurora privé",
+    "en": "Private Aurora vessel"
+  },
+  "desc": {
+    "fr": "Piece artisanale $shape.attributive, glaçure celadon et liseré sable.",
+    "en": "Hand-thrown $shape.title piece with celadon glaze and a sand rim."
+  },
+  "alt": {
+    "fr": "Piece artisanale $shape.attributive, glaçure celadon et liseré sable.",
+    "en": "Hand-thrown $shape.title piece with celadon glaze and a sand rim."
+  },
+  "occasion": {
+    "fr": "maison",
+    "en": "home"
+  },
+  "color-main": [
+    "$green",
+    "$white"
+  ],
+  "color-secondary": [
+    "$gold"
+  ],
+  "photos": {
+    "$almond": {
+      "$medium": [
+        {
+          "photo": "1",
+          "hash": "8b6cbf616b7f33a92098073feca3cc2a8295ab67db130252b561ae43a7a72f57"
+        },
+        {
+          "photo": "2",
+          "hash": "8b6cbf616b7f33a92098073feca3cc2a8295ab67db130252b561ae43a7a72f57"
+        }
+      ],
+      "$long": [
+        {
+          "photo": "1",
+          "hash": "238fde31d92ce8c792fb81779f0a312568906b4ae0e5f33dd651e79110369ba3"
+        },
+        {
+          "photo": "2",
+          "hash": "238fde31d92ce8c792fb81779f0a312568906b4ae0e5f33dd651e79110369ba3"
+        }
+      ]
+    }
+  }
+}

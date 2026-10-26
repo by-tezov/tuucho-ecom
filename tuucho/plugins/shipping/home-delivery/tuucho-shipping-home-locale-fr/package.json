@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-tuucho-shipping-home-locale-fr",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "French strings for shipping-home. Enable with locale-fr for French UI; disable to keep this plugin in English.",
+  "tuucho": {
+    "id": "tuucho-shipping-home-locale-fr",
+    "installPath": "tuucho/plugins/shipping/home-delivery/tuucho-shipping-home-locale-fr",
+    "name": "shipping-home French",
+    "kind": "locale",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "tuucho-shipping-home",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

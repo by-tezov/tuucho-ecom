@@ -24,11 +24,7 @@ import { productPath } from '../../utils/productUrl';
 import { defaultLengthKey, defaultShapeKey, lengthAfterShapeChange } from '../../data/galleryShape';
 import { SIZES, SIZE_SELECTION_PRIORITY } from '../../data/sizes';
 import { shopConfig } from '../../config/env';
-import {
-  itemForVariation,
-  validVariationKey,
-  variationPhotos,
-} from '../../utils/nailVariation';
+import { itemForVariation, validVariationKey, variationPhotos } from '../../utils/nailVariation';
 import { CartGlyph } from '../ui/CartGlyph';
 import { ZoomGlyph } from './ZoomGlyph';
 import styles from './GalleryCard.module.css';
@@ -277,6 +273,20 @@ function GalleryCardImpl({
         : { x: window.innerWidth / 2, y: window.innerHeight / 2 },
     );
   };
+  // Click-anywhere-to-zoom on the card: controls (buttons, links, chips)
+  // keep their own action through the interactive-target guard, everything
+  // else opens the lightbox. Same selector as useDragCarousel's own guard.
+  // The photo zone never reaches this handler: the carousel stops click
+  // propagation on its track (PhotoCarousel onClickCapture).
+  const openLightboxFromCard = (e: React.MouseEvent) => {
+    if (
+      e.target instanceof Element &&
+      e.target.closest('button, a, input, textarea, select, [role="button"]')
+    ) {
+      return;
+    }
+    openLightbox(index, { x: e.clientX, y: e.clientY });
+  };
   const closeLightbox = useCallback(() => {
     setLightboxOpen(false);
     triggerRef.current?.focus({ preventScroll: true });
@@ -315,12 +325,15 @@ function GalleryCardImpl({
       ref={cardRef}
       className={animateEnter ? `${styles.item} ${styles.itemEnter}` : styles.item}
     >
-      {/* An article, not a figure: controls and a price are not an image caption. */}
+      {/* An article, not a figure: controls and a price are not an image caption.
+          Keyboard zoom is the dedicated button (RGAA 10.7). Pointer on the card opens the same zoom. */}
+      {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- see comment above */}
       <article
         className={styles.card}
         aria-labelledby={`gallery-${item.id}-title`}
         data-testid="gallery-card"
         data-product-uid={item.productUid}
+        onClick={openLightboxFromCard}
       >
         {/* Desktop keyboard path to the zoom, shown once focused (RGAA 10.7). */}
         <button type="button" className={styles.zoomKeyboard} onClick={openLightboxFromControl}>
@@ -331,14 +344,14 @@ function GalleryCardImpl({
               slides through its options (swipe = change option); a single
               nail without options shows its one photo. */}
           {inView ? (
-              <PhotoCarousel
-                images={photos}
-                alt={alt}
-                index={index}
-                onIndexChange={setIndex}
-                onOpenLightbox={(i, x, y) => openLightbox(i, { x, y })}
-                gateImages
-              />
+            <PhotoCarousel
+              images={photos}
+              alt={alt}
+              index={index}
+              onIndexChange={setIndex}
+              onOpenLightbox={(i, x, y) => openLightbox(i, { x, y })}
+              gateImages
+            />
           ) : (
             <Skeleton aspectRatio="1 / 1" className={styles.photoPlaceholder} />
           )}
@@ -387,10 +400,10 @@ function GalleryCardImpl({
           {/* The card's title is the internal link into this set's own
               indexable page — without it /creations/* would be reachable
               only from the sitemap, with no crawlable path from the site
-              itself and no anchor text describing the destination. Stops
-              the whole card's own click-anywhere-to-zoom (see the figure's
-              onClick) from also firing when the title itself is what was
-              clicked. */}
+              itself and no anchor text describing the destination. The card's
+              click-anywhere-to-zoom (the article's onClick) skips it: its
+              interactive-target guard matches links, and the stopPropagation
+              below keeps the navigation contained regardless. */}
           <h2 ref={titleRef} id={`gallery-${item.id}-title`} className={styles.title}>
             {item.isUserLibrary ? (
               <span className={styles.titleLink}>{title}</span>
@@ -408,41 +421,41 @@ function GalleryCardImpl({
           {/* Kept in the DOM for SEO (prerendered HTML); hidden on mobile
               via CSS so the compact card stays title + price + zoom. */}
           <p className={styles.desc}>{shown.desc}</p>
-          <PluginSlot name={CORE_FRONT_SLOTS.galleryCardCompose} />
+          <PluginSlot name={CORE_FRONT_SLOTS.galleryCardCompose} props={{ product: item }} />
           <div className={styles.sizeRow}>
-              {availableSizes.length > 0 ? (
-                <div className={styles.sizeGroup} role="group" aria-label={t.gallery.sizeLabel}>
-                  {availableSizes.map((size) => (
-                    <Chip
-                      key={size}
-                      active={size === selectedSize}
-                      data-testid="gallery-size"
-                      data-size={size}
-                      onClick={() => setSelectedSize(size)}
-                    >
-                      {size}
-                    </Chip>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.outOfStockBlock}>
-                  <p className={styles.outOfStock}>{t.gallery.outOfStockNotice}</p>
-                  {allowSizeRequest && !giftActive && (
-                    <button
-                      type="button"
-                      className={styles.sizeRequestButton}
-                      data-testid="gallery-size-request"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSizeRequestOpen(true);
-                      }}
-                    >
-                      {t.gallery.sizeRequestCta}
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+            {availableSizes.length > 0 ? (
+              <div className={styles.sizeGroup} role="group" aria-label={t.gallery.sizeLabel}>
+                {availableSizes.map((size) => (
+                  <Chip
+                    key={size}
+                    active={size === selectedSize}
+                    data-testid="gallery-size"
+                    data-size={size}
+                    onClick={() => setSelectedSize(size)}
+                  >
+                    {size}
+                  </Chip>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.outOfStockBlock}>
+                <p className={styles.outOfStock}>{t.gallery.outOfStockNotice}</p>
+                {allowSizeRequest && !giftActive && (
+                  <button
+                    type="button"
+                    className={styles.sizeRequestButton}
+                    data-testid="gallery-size-request"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSizeRequestOpen(true);
+                    }}
+                  >
+                    {t.gallery.sizeRequestCta}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <div className={styles.purchaseRow}>
             {cardPrice !== undefined && (
               <span className={styles.price} data-testid="gallery-card-price">
@@ -463,10 +476,11 @@ function GalleryCardImpl({
                 <span className="visuallyHidden"> {title}</span>
               </button>
             )}
-            {/* Mobile-only: replaces Ajouter in the purchase row. Purely a
-                visual affordance — the whole card opens the zoom, this
-                button has no handler of its own and just bubbles into
-                that. */}
+            {/* Mobile-only: replaces Ajouter in the purchase row. The whole
+                card opens the zoom through the article's onClick; this button
+                is the visible affordance for it (excluded from the card
+                handler by its interactive-target guard, hence its own
+                handler). */}
             <button
               type="button"
               className={styles.zoomPurchaseButton}

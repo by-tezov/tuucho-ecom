@@ -1,9 +1,9 @@
 /**
  * The assembled configuration.
  *
- * Sources are layered in `envSources.ts` from kernel JSON (`config/` common
- * then `config/<env>/`, private overlays), validated by `envParsers.ts`, and
- * described by `appConfig.ts`. This file only puts the values together, so
+ * Sources are layered in `envSources.ts` from shop JSON (`tuucho-config/`
+ * common then `tuucho-config/<env>/`, private overlays), validated by
+ * `envParsers.ts`, and described by `appConfig.ts`. This file only puts the
  * `config` stays a single import for the modules that read it. Shop identity,
  * Stripe, Mondial Relay, gift, loyalty, contact, spy, and sign-in provider
  * knobs are not kernel JSON.
@@ -11,8 +11,11 @@
 import { join, resolve } from 'node:path';
 import type { AppConfig } from './appConfig.js';
 import { targetFileSuffix } from './envSources.js';
+import { outputRoot, shopRoot } from './shopPaths.js';
 import {
   optionalDurationMs,
+  optionalLanguage,
+  optionalLanguageList,
   optionalNonNegativeInteger,
   optionalPositiveInteger,
   optionalPositiveIntegerUnlessDeployed,
@@ -26,6 +29,7 @@ import {
   requiredPositiveInteger,
   requiredRateLimit,
 } from './envParsers.js';
+import { FALLBACK_LANGUAGE } from '../utils/language.js';
 
 /** Spreads one `RATE_*=<duration>:<count>` env var into the two config
  * fields a named limiter needs (see middleware/rateLimiters.ts). */
@@ -59,8 +63,14 @@ const emailFolderDirsNeeded = isDevelopment || targetFileSuffix === 'preprod';
 // Base directories — joined with a feature-specific subfolder env var
 // below rather than exposed directly, so each caller only ever sees its
 // own resolved directory (config.mediaDir, config.invoiceDir, ...).
-const publicDir = required(process.env.PUBLIC_DIR, 'PUBLIC_DIR');
-const privateDir = required(process.env.PRIVATE_DIR, 'PRIVATE_DIR');
+// OUTPUT_DIR anchors the generated-artifact tree; PUBLIC_DIR / PRIVATE_DIR /
+// DEV_DIR default under it and an explicit per-key value always wins.
+// Relative values resolve against the shop root, never the process cwd.
+const outputDir = outputRoot();
+const fromOutputOr = (value: string | undefined, fallback: string): string =>
+  value?.trim() ? resolve(shopRoot, value) : join(outputDir, fallback);
+const publicDir = fromOutputOr(process.env.PUBLIC_DIR, 'public');
+const privateDir = fromOutputOr(process.env.PRIVATE_DIR, 'private');
 
 function privateLogFilePath(value: string | undefined, variableName: string): string {
   // Private-path variables in this project use `/subdir/file` notation even
@@ -75,18 +85,23 @@ function privateLogFilePath(value: string | undefined, variableName: string): st
   }
   return resolved;
 }
-// Email preview dump root. Required in dev, and on preprod so a runtime
+// Email preview dump root. Resolved in dev, and on preprod so a runtime
 // folder-routing override can write files. Prod never resolves these.
-const devDir = emailFolderDirsNeeded ? required(process.env.DEV_DIR, 'DEV_DIR') : undefined;
+const devDir = emailFolderDirsNeeded ? fromOutputOr(process.env.DEV_DIR, 'dev') : undefined;
 
 export const config: AppConfig = {
   target: targetFileSuffix,
+  i18n: {
+    defaultLanguage: optionalLanguage(process.env.I18N_DEFAULT_LANG, FALLBACK_LANGUAGE, 'I18N_DEFAULT_LANG'),
+    enabledLanguages: optionalLanguageList(process.env.I18N_ENABLED_LANGS, 'I18N_ENABLED_LANGS'),
+  },
   isDevelopment,
   isProduction: targetFileSuffix === 'prod',
   routeEmailFolder,
   publicDir,
   privateDir,
   devDir,
+  outputDir,
   port: optionalPositiveInteger(process.env.APP_PORT, 3000),
   databaseUrl: required(process.env.DATABASE_URL, 'DATABASE_URL'),
   mediaDir: join(publicDir, required(process.env.PUBLIC_MEDIA_DIR, 'PUBLIC_MEDIA_DIR')),

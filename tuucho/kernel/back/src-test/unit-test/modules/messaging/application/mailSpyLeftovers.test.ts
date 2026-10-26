@@ -24,12 +24,18 @@ test('outage and chat owner To go through tuucho-mail-spy, not env inboxes', () 
   );
   assert.match(register, /id: 'contact\.chat'/);
 
-  const seed = readFileSync(
+  const resolveSrc = readFileSync(
+    join(root, 'tuucho/plugins/messaging/mail-spy/tuucho-mail-spy/back/src/application/spyResolve.ts'),
+    'utf8',
+  );
+  assert.match(resolveSrc, /PLUGIN_ID = 'tuucho-mail-spy'/);
+  assert.match(resolveSrc, /getCachedPluginSettings\(PLUGIN_ID\)/);
+  assert.doesNotMatch(resolveSrc, /seedChatRecipient|seedEnvRecipientsIfEmpty|listRecipients/);
+  const store = readFileSync(
     join(root, 'tuucho/plugins/messaging/mail-spy/tuucho-mail-spy/back/src/application/spyStore.ts'),
     'utf8',
   );
-  assert.match(seed, /contact\.chat/);
-  assert.match(seed, /seedChatRecipient/);
+  assert.doesNotMatch(store, /seedChatRecipient|seedEnvRecipientsIfEmpty/);
 
   const dispatch = readFileSync(
     join(root, 'tuucho/kernel/back/src/modules/messaging/application/emailDispatch.ts'),

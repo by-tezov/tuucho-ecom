@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
+import { config } from '../../../config/env.js';
 
 export const OUTAGE_SPY_CHANNEL_IDS = ['website_down', 'website_restore_failed'] as const;
 export type OutageSpyChannelId = (typeof OUTAGE_SPY_CHANNEL_IDS)[number];
@@ -14,7 +15,7 @@ export function isOutageSpyChannel(channelId: string): channelId is OutageSpyCha
   return (OUTAGE_SPY_CHANNEL_IDS as readonly string[]).includes(channelId);
 }
 
-export function outageSpyCacheFile(privateRoot = cacheRootForTests ?? process.env.PRIVATE_DIR): string {
+export function outageSpyCacheFile(privateRoot = cacheRootForTests ?? config.privateDir): string {
   const root = privateRoot?.trim();
   if (!root) {
     throw new Error('PRIVATE_DIR is required for the outage spy recipient cache.');

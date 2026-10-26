@@ -16,7 +16,7 @@ function packWithFactory(): string {
   mkdirSync(join(root, 'tuucho/kernel'), { recursive: true });
   mkdirSync(join(root, 'tuucho/plugin-sdk'), { recursive: true });
   mkdirSync(join(root, 'tuucho/plugins'), { recursive: true });
-  mkdirSync(join(root, 'tuucho/factory-config/dev'), { recursive: true });
+  mkdirSync(join(root, 'tuucho/factory-config'), { recursive: true });
   mkdirSync(join(root, 'tuucho/factory-config/migrations/kernel'), { recursive: true });
   mkdirSync(join(root, 'tuucho/factory-config/plugins/tuucho-signin-google'), { recursive: true });
   writeJson(join(root, 'tuucho/factory-config/config.json'), { http: { port: 3010, requestTimeoutMs: 8000 } });
@@ -26,8 +26,8 @@ function packWithFactory(): string {
     pii: { encryptionKey: 'k', lookupPepper: 'p' },
     ops: { token: 't' },
   });
-  writeJson(join(root, 'tuucho/factory-config/dev/config.json'), { http: { frontendBaseUrl: 'http://localhost:5174' } });
-  writeJson(join(root, 'tuucho/factory-config/dev/config.private.example.json'), { jwt: { secret: 'dev' } });
+  writeJson(join(root, 'tuucho/factory-config/config.dev.json'), { http: { frontendBaseUrl: 'http://localhost:5174' } });
+  writeJson(join(root, 'tuucho/factory-config/config.private.dev.example.json'), { jwt: { secret: 'dev' } });
   writeJson(join(root, 'tuucho/factory-config/plugins.example.json'), { roots: ['src/plugins'], enableOnScan: [] });
   writeJson(join(root, 'tuucho/factory-config/plugins/tuucho-signin-google/config.json'), { clientId: 'from-factory' });
   writeJson(join(root, 'tuucho/factory-config/plugins/tuucho-signin-google/config.private.example.json'), {

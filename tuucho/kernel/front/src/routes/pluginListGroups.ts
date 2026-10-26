@@ -1,6 +1,7 @@
 import type { AdminPlugin } from '../api/admin/shopSetup';
 
 const LOCALE_COMPLEMENT_RE = /^(.+)-locale-[a-z]{2}$/;
+const KERNEL_LOCALE_PACK_RE = /^tuucho-kernel-locale-[a-z]{2}$/;
 
 export type AdminPluginGroup = {
   parent: AdminPlugin;
@@ -12,7 +13,14 @@ export type PluginStatusFilter = 'all' | 'enabled' | 'disabled';
 
 export function localeComplementParentId(id: string): string | null {
   const match = id.match(LOCALE_COMPLEMENT_RE);
-  return match?.[1] ?? null;
+  const parent = match?.[1];
+  // Standalone kernel packs live on Admin → Core, not nested under a fake parent.
+  if (!parent || parent === 'tuucho' || parent === 'tuucho-kernel') return null;
+  return parent;
+}
+
+export function isKernelLocalePack(id: string): boolean {
+  return KERNEL_LOCALE_PACK_RE.test(id);
 }
 
 function comparePlugins(a: AdminPlugin, b: AdminPlugin): number {
@@ -34,12 +42,14 @@ export function pluginSearchBlob(plugin: AdminPlugin): string {
     .toLowerCase();
 }
 
-/** One row per real plugin. `*-locale-*` packs nest when their parent is present. */
+/** One row per real plugin. `*-locale-*` packs nest when their parent is present.
+ * Kernel language packs are omitted here; they are managed on Admin → Core. */
 export function groupAdminPlugins(plugins: AdminPlugin[]): AdminPluginGroup[] {
-  const byId = new Map(plugins.map((plugin) => [plugin.id, plugin]));
+  const listed = plugins.filter((plugin) => !isKernelLocalePack(plugin.id));
+  const byId = new Map(listed.map((plugin) => [plugin.id, plugin]));
   const nestedIds = new Set<string>();
   const localesByParent = new Map<string, AdminPlugin[]>();
-  for (const plugin of plugins) {
+  for (const plugin of listed) {
     const parentId = localeComplementParentId(plugin.id);
     if (!parentId || !byId.has(parentId)) continue;
     const list = localesByParent.get(parentId) ?? [];
@@ -47,7 +57,7 @@ export function groupAdminPlugins(plugins: AdminPlugin[]): AdminPluginGroup[] {
     localesByParent.set(parentId, list);
     nestedIds.add(plugin.id);
   }
-  return plugins
+  return listed
     .filter((plugin) => !nestedIds.has(plugin.id))
     .map((parent) => ({
       parent,

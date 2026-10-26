@@ -6,11 +6,11 @@
  * Settings that used to live in the database moved to `GIFT_*` and `LOYALTY_*`
  * env, and the move quietly changed two of them: the gift budget ceiling went
  * from 500 EUR to 150 and the accessory ceiling from 100 to 10, while the code
- * constant and four places in `docs/api/` still said 500 and 100. Nothing
+ * constant and four places in `tuucho/docs/api/` still said 500 and 100. Nothing
  * noticed. Ten API tests failed with an error nobody could place, which is the
  * cheap version of the same thing happening on a customer's screen.
  *
- * `docs/schema/tables.json` closed this for the database. This closes it for
+ * `tuucho/docs/schema/tables.json` closed this for the database. This closes it for
  * configuration: whenever documentation writes a value next to the variable it
  * belongs to, the two have to agree.
  *
@@ -22,9 +22,9 @@ import { readdir, readFile } from 'node:fs/promises';
 import { extname, relative, resolve } from 'node:path';
 
 const root = resolve('.');
-const configPath = resolve(root, 'config/config.json');
+const configPath = resolve(root, '../../../tuucho-config/config.json');
 const mapPath = resolve(root, 'src/config/configEnvMap.ts');
-const docsRoot = resolve(root, 'docs');
+const docsRoot = resolve(root, '../../docs');
 
 /** `` `KEY`, currently 150 € `` and `` `KEY` (currently 396 days …) ``. The
  * variable name and the value have to sit close together, so a sentence that
@@ -69,11 +69,11 @@ const errors = [];
 let verified = 0;
 
 for (const path of (await walk(docsRoot)).sort()) {
-  const where = relative(root, path);
+  const where = relative(docsRoot, path);
   // Plans describe behaviour that was not shipped yet or has since moved on.
-  // `docs/plans/README.md` says they are not live operator documentation, so
+  // `tuucho/docs/plans/README.md` says they are not live operator documentation, so
   // holding them to the running configuration would be wrong.
-  if (where.startsWith('docs/plans/')) continue;
+  if (where.startsWith('plans/')) continue;
   const text = await readFile(path, 'utf8');
   for (const match of text.matchAll(CLAIM)) {
     const [, key, claimed] = match;

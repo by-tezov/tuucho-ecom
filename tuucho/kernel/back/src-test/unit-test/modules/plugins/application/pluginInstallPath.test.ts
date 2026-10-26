@@ -20,7 +20,7 @@ function throwsCode(fn: () => unknown, code: PluginArchiveError['code']) {
 
 test('id prefix chooses the Tuucho vs user tree', () => {
   assert.equal(preferredTreeForPluginId('tuucho-seo-robots'), TUUCHO_PLUGIN_TREE);
-  assert.equal(preferredTreeForPluginId('demo-page-guides'), USER_PLUGIN_TREE);
+  assert.equal(preferredTreeForPluginId('page-guides'), USER_PLUGIN_TREE);
 });
 
 test('normalizePreferredInstallPath accepts nested Tuucho and user paths', () => {
@@ -33,10 +33,10 @@ test('normalizePreferredInstallPath accepts nested Tuucho and user paths', () =>
   );
   assert.equal(
     normalizePreferredInstallPath(
-      'demo-page-guides',
-      'src/plugins/demo/guides/demo-page-guides',
+      'page-guides',
+      'src/plugins/demo/guides/page-guides',
     ),
-    'src/plugins/demo/guides/demo-page-guides',
+    'src/plugins/demo/guides/page-guides',
   );
 });
 
@@ -59,8 +59,8 @@ test('path guard rejects missing, escaped, mismatched, and overlapping paths', (
   throwsCode(
     () =>
       normalizePreferredInstallPath(
-        'demo-page-guides',
-        'extensions/demo/guides/demo-page-guides',
+        'page-guides',
+        'extensions/demo/guides/page-guides',
       ),
     'unsafe_path',
   );

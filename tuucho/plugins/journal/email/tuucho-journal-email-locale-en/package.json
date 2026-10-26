@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-tuucho-journal-email-locale-en",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "English strings for journal-email. Enable with locale-en for English UI.",
+  "tuucho": {
+    "id": "tuucho-journal-email-locale-en",
+    "installPath": "tuucho/plugins/journal/email/tuucho-journal-email-locale-en",
+    "name": "journal-email English",
+    "kind": "locale",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "tuucho-journal-email",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

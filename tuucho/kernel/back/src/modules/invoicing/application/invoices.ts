@@ -2,11 +2,10 @@ import { mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type pg from 'pg';
 import { config } from '../../../config/env.js';
-import { isLanguage, localize } from '../../../utils/language.js';
+import { isLanguage, localize, type Language } from '../../../utils/language.js';
 import { formatIntegrityToken } from '../../commerce/domain/integrityToken.js';
 import type { OrderItemRow, OrderRow } from '../../orders/application/ordersFacade.js';
 import { writeInvoicePdf, type InvoiceData } from '../infrastructure/invoicePdf.js';
-import { KERNEL_INVOICE_COPY } from '../domain/invoiceCopy.js';
 import { applyFilters, CORE_OPENING_FILTERS, type InvoiceDocumentOverride, type InvoiceRenderState } from '@tuucho/plugin-sdk';
 import { extraLinesFromSnapshot, readPluginSnapshot } from '../../orders/application/orderPluginSnapshot.js';
 import { decryptJsonPii } from '../../../platform/security/piiCrypto.js';
@@ -47,13 +46,15 @@ async function buildInvoiceData(order: OrderRow, items: OrderItemRow[], invoiceN
       theme: {},
       extraLines: extraLinesFromSnapshot(snapshot),
       extraBlocks: [],
-      copy: KERNEL_INVOICE_COPY,
-      language: KERNEL_INVOICE_COPY.language,
     },
     { order, snapshot, items },
   );
-  const invoiceLanguage = isLanguage(rendered.language) ? rendered.language : 'en';
-  const copy = rendered.copy ?? KERNEL_INVOICE_COPY;
+  if (!rendered.copy) {
+    throw new Error('Invoice copy missing: enable tuucho-kernel-locale-en or tuucho-kernel-locale-fr for the order language');
+  }
+  const renderedLanguage = rendered.language ?? '';
+  const invoiceLanguage: Language = isLanguage(renderedLanguage) ? renderedLanguage : 'en';
+  const copy = rendered.copy;
   return {
     invoiceNumber,
     orderNumber: order.order_number,

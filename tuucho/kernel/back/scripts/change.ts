@@ -27,8 +27,9 @@ import { resolve } from 'node:path';
 
 const root = resolve('.');
 const migrationsDir = resolve(root, 'src/db/migrations');
-const featuresPath = resolve(root, 'docs/features.json');
-const snapshotPath = resolve(root, 'docs/schema/tables.json');
+const docsRoot = resolve(root, '../../docs');
+const featuresPath = resolve(docsRoot, 'features.json');
+const snapshotPath = resolve(docsRoot, 'schema/tables.json');
 
 type FeatureEntry = {
   apiDoc?: string;
@@ -91,7 +92,7 @@ if (subcommand === 'field') {
   };
   const target = snapshot.tables[table];
   if (!target) {
-    fail(`No table \`${table}\` in docs/schema/tables.json. Run \`npm run table\` for the list.`);
+    fail(`No table \`${table}\` in tuucho/docs/schema/tables.json. Run \`npm run table\` for the list.`);
   }
   if (target.columns.some((existing) => existing.name === column)) {
     fail(`\`${table}.${column}\` already exists. Run \`npm run table -- ${table}\`.`);
@@ -144,12 +145,12 @@ exports.up = (pgm) => {
     },
     { text: 'npm run operation -- database-migrate --dev', proof: 'the command fails if the SQL is wrong' },
     { text: 'npm run sync:schema', proof: 'npm run check:schema' },
-    { text: `Document the column in docs/schema/, next to the rest of ${table}.`, proof: 'npm run check:schema' },
+    { text: `Document the column in tuucho/docs/schema/, next to the rest of ${table}.`, proof: 'npm run check:schema' },
     { text: 'Read and write it in the owning application/ or infrastructure/ unit.', proof: 'npm run check:sql' },
     { text: 'Add it to the response type in src/contract/ if a client sees it.', proof: 'npm run typecheck' },
     { text: 'npm run sync:contract', proof: 'npm run check:contract' },
     { text: 'Use it in ../front and add any new copy with npm run i18n.', proof: 'npm --prefix ../front run check' },
-    { text: 'Document the field in docs/api/ if it is on the wire.', proof: 'npm run check:routes' },
+    { text: 'Document the field in tuucho/docs/api/ if it is on the wire.', proof: 'npm run check:routes' },
     { text: 'Cover the new behaviour in src-test/unit-test/.', proof: 'npm run test' },
     { text: 'npm run check:all', proof: 'itself' },
   ]);
@@ -171,10 +172,10 @@ if (subcommand === 'endpoint') {
   const entry = features[feature];
   if (!entry) {
     const names = Object.keys(features).filter((name) => !name.startsWith('$'));
-    fail(`No feature \`${feature}\` in docs/features.json. Known: ${names.join(', ')}.`);
+    fail(`No feature \`${feature}\` in tuucho/docs/features.json. Known: ${names.join(', ')}.`);
   }
 
-  const routes = JSON.parse(await readFile(resolve(root, 'docs/api/routes.json'), 'utf8')) as {
+  const routes = JSON.parse(await readFile(resolve(docsRoot, 'api/routes.json'), 'utf8')) as {
     publicSurface: { method: string; path: string }[];
     opsSurface: { method: string; path: string }[];
   };
@@ -200,7 +201,7 @@ if (subcommand === 'endpoint') {
       proof: 'npm run check:architecture (layer and tier direction)',
     },
     { text: 'npm run sync:routes', proof: 'npm run check:routes' },
-    { text: `Document it in ${entry.apiDoc ?? 'docs/api/'}: path, input, output, statuses, errors, auth.`, proof: 'npm run check:routes' },
+    { text: `Document it in ${entry.apiDoc ?? 'tuucho/docs/api/'}: path, input, output, statuses, errors, auth.`, proof: 'npm run check:routes' },
     { text: 'Reuse an existing error code, or add one deliberately.', proof: 'npm run sync:errors, then npm run check:errors' },
     { text: 'Declare the payload types in src/contract/ and bind the presenter to them.', proof: 'npm run typecheck and the src/contract/.adopted ratchet' },
     { text: 'npm run sync:contract', proof: 'npm run check:contract' },

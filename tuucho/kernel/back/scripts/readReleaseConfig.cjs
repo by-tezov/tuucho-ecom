@@ -48,17 +48,19 @@ const releaseDir =
   (existsSync(join(here, 'config', 'config.json')) ? here : join(here, '..'));
 const target = process.env.APP_TARGET || 'prod';
 const commonDir = join(releaseDir, 'config');
-const envDir = join(commonDir, target);
 
 function loadMerged() {
   const commonPrivate = existsSync(join(commonDir, 'config.private.json'))
     ? join(commonDir, 'config.private.json')
     : join(commonDir, 'config.private.example.json');
-  const envPrivate = existsSync(join(envDir, 'config.private.json'))
-    ? join(envDir, 'config.private.json')
-    : join(envDir, 'config.private.example.json');
+  const envPrivate = existsSync(join(commonDir, `config.private.${target}.json`))
+    ? join(commonDir, `config.private.${target}.json`)
+    : join(commonDir, `config.private.${target}.example.json`);
   const merged = merge(
-    merge(merge(readJson(join(commonDir, 'config.json')), readJson(join(envDir, 'config.json'))), readJson(commonPrivate)),
+    merge(
+      merge(readJson(join(commonDir, 'config.json')), readJson(join(commonDir, `config.${target}.json`))),
+      readJson(commonPrivate),
+    ),
     readJson(envPrivate),
   );
   if (process.env.DATABASE_URL) {

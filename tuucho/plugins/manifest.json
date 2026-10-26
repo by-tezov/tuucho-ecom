@@ -1,8 +1,13 @@
 {
-  "kernel": "0.0.5",
+  "kernel": "0.0.6",
   "plugins": [
     {
       "id": "tuucho-commerce-cart-rules",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-commerce-cart-rules-locale-en",
       "version": "1.0.0",
       "defaultEnabled": true
     },
@@ -17,12 +22,22 @@
       "defaultEnabled": false
     },
     {
+      "id": "tuucho-commerce-gift-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": false
+    },
+    {
       "id": "tuucho-commerce-gift-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": false
     },
     {
       "id": "tuucho-commerce-loyalty",
+      "version": "1.0.0",
+      "defaultEnabled": false
+    },
+    {
+      "id": "tuucho-commerce-loyalty-locale-en",
       "version": "1.0.0",
       "defaultEnabled": false
     },
@@ -37,12 +52,22 @@
       "defaultEnabled": false
     },
     {
+      "id": "tuucho-commerce-product-requests-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": false
+    },
+    {
       "id": "tuucho-commerce-product-requests-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": false
     },
     {
       "id": "tuucho-commerce-vinted-review",
+      "version": "1.0.0",
+      "defaultEnabled": false
+    },
+    {
+      "id": "tuucho-commerce-vinted-review-locale-en",
       "version": "1.0.0",
       "defaultEnabled": false
     },
@@ -57,7 +82,17 @@
       "defaultEnabled": true
     },
     {
+      "id": "tuucho-commerce-vouchers-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
       "id": "tuucho-commerce-vouchers-locale-fr",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-contact",
       "version": "1.0.0",
       "defaultEnabled": true
     },
@@ -67,42 +102,22 @@
       "defaultEnabled": false
     },
     {
+      "id": "tuucho-docs-developer-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": false
+    },
+    {
       "id": "tuucho-docs-developer-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": false
     },
     {
-      "id": "tuucho-home-faq",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-home-faq-locale-fr",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-home-featured",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-home-featured-locale-fr",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-onboarding",
-      "version": "1.0.0",
-      "defaultEnabled": false
-    },
-    {
-      "id": "tuucho-onboarding-locale-fr",
-      "version": "1.0.0",
-      "defaultEnabled": false
-    },
-    {
       "id": "tuucho-journal-admin",
+      "version": "1.0.0",
+      "defaultEnabled": false
+    },
+    {
+      "id": "tuucho-journal-admin-locale-en",
       "version": "1.0.0",
       "defaultEnabled": false
     },
@@ -117,12 +132,22 @@
       "defaultEnabled": false
     },
     {
+      "id": "tuucho-journal-api-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": false
+    },
+    {
       "id": "tuucho-journal-api-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": false
     },
     {
       "id": "tuucho-journal-cron",
+      "version": "1.0.0",
+      "defaultEnabled": false
+    },
+    {
+      "id": "tuucho-journal-cron-locale-en",
       "version": "1.0.0",
       "defaultEnabled": false
     },
@@ -137,42 +162,22 @@
       "defaultEnabled": false
     },
     {
+      "id": "tuucho-journal-email-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": false
+    },
+    {
       "id": "tuucho-journal-email-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": false
     },
     {
-      "id": "tuucho-locale-fr",
+      "id": "tuucho-kernel-locale-en",
       "version": "1.0.0",
       "defaultEnabled": true
     },
     {
-      "id": "tuucho-signin-apple",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-signin-apple-locale-fr",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-signin-facebook",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-signin-facebook-locale-fr",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-signin-google",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-signin-google-locale-fr",
+      "id": "tuucho-kernel-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": true
     },
@@ -182,37 +187,22 @@
       "defaultEnabled": true
     },
     {
+      "id": "tuucho-mail-spy-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
       "id": "tuucho-mail-spy-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": true
     },
     {
-      "id": "tuucho-contact",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-page-about",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-page-about-locale-fr",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-page-home",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
-      "id": "tuucho-page-home-locale-fr",
-      "version": "1.0.0",
-      "defaultEnabled": true
-    },
-    {
       "id": "tuucho-payment-stripe",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-payment-stripe-locale-en",
       "version": "1.0.0",
       "defaultEnabled": true
     },
@@ -227,12 +217,22 @@
       "defaultEnabled": true
     },
     {
+      "id": "tuucho-seo-redirects-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
       "id": "tuucho-seo-redirects-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": true
     },
     {
       "id": "tuucho-seo-robots",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-seo-robots-locale-en",
       "version": "1.0.0",
       "defaultEnabled": true
     },
@@ -247,12 +247,22 @@
       "defaultEnabled": true
     },
     {
+      "id": "tuucho-seo-sitemap-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
       "id": "tuucho-seo-sitemap-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": true
     },
     {
       "id": "tuucho-shipping-expedition-cron",
+      "version": "1.0.0",
+      "defaultEnabled": false
+    },
+    {
+      "id": "tuucho-shipping-expedition-cron-locale-en",
       "version": "1.0.0",
       "defaultEnabled": false
     },
@@ -267,6 +277,11 @@
       "defaultEnabled": true
     },
     {
+      "id": "tuucho-shipping-home-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
       "id": "tuucho-shipping-home-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": true
@@ -277,12 +292,67 @@
       "defaultEnabled": false
     },
     {
+      "id": "tuucho-shipping-mondial-relay-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": false
+    },
+    {
       "id": "tuucho-shipping-mondial-relay-locale-fr",
       "version": "1.0.0",
       "defaultEnabled": false
     },
     {
+      "id": "tuucho-signin-apple",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-apple-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-apple-locale-fr",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-facebook",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-facebook-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-facebook-locale-fr",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-google",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-google-locale-en",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-signin-google-locale-fr",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
       "id": "tuucho-theme-default",
+      "version": "1.0.0",
+      "defaultEnabled": true
+    },
+    {
+      "id": "tuucho-theme-default-locale-en",
       "version": "1.0.0",
       "defaultEnabled": true
     },

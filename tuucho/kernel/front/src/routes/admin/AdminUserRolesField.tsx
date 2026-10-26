@@ -5,7 +5,8 @@ import { setAdminUserRoles, type AdminRoleRef } from '../../api/admin/roles';
 import type { AdminUserSummary } from '../../api/admin/users';
 import { ApiError } from '../../api/errors';
 import { useLang } from '../../assets/i18n';
-import { useAdminStrings } from '../../assets/i18n/admin';
+import { useAdminStrings, type AdminUiStrings } from '../../assets/i18n/admin';
+import { staffRoleLabel } from '../../assets/i18n/admin/roleLabel';
 import { useAuthSession } from '../../state/AuthContext';
 import { useToast } from '../../state/ToastContext';
 import { withMinDuration } from '../../utils/withMinDuration';
@@ -15,14 +16,14 @@ import { SUPER_ADMIN_ROLE } from '../../utils/adminRoute';
 
 type Translate = ReturnType<typeof useLang>['t'];
 
-/** Built-in administrator keeps its localized name; a staff role shows the
- * name given on the Roles page. */
-export function roleRefName(role: AdminRoleRef, t: Translate): string {
-  return role.code === SUPER_ADMIN_ROLE ? t.admin.userAdministrator : role.label;
+/** Built-in and shipped roles use the language files. A role created on the
+ * Roles page keeps the name stored for it. */
+export function roleRefName(role: AdminRoleRef, t: Translate, a: AdminUiStrings): string {
+  return staffRoleLabel(role.code, role.label, a, t.admin.userAdministrator);
 }
 
-function rolesSummary(roles: readonly AdminRoleRef[], t: Translate, customerLabel: string): string {
-  return roles.map((role) => roleRefName(role, t)).join(', ') || customerLabel;
+function rolesSummary(roles: readonly AdminRoleRef[], t: Translate, a: AdminUiStrings): string {
+  return roles.map((role) => roleRefName(role, t, a)).join(', ') || a.roles.customerRole;
 }
 
 /** The "Rôles" field of a user card: pick roles among those the signed-in
@@ -86,7 +87,7 @@ export function AdminUserRolesField({
         shopConfig.loadingMinMs.short,
       );
       onSaved({ role: result.user.role, roles: result.user.roles });
-      toast(a.roles.roleChangedToast(rolesSummary(result.user.roles, t, a.roles.customerOnly)));
+      toast(a.roles.roleChangedToast(rolesSummary(result.user.roles, t, a)));
     } catch (err) {
       onError(
         err instanceof ApiError && err.code === 'own_role' ? a.roles.ownRoleHint : a.roles.errChangeRole,
@@ -101,7 +102,7 @@ export function AdminUserRolesField({
     <div className={styles.roleField}>
       <AdminMultiSelect
         label={a.roles.userRoleLabel}
-        options={assignable.map((role) => ({ value: role.code, label: roleRefName(role, t) }))}
+        options={assignable.map((role) => ({ value: role.code, label: roleRefName(role, t, a) }))}
         values={held}
         onChange={(codes) => {
           const unchanged = codes.length === held.length && codes.every((code) => held.includes(code));
@@ -153,7 +154,7 @@ function RoleChangeSummary({
       <span className={styles.roleChangeChips}>
         {roles.map((role) => (
           <span key={role.code} className={`${styles.roleChangeChip} ${tone ?? ''}`}>
-            {roleRefName(role, t)}
+            {roleRefName(role, t, a)}
           </span>
         ))}
       </span>

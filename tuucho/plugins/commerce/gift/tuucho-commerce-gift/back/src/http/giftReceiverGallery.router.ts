@@ -5,7 +5,7 @@ import { boundedPrintable } from '@kernel/back/utils/fieldLimits';
 import { requestLanguage } from '@kernel/back/utils/language';
 import { listFilterOptions, listGalleryFeed, getProductByUid } from '@kernel/back/modules/catalog/application/products';
 import type { GalleryFeedParams } from '@kernel/back/modules/catalog/application/products';
-import { PRODUCT_UID_PATTERN } from '@kernel/back/modules/catalog/domain/productUid';
+import { isProductUid } from '@kernel/back/modules/catalog/domain/productUid';
 import {
   isGalleryItemPubliclyAccessible,
   outOfStockDisplayFlags,
@@ -121,7 +121,7 @@ giftReceiverGalleryRouter.get('/:token/gallery/filters', async (req, res) => {
 giftReceiverGalleryRouter.get('/:token/gallery/set/:uid', async (req, res) => {
   await withGiftErrors(res, async () => {
     const token = rawPathToken(req);
-    if (!token || !PRODUCT_UID_PATTERN.test(req.params.uid ?? '')) {
+    if (!token || !isProductUid(req.params.uid ?? '')) {
       res.status(400).json({ success: false, error: { code: 'invalid_request' } });
       return;
     }

@@ -1060,7 +1060,7 @@ async function runCheck(
 
 async function runMain(args: Args): Promise<void> {
   const { command, target, update, deleteMissing, direction, mode, source, json } = args;
-  const sourceDir = source ?? join(root, '..', 'sample', 'courier');
+  const sourceDir = source ?? join(root, '..', '..', '..', 'sample', 'courier');
   if ((command === 'seed' || command === 'check') && !existsSync(sourceDir)) {
     throw new Error(`Source courier directory not found: ${sourceDir} (pass --source <path> to override).`);
   }

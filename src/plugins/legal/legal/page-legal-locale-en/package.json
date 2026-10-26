@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-page-legal-locale-en",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "English strings for page-legal. Enable with locale-en for English UI.",
+  "tuucho": {
+    "id": "page-legal-locale-en",
+    "installPath": "src/plugins/legal/legal/page-legal-locale-en",
+    "name": "page-legal English",
+    "kind": "locale",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "page-legal",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../../tuucho/plugin-sdk"
+  }
+}

@@ -12,7 +12,7 @@ May import: `activity`, `catalog`, `commerce`, `identity`, `messaging`, `plugins
 
 Currently imports: `catalog`, `plugins`.
 
-Feature map entry: `seo` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- seo` for its full span.
+Feature map entry: `seo` in [tuucho/docs/features.json](../../../../../docs/features.json). Run `npm run feature -- seo` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |

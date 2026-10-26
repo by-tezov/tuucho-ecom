@@ -104,8 +104,10 @@ function isNonNegNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
 }
 
-/** 1 to 10: a composed set of fewer nails does not count as a set unit. */
+/** 1 to 10: a composed set of fewer nails does not count as a set unit.
+ * Omitted means 1, the catalogue-tier behavior: every set counts. */
 function parseMinNails(value: unknown): number {
+  if (value === undefined || value === null) return 1;
   if (!isPositiveInt(value) || value > 10) throw new Error('invalid_params');
   return value;
 }

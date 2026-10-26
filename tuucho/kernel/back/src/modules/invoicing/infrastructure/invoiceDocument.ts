@@ -1,7 +1,6 @@
 import type { InvoiceCopy } from '../domain/invoiceCopy.js';
-import { KERNEL_INVOICE_COPY } from '../domain/invoiceCopy.js';
 
-export { KERNEL_INVOICE_COPY, type InvoiceCopy };
+export type { InvoiceCopy };
 
 export interface InvoiceItem {
   productId?: string | null;

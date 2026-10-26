@@ -26,7 +26,7 @@ export async function withMinDuration<T>(work: Promise<T>, ms: number): Promise<
  * customer instead of leaving a payment overlay forever.
  */
 export async function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
-  let timer: ReturnType<typeof window.setTimeout> | undefined;
+  let timer: number | undefined;
   try {
     return await Promise.race([
       work,

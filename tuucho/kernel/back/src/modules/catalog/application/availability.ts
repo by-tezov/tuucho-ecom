@@ -50,7 +50,7 @@ export const effectiveQuantitySql = `
 `;
 
 /** True unless the row's shape/length pair is hidden
- * (`product_shape_lengths.hidden`, docs/plans/variant-visibility.md). `alias`
+ * (`product_shape_lengths.hidden`, tuucho/docs/plans/variant-visibility.md). `alias`
  * is a table with `product_id`, `shape_key` and `length_key`. An accessory
  * (`''`/`''`) has no pair row and is always visible. Every customer-facing
  * availability read applies it, so a hidden pair is simply not offered:

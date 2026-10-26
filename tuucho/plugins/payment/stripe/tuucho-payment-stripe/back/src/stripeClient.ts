@@ -6,11 +6,16 @@ import { findUserById, setStripeCustomerId } from '@kernel/back/modules/identity
 
 let stripeClient: Stripe | undefined;
 
+function usableSecretKey(value: string | undefined): value is string {
+  return typeof value === 'string' && /^sk_(?:test|live)_[A-Za-z0-9]+$/.test(value.trim());
+}
+
 /** Stripe SDK lives in this plugin. The kernel payment-method shell only
- * receives the client through `registerPaymentGateway({ getClient })`. */
+ * receives the client through `registerPaymentGateway({ getClient })`.
+ * A missing key or the example placeholder does not open a client. */
 export function createStripeFromEnv(): Stripe | undefined {
-  const secretKey = getPluginSecret('tuucho-payment-stripe', 'secretKey');
-  if (!secretKey) return undefined;
+  const secretKey = getPluginSecret('tuucho-payment-stripe', 'secretKey')?.trim();
+  if (!usableSecretKey(secretKey)) return undefined;
   if (!stripeClient) {
     stripeClient = new Stripe(secretKey, {
       timeout: 12_000,

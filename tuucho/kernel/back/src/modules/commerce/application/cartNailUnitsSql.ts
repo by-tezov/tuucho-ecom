@@ -1,8 +1,8 @@
 /**
  * Purchasable catalogue nail-set units on a cart, as one scalar SQL
- * expression bound to `$1 = cart_id`. Feeds `gift_per_nail_set` for
- * catalogue sets. Composed sets are counted beside it, once each holds at
- * least the rule's `minNails`.
+ * expression bound to `$1 = cart_id`, `$2 = exclude_reservation_id` (nullable).
+ * Feeds `gift_per_nail_set` for catalogue sets. Composed sets are counted
+ * beside it, once each holds at least the rule's `minNails`.
  *
  * Out-of-stock user lines do not earn a gift — this mirrors priceCheckout,
  * which drops `available_quantity === 0` lines before recomputing gift
@@ -10,6 +10,9 @@
  * out elsewhere still counted at its full stored quantity, so the cart kept
  * showing (and granting) a gift kit that checkout would never honor.
  *
+ * `$2` is the cart's own covering gift/checkout hold: it must not make the
+ * cart's own lines look sold out (same semantics as priceCheckout's
+ * `excludeReservationId`). Callers without a covering hold pass null.
  */
 export const CART_SET_UNITS_SQL = `(
   coalesce((
@@ -27,6 +30,7 @@ export const CART_SET_UNITS_SQL = `(
             and sri.length_key = pa.length_key
             and sri.size = pa.size
             and (sr.state = 'consumed' or (sr.state = 'held' and sr.expires_at > now()))
+            and ($2::uuid is null or sr.id is distinct from $2)
         ), 0), 0)::integer
         from product_availability pa
         where pa.product_id = ci.product_id and pa.shape_key = ci.shape_key

@@ -120,26 +120,26 @@ export interface PaymentGateway {
   methods: string[];
   capabilities?: string[];
   getClient?: () => unknown;
-  getOrCreateCustomerId?: (...args: unknown[]) => Promise<unknown>;
-  createAccountIntent?: (...args: unknown[]) => Promise<unknown>;
-  createGuestIntent?: (...args: unknown[]) => Promise<unknown>;
-  createSetupIntent?: (...args: unknown[]) => Promise<unknown>;
-  listPaymentMethods?: (...args: unknown[]) => Promise<unknown>;
-  getPaymentMethod?: (...args: unknown[]) => Promise<unknown>;
-  detachPaymentMethod?: (...args: unknown[]) => Promise<unknown>;
+  getOrCreateCustomerId?: (...args: any[]) => Promise<unknown>;
+  createAccountIntent?: (...args: any[]) => Promise<unknown>;
+  createGuestIntent?: (...args: any[]) => Promise<unknown>;
+  createSetupIntent?: (...args: any[]) => Promise<unknown>;
+  listPaymentMethods?: (...args: any[]) => Promise<unknown>;
+  getPaymentMethod?: (...args: any[]) => Promise<unknown>;
+  detachPaymentMethod?: (...args: any[]) => Promise<unknown>;
   constructWebhookEvent?: (raw: Buffer, signature: string) => unknown;
-  retrievePaymentIntent?: (...args: unknown[]) => Promise<unknown>;
-  cancelPaymentIntent?: (...args: unknown[]) => Promise<unknown>;
-  capturePaymentIntent?: (...args: unknown[]) => Promise<unknown>;
-  createRefund?: (...args: unknown[]) => Promise<unknown>;
-  listRefunds?: (...args: unknown[]) => Promise<unknown>;
-  retrieveRemotePaymentMethod?: (...args: unknown[]) => Promise<unknown>;
-  attachRemotePaymentMethod?: (...args: unknown[]) => Promise<unknown>;
-  detachRemotePaymentMethod?: (...args: unknown[]) => Promise<unknown>;
-  updateRemotePaymentMethod?: (...args: unknown[]) => Promise<unknown>;
-  createRemoteCustomer?: (...args: unknown[]) => Promise<unknown>;
-  deleteRemoteCustomer?: (...args: unknown[]) => Promise<unknown>;
-  retrieveBalance?: (...args: unknown[]) => Promise<unknown>;
+  retrievePaymentIntent?: (...args: any[]) => Promise<unknown>;
+  cancelPaymentIntent?: (...args: any[]) => Promise<unknown>;
+  capturePaymentIntent?: (...args: any[]) => Promise<unknown>;
+  createRefund?: (...args: any[]) => Promise<unknown>;
+  listRefunds?: (...args: any[]) => Promise<unknown>;
+  retrieveRemotePaymentMethod?: (...args: any[]) => Promise<unknown>;
+  attachRemotePaymentMethod?: (...args: any[]) => Promise<unknown>;
+  detachRemotePaymentMethod?: (...args: any[]) => Promise<unknown>;
+  updateRemotePaymentMethod?: (...args: any[]) => Promise<unknown>;
+  createRemoteCustomer?: (...args: any[]) => Promise<unknown>;
+  deleteRemoteCustomer?: (...args: any[]) => Promise<unknown>;
+  retrieveBalance?: (...args: any[]) => Promise<unknown>;
 }
 
 export interface ShippingMethod {
@@ -288,8 +288,9 @@ export interface InvoiceRenderState {
   theme: InvoiceThemeTokens;
   extraLines: ExtraLine[];
   extraBlocks: unknown[];
-  copy: InvoiceCopy;
-  language: string;
+  /** Filled by the active language's locale pack (`invoice.render`). */
+  copy?: InvoiceCopy;
+  language?: string;
 }
 
 export interface InvoiceDocumentOverride {
@@ -341,6 +342,8 @@ export const CORE_OPENING_FILTERS = {
   catalogImportAvailability: 'catalog.importAvailability',
   giftReceiverSummary: 'gift.receiverSummary',
   giftReceiverLines: 'gift.receiverLines',
+  giftReceiverBudget: 'gift.receiverBudget',
+  loyaltyPreviewCartExtras: 'loyalty.preview.cartExtras',
   productDeepLinkPath: 'catalog.productDeepLinkPath',
 } as const;
 
@@ -370,6 +373,7 @@ export const CORE_FRONT_VIEWS = {
   cart: 'view.cart',
   product: 'view.product',
   invoicePreview: 'view.invoice.preview',
+  bootSplash: 'view.boot.splash',
 } as const;
 
 export type CoreOpeningEntry = {
@@ -380,7 +384,7 @@ export type CoreOpeningEntry = {
   href?: string;
 };
 
-/** Who/whether filters a spy-mail channel accepts in Admin → Spy e-mails. */
+/** Who/whether filters a spy channel accepts in tuucho-mail-spy config rules. */
 export type SpyChannelFilter = 'role' | 'email' | 'kind';
 
 /** One ops-notify channel. Kernel and plugins append via `mail.spy.channels`. */

@@ -52,6 +52,16 @@ export const tuuchoRoot = join(shopRoot, 'tuucho');
 export const configRoot = join(shopRoot, 'tuucho-config');
 export const bundledPluginsRoot = join(tuuchoRoot, 'plugins');
 
+/** Root for generated/dev artifacts (reports, caches, log downloads, test
+ * output). `OUTPUT_DIR` (flattened from JSON `paths.outputDir` when the
+ * caller loads config) wins; a relative value resolves against the shop
+ * root. Defaults to `<shopRoot>/output`. Scripts that never load JSON
+ * config still land on the same default. */
+export function outputRoot(): string {
+  const raw = process.env.OUTPUT_DIR?.trim();
+  return raw ? resolve(shopRoot, raw) : join(shopRoot, 'output');
+}
+
 export function readUserPluginScanConfig(root: string = shopRoot): UserPluginScanConfig {
   const live = join(root, 'tuucho-config', 'plugins.json');
   const example = join(root, 'tuucho-config', 'plugins.example.json');

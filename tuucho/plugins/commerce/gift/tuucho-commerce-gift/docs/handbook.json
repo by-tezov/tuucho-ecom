@@ -37,19 +37,13 @@
       "blocks": [
         {
           "type": "p",
-          "text": "Bundled path: tuucho-config/plugins/tuucho-commerce-gift/ (public config.json, gitignored config.private.json, committed config.private.example.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
+          "text": "Bundled path: tuucho-config/plugins/tuucho-commerce-gift/ (public config.json). Merge matches kernel JSON (common then env, private or example). Boot does not overwrite Admin values. First launch loads files once when settings are still empty. Edit in Admin \u2192 Plugins \u2192 Configure, or Update from files / Import / Export there. Admin \u2192 Plugins Update all / Import all / Export all uses the same files (schema plugins only; no extra register)."
         },
         {
           "type": "code",
           "language": "json",
           "caption": "config.json",
           "code": "{\n  \"cronLog\": \"/log/cron-gift.jsonl\",\n  \"cronPurgeLog\": \"/log/cron-gift-purge.jsonl\",\n  \"disableRateGiftCreateEmail\": false,\n  \"disableRateGiftPin\": false,\n  \"disableRateGiftShareCardDownload\": false,\n  \"disableRateGiftShareCardEmail\": false,\n  \"disableRateGiftShareCardUpdate\": false,\n  \"extendCeilingDays\": 60,\n  \"giverPayTtlDays\": 15,\n  \"holdReminderBefore\": \"1d\",\n  \"lockSessionTtlHours\": 12,\n  \"maxAccessoryBudgetCeiling\": 10,\n  \"maxBudgetCeiling\": 150,\n  \"maxOpenPromisesPerGiver\": 10,\n  \"minBudget\": 12,\n  \"payReminderBefore\": \"3d\",\n  \"pinFailures\": \"5:8\",\n  \"purgeAfterDays\": 396,\n  \"rateGiftCreateEmail\": \"15m:10\",\n  \"rateGiftPin\": \"60s:20\",\n  \"rateGiftShareCardDownload\": \"15m:5\",\n  \"rateGiftShareCardEmail\": \"15m:5\",\n  \"rateGiftShareCardUpdate\": \"15m:5\",\n  \"receiverTokenTtlDays\": 30,\n  \"selectReminderBefore\": \"7d\",\n  \"stockHoldTtlDays\": 7,\n  \"visibilityAfterTerminalDays\": 7\n}"
-        },
-        {
-          "type": "code",
-          "language": "json",
-          "caption": "config.private.example.json",
-          "code": "{}"
         },
         {
           "type": "defs",

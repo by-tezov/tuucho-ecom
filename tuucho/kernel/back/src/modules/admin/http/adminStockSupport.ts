@@ -92,7 +92,7 @@ function variantSizes(
 export const FEATURED_DAYS = 15;
 
 /** Last day of an active window, or null when there is none or it has passed.
- * `featured_from` is a plain `date` string (see docs/schema/00-overview.md),
+ * `featured_from` is a plain `date` string (see tuucho/docs/schema/00-overview.md),
  * so this stays string arithmetic — no timezone shifting a day boundary. */
 export function featuredUntil(featuredFrom: string | null, featuredFor: number | null): string | null {
   if (!featuredFrom || !featuredFor) return null;
@@ -373,7 +373,7 @@ export async function setStockProductFeatured(req: Request, res: Response): Prom
 /** `{ hidden }` hides or shows the whole product. With `shapeKey` (and
  * optionally `lengthKey`) it hides or shows that shape (every length of it)
  * or that one shape/length instead, the rest of the product unchanged
- * (docs/plans/variant-visibility.md). Accessories have no shape. The next
+ * (tuucho/docs/plans/variant-visibility.md). Accessories have no shape. The next
  * `seed --update` re-applies data-static.json, same as the product toggle. */
 export async function setStockProductHidden(
   req: Request,

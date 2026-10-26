@@ -15,18 +15,19 @@ tuucho/kernel/front/node_modules/
 tuucho/kernel/back/node_modules/
 # Operator secrets (kernel + plugins). Never ignore public JSON or *.example.json.
 tuucho-config/config.private.json
-tuucho-config/*/config.private.json
 tuucho-config/plugins/**/config.private.json
 **/config.private.json
+**/config.private.*.json
+!**/config.private.example.json
+!**/config.private.*.example.json
 tuucho/kernel/back/.compose.env
 tuucho/kernel/front/dist/
 tuucho/kernel/back/dist/
+# Generated/dev artifacts (reports, caches, log downloads). Default paths.outputDir.
+/output/
+# Legacy pre-outputDir location, kept for shops mid-migration.
 tuucho/kernel/back/output/
-front/node_modules/
-back/node_modules/
-front/dist/
-back/dist/
-back/output/
+*.tsbuildinfo
 **/*.log
 .idea/
 .DS_Store

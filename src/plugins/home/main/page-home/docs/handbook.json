@@ -1,0 +1,47 @@
+{
+  "title": "Home page",
+  "summary": "Required landing page at /home. Enable cannot be turned off. Hosts PluginSlots for FAQ, onboarding, and featured.",
+  "sections": [
+    {
+      "heading": "Enable equals the menu",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Page plugin",
+          "text": "package.json tuucho.kind page, route /home. This plugin mounts the home React page. While enabled, the kernel puts the route on the shop menu (nav.key / order). Disable and the URL and menu entry go away."
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "route",
+              "description": "/home"
+            },
+            {
+              "term": "Sitemap",
+              "description": "While Sitemap pages is on, the kernel lists this route on seo.sitemap.entries. Extra paths that are not this route must register the filter yourself (Guides does /pose and /capsules)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Slots on this page",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "slot.home.faq",
+            "slot.home.onboarding",
+            "slot.home.featured"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "required: true. Do not copy this folder to add a new page; copy plugins/user/demo/guides/page-guides instead."
+        }
+      ]
+    }
+  ]
+}

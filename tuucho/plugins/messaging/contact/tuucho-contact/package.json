@@ -137,11 +137,11 @@
       },
       "seedRecipient": {
         "type": "email",
-        "label": "Seed recipient (empty table only)",
-        "description": "First inbound contact recipient used only when the recipient table is empty. After that, manage recipients in the extra below.",
+        "label": "Guest reply address",
+        "description": "Reply-To when staff answer a guest from admin. Leave empty to use the chat SMTP user. Who receives contact.inbound and contact.chat is the Spy e-mails plugin rules list.",
         "section": "recipients",
-        "sectionTitle": "Recipients and rate",
-        "sectionDescription": "Bootstrap addresses and how hard guests may hit the form. Live staff copies are the spy extra below this form."
+        "sectionTitle": "Rate and reply address",
+        "sectionDescription": "How hard guests may hit the form, and the address staff replies use. Spy copies are not set here."
       },
       "forwardRecipient": {
         "type": "email",

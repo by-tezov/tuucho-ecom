@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-onboarding-locale-fr",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "French strings for onboarding. Enable with locale-fr for French UI; disable to keep this plugin in English.",
+  "tuucho": {
+    "id": "onboarding-locale-fr",
+    "installPath": "src/plugins/onboarding/onboarding-locale-fr",
+    "name": "onboarding French",
+    "kind": "locale",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "onboarding",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../tuucho/plugin-sdk"
+  }
+}

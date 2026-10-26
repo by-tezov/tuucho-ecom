@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {
   accessorySpendCeiling,
   giftConstraintViolation,
+  isAccessoryGiftItem,
+  isNailGiftItem,
   leftoverClaimedByAccessories,
   leftoverNailBudget,
   remainingBudget,
@@ -101,4 +103,25 @@ test('the nail cap is reported before the accessory cap when both are broken', (
 
 test('an empty gift never violates a constraint', () => {
   assert.equal(giftConstraintViolation({ maxSets: 0, maxBudget: 0, maxAccessoryBudget: 0 }, []), null);
+});
+
+test('every product type except accessory counts as nail units', () => {
+  // products.product_type / order_items.product_type vocabulary: nail,
+  // nail_single, accessory, plus composition-like rows from peer plugins.
+  assert.equal(isNailGiftItem({ productType: 'nail' }), true);
+  assert.equal(isNailGiftItem({ productType: 'nail_single' }), true);
+  assert.equal(isNailGiftItem({ productType: 'composition' }), true);
+  assert.equal(isNailGiftItem({ productType: 'accessory' }), false);
+  assert.equal(isAccessoryGiftItem({ productType: 'accessory' }), true);
+  assert.equal(isAccessoryGiftItem({ productType: 'composition' }), false);
+});
+
+test('a composition line draws on the nail budget, never the accessory one', () => {
+  const offer = { maxSets: 5, maxBudget: 50, maxAccessoryBudget: 0 };
+  const composition = { productType: 'composition', unitPrice: 40, quantity: 1 };
+  assert.equal(giftConstraintViolation(offer, [composition]), null);
+  assert.equal(
+    giftConstraintViolation({ ...offer, maxSets: 0 }, [composition]),
+    'gift_sets_exceeded',
+  );
 });

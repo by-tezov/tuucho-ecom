@@ -1,7 +1,7 @@
 import { cp, mkdir, readdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { REQUIRED_PRIVATE_PATHS } from './configEnvMap.js';
-import { isEnvName, type JsonObject } from './loadJsonConfig.js';
+import { listEnvironments, type JsonObject } from './loadJsonConfig.js';
 
 export const FACTORY_REL = 'tuucho/factory-config';
 export const STAMP_NAME = 'migrate-stamp.json';
@@ -153,10 +153,23 @@ export async function migrateStampBehind(packRoot: string, shopConfig: string): 
 
 function shouldCopyFactoryFile(rel: string): boolean {
   const posix = rel.replaceAll('\\', '/');
+  const base = posix.split('/').pop() ?? '';
   if (posix === 'migrations' || posix.startsWith('migrations/')) return false;
-  if (posix.endsWith('/config.private.json') || posix === 'config.private.json') return false;
+  if (/^config\.private(?:\.[a-z][a-z0-9-]*)?\.json$/.test(base) && !base.includes('example')) return false;
   if (posix === 'plugins.json') return false;
   return true;
+}
+
+function envPublicName(env: string): string {
+  return env ? `config.${env}.json` : 'config.json';
+}
+
+function envPrivateName(env: string): string {
+  return env ? `config.private.${env}.json` : 'config.private.json';
+}
+
+function envPrivateExampleName(env: string): string {
+  return env ? `config.private.${env}.example.json` : 'config.private.example.json';
 }
 
 async function copyFactory(factory: string, dest: string, dryRun: boolean, logs: string[]): Promise<void> {
@@ -172,6 +185,10 @@ async function copyFactory(factory: string, dest: string, dryRun: boolean, logs:
         if (!dryRun) await mkdir(to, { recursive: true });
         await walk(from, childRel);
         continue;
+      }
+      if (entry.name.includes('example') && entry.name.endsWith('.json')) {
+        const raw = await readJson(from);
+        if (isObject(raw) && Object.keys(raw).length === 0) continue;
       }
       logs.push(`copy ${childRel}`);
       if (!dryRun) {
@@ -192,8 +209,11 @@ async function materialisePrivates(dest: string, dryRun: boolean, logs: string[]
         await walk(full);
         continue;
       }
-      if (entry.name === 'config.private.example.json') {
-        const privatePath = join(dir, 'config.private.json');
+      const exampleMatch = /^config\.private(?:\.([a-z][a-z0-9-]*))?\.example\.json$/.exec(entry.name);
+      if (exampleMatch) {
+        const raw = await readJson(full);
+        if (!isObject(raw) || Object.keys(raw).length === 0) continue;
+        const privatePath = join(dir, exampleMatch[1] ? `config.private.${exampleMatch[1]}.json` : 'config.private.json');
         if (await pathExists(privatePath)) continue;
         logs.push(`private from example ${privatePath}`);
         if (!dryRun) await cp(full, privatePath);
@@ -212,14 +232,7 @@ async function materialisePrivates(dest: string, dryRun: boolean, logs: string[]
 
 async function listShopEnvs(shopConfig: string): Promise<string[]> {
   if (!(await pathExists(shopConfig))) return [];
-  const names = await readdir(shopConfig, { withFileTypes: true });
-  const out: string[] = [];
-  for (const entry of names) {
-    if (entry.isDirectory() && isEnvName(entry.name) && (await pathExists(join(shopConfig, entry.name, 'config.json')))) {
-      out.push(entry.name);
-    }
-  }
-  return out.sort();
+  return listEnvironments(shopConfig);
 }
 
 async function applyOpToFile(
@@ -306,11 +319,10 @@ async function applyStep(
     };
     const envNames = envSel === 'all' ? ['', ...envs] : envSel === 'common' ? [''] : [envSel];
     for (const env of envNames) {
-      const prefix = env ? `${env}/` : '';
-      if (layer === 'public' || layer === 'both') push(`${prefix}config.json`, `${prefix}config.json`);
+      if (layer === 'public' || layer === 'both') push(envPublicName(env), envPublicName(env));
       if (layer === 'private' || layer === 'both') {
-        push(`${prefix}config.private.json`, `${prefix}config.private.example.json`);
-        push(`${prefix}config.private.example.json`, `${prefix}config.private.example.json`);
+        push(envPrivateName(env), envPrivateExampleName(env));
+        push(envPrivateExampleName(env), envPrivateExampleName(env));
       }
     }
     for (const target of targets) {
@@ -503,8 +515,8 @@ export async function runConfigMigrate(options: MigrateOptions): Promise<Migrate
     await fillPublicFromFactory(join(factory, 'config.json'), join(shopConfig, 'config.json'), dryRun, warnings, logs);
     for (const env of await listShopEnvs(shopConfig)) {
       await fillPublicFromFactory(
-        join(factory, env, 'config.json'),
-        join(shopConfig, env, 'config.json'),
+        join(factory, envPublicName(env)),
+        join(shopConfig, envPublicName(env)),
         dryRun,
         warnings,
         logs,

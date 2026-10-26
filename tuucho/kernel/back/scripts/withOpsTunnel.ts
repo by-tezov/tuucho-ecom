@@ -6,6 +6,7 @@
  * remove that gateway — only `npm run deploy -- --ftp-ops` / `--ftp-ops-remove`
  * may do that. `--dev` starts `opsServer` locally and needs no transport. */
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadOpsToken, loadPublicEnv } from './envFile.js';
@@ -20,7 +21,10 @@ import {
 import { parseTransportFlags, requireTransport, type Transport } from './transport.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const tsx = join(root, 'node_modules', '.bin', 'tsx');
+// npm workspaces hoist binaries to the repo root: prefer the local .bin,
+// fall back to the hoisted one.
+const tsxLocal = join(root, 'node_modules', '.bin', 'tsx');
+const tsx = existsSync(tsxLocal) ? tsxLocal : join(root, '..', '..', '..', 'node_modules', '.bin', 'tsx');
 const target = process.argv[2];
 const rawArgs = process.argv.slice(3);
 if (!target || !/^[a-zA-Z][a-zA-Z0-9-]*$/.test(target))

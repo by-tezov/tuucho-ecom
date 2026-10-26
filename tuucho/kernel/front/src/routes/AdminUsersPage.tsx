@@ -16,6 +16,7 @@ import {
 } from '../api/admin/users';
 import { getAdminUserLoyaltyWallet, type LoyaltyWalletSummary } from '../api/loyalty';
 import { useLang } from '../assets/i18n';
+import { useAdminStrings } from '../assets/i18n/admin';
 import { useAuthSession } from '../state/AuthContext';
 import { adminPath, SUPER_ADMIN_ROLE } from '../utils/adminRoute';
 import { formatPrice } from '../utils/formatPrice';
@@ -80,6 +81,7 @@ export function AdminUsersPage() {
   const requestsOn = usePluginEnabled('tuucho-commerce-product-requests');
   const loyaltyOn = usePluginEnabled('tuucho-commerce-loyalty');
   const { t, lang } = useLang();
+  const a = useAdminStrings();
   const { authedRequest } = useAuthSession();
   const [users, setUsers] = useState<AdminUserSummary[]>([]);
   const [page, setPage] = useState(1);
@@ -253,7 +255,7 @@ export function AdminUsersPage() {
             <div className={styles.simpleListTags}>
               {user.roles.map((role) => (
                 <span key={role.code} className={styles.adminStatus}>
-                  {roleRefName(role, t)}
+                  {roleRefName(role, t, a)}
                 </span>
               ))}
               {user.status === 'locked' && <span className={styles.lockedStatus}>{t.admin.userLocked}</span>}
@@ -402,6 +404,7 @@ function UserDetailModal({
   onClose: () => void;
 }) {
   const { t, lang } = useLang();
+  const a = useAdminStrings();
   const { authedRequest } = useAuthSession();
   const loyaltyOn = usePluginEnabled('tuucho-commerce-loyalty');
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -460,7 +463,7 @@ function UserDetailModal({
             <div className={styles.simpleListTags}>
               {user.roles.map((role) => (
                 <span key={role.code} className={styles.adminStatus}>
-                  {roleRefName(role, t)}
+                  {roleRefName(role, t, a)}
                 </span>
               ))}
             </div>

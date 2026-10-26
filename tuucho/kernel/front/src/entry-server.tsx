@@ -2,7 +2,6 @@ import { StrictMode } from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router';
 import { LanguageProvider } from './assets/i18n';
-import { en } from './assets/i18n/strings.en';
 import type { Lang, Strings } from './assets/i18n/types';
 import { StorefrontBootstrapProvider } from './plugins/StorefrontBootstrap';
 import { assembleDictionary, ensureLocaleCatalogsLoaded } from './plugins/localeCatalog';
@@ -40,8 +39,8 @@ import App from './App.tsx';
 await ensureLocaleCatalogsLoaded();
 await ensurePluginFrontsLoaded();
 const DICTIONARIES: Record<Lang, Strings> = {
-  en: assembleDictionary(en, 'en', 'all'),
-  fr: assembleDictionary(en, 'fr', 'all'),
+  en: assembleDictionary('en', 'all'),
+  fr: assembleDictionary('fr', 'all'),
 };
 
 /**

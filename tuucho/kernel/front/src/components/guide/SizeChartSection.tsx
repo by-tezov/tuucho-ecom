@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { useLang } from '../../assets/i18n';
 import { Figure } from '../ui/Figure';
 import { images } from '../../assets/images/manifest';
+import { resolveBrandAsset, useBrandAssets } from '../../plugins/BrandAssetsContext';
 import { sizeChart } from '../../data/sizeChart';
 import styles from './SizeChartSection.module.css';
 
@@ -9,6 +10,7 @@ const SizeTipSets = lazy(() => import('./SizeTipSets'));
 
 export function SizeChartSection() {
   const { t } = useLang();
+  const brandAssets = useBrandAssets();
 
   return (
     <section aria-labelledby="chart-h" className={styles.section}>
@@ -19,7 +21,12 @@ export function SizeChartSection() {
         <p className={styles.sub}>{t.guide.chartSub}</p>
       </div>
       <div className={styles.grid}>
-        <Figure src={images.guide.sizeChart} alt={t.guide.chartTitle} aspectRatio="2 / 3" fit="fill" />
+        <Figure
+          src={resolveBrandAsset(brandAssets, 'guideSizeChart', images.guide.sizeChart)}
+          alt={t.guide.chartTitle}
+          aspectRatio="2 / 3"
+          fit="fill"
+        />
         {/* Titled by the section heading (RGAA 5.4). */}
         <table className={styles.table} aria-labelledby="chart-h">
           <thead>

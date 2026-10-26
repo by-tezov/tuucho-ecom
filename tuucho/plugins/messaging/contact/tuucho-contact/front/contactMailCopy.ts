@@ -1,5 +1,4 @@
 export const contactMailCopy = {
   intro:
-    'Who receives the guest contact form and the chat-owner copy. Same staff recipient rules as Spy e-mails (unlocked staff only; the customer role never gets these).',
-  needSpyPlugin: 'Enable the Spy e-mails plugin to pick contact recipients.',
+    'Who receives the guest contact form (contact.inbound) and the chat-owner copy (contact.chat) is set on Plugins, Spy e-mails, Configure, Rules. Nothing is assigned unless that list includes it.',
 };

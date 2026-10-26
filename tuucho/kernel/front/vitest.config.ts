@@ -62,6 +62,9 @@ export default defineConfig({
     clearMocks: true,
     coverage: {
       reporter: ['text', 'html'],
+      // Clone-root output tree (paths.outputDir default); matches the back
+      // c8 output so scripts/writeReportHub.ts can link both.
+      reportsDirectory: '../../output/report/coverage/front',
     },
   },
 });

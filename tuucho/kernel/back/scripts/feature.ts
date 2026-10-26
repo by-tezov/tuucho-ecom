@@ -4,8 +4,8 @@
  * files that consume it, its i18n namespace, its commands and its tests.
  *
  * It exists so a task starts with one command instead of several rounds of
- * search. Route ownership is derived from `docs/api/routes.json` rather than
- * stored in `docs/features.json`, so it cannot drift from the running app.
+ * search. Route ownership is derived from `tuucho/docs/api/routes.json` rather than
+ * stored in `tuucho/docs/features.json`, so it cannot drift from the running app.
  */
 import { readdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -27,11 +27,11 @@ type Feature = {
 
 type Route = { method: string; path: string; source?: string; middleware: string[] };
 
-const features = JSON.parse(await readFile(resolve(root, 'docs/features.json'), 'utf8')) as Record<
+const features = JSON.parse(await readFile(resolve(root, '../../docs/features.json'), 'utf8')) as Record<
   string,
   Feature
 >;
-const inventory = JSON.parse(await readFile(resolve(root, 'docs/api/routes.json'), 'utf8')) as {
+const inventory = JSON.parse(await readFile(resolve(root, '../../docs/api/routes.json'), 'utf8')) as {
   publicSurface: Route[];
   opsSurface: Route[];
 };
@@ -114,7 +114,7 @@ function section(title: string, lines: string[]): void {
 
 console.log(`Feature: ${requested}`);
 
-section('Documentation', [feature.apiDoc, feature.schemaDoc, 'docs/architecture/README.md']);
+section('Documentation', [feature.apiDoc, feature.schemaDoc, 'tuucho/docs/architecture/README.md']);
 
 section('Backend module', [
   feature.module,

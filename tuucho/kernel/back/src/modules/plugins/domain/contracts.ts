@@ -44,6 +44,8 @@ export interface PluginSettingField {
   options?: PluginSettingOption[] | undefined;
   /** Secret PEM / JSON: replace control is a textarea, still never shows the stored value. */
   long?: boolean | undefined;
+  /** Kept in config.json and settings, not drawn on the Settings tab. */
+  hidden?: boolean | undefined;
 }
 
 export interface PluginManifest {

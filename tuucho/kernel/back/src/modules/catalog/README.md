@@ -12,7 +12,7 @@ May import: `activity`, `plugins`, `settings`.
 
 Currently imports: `plugins`, `settings`.
 
-Feature map entry: `gallery` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- gallery` for its full span.
+Feature map entry: `gallery` in [tuucho/docs/features.json](../../../../../docs/features.json). Run `npm run feature -- gallery` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |

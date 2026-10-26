@@ -11,7 +11,7 @@ export interface VariationAxisVocabularyEntry {
 
 /**
  * Upserts the `variation` table of catalog source's layered
- * data-common.json (see docs/plans/nail-variations.md) into
+ * data-common.json (see tuucho/docs/plans/nail-variations.md) into
  * `variation_axes` / `variation_options`. `$table.key` references are
  * resolved by the caller (scripts/library.ts): only plain translations
  * arrive here.

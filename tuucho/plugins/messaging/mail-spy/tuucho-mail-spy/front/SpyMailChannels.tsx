@@ -3,10 +3,10 @@ import { Button, SegmentedSwitch, ToggleSwitch } from '@kernel/front/ui';
 import { AdminFilterSelect } from '@kernel/front/components/admin/AdminFilterSelect';
 import { useLang } from '@kernel/front/assets/i18n';
 import type { SpyMailChannel, SpyMailStaffRole } from './api';
-import { spyMailCopy } from './copy';
+import type { SpyMailCopy } from './copy';
 import styles from './AdminSpyMailPage.module.css';
 
-export type SpyMailCopy = typeof spyMailCopy;
+export type { SpyMailCopy };
 
 type AddMode = 'role' | 'email';
 

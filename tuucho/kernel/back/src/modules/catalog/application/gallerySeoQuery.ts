@@ -11,7 +11,7 @@ import { loadDefaultCopyResolver } from './productCopyResolution.js';
 export interface GallerySeoRow {
   productUid: string;
   /** A single-nail option: the row is that option's own page
-   * (docs/plans/nail-variation-copy.md). Absent for sets and for nails
+   * (tuucho/docs/plans/nail-variation-copy.md). Absent for sets and for nails
    * without options. */
   optionKey?: string;
   title: string;

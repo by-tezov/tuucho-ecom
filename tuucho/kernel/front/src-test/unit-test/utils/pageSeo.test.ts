@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/config/env', () => ({
   shopConfig: {
@@ -13,19 +13,21 @@ vi.mock('@/config/env', () => ({
   },
 }));
 
-import { en } from '@/assets/i18n/strings.en';
+import { assembleDictionary, ensureLocaleCatalogsLoaded } from '@/plugins/localeCatalog';
 import type { Strings } from '@/assets/i18n/types';
-import { deepMerge } from '@/plugins/deepMerge';
-import { catalog as kernelFr } from '../../../../../plugins/locale/tuucho-locale-fr/front/catalog';
-import { catalog as faqFr } from '../../../../../plugins/home/faq/tuucho-home-faq-locale-fr/front/catalog';
-import { catalog as faqEn } from '../../../../../plugins/home/faq/tuucho-home-faq/front/catalog';
-import { catalog as guidesFr } from '../../../../../../src/plugins/demo/guides/demo-page-guides-locale-fr/front/catalog';
 import { staticPageJsonLd } from '@/utils/pageSeo';
 import { poseStepsFor } from '@/utils/poseVideo';
 
-const fr = deepMerge(deepMerge(deepMerge(en, kernelFr), faqFr), guidesFr);
-const english = deepMerge(en, faqEn);
-const DICTIONARIES: Record<'fr' | 'en', Strings> = { fr, en: english };
+let en: Strings;
+let fr: Strings;
+let DICTIONARIES: Record<'fr' | 'en', Strings>;
+
+beforeAll(async () => {
+  await ensureLocaleCatalogsLoaded();
+  en = assembleDictionary('en', 'all');
+  fr = assembleDictionary('fr', 'all');
+  DICTIONARIES = { fr, en };
+});
 
 function graph(path: string, lang: 'fr' | 'en' = 'fr'): Record<string, unknown>[] {
   const jsonLd = staticPageJsonLd(path, DICTIONARIES[lang], lang);

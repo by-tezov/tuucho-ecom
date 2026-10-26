@@ -1,0 +1,28 @@
+{
+  "name": "@tuucho/plugin-page-about",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Storefront about page at /about. Enable equals shop info menu.",
+  "tuucho": {
+    "id": "page-about",
+    "installPath": "src/plugins/about/page-about",
+    "name": "About",
+    "kind": "page",
+    "defaultEnabled": true,
+    "provides": [
+      "StorefrontPage"
+    ],
+    "route": "/about",
+    "nav": {
+      "key": "about",
+      "order": 40
+    },
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    }
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../tuucho/plugin-sdk"
+  }
+}

@@ -5,17 +5,22 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
+    "types": ["vite/client"],
+    "allowArbitraryExtensions": true,
+    "resolveJsonModule": true,
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "@kernel/front/*": ["tuucho/kernel/front/src/*"],
-      "@kernel/back/*": ["tuucho/kernel/back/src/*"],
-      "@tuucho/plugin-sdk": ["tuucho/plugin-sdk/src/index.ts"]
+      "@kernel/front/*": ["./tuucho/kernel/front/src/*"],
+      "@kernel/back/*": ["./tuucho/kernel/back/src/*"],
+      "@tuucho/plugin-sdk": ["./tuucho/plugin-sdk/src/index.ts"],
+      "@shop/*": ["./src/*"]
     }
   },
   "include": [
+    "tuucho/kernel/front/src/vite-env.d.ts",
     "tuucho/plugins/**/*.ts",
     "tuucho/plugins/**/*.tsx",
     "src/plugins/**/*.ts",

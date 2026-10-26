@@ -5,7 +5,7 @@ import { localizedPath } from '../config/i18nRoutes';
 import type { Strings } from '../assets/i18n/types';
 import { shopConfig } from '../config/env';
 import { useAuthSession } from '../state/AuthContext';
-import { markCheckoutEntityDeleted } from '../state/cartBootstrapCache';
+import { invalidateCartBootstrapCache, markCheckoutEntityDeleted } from '../state/cartBootstrapCache';
 import { Seo } from '../components/seo/Seo';
 import { LegalPageBackLink } from '../components/layout/LegalPageBackLink';
 import { AccountShell } from '../components/account/AccountShell';
@@ -157,6 +157,8 @@ export function AccountAddressesPage() {
     } else {
       await authedRequest((token) => authApi.updateAddress(token, addressId, input));
     }
+    // Profile edits must not let /cart paint its pre-profile snapshot.
+    invalidateCartBootstrapCache();
     await refreshAddresses();
     setAddressModal(null);
   }
@@ -199,6 +201,7 @@ export function AccountAddressesPage() {
     setPendingDeleteId(null);
     await authedRequest((token) => authApi.deleteAddress(token, id));
     markCheckoutEntityDeleted(id);
+    invalidateCartBootstrapCache();
     await refreshAddresses();
   }
 
@@ -212,11 +215,13 @@ export function AccountAddressesPage() {
       return;
     }
     await authedRequest((token) => authApi.setDefaultAddress(token, id));
+    invalidateCartBootstrapCache();
     await refreshAddresses();
   }
 
   async function handleUnsetDefault(id: string) {
     await authedRequest((token) => authApi.unsetDefaultAddress(token, id));
+    invalidateCartBootstrapCache();
     await refreshAddresses();
   }
 
@@ -230,6 +235,7 @@ export function AccountAddressesPage() {
     await authedRequest((token) => authApi.unsetDefaultCourier(token));
     setDefaultCourierCode(null);
     await authedRequest((token) => authApi.setDefaultAddress(token, addressId));
+    invalidateCartBootstrapCache();
     await refreshAddresses();
   }
 

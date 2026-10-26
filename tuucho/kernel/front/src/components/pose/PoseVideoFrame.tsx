@@ -1,4 +1,5 @@
 import { images } from '../../assets/images/manifest';
+import { resolveBrandAsset, useBrandAssets } from '../../plugins/BrandAssetsContext';
 import { youtubeEmbedUrl } from '../../utils/youtube';
 import styles from './PoseVideoFrame.module.css';
 
@@ -33,12 +34,17 @@ interface PoseVideoFrameProps {
  * it sees a video is a crawler that reports no video at all.
  */
 export function PoseVideoFrame({ url, title, posterAlt, fallback, className }: PoseVideoFrameProps) {
+  const brandAssets = useBrandAssets();
   const embedUrl = shouldLoadVideo ? youtubeEmbedUrl(url) : undefined;
   const frameClass = [styles.frame, className].filter(Boolean).join(' ');
 
   const poster = (
     <>
-      <img className={styles.poster} src={images.pose.videoPoster} alt={posterAlt} />
+      <img
+        className={styles.poster}
+        src={resolveBrandAsset(brandAssets, 'poseVideoPoster', images.pose.videoPoster)}
+        alt={posterAlt}
+      />
       <div aria-hidden="true" className={styles.playBadge}>
         ▶
       </div>

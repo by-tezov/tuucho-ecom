@@ -32,6 +32,8 @@ export const CORE_FRONT_VIEWS = {
   cart: 'view.cart',
   product: 'view.product',
   invoicePreview: 'view.invoice.preview',
+  /** Cold-boot splash (`/` entry). Receives ariaLabel/markAria/tagline/instant/speed via useSlotProps. */
+  bootSplash: 'view.boot.splash',
 } as const;
 
 export type FrontSlotName = (typeof CORE_FRONT_SLOTS)[keyof typeof CORE_FRONT_SLOTS];

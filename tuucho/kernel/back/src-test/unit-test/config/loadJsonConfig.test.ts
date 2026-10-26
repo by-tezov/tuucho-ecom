@@ -7,13 +7,11 @@ import {
   applyTestEnvOverlays,
   flattenConfigToEnv,
   inspectConfig,
+  listEnvironments,
   resolveAppTarget,
 } from '../../../src/config/loadJsonConfig.js';
 
-function writeTree(
-  dir: string,
-  files: Record<string, unknown>,
-): void {
+function writeTree(dir: string, files: Record<string, unknown>): void {
   for (const [relative, body] of Object.entries(files)) {
     const path = join(dir, relative);
     mkdirSync(join(path, '..'), { recursive: true });
@@ -32,16 +30,16 @@ test('APP_TARGET defaults to dev and accepts a new folder name', () => {
   assert.equal(resolveAppTarget(undefined), 'dev');
   assert.equal(resolveAppTarget(''), 'dev');
   assert.equal(resolveAppTarget('staging'), 'staging');
-  assert.throws(() => resolveAppTarget('Staging'), /folder name/);
+  assert.throws(() => resolveAppTarget('Staging'), /APP_TARGET must match/);
 });
 
-test('missing env folder errors naming it', () => {
+test('missing env file errors naming it', () => {
   const dir = mkdtempSync(join(tmpdir(), 'tuucho-config-'));
   writeTree(dir, {
     'config.json': { http: { port: 3010 } },
     'config.private.example.json': {},
-    'dev/config.json': { http: { apiBaseUrl: 'http://localhost:3010' } },
-    'dev/config.private.example.json': requiredPrivate,
+    'config.dev.json': { http: { apiBaseUrl: 'http://localhost:3010' } },
+    'config.private.dev.example.json': requiredPrivate,
   });
   const status = inspectConfig(dir, 'staging');
   assert.equal(status.ok, false);
@@ -54,8 +52,8 @@ test('missing private + example present warns and launches', () => {
   writeTree(dir, {
     'config.json': { http: { port: 3010 } },
     'config.private.example.json': {},
-    'dev/config.json': { http: { apiBaseUrl: 'http://localhost:3010' } },
-    'dev/config.private.example.json': requiredPrivate,
+    'config.dev.json': { http: { apiBaseUrl: 'http://localhost:3010' } },
+    'config.private.dev.example.json': requiredPrivate,
   });
   const status = inspectConfig(dir, 'dev');
   assert.equal(status.ok, true);
@@ -68,9 +66,9 @@ test('present private with missing keys errors naming each key', () => {
   writeTree(dir, {
     'config.json': {},
     'config.private.example.json': {},
-    'dev/config.json': {},
-    'dev/config.private.example.json': requiredPrivate,
-    'dev/config.private.json': { database: { url: '' }, jwt: {} },
+    'config.dev.json': {},
+    'config.private.dev.example.json': requiredPrivate,
+    'config.private.dev.json': { database: { url: '' }, jwt: {} },
   });
   const status = inspectConfig(dir, 'dev');
   assert.equal(status.ok, false);
@@ -84,9 +82,9 @@ test('merge is top to bottom; bottom overrides top', () => {
     'config.json': { http: { port: 1, apiBaseUrl: 'common' }, logs: { api: true } },
     'config.private.example.json': {},
     'config.private.json': { jwt: { secret: 'common-jwt' }, ops: { token: 'common-ops' } },
-    'dev/config.json': { http: { port: 2 } },
-    'dev/config.private.example.json': requiredPrivate,
-    'dev/config.private.json': {
+    'config.dev.json': { http: { port: 2 } },
+    'config.private.dev.example.json': requiredPrivate,
+    'config.private.dev.json': {
       ...requiredPrivate,
       jwt: { secret: 'env-jwt' },
     },
@@ -125,4 +123,45 @@ test('TUUCHO_TEST overlays win over leftover URL env without touching APP_PORT',
   assert.equal(env.URL_FRONTEND_BASE, 'http://127.0.0.1:4173');
   assert.equal(env.URL_PUBLIC_MEDIA, 'http://127.0.0.1:3999/media');
   assert.equal(env.APP_PORT, '3010');
+});
+
+test('flatten maps the i18n and identity test-token sections onto env names', () => {
+  const env = flattenConfigToEnv({
+    i18n: { default: 'fr', enabled: ['fr', 'en'] },
+    identity: { testTokenPrefix: 'shop-test-' },
+  });
+  assert.equal(env.I18N_DEFAULT_LANG, 'fr');
+  assert.equal(env.I18N_ENABLED_LANGS, 'fr,en');
+  assert.equal(env.IDENTITY_TEST_TOKEN_PREFIX, 'shop-test-');
+});
+
+test('TUUCHO_TEST_LOADING_MIN fills the three loading floors only when unset', () => {
+  const env: NodeJS.ProcessEnv = {
+    VITE_LOADING_MIN: '900',
+    TUUCHO_TEST_LOADING_MIN: '50',
+    TUUCHO_TEST_BOOT_SPLASH_SPEED: '4',
+  };
+  applyTestEnvOverlays(env);
+  assert.equal(env.VITE_LOADING_MIN, '900');
+  assert.equal(env.VITE_LOADING_MIN_SHORT, '50');
+  assert.equal(env.VITE_LOADING_MIN_LONG, '50');
+  assert.equal(env.VITE_BOOT_SPLASH_SPEED, '4');
+});
+
+test('config.role.json is not an environment name', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tuucho-config-'));
+  writeTree(dir, {
+    'config.json': {},
+    'config.dev.json': {},
+    'config.role.json': { roles: [] },
+    'config.role.dev.json': { roles: [] },
+  });
+  assert.deepEqual(listEnvironments(dir), ['dev']);
+});
+
+test('TUUCHO_TEST value overlays leave untouched targets alone when blank', () => {
+  const env: NodeJS.ProcessEnv = { TUUCHO_TEST_LOADING_MIN: '  ' };
+  applyTestEnvOverlays(env);
+  assert.equal(env.VITE_LOADING_MIN, undefined);
+  assert.equal(env.VITE_BOOT_SPLASH_SPEED, undefined);
 });

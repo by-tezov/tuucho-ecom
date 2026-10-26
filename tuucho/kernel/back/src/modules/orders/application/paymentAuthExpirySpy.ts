@@ -11,7 +11,7 @@
  * free orders are `not_required`, so neither is queried here.
  *
  * Never captures, cancels, or otherwise decides anything about the payment —
- * see docs/cron/README.md's "no automatic Stripe reconciliation" policy.
+ * see tuucho/docs/cron/README.md's "no automatic Stripe reconciliation" policy.
  * Idempotent: `payment_auth_expiry_spy_sends` caps this at one mail per order
  * per day, so the cron may run as often as it likes.
  */

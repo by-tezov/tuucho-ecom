@@ -18,7 +18,7 @@ plugin-sdk/                                # @tuucho/plugin-sdk
 kernel/back  kernel/front
 plugins/tuucho/<group>/<feature>/<id>/     # bundled
 plugins/tuucho/<group>/<feature>/<id>-locale-fr/
-plugins/tuucho/locale/tuucho-locale-fr/    # standalone locale pack
+plugins/tuucho/kernel-locale/tuucho-kernel-locale-fr/    # standalone locale pack
 plugins/user/<group>/<feature>/<id>/       # user / demo / upload
 ```
 
@@ -38,8 +38,8 @@ Front globs `plugins/**/front/index.tsx` (and catalog / adminCatalog). Backend
 
 | Id | Path | Notes |
 | --- | --- | --- |
-| `demo-page-guides` | `plugins/user/demo/guides/demo-page-guides` | Demo Guides. Nav key `guide`. |
-| `demo-page-guides-locale-fr` | `plugins/user/demo/guides/demo-page-guides-locale-fr` | Complement next to parent. |
+| `page-guides` | `plugins/user/demo/guides/page-guides` | Demo Guides. Nav key `guide`. |
+| `page-guides-locale-fr` | `plugins/user/demo/guides/page-guides-locale-fr` | Complement next to parent. |
 | `page-legal` | `plugins/user/legal/pages/page-legal` | Footer only. Not in Info. |
 | `page-legal-locale-fr` | `plugins/user/legal/pages/page-legal-locale-fr` | Complement next to parent. |
 | `page-accessibility` | `plugins/user/legal/pages/page-accessibility` | Footer only. Not in Info. |

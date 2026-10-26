@@ -1,11 +1,14 @@
 import type { Lang } from '../assets/i18n/types';
 import { shopConfig } from './env';
+import { runtimeDefaultLang } from './runtimeI18n';
 
-// Duplicated from assets/i18n/index.ts's `defaultLang` rather than imported
-// from there: that module re-exports LanguageContext, which needs this file
-// (stripLangPrefix/localizedPath) — importing the value back from assets/i18n
-// would be a circular import. The default language changing is a rebrand-
-// level event, not a risk worth carrying a cycle to avoid duplicating.
+// Build-time / pre-bootstrap default, duplicated as a constant rather than
+// read through runtimeDefaultLang() because prerender (entry-server.tsx) runs
+// before any bootstrap exists and needs a static value. Runtime paths use
+// runtimeDefaultLang() instead — see orderedLanguages below. The cycle note:
+// assets/i18n/index.ts re-exports LanguageContext, which needs this file
+// (stripLangPrefix/localizedPath), so the runtime accessor lives in
+// config/runtimeI18n.ts, importable from both sides without a cycle.
 export const DEFAULT_LANG: Lang = 'en';
 
 /** `og:locale` value per language — also the source for each language's
@@ -30,12 +33,12 @@ export const OG_LOCALES: Record<Lang, string> = {
  */
 export const ENABLED_LANGUAGES: Lang[] = shopConfig.enabledLanguages;
 
-const NON_DEFAULT_LANGUAGES: Lang[] = ENABLED_LANGUAGES.filter((lang) => lang !== DEFAULT_LANG);
-
 /** Default language first, then every other enabled language — hreflang and
- * prerender order. */
+ * prerender order. The default is resolved at call time: after bootstrap, the
+ * configured `i18n.default` leads instead of the build-time DEFAULT_LANG. */
 export function orderedLanguages(): Lang[] {
-  return [DEFAULT_LANG, ...NON_DEFAULT_LANGUAGES];
+  const lead = runtimeDefaultLang();
+  return [lead, ...ENABLED_LANGUAGES.filter((lang) => lang !== lead)];
 }
 
 /** Given a pathname, splits off a leading `/xx` segment if `xx` is an

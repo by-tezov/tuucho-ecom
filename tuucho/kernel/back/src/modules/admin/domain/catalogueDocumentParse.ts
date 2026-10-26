@@ -1,5 +1,5 @@
 /** Parse a manager-shaped catalogue document into an importLibrarySet body. */
-import { PRODUCT_UID_PATTERN } from '../../catalog/domain/productUid.js';
+import { isProductUid } from '../../catalog/domain/productUid.js';
 import {
   parseAccessorySource,
   AccessoryPackError,
@@ -238,8 +238,10 @@ function parseProductUid(document: CatalogueDocument): string {
     throw new CatalogueDocumentError('product-uid is required.');
   }
   const productUid = raw.trim().toUpperCase();
-  if (!PRODUCT_UID_PATTERN.test(productUid)) {
-    throw new CatalogueDocumentError('product-uid must look like LL-LL-DDD.');
+  if (!isProductUid(productUid)) {
+    throw new CatalogueDocumentError(
+      'product-uid must use A-Z, 0-9 and single dashes (1-20 characters).',
+    );
   }
   return productUid;
 }

@@ -30,6 +30,12 @@
     font-size: 0.9375rem;
     font-weight: 600;
     cursor: pointer;
+    /* The fixed MobileTabBar is z-index 90: the link must paint above it
+       when the page end scrolls under the bar, and scroll-margin keeps a
+       programmatic scrollIntoView from parking it beneath the bar. */
+    position: relative;
+    z-index: 91;
+    scroll-margin-bottom: var(--tab-bar-height, 0px);
   }
 
   .backLink:hover {

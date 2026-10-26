@@ -159,7 +159,7 @@ export function GiftShareCardFace({
   occasionLabel,
 }: GiftShareCardFaceProps) {
   const theme = giftShareCardTheme(style);
-  const art = SHARE_CARD_ART[style];
+  const art = SHARE_CARD_ART[style] ?? SHARE_CARD_ART.classic;
   const receiver = receiverName.trim();
   const giver = giverDisplayName.trim();
   const text = message;

@@ -1,7 +1,7 @@
 import type { ApplyRequest } from './scopedPaths.js';
 import { applyUpdates, type ApplyResult } from './applyUpdates.js';
 import type { UpdateLogItem } from './log.js';
-import { createGithubClient } from './githubClient.js';
+import { createUpdatingGithubClient } from '../githubRepositoryAccess.js';
 
 export type UpdateJob = {
   id: string;
@@ -28,7 +28,7 @@ export function startUpdateJob(request: ApplyRequest): UpdateJob {
     restartRequired: false,
   };
   current = job;
-  void applyUpdates(request, createGithubClient(), (log) => {
+  void applyUpdates(request, createUpdatingGithubClient(), (log) => {
     job.log = log;
   })
     .then((result: ApplyResult) => {

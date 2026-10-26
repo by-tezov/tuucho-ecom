@@ -32,42 +32,45 @@ test('disk plugins are package.json with tuucho, never plugin.json', async () =>
 
 test('non-locale plugins require a description; locale packs may omit it', () => {
   assert.equal(pluginRequiresDescription('tuucho-commerce-gift', 'commerce'), true);
-  assert.equal(pluginRequiresDescription('demo-page-guides', 'generic'), true);
+  assert.equal(pluginRequiresDescription('page-guides', 'generic'), true);
   assert.equal(pluginRequiresDescription('tuucho-commerce-gift-locale-fr', 'locale'), false);
-  assert.equal(pluginRequiresDescription('tuucho-locale-fr', 'locale'), false);
+  assert.equal(pluginRequiresDescription('tuucho-kernel-locale-fr', 'locale'), false);
   assert.equal(pluginRequiresDescription('shop-notes-locale-fr', 'generic'), false);
   assert.equal(resolvePluginDescription('shop-notes', 'generic', ''), undefined);
   assert.equal(resolvePluginDescription('shop-notes', 'generic', '   '), undefined);
   assert.equal(resolvePluginDescription('shop-notes', 'generic', undefined), undefined);
   assert.equal(resolvePluginDescription('shop-notes', 'generic', 'Adds checkout notes.'), 'Adds checkout notes.');
-  assert.equal(resolvePluginDescription('tuucho-locale-fr', 'locale', ''), '');
+  assert.equal(resolvePluginDescription('tuucho-kernel-locale-fr', 'locale', ''), '');
   assert.equal(resolvePluginDescription('tuucho-commerce-gift-locale-fr', 'locale', undefined), '');
 });
 
 test('locale complements follow the parent plugin id, not the product locale pack', () => {
   assert.equal(localeComplementParentId('tuucho-journal-api-locale-fr'), 'tuucho-journal-api');
   assert.equal(localeComplementParentId('tuucho-commerce-gift-locale-fr'), 'tuucho-commerce-gift');
-  assert.equal(localeComplementParentId('demo-page-guides-locale-fr'), 'demo-page-guides');
-  assert.equal(localeComplementParentId('tuucho-locale-fr'), null);
+  assert.equal(localeComplementParentId('page-guides-locale-fr'), 'page-guides');
+  assert.equal(localeComplementParentId('tuucho-kernel-locale-en'), null);
+  assert.equal(localeComplementParentId('tuucho-kernel-locale-fr'), null);
   assert.equal(localeComplementParentId('tuucho-journal-api'), null);
   assert.deepEqual(
     localeComplementIdsFor('tuucho-journal-api', [
       'tuucho-journal-api',
+      'tuucho-journal-api-locale-en',
       'tuucho-journal-api-locale-fr',
       'tuucho-journal-admin',
       'tuucho-journal-cron',
-      'tuucho-locale-fr',
+      'tuucho-kernel-locale-en',
+      'tuucho-kernel-locale-fr',
     ]),
-    ['tuucho-journal-api-locale-fr'],
+    ['tuucho-journal-api-locale-en', 'tuucho-journal-api-locale-fr'],
   );
 });
 
 test('tuucho ids are reserved for bundled plugins', () => {
-  assert.equal(isTuuchoPluginId('tuucho-page-home'), true);
+  assert.equal(isTuuchoPluginId('tuucho-theme-default'), true);
   assert.equal(isTuuchoPluginId('page-home'), false);
   assert.equal(isTuuchoPluginId('tuucho-'), false);
-  assert.equal(isUserPluginId('demo-page-guides'), true);
-  assert.equal(isUserPluginId('tuucho-page-home'), false);
+  assert.equal(isUserPluginId('page-guides'), true);
+  assert.equal(isUserPluginId('page-home'), true);
 });
 
 test('disk plugins that require a description have one', async () => {
@@ -95,7 +98,7 @@ test('nested bundled plugins keep leaf folder = tuucho- id', async () => {
   }
   const ids = new Set(manifests.map((plugin) => plugin.id));
   assert.ok(ids.has('tuucho-docs-developer'));
-  assert.ok(ids.has('tuucho-home-faq'));
+  assert.ok(ids.has('home-faq'));
   assert.ok(!ids.has('tuucho-page-faq'));
   assert.ok(ids.has('tuucho-commerce-vinted-review'));
   assert.ok(!ids.has('tuucho-commerce-reviews'));
@@ -116,15 +119,20 @@ test('locale complements sit in the same feature folder as their parent', async 
     if (!parent) continue;
     assert.equal(dirname(plugin.sourceDir ?? ''), dirname(parent.sourceDir ?? ''), plugin.id);
   }
-  const faq = byId.get('tuucho-home-faq');
-  assert.ok(faq?.sourceDir?.includes('/plugins/home/faq/'), faq?.sourceDir);
+  const faq = byId.get('home-faq');
+  assert.ok(faq?.sourceDir?.includes('/src/plugins/home/faq/'), faq?.sourceDir);
   const ids = manifests.map((plugin) => plugin.id);
-  assert.deepEqual(localeComplementIdsFor('tuucho-journal-api', ids), ['tuucho-journal-api-locale-fr']);
+  assert.deepEqual(localeComplementIdsFor('tuucho-journal-api', ids), [
+    'tuucho-journal-api-locale-en',
+    'tuucho-journal-api-locale-fr',
+  ]);
   assert.ok(!localeComplementIdsFor('tuucho-journal-api', ids).includes('tuucho-journal-admin'));
-  const localeFr = byId.get('tuucho-locale-fr');
-  assert.ok(localeFr?.sourceDir?.endsWith('/plugins/locale/tuucho-locale-fr'), localeFr?.sourceDir);
-  const demo = byId.get('demo-page-guides');
-  const demoFr = byId.get('demo-page-guides-locale-fr');
+  const localeEn = byId.get('tuucho-kernel-locale-en');
+  assert.ok(localeEn?.sourceDir?.endsWith('/plugins/kernel-locale/tuucho-kernel-locale-en'), localeEn?.sourceDir);
+  const localeFr = byId.get('tuucho-kernel-locale-fr');
+  assert.ok(localeFr?.sourceDir?.endsWith('/plugins/kernel-locale/tuucho-kernel-locale-fr'), localeFr?.sourceDir);
+  const demo = byId.get('page-guides');
+  const demoFr = byId.get('page-guides-locale-fr');
   assert.equal(dirname(demo?.sourceDir ?? ''), dirname(demoFr?.sourceDir ?? ''));
   assert.ok(demo?.sourceDir?.includes('/src/plugins/demo/guides/'), demo?.sourceDir);
 });
@@ -132,7 +140,7 @@ test('locale complements sit in the same feature folder as their parent', async 
 test('repository is kept for user plugins and ignored on tuucho-*', async () => {
   const manifests = await discoverDiskPlugins();
   const bundled = manifests.find((plugin) => plugin.id === 'tuucho-theme-default');
-  const demo = manifests.find((plugin) => plugin.id === 'demo-page-guides');
+  const demo = manifests.find((plugin) => plugin.id === 'page-guides');
   assert.equal(bundled?.repository, undefined);
   assert.equal(demo?.repository, undefined);
 });
@@ -169,22 +177,22 @@ test('parser keeps url, section, description, and long secrets', async () => {
 
 test('user plugins may nest under plugins/user and must not use tuucho-', async () => {
   const manifests = await discoverDiskPlugins();
-  const demo = manifests.find((plugin) => plugin.id === 'demo-page-guides');
-  assert.ok(demo, 'demo-page-guides');
+  const demo = manifests.find((plugin) => plugin.id === 'page-guides');
+  assert.ok(demo, 'page-guides');
   assert.equal(isUserPluginId(demo.id), true);
   assert.ok(demo.sourceDir?.includes('/src/plugins/demo/'), demo.sourceDir);
-  assert.equal(basename(demo.sourceDir ?? ''), 'demo-page-guides');
-  assert.equal(demo.installPath, 'src/plugins/demo/guides/demo-page-guides');
+  assert.equal(basename(demo.sourceDir ?? ''), 'page-guides');
+  assert.equal(demo.installPath, 'src/plugins/demo/guides/page-guides');
   const legal = manifests.find((plugin) => plugin.id === 'page-legal');
   const legalFr = manifests.find((plugin) => plugin.id === 'page-legal-locale-fr');
   assert.ok(legal, 'page-legal');
   assert.ok(legalFr, 'page-legal-locale-fr');
   assert.equal(isUserPluginId(legal.id), true);
   assert.equal(isTuuchoPluginId(legal.id), false);
-  assert.ok(legal.sourceDir?.includes('/src/plugins/legal/pages/'), legal.sourceDir);
+  assert.ok(legal.sourceDir?.includes('/src/plugins/legal/'), legal.sourceDir);
   assert.equal(basename(legal.sourceDir ?? ''), 'page-legal');
-  assert.equal(legal.installPath, 'src/plugins/legal/pages/page-legal');
-  assert.equal(legalFr.installPath, 'src/plugins/legal/pages/page-legal-locale-fr');
+  assert.equal(legal.installPath, 'src/plugins/legal/legal/page-legal');
+  assert.equal(legalFr.installPath, 'src/plugins/legal/legal/page-legal-locale-fr');
   assert.equal(dirname(legal.sourceDir ?? ''), dirname(legalFr.sourceDir ?? ''));
   assert.ok(!manifests.some((plugin) => plugin.id === 'tuucho-page-legal'));
   const accessibility = manifests.find((plugin) => plugin.id === 'page-accessibility');
@@ -196,8 +204,8 @@ test('user plugins may nest under plugins/user and must not use tuucho-', async 
   assert.equal(isUserPluginId(accessibility.id), true);
   assert.equal(isTuuchoPluginId(accessibility.id), false);
   assert.equal(isUserPluginId(footerIdentity.id), true);
-  assert.equal(accessibility.installPath, 'src/plugins/legal/pages/page-accessibility');
-  assert.equal(accessibilityFr.installPath, 'src/plugins/legal/pages/page-accessibility-locale-fr');
+  assert.equal(accessibility.installPath, 'src/plugins/legal/accessibility/page-accessibility');
+  assert.equal(accessibilityFr.installPath, 'src/plugins/legal/accessibility/page-accessibility-locale-fr');
   assert.equal(footerIdentity.installPath, 'src/plugins/footer/identity/footer-identity');
   assert.equal(accessibility.route, '/accessibility');
   assert.equal(accessibility.nav, undefined);

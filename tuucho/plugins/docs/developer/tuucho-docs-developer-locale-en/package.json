@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-tuucho-docs-developer-locale-en",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "English strings for docs-developer. Enable with locale-en for English UI.",
+  "tuucho": {
+    "id": "tuucho-docs-developer-locale-en",
+    "installPath": "tuucho/plugins/docs/developer/tuucho-docs-developer-locale-en",
+    "name": "docs-developer English",
+    "kind": "locale",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "tuucho-docs-developer",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

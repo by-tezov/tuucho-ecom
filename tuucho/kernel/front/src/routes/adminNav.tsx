@@ -247,6 +247,16 @@ export function buildAdminSections(
       count: 0,
     },
     {
+      id: 'core',
+      access: 'preferences',
+      group: 'settings',
+      to: adminPath('/core'),
+      label: a.nav.coreLabel,
+      description: a.nav.coreDescription,
+      icon: <PreferencesTileIcon />,
+      count: 0,
+    },
+    {
       id: 'preferences',
       access: 'preferences',
       group: 'settings',
@@ -383,16 +393,21 @@ export function adminPermissionRows(t: { admin: AdminStrings }, a: AdminUiString
     description: a.roles.catalogueEditDescription,
   });
   const preferences = rows.findIndex((row) => row.code === 'preferences');
-  rows.splice(preferences + 1, 0, {
-    code: 'plugin_config_import',
-    group: 'settings',
-    label: a.roles.pluginConfigImportLabel,
-    description: a.roles.pluginConfigImportDescription,
-  }, {
-    code: 'plugin_config_export',
-    group: 'settings',
-    label: a.roles.pluginConfigExportLabel,
-    description: a.roles.pluginConfigExportDescription,
-  });
+  rows.splice(
+    preferences + 1,
+    0,
+    {
+      code: 'plugin_config_import',
+      group: 'settings',
+      label: a.roles.pluginConfigImportLabel,
+      description: a.roles.pluginConfigImportDescription,
+    },
+    {
+      code: 'plugin_config_export',
+      group: 'settings',
+      label: a.roles.pluginConfigExportLabel,
+      description: a.roles.pluginConfigExportDescription,
+    },
+  );
   return rows;
 }

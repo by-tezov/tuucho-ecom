@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-tuucho-signin-google-locale-en",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "English strings for tuucho-signin-google. Enable with locale-en for English UI.",
+  "tuucho": {
+    "id": "tuucho-signin-google-locale-en",
+    "installPath": "tuucho/plugins/identity/google/tuucho-signin-google-locale-en",
+    "name": "google English",
+    "kind": "locale",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "tuucho-signin-google",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

@@ -1,10 +1,23 @@
 import { useLang } from '../../assets/i18n';
 import { Figure } from '../ui/Figure';
 import { images } from '../../assets/images/manifest';
+import { resolveBrandAsset, useBrandAssets } from '../../plugins/BrandAssetsContext';
 import styles from './PosePrep.module.css';
+
+// Positional, same order as images.pose.prep: prep-4 exists twice ("avec
+// colle" / "avec patch"), hence the two distinct keys.
+const PREP_KEYS = [
+  'posePrep1',
+  'posePrep2',
+  'posePrep3',
+  'posePrep4Glue',
+  'posePrep4Patch',
+  'posePrep5',
+] as const;
 
 export function PosePrep() {
   const { t } = useLang();
+  const brandAssets = useBrandAssets();
 
   return (
     <section aria-labelledby="prep-h" className={styles.section}>
@@ -21,7 +34,7 @@ export function PosePrep() {
             // steps that intentionally share the same displayed number "4".
             <li key={i} className={styles.step}>
               <Figure
-                src={images.pose.prep[i] ?? ''}
+                src={resolveBrandAsset(brandAssets, PREP_KEYS[i] ?? 'posePrep1', images.pose.prep[i] ?? '')}
                 alt={`${t.pose.prepTitle}, ${step.title}`}
                 aspectRatio="4 / 3"
                 className={styles.imageWrap}

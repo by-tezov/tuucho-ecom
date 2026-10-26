@@ -6,6 +6,15 @@
  */
 export interface AppConfig {
   target: string;
+  /** Supported-language configuration (`i18n.default` / `i18n.enabled` in
+   * public JSON). `defaultLanguage` is the fallback for header/preference
+   * resolution (utils/language.ts); `enabledLanguages` is what the storefront
+   * bootstrap advertises to the front. Values are validated against
+   * utils/language.ts's LANGUAGES at load. */
+  i18n: {
+    defaultLanguage: import('../utils/language.js').Language;
+    enabledLanguages: import('../utils/language.js').Language[];
+  };
   /** false for both 'preprod' and 'prod' — anywhere real visitors or real
    * secrets are involved gets production-grade behavior (locked-down
    * CORS); only true local dev gets the relaxed default (see server.ts's
@@ -18,6 +27,13 @@ export interface AppConfig {
   publicDir: string;
   privateDir: string;
   devDir: string | undefined;
+  /** Root for generated/dev artifacts (reports, caches, log downloads,
+   * coverage). From `paths.outputDir` / OUTPUT_DIR; a relative value
+   * resolves against the shop root, unset defaults to `<shopRoot>/output`.
+   * When `paths.publicDir` / `paths.privateDir` / `paths.devDir` are not set
+   * they fall back to `<outputDir>/public`, `<outputDir>/private` and
+   * `<outputDir>/dev` respectively; an explicit per-key value always wins. */
+  outputDir: string;
   /** When true, outbound mail is written under DEV_DIR / DEV_EMAIL_* instead
    * of SMTP (see email.service.ts / devEmailWriter.ts). Always on for `dev`.
    * On `preprod`, only when ROUTE_EMAIL_FOLDER=true. Always off for `prod`
@@ -322,9 +338,9 @@ export interface AppConfig {
     gracePeriodDays: number;
     reminderDaysBeforeDays: number;
   };
-  /** Blank in a fresh dev checkout (services/email.service.ts writes to
-   * output/emails/ instead of sending when smtp.host is undefined); required
-   * outside dev. */
+  /** Blank in a fresh dev checkout (devEmailWriter.ts writes the message
+   * under config.devEmailDir instead of sending when smtp.host is
+   * undefined); required outside dev. */
   smtp: {
     host: string | undefined;
     port: number | undefined;

@@ -12,7 +12,7 @@ May import: `activity`, `catalog`, `commerce`, `customers`, `identity`, `messagi
 
 Currently imports: `cart`, `commerce`, `customers`, `identity`, `shipping`.
 
-Feature map entry: `delivery` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- delivery` for its full span.
+Feature map entry: `delivery` in [tuucho/docs/features.json](../../../../../docs/features.json). Run `npm run feature -- delivery` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |

@@ -1,9 +1,8 @@
 {
   "name": "tuucho-ecom",
   "private": true,
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Self-hosted batteries-included e-commerce platform: kernel plus bundled plugins.",
-  "license": "MIT",
   "engines": {
     "node": ">=22.13"
   },
@@ -33,6 +32,13 @@
     "versioning:check": "node scripts/tuucho-versioning.mjs --check",
     "config:migrate": "npm --prefix tuucho/kernel/back run config:migrate",
     "config:doctor": "npm --prefix tuucho/kernel/back run config:doctor",
-    "config:env": "npm --prefix tuucho/kernel/back run config:env"
+    "config:env": "npm --prefix tuucho/kernel/back run config:env",
+    "typecheck": "tsc -p tsconfig.json",
+    "format": "prettier --write \"tuucho/**/*.{ts,tsx,css,mjs,json,md}\" \"src/**/*.{ts,tsx,css,json,md}\" \"scripts/**/*.mjs\" \"*.{ts,mjs,json,md}\"",
+    "format:check": "prettier --check \"tuucho/**/*.{ts,tsx,css,mjs,json,md}\" \"src/**/*.{ts,tsx,css,json,md}\" \"scripts/**/*.mjs\" \"*.{ts,mjs,json,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.9.5",
+    "typescript": "^7.0.2"
   }
 }

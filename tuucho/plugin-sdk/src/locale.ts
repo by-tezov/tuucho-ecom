@@ -12,8 +12,11 @@ export function resetEmailCatalogs(): void {
   emailCatalogs.clear();
 }
 
-/** English record plus optional overlay registered by a locale plugin. */
-export function localizedCatalog<T>(en: T, lang: string, key: string): T {
-  if (lang === 'en') return en;
-  return getEmailCatalog<T>(`${key}:${lang}`) ?? en;
+/** Values registered by a locale pack for `key:lang`. No embedded language. */
+export function localizedCatalog<T>(lang: string, key: string): T {
+  const catalog = getEmailCatalog<T>(`${key}:${lang}`);
+  if (catalog === undefined) {
+    throw new Error(`Email catalog not registered: ${key}:${lang}`);
+  }
+  return catalog;
 }

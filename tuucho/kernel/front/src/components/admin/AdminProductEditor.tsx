@@ -15,9 +15,11 @@ import { useAuthSession } from '../../state/AuthContext';
 import { shopConfig } from '../../config/env';
 import { withMinDuration } from '../../utils/withMinDuration';
 import {
+  addCataloguePhoto,
   CatalogueJsonFormatError,
   formatCatalogueJson,
   removeCataloguePhoto,
+  removeUnhashedCataloguePhoto,
   reorderCataloguePhotos,
 } from '../../utils/formatCatalogueJson';
 import { Seo } from '../seo/Seo';
@@ -84,6 +86,7 @@ export function AdminProductEditor({
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [photoToRemove, setPhotoToRemove] = useState<
@@ -164,15 +167,26 @@ export function AdminProductEditor({
   function onPickFiles(event: ChangeEvent<HTMLInputElement>) {
     const list = event.target.files;
     if (!list || list.length === 0) return;
+    const files = Array.from(list);
     setPendingFiles((current) => {
       const next = [...current];
-      for (const file of Array.from(list)) {
+      for (const file of files) {
         if (!next.some((entry) => entry.name === file.name && entry.size === file.size)) {
           next.push(file);
         }
       }
       return next;
     });
+    try {
+      let next = jsonText;
+      for (const file of files) next = addCataloguePhoto(next, fileStem(file.name));
+      setJsonText(next);
+      setFieldError(null);
+    } catch (error) {
+      const message = error instanceof CatalogueJsonFormatError ? error.message : pe.formatError;
+      setFieldError(message);
+      setActionError(message);
+    }
     event.target.value = '';
   }
 
@@ -215,6 +229,14 @@ export function AdminProductEditor({
   function removePendingFile(file: File, url: string) {
     setPendingFiles((current) => current.filter((entry) => !(entry.name === file.name && entry.size === file.size)));
     setPreview((current) => (current === url ? null : current));
+    try {
+      setJsonText((current) => removeUnhashedCataloguePhoto(current, fileStem(file.name)));
+      setFieldError(null);
+    } catch (error) {
+      const message = error instanceof CatalogueJsonFormatError ? error.message : pe.formatError;
+      setFieldError(message);
+      setActionError(message);
+    }
   }
 
   function confirmPhotoRemoval() {
@@ -250,6 +272,7 @@ export function AdminProductEditor({
     } catch (error) {
       const message = error instanceof ApiError && error.serverMessage ? error.serverMessage : pe.saveError;
       setFieldError(message);
+      setActionError(message);
     } finally {
       setSaving(false);
     }
@@ -269,6 +292,7 @@ export function AdminProductEditor({
       onClose();
     } catch {
       setFieldError(pe.deleteError);
+      setActionError(pe.deleteError);
     } finally {
       setSaving(false);
     }
@@ -352,6 +376,17 @@ export function AdminProductEditor({
           onCancel={() => setPhotoToRemove(null)}
         />
       )}
+      {actionError ? (
+        <ConfirmModal
+          variant="dialog"
+          title={actionError}
+          message={null}
+          confirmLabel={a.whiteLabel.applyDismiss}
+          closeIcon={false}
+          onConfirm={() => setActionError(null)}
+          onCancel={() => setActionError(null)}
+        />
+      ) : null}
       {confirmDelete && (
         <ConfirmModal
           title={pe.deleteTitle}

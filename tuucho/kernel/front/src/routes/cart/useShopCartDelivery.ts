@@ -19,7 +19,7 @@ import { courierCompatible, courierMatch } from '../../utils/courierMatch';
 import { pickCourierTier } from '../../utils/courierPricing';
 import { normalizeGuestAddress, saveGuestState } from '../../state/guestCart';
 import { saveGuestAddressState } from '../../state/guestCardVault';
-import { markCheckoutEntityDeleted } from '../../state/cartBootstrapCache';
+import { markCheckoutEntityDeleted, patchCartBootstrapDelivery } from '../../state/cartBootstrapCache';
 import {
   addEphemeralAddress,
   mergeAddressLists,
@@ -354,6 +354,7 @@ export function useShopCartDelivery(args: {
       // unavailable, and so guest→auth merge can replace them with the server copy.
       if (newAddress.savedForFuture === false) addEphemeralAddress(newAddress);
       setAddresses(next);
+      patchCartBootstrapDelivery({ addresses: next });
       selectAddress(newAddress.id);
       selectCourierMatchingAddress(newAddress);
       setAddAddressOpen(false);
@@ -363,7 +364,9 @@ export function useShopCartDelivery(args: {
     const { address } = await authedRequest((token) => accountApi.createAddress(token, input));
     if (address.savedForFuture === false) addEphemeralAddress(address);
     const result = await authedRequest((token) => accountApi.listAddresses(token));
-    setAddresses(mergeAddressLists(result.addresses));
+    const next = mergeAddressLists(result.addresses);
+    setAddresses(next);
+    patchCartBootstrapDelivery({ addresses: next });
     selectAddress(address.id);
     selectCourierMatchingAddress(address);
     setAddAddressOpen(false);
@@ -392,6 +395,7 @@ export function useShopCartDelivery(args: {
       });
       if (newAddress.savedForFuture === false) addEphemeralAddress(newAddress);
       setAddresses(next);
+      patchCartBootstrapDelivery({ addresses: next });
       selectBillingAddress(newAddress.id);
       setAddBillingAddressOpen(false);
       return;
@@ -399,7 +403,9 @@ export function useShopCartDelivery(args: {
     const { address } = await authedRequest((token) => accountApi.createAddress(token, input));
     if (address.savedForFuture === false) addEphemeralAddress(address);
     const result = await authedRequest((token) => accountApi.listAddresses(token));
-    setAddresses(mergeAddressLists(result.addresses));
+    const next = mergeAddressLists(result.addresses);
+    setAddresses(next);
+    patchCartBootstrapDelivery({ addresses: next });
     selectBillingAddress(address.id);
     setAddBillingAddressOpen(false);
   }
@@ -412,6 +418,7 @@ export function useShopCartDelivery(args: {
       );
       void saveGuestAddressState({ addresses: next });
       setAddresses(next);
+      patchCartBootstrapDelivery({ addresses: next });
       setEditingBillingAddress(null);
       return;
     }
@@ -421,7 +428,9 @@ export function useShopCartDelivery(args: {
     if (address.savedForFuture === false) addEphemeralAddress(address);
     else removeEphemeralAddress(address.id);
     const result = await authedRequest((token) => accountApi.listAddresses(token));
-    setAddresses(mergeAddressLists(result.addresses));
+    const next = mergeAddressLists(result.addresses);
+    setAddresses(next);
+    patchCartBootstrapDelivery({ addresses: next });
     setEditingBillingAddress(null);
   }
 
@@ -462,6 +471,7 @@ export function useShopCartDelivery(args: {
       );
       void saveGuestAddressState({ addresses: next });
       setAddresses(next);
+      patchCartBootstrapDelivery({ addresses: next });
       recheckSelectedAddressCompatibility(next, addressId);
       setEditingAddress(null);
       return;
@@ -474,6 +484,7 @@ export function useShopCartDelivery(args: {
     const result = await authedRequest((token) => accountApi.listAddresses(token));
     const next = mergeAddressLists(result.addresses);
     setAddresses(next);
+    patchCartBootstrapDelivery({ addresses: next });
     recheckSelectedAddressCompatibility(next, addressId);
     setEditingAddress(null);
   }
@@ -491,6 +502,7 @@ export function useShopCartDelivery(args: {
       const next = addresses.filter((a) => a.id !== id);
       void saveGuestAddressState({ addresses: next });
       setAddresses(next);
+      patchCartBootstrapDelivery({ addresses: next });
       if (addressId === id) {
         const nextId = next.find((a) => a.kind === 'livraison')?.id ?? null;
         setAddressId(nextId);
@@ -506,6 +518,7 @@ export function useShopCartDelivery(args: {
     const result = await authedRequest((token) => accountApi.listAddresses(token));
     const next = mergeAddressLists(result.addresses);
     setAddresses(next);
+    patchCartBootstrapDelivery({ addresses: next });
     if (addressId === id) {
       const nextId = next.find((a) => a.isDefault && a.kind === 'livraison')?.id ?? null;
       setAddressId(nextId);

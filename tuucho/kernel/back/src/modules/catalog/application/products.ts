@@ -144,11 +144,11 @@ export async function listFeaturedItems(
 }
 
 /** One public nail set, addressed by its customer-facing `product_uid`
- * (`LL-LL-DDD`) rather than its uuid — that code is already unique, stable
- * across library re-imports and short enough to live in a URL, so product
- * pages need no new slug column of their own. The human-readable part of
- * the front's `/creations/<title>-<uid>` URL is decorative: only this code
- * resolves the set, which keeps old links working after a title is edited.
+ * (A-Z, 0-9, single dashes, 1-20 characters) rather than its uuid. That
+ * code is already unique, stable across library re-imports and short enough
+ * to live in a URL, so product pages need no new slug column of their own.
+ * The title in an older `/creations/<title>-<uid>` URL is decorative: only
+ * this code resolves the set, which keeps old links working after a title edit.
  *
  * Hidden sets return undefined (404 at the route) rather than a body — an
  * unpublished set must not be reachable by guessing its code. */

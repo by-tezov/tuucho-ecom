@@ -12,7 +12,13 @@ const FALLBACK: StorefrontBootstrap = {
   },
   taxMode: 'none',
   productAxes: [
-    { key: 'shape', enabled: true, hideInUi: false, autoHideSingle: true, label: { en: 'Shape', fr: 'Forme' } },
+    {
+      key: 'shape',
+      enabled: true,
+      hideInUi: false,
+      autoHideSingle: true,
+      label: { en: 'Shape', fr: 'Forme' },
+    },
     {
       key: 'length',
       enabled: true,
@@ -20,14 +26,43 @@ const FALLBACK: StorefrontBootstrap = {
       autoHideSingle: true,
       label: { en: 'Length', fr: 'Longueur' },
     },
-    { key: 'size', enabled: true, hideInUi: false, autoHideSingle: true, label: { en: 'Size', fr: 'Taille' } },
+    {
+      key: 'size',
+      enabled: true,
+      hideInUi: false,
+      autoHideSingle: true,
+      label: { en: 'Size', fr: 'Taille' },
+    },
   ],
   theme: { tokens: {} },
+  i18n: { default: 'en', enabled: [...(shopConfig.enabledLanguages ?? ['en'])] },
+  brandAssets: {},
   menus: [
-    { key: 'home', pluginId: 'tuucho-page-home', label: 'Home', visible: true, order: 10, bottomBar: true },
-    { key: 'gallery', pluginId: 'core-catalog', label: 'Collection', visible: true, order: 20, bottomBar: true },
-    { key: 'guide', pluginId: 'demo-page-guides', label: 'Guides', visible: true, order: 30, bottomBar: false },
-    { key: 'about', pluginId: 'tuucho-page-about', label: 'About', visible: true, order: 40, bottomBar: false },
+    { key: 'home', pluginId: 'page-home', label: 'Home', visible: true, order: 10, bottomBar: true },
+    {
+      key: 'gallery',
+      pluginId: 'core-catalog',
+      label: 'Collection',
+      visible: true,
+      order: 20,
+      bottomBar: true,
+    },
+    {
+      key: 'guide',
+      pluginId: 'page-guides',
+      label: 'Guides',
+      visible: true,
+      order: 30,
+      bottomBar: false,
+    },
+    {
+      key: 'about',
+      pluginId: 'page-about',
+      label: 'About',
+      visible: true,
+      order: 40,
+      bottomBar: false,
+    },
   ],
   plugins: [
     {

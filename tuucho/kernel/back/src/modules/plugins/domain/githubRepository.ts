@@ -27,10 +27,13 @@ export function parseGithubHttpsRepo(raw: string): GithubRepoRef | null {
   };
 }
 
+/** Lowercased HTTPS root. Token rows and update lookups share this key. */
+export function githubRepositoryKey(ref: GithubRepoRef): string {
+  return `https://github.com/${ref.owner.toLowerCase()}/${ref.repo.toLowerCase()}`;
+}
+
 export function isOfficialGithubRepo(ref: GithubRepoRef): boolean {
-  return (
-    ref.owner.toLowerCase() === OFFICIAL_OWNER && ref.repo.toLowerCase() === OFFICIAL_REPO
-  );
+  return ref.owner.toLowerCase() === OFFICIAL_OWNER && ref.repo.toLowerCase() === OFFICIAL_REPO;
 }
 
 export function githubApiTagsUrl(ref: GithubRepoRef): string {

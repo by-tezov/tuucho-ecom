@@ -12,7 +12,7 @@ May import: `account`, `activity`, `auth`, `cart`, `catalog`, `chat`, `checkout`
 
 Currently imports: `activity`, `catalog`, `commerce`, `customers`, `delivery`, `identity`, `messaging`, `orders`, `payments`, `plugins`, `settings`, `shipping`.
 
-Feature map entry: `operations` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- operations` for its full span.
+Feature map entry: `operations` in [tuucho/docs/features.json](../../../../../docs/features.json). Run `npm run feature -- operations` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |

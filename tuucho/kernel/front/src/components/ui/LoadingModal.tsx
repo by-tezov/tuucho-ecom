@@ -12,9 +12,11 @@ interface LoadingModalProps {
 }
 
 /** Non-dismissible centered spinner dialog — backdrop, no close while loading.
- * It takes focus as it opens, so screen readers announce the message as the
- * dialog's name (an `aria-busy` live region stays silent), and hands focus
- * back to the control that started the wait when it closes. */
+ * It covers the whole viewport (menu, header, content) so nothing else can
+ * be used while it is open. It takes focus as it opens, so screen readers
+ * announce the message as the dialog's name (an `aria-busy` live region stays
+ * silent), and hands focus back to the control that started the wait when it
+ * closes. */
 function LoadingModalRoot({ message, children }: LoadingModalProps) {
   useLockBodyScroll();
   const dialogRef = useRef<HTMLDivElement | null>(null);

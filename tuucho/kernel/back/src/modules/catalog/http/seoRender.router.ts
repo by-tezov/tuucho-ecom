@@ -9,7 +9,7 @@ import {
   isGalleryItemPubliclyAccessible,
   outOfStockProductsEnabled,
 } from '../application/outOfStockVisibility.js';
-import { PRODUCT_UID_PATTERN } from '../domain/productUid.js';
+import { isProductUid } from '../domain/productUid.js';
 
 /**
  * Server-rendered head and body for the two catalogue surfaces the static
@@ -69,7 +69,7 @@ seoRenderRouter.get('/seo/product/:uid', async (req, res) => {
   if (!relayOnly(req, res)) return;
   const language = relayLanguage(req);
   const uid = req.params.uid;
-  if (!PRODUCT_UID_PATTERN.test(uid)) {
+  if (!isProductUid(uid)) {
     res.setHeader('Cache-Control', 'no-store');
     res.status(404).json({ error: 'not-found' });
     return;

@@ -2,6 +2,7 @@ import { useLang } from '../../assets/i18n';
 import { Figure } from '../ui/Figure';
 import { TripleSparkles } from '../ui/TripleSparkles';
 import { images } from '../../assets/images/manifest';
+import { resolveBrandAsset, useBrandAssets } from '../../plugins/BrandAssetsContext';
 import styles from './About.module.css';
 
 interface AboutProps {
@@ -10,6 +11,7 @@ interface AboutProps {
 
 export function About({ showTitleOrnament = false }: AboutProps) {
   const { t } = useLang();
+  const brandAssets = useBrandAssets();
 
   return (
     <section
@@ -19,7 +21,11 @@ export function About({ showTitleOrnament = false }: AboutProps) {
     >
       {showTitleOrnament && <TripleSparkles />}
       <div className={styles.content}>
-        <Figure src={images.aboutPortrait} alt={t.about.imgAlt} aspectRatio="4 / 5" />
+        <Figure
+          src={resolveBrandAsset(brandAssets, 'aboutPortrait', images.aboutPortrait)}
+          alt={t.about.imgAlt}
+          aspectRatio="4 / 5"
+        />
         <div>
           <p className={styles.eyebrow}>{t.about.eyebrow}</p>
           <h2 id="about-h" className={styles.title}>

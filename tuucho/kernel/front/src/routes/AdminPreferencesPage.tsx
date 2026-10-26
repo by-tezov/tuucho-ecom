@@ -643,7 +643,6 @@ export function AdminPreferencesPage() {
                   })}
                 </div>
               </section>}
-              <AdminPreferenceOpenings slot="signInMethods" />
             </>
           )}
 

@@ -5,6 +5,8 @@ import {
   importAllAdminPluginConfigFiles,
   type PluginConfigBulkReport,
 } from '../api/admin/shopSetup';
+import { shopConfig } from '../config/env';
+import { withMinDuration } from '../utils/withMinDuration';
 import { useAuthSession } from '../state/AuthContext';
 import { canAccess, useAdminAccess } from '../state/AdminAccessContext';
 import type { AdminAccess } from '../api/admin/roles';
@@ -61,7 +63,7 @@ export function AdminPluginConfigBulk({
     setBusy(true);
     onError('');
     try {
-      return await work();
+      return await withMinDuration(work(), shopConfig.loadingMinMs.short);
     } catch {
       onError(w.configFilesError);
       return undefined;

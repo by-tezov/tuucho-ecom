@@ -5,8 +5,10 @@ import { useAdminStrings } from '../assets/i18n/admin';
 import { adminPath } from '../utils/adminRoute';
 import styles from './AdminPreferencesPage.module.css';
 
-/** Plugin contributions into core Preferences (or the sign-in / notification
- * openings on that page). Renders nothing until a plugin registers entries. */
+/** Plugin contributions into core Preferences (the preferences / notification
+ * openings on that page). Renders nothing until a plugin registers entries.
+ * Sign-in entries keep a Configure target here. Preferences does not render
+ * that slot. */
 export function AdminPreferenceOpenings({ slot }: { slot: keyof CoreOpenings }) {
   const { openings, plugins } = useStorefrontBootstrap();
   const w = useAdminStrings().whiteLabel;

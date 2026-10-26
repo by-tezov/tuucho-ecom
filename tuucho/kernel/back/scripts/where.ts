@@ -24,11 +24,12 @@
  * `tables.json`: those describe a contract others depend on, this is a lookup.
  */
 import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { relative, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
+import { outputRoot } from '../src/config/shopPaths.js';
 
 const root = resolve('.');
 const frontRoot = resolve(root, '../front');
-const cacheDir = resolve(root, 'output/cache');
+const cacheDir = join(outputRoot(), 'cache');
 
 type Symbol_ = {
   name: string;

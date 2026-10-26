@@ -2,7 +2,9 @@ import { access, readdir, readFile } from 'node:fs/promises';
 import { dirname, extname, relative, resolve, sep } from 'node:path';
 
 const root = resolve('.');
-const docsRoot = resolve(root, 'docs');
+const tuuchoRoot = resolve(root, '../..');
+const repoRoot = resolve(tuuchoRoot, '..');
+const docsRoot = resolve(tuuchoRoot, 'docs');
 const commandDocsRoot = resolve(docsRoot, 'command');
 
 async function walk(directory, extension) {
@@ -18,7 +20,9 @@ async function walk(directory, extension) {
 
 const markdownPaths = [
   ...(await walk(docsRoot, '.md')),
-  ...['README.md', 'API.md', 'SCHEMA.md', 'COMMAND.md', 'CRON.md'].map((name) => resolve(root, name)),
+  resolve(root, 'README.md'),
+  resolve(repoRoot, 'README.md'),
+  ...['API.md', 'SCHEMA.md', 'COMMAND.md', 'CRON.md'].map((name) => resolve(tuuchoRoot, name)),
 ];
 const markdown = new Map(
   await Promise.all(markdownPaths.map(async (path) => [path, await readFile(path, 'utf8')])),
@@ -32,9 +36,20 @@ const errors = [];
 
 const packageJson = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
 const packageScripts = new Set(Object.keys(packageJson.scripts ?? {}));
-for (const script of packageScripts) {
+// Front scripts are documented in the same tuucho/docs/command/ tree (05-front.md),
+// and repository-root scripts in the root README and tuucho/docs, so a
+// `npm run <script>` mention of either is not an unknown script.
+for (const manifest of ['../front/package.json', '../../../package.json']) {
+  try {
+    const sibling = JSON.parse(await readFile(resolve(root, manifest), 'utf8'));
+    for (const script of Object.keys(sibling.scripts ?? {})) packageScripts.add(script);
+  } catch {
+    // Sibling checkouts are optional.
+  }
+}
+for (const script of Object.keys(packageJson.scripts ?? {})) {
   if (!commandDocumentation.includes(`npm run ${script}`)) {
-    errors.push(`package script \`${script}\` is missing from docs/command/.`);
+    errors.push(`package script \`${script}\` is missing from tuucho/docs/command/.`);
   }
 }
 
@@ -70,12 +85,12 @@ for (const [path, source] of markdown) {
     const filePart = target.split('#')[0].split('?')[0];
     if (!filePart) continue;
     const absoluteTarget = resolve(dirname(path), decodeURIComponent(filePart));
-    // Sibling repositories are optional in a standalone backend checkout.
-    if (absoluteTarget !== root && !absoluteTarget.startsWith(`${root}${sep}`)) continue;
+    // Paths outside the repository (sibling checkouts, home) are optional.
+    if (absoluteTarget !== repoRoot && !absoluteTarget.startsWith(`${repoRoot}${sep}`)) continue;
     try {
       await access(absoluteTarget);
     } catch {
-      errors.push(`${relative(root, path)} links to missing \`${filePart}\`.`);
+      errors.push(`${relative(repoRoot, path)} links to missing \`${filePart}\`.`);
     }
   }
 }
@@ -86,7 +101,7 @@ let features;
 try {
   features = JSON.parse(await readFile(featuresPath, 'utf8'));
 } catch {
-  errors.push('docs/features.json is missing or invalid JSON.');
+  errors.push('tuucho/docs/features.json is missing or invalid JSON.');
   features = null;
 }
 
@@ -124,7 +139,7 @@ if (features && typeof features === 'object') {
   for (const [featureName, entry] of Object.entries(features)) {
     if (featureName.startsWith('$')) continue;
     if (!entry || typeof entry !== 'object') {
-      errors.push(`docs/features.json feature \`${featureName}\` must be an object.`);
+      errors.push(`tuucho/docs/features.json feature \`${featureName}\` must be an object.`);
       continue;
     }
     const requiredKeys = [
@@ -140,37 +155,40 @@ if (features && typeof features === 'object') {
     ];
     for (const key of requiredKeys) {
       if (!(key in entry)) {
-        errors.push(`docs/features.json feature \`${featureName}\` is missing \`${key}\`.`);
+        errors.push(`tuucho/docs/features.json feature \`${featureName}\` is missing \`${key}\`.`);
       }
     }
     for (const key of ['apiDoc', 'schemaDoc', 'module']) {
       const rel = entry[key];
       if (typeof rel !== 'string' || !rel) {
-        errors.push(`docs/features.json feature \`${featureName}\`.${key} must be a non-empty string.`);
+        errors.push(`tuucho/docs/features.json feature \`${featureName}\`.${key} must be a non-empty string.`);
         continue;
       }
-      if (!(await pathExists(resolve(root, rel)))) {
-        errors.push(`docs/features.json feature \`${featureName}\`.${key} missing path \`${rel}\`.`);
+      // apiDoc/schemaDoc are relative to `tuucho/` (docs moved there);
+      // module stays relative to this backend workspace.
+      const base = key === 'module' ? root : tuuchoRoot;
+      if (!(await pathExists(resolve(base, rel)))) {
+        errors.push(`tuucho/docs/features.json feature \`${featureName}\`.${key} missing path \`${rel}\`.`);
       }
     }
     const frontLists = new Set(['frontRoutes', 'frontApi', 'frontComponents']);
     for (const listKey of ['frontRoutes', 'frontApi', 'frontComponents', 'tests']) {
       const list = entry[listKey];
       if (!Array.isArray(list)) {
-        errors.push(`docs/features.json feature \`${featureName}\`.${listKey} must be an array.`);
+        errors.push(`tuucho/docs/features.json feature \`${featureName}\`.${listKey} must be an array.`);
         continue;
       }
       // Sibling repositories are optional in a standalone backend checkout.
       if (frontLists.has(listKey) && !frontAvailable) continue;
       for (const rel of list) {
         if (typeof rel !== 'string' || !rel) {
-          errors.push(`docs/features.json feature \`${featureName}\`.${listKey} has a non-string entry.`);
+          errors.push(`tuucho/docs/features.json feature \`${featureName}\`.${listKey} has a non-string entry.`);
           continue;
         }
         const base = frontLists.has(listKey) ? frontRoot : root;
         if (!(await pathExists(resolve(base, rel)))) {
           errors.push(
-            `docs/features.json feature \`${featureName}\`.${listKey} missing path \`${rel}\`.`,
+            `tuucho/docs/features.json feature \`${featureName}\`.${listKey} missing path \`${rel}\`.`,
           );
         }
       }
@@ -179,7 +197,7 @@ if (features && typeof features === 'object') {
       for (const command of entry.commands) {
         if (!packageScripts.has(command)) {
           errors.push(
-            `docs/features.json feature \`${featureName}\`.commands names unknown package script \`${command}\`.`,
+            `tuucho/docs/features.json feature \`${featureName}\`.commands names unknown package script \`${command}\`.`,
           );
         }
       }
@@ -188,7 +206,7 @@ if (features && typeof features === 'object') {
       for (const namespace of entry.i18n) {
         if (!namespaces.has(namespace)) {
           errors.push(
-            `docs/features.json feature \`${featureName}\`.i18n names unknown Strings namespace \`${namespace}\`.`,
+            `tuucho/docs/features.json feature \`${featureName}\`.i18n names unknown Strings namespace \`${namespace}\`.`,
           );
         }
       }

@@ -34,8 +34,8 @@ test('docs groups follow install path, not generic kind', () => {
   );
   assert.deepEqual(
     docsGroupForPlugin({
-      id: 'demo-page-guides',
-      manifest: { kind: 'page', installPath: 'src/plugins/demo/guides/demo-page-guides' },
+      id: 'page-guides',
+      manifest: { kind: 'page', installPath: 'src/plugins/demo/guides/page-guides' },
     }),
     { id: 'kind:user', title: 'User plugins' },
   );
@@ -70,16 +70,16 @@ test('legacy paragraphs become blocks', () => {
 
 test('handbookArticle skips identity filler and empty files', () => {
   const plugin = {
-    id: 'tuucho-home-faq',
+    id: 'home-faq',
     enabled: true,
     missingFromDisk: false,
     manifest: {
-      id: 'tuucho-home-faq',
+      id: 'home-faq',
       name: 'Home FAQ',
       version: '1.0.0',
       kind: 'generic',
       description: 'FAQ block',
-      installPath: 'tuucho/plugins/home/faq/tuucho-home-faq',
+      installPath: 'src/plugins/home/faq/home-faq',
     },
   };
   assert.equal(handbookHasDeveloperContent(null), false);

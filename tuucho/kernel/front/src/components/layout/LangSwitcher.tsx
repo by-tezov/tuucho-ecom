@@ -4,7 +4,6 @@ import {
   useLang,
   LANGUAGE_ORDER,
   LANGUAGE_NAMES,
-  LANGUAGE_SWITCHER_LABEL,
   type Lang,
 } from '../../assets/i18n';
 import { shopConfig } from '../../config/env';
@@ -14,8 +13,12 @@ import * as authApi from '../../api/account';
 import { focusSelectedOrFirstOption, handleListboxKeyDown } from '../../utils/listboxKeyboard';
 import styles from './LangSwitcher.module.css';
 
-// A language left out of VITE_ENABLED_LANGUAGES isn't reachable through the switcher.
-const configuredLanguageOrder = LANGUAGE_ORDER.filter((l) => shopConfig.enabledLanguages.includes(l));
+// A language left out of VITE_ENABLED_LANGUAGES isn't reachable through the
+// switcher. Read at render time, not module scope: applyStorefrontBootstrap
+// narrows shopConfig.enabledLanguages in place once bootstrap lands.
+function configuredLanguageOrder(): Lang[] {
+  return LANGUAGE_ORDER.filter((l) => shopConfig.enabledLanguages.includes(l));
+}
 
 interface LangSwitcherProps {
   className?: string;
@@ -31,7 +34,7 @@ interface LangSwitcherProps {
  *  from the trigger would never reach it. Each language name carries its own
  *  `lang` so it is read with the right voice (RGAA 8.7). */
 export function LangSwitcher({ className }: LangSwitcherProps) {
-  const { lang, setLang, availableLanguages } = useLang();
+  const { lang, setLang, availableLanguages, t } = useLang();
   const { status, authedRequest } = useAuthSession();
   const [open, setOpen] = useState(false);
   const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
@@ -151,7 +154,7 @@ export function LangSwitcher({ className }: LangSwitcherProps) {
               className={styles.menu}
               role="listbox"
               tabIndex={-1}
-              aria-label={LANGUAGE_SWITCHER_LABEL[lang]}
+              aria-label={t.languageSwitcherLabel}
               style={{ top: menuPos.top, left: menuPos.left }}
               onPointerDown={(event) => event.stopPropagation()}
               onKeyDown={(event) =>
@@ -167,24 +170,26 @@ export function LangSwitcher({ className }: LangSwitcherProps) {
                 )
               }
             >
-              {configuredLanguageOrder.filter((l) => availableLanguages.includes(l)).map((l) => (
-                <button
-                  key={l}
-                  type="button"
-                  role="option"
-                  lang={l}
-                  aria-selected={l === lang}
-                  tabIndex={l === lang ? 0 : -1}
-                  className={l === lang ? `${styles.option} ${styles.optionActive}` : styles.option}
-                  // Click, not pointerdown: the choice happens on release, so
-                  // sliding off the option before lifting cancels it (RGAA 13.11).
-                  onClick={() => pick(l)}
-                >
-                  <FlagIcon lang={l} {...(styles.flag ? { className: styles.flag } : {})} />
-                  <span className={styles.optionName}>{LANGUAGE_NAMES[l]}</span>
-                  <span className={styles.optionCode}>{l.toUpperCase()}</span>
-                </button>
-              ))}
+              {configuredLanguageOrder()
+                .filter((l) => availableLanguages.includes(l))
+                .map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    role="option"
+                    lang={l}
+                    aria-selected={l === lang}
+                    tabIndex={l === lang ? 0 : -1}
+                    className={l === lang ? `${styles.option} ${styles.optionActive}` : styles.option}
+                    // Click, not pointerdown: the choice happens on release, so
+                    // sliding off the option before lifting cancels it (RGAA 13.11).
+                    onClick={() => pick(l)}
+                  >
+                    <FlagIcon lang={l} {...(styles.flag ? { className: styles.flag } : {})} />
+                    <span className={styles.optionName}>{LANGUAGE_NAMES[l]}</span>
+                    <span className={styles.optionCode}>{l.toUpperCase()}</span>
+                  </button>
+                ))}
             </div>
           </div>,
           document.body,
@@ -201,7 +206,7 @@ export function LangSwitcher({ className }: LangSwitcherProps) {
         >
           <FlagIcon lang={lang} {...(styles.flag ? { className: styles.flag } : {})} />
           {/* Name = "Changer de langue, FR": it keeps the visible code (label in name). */}
-          <span className="visuallyHidden">{LANGUAGE_SWITCHER_LABEL[lang]}, </span>
+          <span className="visuallyHidden">{t.languageSwitcherLabel}, </span>
           <span className={styles.code}>{lang.toUpperCase()}</span>
           <span aria-hidden="true" className={styles.caret}>
             ⌄

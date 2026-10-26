@@ -1,6 +1,5 @@
 import type PDFDocument from 'pdfkit';
-import { KERNEL_INVOICE_COPY, type InvoiceItem } from './invoiceDocument.js';
-import type { InvoiceCopy } from '../domain/invoiceCopy.js';
+import { type InvoiceCopy, type InvoiceItem } from './invoiceDocument.js';
 
 type Nail = NonNullable<InvoiceItem['nails']>[number];
 
@@ -44,7 +43,10 @@ export function drawCustomSetHands(
     wideRow: (draw: () => void) => void;
   },
 ): void {
-  const copy = layout.copy ?? KERNEL_INVOICE_COPY;
+  if (!layout.copy) {
+    throw new Error('Invoice copy missing on custom-set layout');
+  }
+  const copy = layout.copy;
   const byFinger = new Map(nails.map((nail) => [nail.finger, nail]));
   const fingerX = layout.x + 8;
   const nameX = fingerX + FINGER_WIDTH + GAP;

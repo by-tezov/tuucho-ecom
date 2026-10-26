@@ -3,7 +3,7 @@
  * Every backend endpoint this app calls must actually exist.
  *
  * `src/api/**` is the only place that names a URL, and the backend publishes
- * the routes it really serves in `../back/docs/api/routes.json`
+ * the routes it really serves in `tuucho/docs/api/routes.json`
  * (generated from its live Express stack, not from a regex). This walks every
  * request the client code makes and matches it against that inventory.
  *
@@ -19,13 +19,13 @@ import { readdir, readFile } from 'node:fs/promises';
 import { extname, relative, resolve } from 'node:path';
 
 const apiRoot = resolve('src/api');
-const inventoryPath = resolve('../back/docs/api/routes.json');
+const inventoryPath = resolve('../../docs/api/routes.json');
 
 let inventory;
 try {
   inventory = JSON.parse(await readFile(inventoryPath, 'utf8'));
 } catch {
-  console.log('api contract check skipped: ../back/docs/api/routes.json is not available.');
+  console.log('api contract check skipped: tuucho/docs/api/routes.json is not available.');
   process.exit(0);
 }
 

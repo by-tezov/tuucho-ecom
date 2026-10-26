@@ -1,16 +1,13 @@
-import type { Language } from '../../../utils/language.js';
 import { localizedCatalog } from '@tuucho/plugin-sdk';
-import { ACCOUNT_EMAIL_COPY_EN } from './accountEmailCopyFrEn.js';
+import type { Language } from '../../../utils/language.js';
 import type { AccountEmailCopy } from './accountEmailCopyTypes.js';
 
-/** English account/service email copy. French is locale-fr (`account-email:fr`). */
-export function accountEmailCopy(language: Language): AccountEmailCopy {
-  return localizedCatalog(ACCOUNT_EMAIL_COPY_EN, language, 'account-email');
-}
+export type { AccountEmailCopy } from './accountEmailCopyTypes.js';
 
-export const ACCOUNT_EMAIL_COPY: { en: AccountEmailCopy } = {
-  en: ACCOUNT_EMAIL_COPY_EN,
-};
+/** Account/service email values from the active language's locale pack. */
+export function accountEmailCopy(language: Language): AccountEmailCopy {
+  return localizedCatalog(language, 'account-email');
+}
 
 const DATE_LOCALES: Record<Language, string> = {
   fr: 'fr-FR',

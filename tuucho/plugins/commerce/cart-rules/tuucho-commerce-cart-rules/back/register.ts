@@ -8,11 +8,17 @@ const register: PluginRegisterFn = async (api) => {
   api.registerPluginService(api.pluginId, { ...cartRules, syncGiftLinesForActiveCart, syncGiftLinesForCart });
   api.addFilter(
     CORE_OPENING_FILTERS.checkoutPrepare,
-    async (prep: { client: unknown; userId?: string; cartId?: string; syncGiftLines?: boolean }) => {
+    async (prep: {
+      client: unknown;
+      userId?: string;
+      cartId?: string;
+      syncGiftLines?: boolean;
+      excludeReservationId?: string;
+    }) => {
       if (prep.syncGiftLines === false) return prep;
       const client = prep.client as Parameters<typeof syncGiftLinesForCart>[0];
-      if (prep.cartId) await syncGiftLinesForCart(client, prep.cartId);
-      else if (prep.userId) await syncGiftLinesForActiveCart(client, prep.userId);
+      if (prep.cartId) await syncGiftLinesForCart(client, prep.cartId, prep.excludeReservationId);
+      else if (prep.userId) await syncGiftLinesForActiveCart(client, prep.userId, prep.excludeReservationId);
       return prep;
     },
     5,

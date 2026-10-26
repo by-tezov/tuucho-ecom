@@ -12,7 +12,7 @@ May import: `activity`, `plugins`, `settings`.
 
 Currently imports: `activity`, `plugins`.
 
-Feature map entry: `vinted-reviews` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- vinted-reviews` for its full span.
+Feature map entry: `vinted-reviews` in [docs/features.json](../../../../../../docs/features.json). Run `npm --prefix tuucho/kernel/back run feature -- vinted-reviews` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |

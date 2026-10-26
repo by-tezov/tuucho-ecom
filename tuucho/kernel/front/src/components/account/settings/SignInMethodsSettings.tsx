@@ -9,6 +9,7 @@ import { GoogleSignInSettings } from './GoogleSignInSettings';
 import { AppleSignInSettings } from './AppleSignInSettings';
 import { FacebookSignInSettings } from './FacebookSignInSettings';
 import {
+  signInBlockVisible,
   signInOpeningOn,
   signInProviderOffered,
   signInProviderVisible,
@@ -34,23 +35,19 @@ export function SignInMethodsSettings({
     signInProviderOffered(applePluginOn, signInMethods.apple, Boolean(shopConfig.appleClientId)),
   );
   const [facebookOffered, setFacebookOffered] = useState(
-    signInProviderOffered(
-      facebookPluginOn,
-      signInMethods.facebook,
-      Boolean(shopConfig.facebookAppId),
-    ),
+    signInProviderOffered(facebookPluginOn, signInMethods.facebook, Boolean(shopConfig.facebookAppId)),
   );
   const showGoogle = signInProviderVisible(googlePluginOn, user.hasGoogle === true);
   const showApple = signInProviderVisible(applePluginOn, user.hasApple === true);
   const showFacebook = signInProviderVisible(facebookPluginOn, user.hasFacebook === true);
   const hasPassword = user.hasPassword !== false;
-  const canUnlock =
-    googleOffered ||
-    appleOffered ||
-    facebookOffered ||
-    user.hasGoogle === true ||
-    user.hasApple === true ||
-    user.hasFacebook === true;
+  // The block itself is broader than any single row: it shows when the
+  // opening is on, or a provider is configured, or one is already linked.
+  const blockVisible = signInBlockVisible(openings, [
+    { configured: Boolean(shopConfig.googleClientId), linked: user.hasGoogle === true },
+    { configured: Boolean(shopConfig.appleClientId), linked: user.hasApple === true },
+    { configured: Boolean(shopConfig.facebookAppId), linked: user.hasFacebook === true },
+  ]);
   // One unlock for all panes, under the single button in this block's header.
   // Not one per provider: an OTP is scoped to its action, so two requests mean
   // two emails with two different codes, and whichever the user types can only
@@ -58,15 +55,19 @@ export function SignInMethodsSettings({
   // button appeared. The 'social' token is accepted by all providers' routes.
   const sharedUnlock = useSectionUnlock('social', authedRequest, hasPassword);
 
-  if (!showGoogle && !showApple && !showFacebook) return null;
+  if (!blockVisible) return null;
 
   return (
     <div className={`${styles.block} ${styles.socialSignInBlock}`} data-testid="account-sign-in-methods">
       <div className={styles.blockHeader}>
         <h2 className={styles.blockTitle}>{t.account.signInMethodsSocialTitle}</h2>
-        {canUnlock ? <SectionUnlockButton unlock={sharedUnlock} /> : null}
+        {/* The unlock control belongs to the block, not to canUnlock
+            visibility: gating it on offered/linked hid Déverrouiller exactly
+            when a visible row still needed it. useSectionUnlock owns the
+            actual unlock flow. */}
+        <SectionUnlockButton unlock={sharedUnlock} />
       </div>
-      {canUnlock && sharedUnlock.confirming && <SectionUnlockPrompt unlock={sharedUnlock} />}
+      {sharedUnlock.confirming && <SectionUnlockPrompt unlock={sharedUnlock} />}
       <div className={styles.socialSignInStack}>
         {showGoogle && (
           <GoogleSignInSettings

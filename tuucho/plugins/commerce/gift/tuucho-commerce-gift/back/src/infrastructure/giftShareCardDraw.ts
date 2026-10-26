@@ -232,7 +232,7 @@ export async function drawGiftShareCardFace(
   qrPng: Buffer,
   input: GiftShareCardFaceInput,
 ): Promise<void> {
-  const art = SHARE_CARD_ART[theme.id];
+  const art = SHARE_CARD_ART[theme.id] ?? SHARE_CARD_ART.classic;
   doc.save();
   await fillShareGradient(doc, rect, theme);
   let artSvg = art.art;

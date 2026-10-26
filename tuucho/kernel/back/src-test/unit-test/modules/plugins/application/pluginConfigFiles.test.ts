@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {
@@ -90,9 +90,8 @@ test('loadPluginConfigFiles merges public then private-or-example', () => {
 
 test('env public overlay wins over common public', () => {
   const root = mkdtempSync(join(tmpdir(), 'plugin-cfg-env-'));
-  mkdirSync(join(root, 'dev'));
   writeFileSync(join(root, 'config.json'), JSON.stringify({ clientId: 'common' }));
-  writeFileSync(join(root, 'dev', 'config.json'), JSON.stringify({ clientId: 'env' }));
+  writeFileSync(join(root, 'config.dev.json'), JSON.stringify({ clientId: 'env' }));
   const previous = process.env.APP_TARGET;
   process.env.APP_TARGET = 'dev';
   try {

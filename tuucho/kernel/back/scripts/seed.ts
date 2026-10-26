@@ -4,8 +4,11 @@
  *   npm run seed -- [--ssh|--ftp] [--update] [--delete] [--direction local|remote]
  *     [--confirm] [--json] --dev|--preprod|--prod
  *
- * Runs, in order: library, library-user, library-nail, courier, accessory, cart-rule,
+ * Runs, in order: library, library-user, courier, accessory, cart-rule,
  * payment-method, payment-method-countries, sign-in-method.
+ * Library, user library, and accessory read tuucho-ecom/sample. Custom-set
+ * (library-nail) stays out of this command. On --dev, unowned user-library
+ * products are then attached to the sole super-admin.
  * Catalogue imports receive --update/--delete/direction. In local direction,
  * cart-rule, payment-method, payment-method-countries, and sign-in-method
  * are explicitly skipped because none has a reverse source.
@@ -20,6 +23,7 @@
  * re-demanding it.
  */
 import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { modeFlag } from './cliCommon.js';
@@ -28,6 +32,9 @@ import { isValidMode, type Mode } from './envFile.js';
 import { parseTransportFlags, requireTransport, transportFlags, type Transport } from './transport.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const sampleRoot = join(root, '..', '..', '..', 'sample');
+const userLibrarySource = join(sampleRoot, 'product', 'library-user');
+const accessorySource = join(sampleRoot, 'product', 'accessory');
 
 interface Args {
   mode: Mode;
@@ -137,6 +144,21 @@ function runChild(script: string, args: string[], json: boolean): unknown {
   return json ? parseChildJson(script, result.stdout ?? '') : undefined;
 }
 
+function isSkipped(value: unknown): boolean {
+  return typeof value === 'object' && value !== null && 'skipped' in value;
+}
+
+function runAssignSampleUserLibrary(): void {
+  console.error('[seed] npx tsx scripts/assignSampleUserLibrary.ts');
+  const result = spawnSync('npx', ['tsx', 'scripts/assignSampleUserLibrary.ts'], {
+    cwd: root,
+    env: process.env,
+    stdio: 'inherit',
+  });
+  if (result.error) fail(`assign sample user library failed to start: ${result.error.message}`);
+  if (result.status !== 0) fail(`assign sample user library failed (exit ${result.status ?? 'signal'}).`);
+}
+
 function main(): void {
   const args = parseArgs(process.argv.slice(2));
   const common = [...transportFlags(args.transport), modeFlag(args.mode)];
@@ -145,9 +167,23 @@ function main(): void {
   const synchronized = [...(args.update ? ['--update'] : []), ...(args.deleteMissing ? ['--delete'] : [])];
   const directional = [...synchronized, '--direction', args.direction, ...common];
 
+  const library = runChild('library', ['seed', ...directional], args.json);
+  const userLibrary =
+    args.direction !== 'remote'
+      ? { skipped: true, reason: 'local direction is not implemented for this command' }
+      : existsSync(userLibrarySource)
+        ? runChild('library', ['seed', '--source', userLibrarySource, ...directional], args.json)
+        : { skipped: true, reason: 'sample user library is missing' };
+  if (args.mode === 'dev' && args.direction === 'remote' && !isSkipped(userLibrary)) {
+    runAssignSampleUserLibrary();
+  }
+  const accessory = existsSync(accessorySource)
+    ? runChild('accessory', ['seed', '--source', accessorySource, ...directional], args.json)
+    : { skipped: true, reason: 'sample accessory catalog is missing' };
+
   const results: Record<string, unknown> = {
-    library: runChild('library', ['seed', ...directional], args.json),
-    userLibrary: { skipped: true, reason: 'tuucho-ecom sample catalog has no user library' },
+    library,
+    userLibrary,
     libraryNail: { skipped: true, reason: 'Custom-set / library-nail is not part of a generic first install' },
     courier: runChild('courier', ['seed', ...directional], args.json),
     ...(args.direction === 'remote'
@@ -155,7 +191,7 @@ function main(): void {
       : {
           courierLiveState: { skipped: true, reason: 'local direction is not implemented for this command' },
         }),
-    accessory: { skipped: true, reason: 'tuucho-ecom sample catalog has no accessories' },
+    accessory,
   };
   if (args.direction === 'remote') {
     results.cartRule = runChild('cart-rule', ['seed', ...common], args.json);
@@ -186,8 +222,8 @@ function main(): void {
   } else {
     console.log(
       args.direction === 'remote'
-        ? '[seed] library, library-user, library-nail, courier, courier-live-state, accessory, cart-rule, payment-method, payment-method-countries, and sign-in-method completed.'
-        : '[seed] library, courier, and accessory completed; library-user, library-nail, courier-live-state, cart-rule, payment-method, payment-method-countries, and sign-in-method skipped.',
+        ? '[seed] library, user library, courier, courier-live-state, accessory, cart-rule, payment-method, payment-method-countries, and sign-in-method completed. Custom-set import stays out of this command.'
+        : '[seed] library, courier, and accessory completed. User library, custom sets, courier-live-state, cart-rule, payment-method, payment-method-countries, and sign-in-method were skipped.',
     );
   }
 }

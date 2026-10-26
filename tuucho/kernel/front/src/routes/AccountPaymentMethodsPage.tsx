@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLang } from '../assets/i18n';
 import { useAuthSession } from '../state/AuthContext';
-import { markCheckoutEntityDeleted } from '../state/cartBootstrapCache';
+import { invalidateCartBootstrapCache, markCheckoutEntityDeleted } from '../state/cartBootstrapCache';
 import { Seo } from '../components/seo/Seo';
 import { LegalPageBackLink } from '../components/layout/LegalPageBackLink';
 import * as authApi from '../api/checkout';
@@ -29,10 +29,7 @@ const BRAND_LABELS: Record<string, string> = {
 };
 
 type PreferenceMethod =
-  | Extract<
-      DefaultPaymentMethod,
-      { type: 'paypal' | 'bancontact' | 'google_pay' | 'apple_pay' }
-    >['type']
+  | Extract<DefaultPaymentMethod, { type: 'paypal' | 'bancontact' | 'google_pay' | 'apple_pay' }>['type']
   | 'new_card';
 
 const SHOP_ALL_OFF: ShopPaymentMethods = {
@@ -157,6 +154,8 @@ export function AccountPaymentMethodsPage() {
 
   async function handleCardAdded(paymentMethodId: string, savedForFuture: boolean) {
     await authedRequest((token) => authApi.registerPaymentMethod(token, paymentMethodId, savedForFuture));
+    // Profile edits must not let /cart paint its pre-profile snapshot.
+    invalidateCartBootstrapCache();
     await refreshPaymentMethods();
     setAddCardSecret(null);
   }
@@ -171,16 +170,19 @@ export function AccountPaymentMethodsPage() {
     setPendingDeleteId(null);
     await authedRequest((token) => authApi.deletePaymentMethod(token, id));
     markCheckoutEntityDeleted(id);
+    invalidateCartBootstrapCache();
     await refreshPaymentMethods();
   }
 
   async function handleSetDefault(paymentMethod: DefaultPaymentMethod) {
     const result = await authedRequest((token) => authApi.setDefaultPaymentMethod(token, paymentMethod));
+    invalidateCartBootstrapCache();
     setDefaultPaymentMethod(result.defaultPaymentMethod);
   }
 
   async function handleUnsetDefault() {
     await authedRequest((token) => authApi.unsetDefaultPaymentMethod(token));
+    invalidateCartBootstrapCache();
     setDefaultPaymentMethod(null);
   }
 
@@ -317,11 +319,11 @@ export function AccountPaymentMethodsPage() {
   }
 
   return (
-    <AccountShell
-      loading={
-        loading || loadedAccountId !== (user?.id ?? null) || (!loadFailed && !walletAvailability.ready)
-      }
-    >
+    // The wallet probe is deliberately NOT part of this gate: it only decides
+    // whether the Google Pay / Apple Pay preference rows render (they check
+    // walletAvailability.ready themselves). Gating the whole page on it kept
+    // the Add-card button hidden behind a provider probe.
+    <AccountShell loading={loading || loadedAccountId !== (user?.id ?? null)}>
       <section aria-labelledby="payment-methods-h" className={styles.section} data-testid="account-payments">
         <Seo
           title={t.paymentMethods.pageTitle}

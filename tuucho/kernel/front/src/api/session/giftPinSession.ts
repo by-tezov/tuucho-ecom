@@ -11,6 +11,14 @@ export const GIFT_RECEIVER_ISOLATED_KEY = 'psn-gift-receiver-isolated';
 
 const IMPERSONATION_HANDOFF_KEY = 'psn-impersonate-handoff';
 
+/** One-shot localStorage copy of the popup handoff. Navigating the popup
+ * from about:blank to /account can drop its sessionStorage on some browsers,
+ * which used to lose the impersonated session and land on /. localStorage is
+ * shared across same-origin tabs, so the admin tab writes it right before the
+ * navigation and the new tab deletes it on first read, even when expired. */
+const IMPERSONATION_HANDOFF_FALLBACK_KEY = 'tuucho-impersonate-handoff';
+const IMPERSONATION_HANDOFF_FALLBACK_TTL_MS = 30_000;
+
 export interface ImpersonationHandoff {
   user: AuthUser;
   accessToken: string;
@@ -31,22 +39,75 @@ export function writeImpersonationHandoff(storage: Storage, session: Impersonati
   );
 }
 
-export function readImpersonationHandoff(): ImpersonationHandoff | null {
+/** Writes the localStorage one-shot fallback from the tab that opened the
+ * popup (same origin, so the popup reads it). Best-effort: storage failures
+ * just leave the original sessionStorage path as the only carrier. */
+export function writeImpersonationHandoffFallback(session: ImpersonationHandoff): void {
   try {
-    const raw = sessionStorage.getItem(IMPERSONATION_HANDOFF_KEY);
+    localStorage.setItem(
+      IMPERSONATION_HANDOFF_FALLBACK_KEY,
+      JSON.stringify({
+        user: session.user,
+        accessToken: session.accessToken,
+        accessTokenExpiresAt: session.accessTokenExpiresAt,
+        createdAt: Date.now(),
+      }),
+    );
+  } catch {
+    // Storage unavailable: the sessionStorage handoff still applies.
+  }
+}
+
+function parseImpersonationHandoff(parsed: Partial<ImpersonationHandoff>): ImpersonationHandoff | null {
+  if (
+    !parsed.user ||
+    typeof parsed.accessToken !== 'string' ||
+    typeof parsed.accessTokenExpiresAt !== 'string'
+  ) {
+    return null;
+  }
+  return {
+    user: parsed.user,
+    accessToken: parsed.accessToken,
+    accessTokenExpiresAt: parsed.accessTokenExpiresAt,
+  };
+}
+
+/** Reads and always deletes the localStorage fallback, expired or not — it is
+ * a single-use bridge for the navigation that just happened, never a session
+ * store. Returns null past the TTL. */
+function takeImpersonationHandoffFallback(): ImpersonationHandoff | null {
+  try {
+    const raw = localStorage.getItem(IMPERSONATION_HANDOFF_FALLBACK_KEY);
+    localStorage.removeItem(IMPERSONATION_HANDOFF_FALLBACK_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<ImpersonationHandoff>;
-    if (!parsed.user || typeof parsed.accessToken !== 'string' || typeof parsed.accessTokenExpiresAt !== 'string') {
+    const parsed = JSON.parse(raw) as Partial<ImpersonationHandoff> & { createdAt?: unknown };
+    if (
+      typeof parsed.createdAt !== 'number' ||
+      Date.now() - parsed.createdAt > IMPERSONATION_HANDOFF_FALLBACK_TTL_MS
+    ) {
       return null;
     }
-    return {
-      user: parsed.user,
-      accessToken: parsed.accessToken,
-      accessTokenExpiresAt: parsed.accessTokenExpiresAt,
-    };
+    return parseImpersonationHandoff(parsed);
   } catch {
     return null;
   }
+}
+
+export function readImpersonationHandoff(): ImpersonationHandoff | null {
+  // Always take (read + delete) the one-shot first: even when sessionStorage
+  // answers, the fallback must not linger in localStorage holding a token.
+  const fallback = takeImpersonationHandoffFallback();
+  try {
+    const raw = sessionStorage.getItem(IMPERSONATION_HANDOFF_KEY);
+    if (raw) {
+      const parsed = parseImpersonationHandoff(JSON.parse(raw) as Partial<ImpersonationHandoff>);
+      if (parsed) return parsed;
+    }
+  } catch {
+    return null;
+  }
+  return fallback;
 }
 
 export type GiftPinRole = 'giver' | 'receiver';

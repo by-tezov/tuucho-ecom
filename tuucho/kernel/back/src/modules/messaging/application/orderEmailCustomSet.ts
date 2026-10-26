@@ -1,5 +1,6 @@
 import { localizedCatalog } from '@tuucho/plugin-sdk';
 import type { Language } from '../../../utils/language.js';
+import { emailStrings } from './emailStrings.js';
 import {
   groupOrderDisplayLines,
   type OrderDisplayGroup,
@@ -28,27 +29,6 @@ interface CustomSetEmailStrings {
   fingers: Record<string, string>;
 }
 
-function fingers(left: string[], right: string[]): Record<string, string> {
-  return Object.fromEntries([
-    ...HAND_FINGERS.left.map((finger, index) => [finger, left[4 - index]!]),
-    ...HAND_FINGERS.right.map((finger, index) => [finger, right[index]!]),
-  ]);
-}
-
-/** Finger labels for extra-set email blocks. Fingers are listed thumb to
- * pinky for each hand. */
-const CUSTOM_SET_EMAIL_STRINGS: { en: CustomSetEmailStrings } = {
-  en: {
-    handLeft: 'Left hand',
-    handRight: 'Right hand',
-    nailCount: '{count} / {max} nails',
-    fingers: fingers(
-      ['Left thumb', 'Left index', 'Left middle', 'Left ring', 'Left pinky'],
-      ['Right thumb', 'Right index', 'Right middle', 'Right ring', 'Right pinky'],
-    ),
-  },
-};
-
 export interface CustomSetEmailView {
   nailCountLabel: string;
   /** Two rows of five cells; `photo` null for an empty slot. */
@@ -70,7 +50,7 @@ export function customSetEmailView(
   nails: OrderDisplayNailLine[],
   language: Language,
 ): CustomSetEmailView {
-  const strings = localizedCatalog(CUSTOM_SET_EMAIL_STRINGS.en, language, 'custom-set');
+  const strings = localizedCatalog<CustomSetEmailStrings>(language, 'custom-set');
   const byFinger = new Map(nails.map((nail) => [nail.finger, nail]));
   return {
     nailCountLabel: strings.nailCount.replace('{count}', String(nails.length)).replace('{max}', '10'),
@@ -104,19 +84,14 @@ export function customSetEmailView(
 }
 
 /** The words around an item line: the customer note's heading, the size
- * before its value and the product reference. Same copy as the shop's cart
- * (`cart.referenceLabel`, `galleryNail.sizeShort`). */
-const ITEM_LABELS: Record<Language, { comment: string; size: string; ref: string }> = {
-  fr: { comment: 'Commentaire', size: 'taille', ref: 'Réf.' },
-  en: { comment: 'Comment', size: 'size', ref: 'Ref.' },
-};
-
+ * before its value and the product reference. Same keys as the shop's cart
+ * (`cart.referenceLabel`, `galleryNail.sizeShort`); values from locale packs. */
 export function orderItemLabels(language: Language): { comment: string; size: string; ref: string } {
-  return ITEM_LABELS[language];
+  return emailStrings(language).itemLabels;
 }
 
 export function customSetFingerLabel(finger: string, language: Language): string {
-  return localizedCatalog(CUSTOM_SET_EMAIL_STRINGS.en, language, 'custom-set').fingers[finger] ?? finger;
+  return localizedCatalog<CustomSetEmailStrings>(language, 'custom-set').fingers[finger] ?? finger;
 }
 
 const SECTION_ORDER: Record<OrderDisplaySection, number> = {
@@ -158,9 +133,9 @@ export function orderEmailItemGroups(
   return groups.map((group) => ({
     ...group,
     sectionLabel: group.sectionStart ? sectionLabels[group.section] : null,
-    commentLabel: ITEM_LABELS[language].comment,
-    sizeLabel: ITEM_LABELS[language].size,
-    refLabel: ITEM_LABELS[language].ref,
+    commentLabel: orderItemLabels(language).comment,
+    sizeLabel: orderItemLabels(language).size,
+    refLabel: orderItemLabels(language).ref,
     customSet: group.section === 'customSet' ? customSetEmailView(group.nails, language) : null,
   }));
 }

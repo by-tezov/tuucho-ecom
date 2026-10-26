@@ -1,13 +1,10 @@
-import { lazy } from 'react';
 import type { PluginFrontModule } from '@kernel/front/plugins/PluginHost';
-
-const AdminSpyMailPage = lazy(() =>
-  import('./AdminSpyMailPage').then((m) => ({ default: m.AdminSpyMailPage })),
-);
+import { SpyRulesPanel } from './SpyRulesPanel';
 
 export const pluginFront: PluginFrontModule = {
   pluginId: 'tuucho-mail-spy',
-  adminRoutes: [{ path: 'spy-mail', element: <AdminSpyMailPage /> }],
+  configure: <SpyRulesPanel />,
+  configureTab: 'Rules',
 };
 
 export default pluginFront;

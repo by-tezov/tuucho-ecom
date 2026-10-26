@@ -29,7 +29,7 @@ export interface RateLimiterOptions {
  * 500 still counts, because volume 4xx is exactly the abuse shape they guard.
  * The mechanism is express-rate-limit's decrement-on-finish, so a
  * `failuresOnly` limiter has to class a 5xx as "successful" to give it back.
- * See docs/api/00-conventions.md. */
+ * See tuucho/docs/api/00-conventions.md. */
 export function createRateLimiter(options: RateLimiterOptions) {
   const failuresOnly = options.failuresOnly ?? false;
   return rateLimit({

@@ -21,11 +21,17 @@ describe('product URLs', () => {
     expect(uidFromSlug('  AQ-YZ-367 ')).toBe('AQ-YZ-367');
   });
 
-  it('rejects slugs that carry no valid uid', () => {
-    expect(uidFromSlug('cerises-elegantes')).toBeUndefined();
-    expect(uidFromSlug('cerises-aq-yz-36')).toBeUndefined();
-    expect(uidFromSlug('cerises-aq-yz-3678')).toBeUndefined();
+  it('accepts the wider uid shape and still peels a legacy code off a title', () => {
+    expect(uidFromSlug('aa-bb-123-test')).toBe('AA-BB-123-TEST');
+    expect(uidFromSlug('old-title-aq-yz-367')).toBe('AQ-YZ-367');
+  });
+
+  it('rejects slugs that are not a uid', () => {
     expect(uidFromSlug('')).toBeUndefined();
+    expect(uidFromSlug('-kit')).toBeUndefined();
+    expect(uidFromSlug('kit-')).toBeUndefined();
+    expect(uidFromSlug('kit--a')).toBeUndefined();
+    expect(uidFromSlug('a'.repeat(21))).toBeUndefined();
   });
 
   it('builds nail pages and share deep links with encoded variation keys', () => {

@@ -1,15 +1,12 @@
 /**
- * Regenerates output/report/index.html, a small hub linking suite HTML reports
- * that already exist on disk.
+ * Regenerates <outputDir>/report/index.html, a small hub linking suite HTML
+ * reports that already exist on disk.
  *
  *   npx tsx scripts/writeReportHub.ts
  */
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { reportRoot } from './reportPaths.js';
-
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 type HubLink = {
   href: string;
@@ -18,14 +15,13 @@ type HubLink = {
 };
 
 function linkIfPresent(relIndex: string, title: string, note?: string): HubLink | null {
-  const abs = join(reportRoot(root), relIndex);
+  const abs = join(reportRoot(), relIndex);
   if (!existsSync(abs)) return null;
   return { href: relIndex, title, note };
 }
 
-/** Write (or refresh) the hub at output/report/index.html. */
-export function writeReportHub(repoRoot: string = root): string {
-  const outDir = reportRoot(repoRoot);
+/** Write (or refresh) the hub at <outputDir>/report/index.html. */
+export function writeReportHub(outDir: string = reportRoot()): string {
   mkdirSync(outDir, { recursive: true });
 
   const links = [
@@ -91,7 +87,7 @@ export function writeReportHub(repoRoot: string = root): string {
 <body>
 <main>
   <h1>Shop test reports</h1>
-  <p class="sub">Latest HTML reports under <code>output/report/</code>.</p>
+  <p class="sub">Latest HTML reports from the test suites.</p>
   ${rows}
 </main>
 </body>

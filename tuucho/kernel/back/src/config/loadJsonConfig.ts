@@ -6,8 +6,20 @@ export type AppTarget = string;
 export type JsonObject = Record<string, unknown>;
 
 export type ConfigBootStatus =
-  | { ok: true; target: AppTarget; privateSource: 'private' | 'example'; warnings: string[]; errors: string[] }
-  | { ok: false; target: string; privateSource: 'none' | 'private' | 'example'; warnings: string[]; errors: string[] };
+  | {
+      ok: true;
+      target: AppTarget;
+      privateSource: 'private' | 'example';
+      warnings: string[];
+      errors: string[];
+    }
+  | {
+      ok: false;
+      target: string;
+      privateSource: 'none' | 'private' | 'example';
+      warnings: string[];
+      errors: string[];
+    };
 
 const ENV_NAME = /^[a-z][a-z0-9-]*$/;
 
@@ -81,7 +93,7 @@ export function resolveAppTarget(raw: string | undefined): AppTarget {
   const value = (raw ?? 'dev').trim() || 'dev';
   if (!isEnvName(value)) {
     throw new Error(
-      `APP_TARGET must be a folder name [a-z][a-z0-9-]* (got ${raw === undefined ? 'unset' : `"${raw}"`}).`,
+      `APP_TARGET must match [a-z][a-z0-9-]* (got ${raw === undefined ? 'unset' : `"${raw}"`}).`,
     );
   }
   return value;
@@ -92,43 +104,43 @@ export function configDir(root: string): string {
   return root;
 }
 
+const ENV_PUBLIC_FILE = /^config\.([a-z][a-z0-9-]*)\.json$/;
+
 export function listEnvironments(root: string): string[] {
   const dir = configDir(root);
   if (!existsSync(dir)) return [];
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && isEnvName(entry.name) && existsSync(join(dir, entry.name, 'config.json')))
-    .map((entry) => entry.name)
+  return readdirSync(dir)
+    .map((name) => ENV_PUBLIC_FILE.exec(name)?.[1])
+    .filter((name): name is string => Boolean(name && name !== 'role' && isEnvName(name)))
     .sort();
 }
 
 export function configPaths(root: string, target: AppTarget) {
   const common = configDir(root);
-  const env = join(common, target);
   return {
     commonPublic: join(common, 'config.json'),
-    envPublic: join(env, 'config.json'),
-    envDir: env,
+    envPublic: join(common, `config.${target}.json`),
     commonPrivate: join(common, 'config.private.json'),
     commonPrivateExample: join(common, 'config.private.example.json'),
-    envPrivate: join(env, 'config.private.json'),
-    envPrivateExample: join(env, 'config.private.example.json'),
+    envPrivate: join(common, `config.private.${target}.json`),
+    envPrivateExample: join(common, `config.private.${target}.example.json`),
   };
 }
 
 function loadPrivateLayer(
   file: string,
   example: string,
-  errors: string[],
   warnings: string[],
 ): { source: 'none' | 'private' | 'example'; obj: JsonObject } {
   if (existsSync(file)) {
     return { source: 'private', obj: readJsonFile(file) };
   }
   if (existsSync(example)) {
+    const obj = readJsonFile(example);
+    if (Object.keys(obj).length === 0) return { source: 'none', obj: {} };
     warnings.push(`${file} is missing; loading ${example} (placeholders in use).`);
-    return { source: 'example', obj: readJsonFile(example) };
+    return { source: 'example', obj };
   }
-  errors.push(`missing ${file} and ${example}. Cannot launch.`);
   return { source: 'none', obj: {} };
 }
 
@@ -149,27 +161,22 @@ export function inspectConfig(root: string, targetRaw?: string): ConfigBootStatu
   const errors: string[] = [];
   const warnings: string[] = [];
   const known = listEnvironments(root);
-  if (!existsSync(paths.envDir)) {
-    errors.push(
-      `missing environment folder ${paths.envDir}${known.length > 0 ? ` (known: ${known.join(', ')})` : ''}.`,
-    );
+  if (!existsSync(paths.envPublic)) {
+    errors.push(`missing ${paths.envPublic}${known.length > 0 ? ` (known: ${known.join(', ')})` : ''}.`);
     return { ok: false, target, privateSource: 'none', warnings, errors };
   }
   if (!existsSync(paths.commonPublic)) {
     errors.push(`missing ${paths.commonPublic} (broken tree).`);
   }
-  if (!existsSync(paths.envPublic)) {
-    errors.push(`missing ${paths.envPublic} (broken tree).`);
-  }
 
-  const commonPrivate = loadPrivateLayer(paths.commonPrivate, paths.commonPrivateExample, errors, warnings);
-  const envPrivate = loadPrivateLayer(paths.envPrivate, paths.envPrivateExample, errors, warnings);
+  const commonPrivate = loadPrivateLayer(paths.commonPrivate, paths.commonPrivateExample, warnings);
+  const envPrivate = loadPrivateLayer(paths.envPrivate, paths.envPrivateExample, warnings);
   const mergedPrivate = deepMerge(commonPrivate.obj, envPrivate.obj);
   const missing = missingRequiredPrivateKeys(mergedPrivate);
-  if (envPrivate.source === 'private' || commonPrivate.source === 'private') {
-    if (missing.length > 0) {
-      errors.push(`private JSON is missing required keys: ${missing.join(', ')}.`);
-    }
+  const usingPrivate = commonPrivate.source === 'private' || envPrivate.source === 'private';
+  const noPrivateLayer = commonPrivate.source === 'none' && envPrivate.source === 'none';
+  if (missing.length > 0 && (usingPrivate || noPrivateLayer)) {
+    errors.push(`private JSON is missing required keys: ${missing.join(', ')}.`);
   }
 
   if (errors.length > 0) {
@@ -182,7 +189,8 @@ export function inspectConfig(root: string, targetRaw?: string): ConfigBootStatu
   return {
     ok: true,
     target,
-    privateSource: envPrivate.source === 'private' || commonPrivate.source === 'private' ? 'private' : 'example',
+    privateSource:
+      envPrivate.source === 'private' || commonPrivate.source === 'private' ? 'private' : 'example',
     warnings,
     errors,
     merged,
@@ -193,7 +201,7 @@ export function envSummary(root: string): string[] {
   const dir = configDir(root);
   const names = listEnvironments(root);
   if (!existsSync(dir)) return ['(no tuucho-config/ folder)'];
-  if (names.length === 0) return ['(no environment folders under tuucho-config/)'];
+  if (names.length === 0) return ['(no config.<env>.json files under tuucho-config/)'];
   return names.map((name) => {
     const paths = configPaths(root, name);
     const privateOk = existsSync(paths.envPrivate);
@@ -226,10 +234,25 @@ export const TUUCHO_TEST_ENV_OVERLAYS: Record<string, string> = {
   TUUCHO_TEST_PUBLIC_MEDIA: 'URL_PUBLIC_MEDIA',
 };
 
+/** Scalar test-harness overlays for the front served from this env. Each
+ * target is filled only when unset, so an explicit VITE_* value always wins.
+ * TUUCHO_TEST_LOADING_MIN spreads over the three loading floors. */
+export const TUUCHO_TEST_VALUE_OVERLAYS: Record<string, string[]> = {
+  TUUCHO_TEST_LOADING_MIN: ['VITE_LOADING_MIN', 'VITE_LOADING_MIN_SHORT', 'VITE_LOADING_MIN_LONG'],
+  TUUCHO_TEST_BOOT_SPLASH_SPEED: ['VITE_BOOT_SPLASH_SPEED'],
+};
+
 export function applyTestEnvOverlays(env: NodeJS.ProcessEnv = process.env): void {
   for (const [overlay, target] of Object.entries(TUUCHO_TEST_ENV_OVERLAYS)) {
     const value = env[overlay];
     if (typeof value === 'string' && value.trim()) env[target] = value.trim().replace(/\/$/, '');
+  }
+  for (const [overlay, targets] of Object.entries(TUUCHO_TEST_VALUE_OVERLAYS)) {
+    const value = env[overlay];
+    if (typeof value !== 'string' || !value.trim()) continue;
+    for (const target of targets) {
+      if (env[target] === undefined) env[target] = value.trim();
+    }
   }
 }
 

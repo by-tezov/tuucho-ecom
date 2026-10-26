@@ -1,6 +1,6 @@
 # Microkernel architecture plan
 
-Checkout: `/home/tezov/Local/tuucho-ecom` (`CORE_VERSION` 1.0.9). Git is read-only. Do not treat repo `docs/microkernel.md` as truth until it is rewritten: it described a pre-split runtime.
+Checkout: `/home/tezov/Local/tuucho-ecom` (`CORE_VERSION` 1.0.9). Git is read-only. Do not treat repo `tuucho/docs/microkernel.md` as truth until it is rewritten: it described a pre-split runtime.
 
 **Product vision file** `/cursor/stores/self/docs/project-context.md` was not on disk (`/cursor` does not exist on this worker). Vision used here is Te’s stated intent plus README / skills: ready-to-use e-commerce for French micro-entreprises. Kernel = mechanic. Pre-bundled `plugins/tuucho` = what almost every small shop needs. Shop-specific code = `plugins/user/`.
 
@@ -44,7 +44,7 @@ Gallery, product, stock, cart, **checkout orchestration**, orders, invoices, add
 
 ### 1.3 Engines in kernel, packages that look like plugins
 
-**Locale.** Language switch, `assembleDictionary`, English dictionaries, `ENABLED_LANGUAGES` = kernel. French = `tuucho-locale-fr` plus `*-locale-fr` overlays.
+**Locale.** Language switch, `assembleDictionary`, English dictionaries, `ENABLED_LANGUAGES` = kernel. French = `tuucho-kernel-locale-fr` plus `*-locale-fr` overlays.
 
 **Theming.** `theme.css`, `ThemeTokens`, header / burger / bottom bar = kernel. `tuucho-theme-default` is optional Configure hexes + `storefront.theme.slots`, **not** `required`. A later theme package may `replace` `KERNEL_UI`.
 
@@ -58,7 +58,7 @@ Guest `POST /contact`, account chat, admin Contact hub, permission `messages` = 
 
 ### 1.6 Correctly plugins
 
-Commerce extras, Stripe gateway, shipping methods, home slots, docs, journals, locale packs, `plugins/user/demo/guides/demo-page-guides`, **contact**. Legal pages are the user plugin `page-legal` (footer only).
+Commerce extras, Stripe gateway, shipping methods, home slots, docs, journals, locale packs, `plugins/user/demo/guides/page-guides`, **contact**. Legal pages are the user plugin `page-legal` (footer only).
 
 ---
 
@@ -70,7 +70,7 @@ Commerce extras, Stripe gateway, shipping methods, home slots, docs, journals, l
 4. **SEO plugin ids** — unchanged from the previous turn (engine lists pages itself).
 5. **Theme required** — cleared earlier.
 6. **Contact/chat application** — moved into `tuucho-contact` (HTTP + application + ops inbound). Product-request application/HTTP/admin moved into `tuucho-commerce-product-requests`. Kernel callers (admin users, DB backfill) use `callPluginMethod`.
-7. **FAQ accordion copy** — English items live in `tuucho-home-faq` (`faqItems.ts` + `front/catalog.ts`). Kernel `t.faq.items` is empty. French overlay remains `tuucho-home-faq-locale-fr`. `assembleDictionary` merges non-locale catalogs into English.
+7. **FAQ accordion copy** — English items live in `home-faq` (`faqItems.ts` + `front/catalog.ts`). Kernel `t.faq.items` is empty. French overlay remains `home-faq-locale-fr`. `assembleDictionary` merges non-locale catalogs into English.
 8. **Catalogue `'nail'` defaults** — sitemap/filter-option helpers no longer default to `'nail'`. Front gallery catalog axis is `'sets' | 'units'`. Stored `product_type` values are Shop identity (cannot drop without a data migration).
 9. **Front host is eager** — **bundler constraint**, documented on `PluginHost.tsx`. Screen map still reads only kernel `App.tsx`.
 10. **Pre-bundle policy** — unchanged.
@@ -137,6 +137,6 @@ Journal admin screens live in `tuucho-journal-cron` / `admin` / `email`. Mondial
 | File | Role |
 | --- | --- |
 | This plan | `.cursor/stores/self/docs/microkernel-architecture.md` (and worker store copy) |
-| Repo doc | `docs/microkernel.md` |
+| Repo doc | `tuucho/docs/microkernel.md` |
 | Skill lock | `.cursor/skills/tuucho-create-plugin/SKILL.md` |
 | Bundled set | `plugins/tuucho/manifest.json` |

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { AdminStockList, StockEditModal, StockListRow } from '../components/admin/AdminStockList';
 import {
   getAdminUserLibraryStock,
@@ -8,13 +8,18 @@ import {
   type AdminStockListFilters,
   type AdminUserLibraryStockRow,
 } from '../api/admin/catalog';
+import { ApiError } from '../api/errors';
 import { useAuthSession } from '../state/AuthContext';
 import { useLang } from '../assets/i18n';
 import { formatPrice } from '../utils/formatPrice';
 import { adminPath } from '../utils/adminRoute';
 import { withMinDuration } from '../utils/withMinDuration';
 import { AdminVariantVisibility } from '../components/admin/AdminVariantVisibility';
-import { PriceField, StockFigure, StockSection, StockStepper, stockFieldStyles } from '../components/admin/AdminStockFields';
+import { PriceField, StockSection, StockStepper, stockFieldStyles } from '../components/admin/AdminStockFields';
+import { Button } from '../components/ui/Button';
+import { ConfirmModal } from '../components/ui/ConfirmModal';
+import { StatusModal } from '../components/ui/StatusModal';
+import { TextField } from '../components/ui/TextField';
 import { AdminStockFilters, DEFAULT_STOCK_FILTERS } from '../components/admin/AdminStockFilters';
 import { AdminProductEditor } from '../components/admin/AdminProductEditor';
 import styles from '../components/admin/AdminStockList.module.css';
@@ -47,8 +52,12 @@ export function AdminUserLibraryStockPage() {
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [draftSizes, setDraftSizes] = useState<SizeMap>({ XS: 0, S: 0, M: 0, L: 0 });
   const [draftPrice, setDraftPrice] = useState('');
+  const [draftOwners, setDraftOwners] = useState<string[]>([]);
+  const [ownerDraft, setOwnerDraft] = useState('');
   const [saving, setSaving] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [resultDialog, setResultDialog] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
+  const ownerFieldId = useId();
   const [productEditorUid, setProductEditorUid] = useState<string | null | undefined>(undefined);
   const busy = loading || saving;
   const hasMore = page < pages;
@@ -68,13 +77,13 @@ export function AdminUserLibraryStockPage() {
         setPage(result.pagination.page);
         setPages(result.pagination.totalPages);
       } catch {
-        setError(t.admin.loadError);
+        setError(a.stock.userLibraryLoadError);
       } finally {
         setLoading(false);
         setLoadingMore(false);
       }
     },
-    [authedRequest, t.admin.loadError],
+    [authedRequest, a.stock.userLibraryLoadError],
   );
 
   useEffect(() => {
@@ -85,6 +94,8 @@ export function AdminUserLibraryStockPage() {
     setEditingKey(variantKey(row));
     setDraftSizes({ ...row.sizes });
     setDraftPrice(row.price == null ? '' : String(row.price));
+    setDraftOwners([...row.owners]);
+    setOwnerDraft('');
     setActionError(null);
   }
 
@@ -93,25 +104,47 @@ export function AdminUserLibraryStockPage() {
     setActionError(null);
   }
 
+  function addOwner() {
+    const email = ownerDraft.trim().toLowerCase();
+    if (!email.includes('@') || email.includes(' ') || email.startsWith('@') || email.endsWith('@')) {
+      setActionError(a.stock.ownerEmailInvalid);
+      return;
+    }
+    setActionError(null);
+    setOwnerDraft('');
+    setDraftOwners((current) => (current.includes(email) ? current : [...current, email]));
+  }
+
   async function saveEdit(row: AdminUserLibraryStockRow) {
     setSaving(true);
     setActionError(null);
     try {
       const price = draftPrice.trim() === '' ? undefined : Number(draftPrice);
-      const result = await authedRequest((token) =>
-        patchAdminUserLibraryStock(token, row.productUid, {
-          shapeKey: row.shapeKey,
-          lengthKey: row.lengthKey,
-          price,
-          sizes: draftSizes,
-        }),
+      const result = await withMinDuration(
+        authedRequest((token) =>
+          patchAdminUserLibraryStock(token, row.productUid, {
+            shapeKey: row.shapeKey,
+            lengthKey: row.lengthKey,
+            sizes: draftSizes,
+            owners: draftOwners,
+            ...(price !== undefined ? { price } : {}),
+          }),
+        ),
+        shopConfig.loadingMinMs.short,
       );
       setRows((current) =>
-        current.map((item) => (variantKey(item) === variantKey(row) ? result.row : item)),
+        current.map((item) => {
+          if (item.productUid !== result.row.productUid) return item;
+          if (variantKey(item) === variantKey(row)) return result.row;
+          return { ...item, owners: result.row.owners, price: result.row.price };
+        }),
       );
       setEditingKey(null);
-    } catch {
-      setActionError(t.admin.saveError);
+      setResultDialog({ tone: 'success', message: a.whiteLabel.saved });
+    } catch (error) {
+      const message = error instanceof ApiError && error.serverMessage ? error.serverMessage : a.stock.errSaveVariant;
+      setActionError(message);
+      setResultDialog({ tone: 'error', message });
     } finally {
       setSaving(false);
     }
@@ -123,7 +156,7 @@ export function AdminUserLibraryStockPage() {
       await authedRequest((token) => setAdminUserLibraryStockHidden(token, row.productUid, hidden, scope));
       await load(1, query, filters, false);
     } catch {
-      setActionError(t.admin.saveError);
+      setActionError(a.stock.errSaveVariant);
     } finally {
       setSaving(false);
     }
@@ -178,17 +211,24 @@ export function AdminUserLibraryStockPage() {
       closePreviewLabel={t.admin.closePhotoPreview}
       enableCardView={false}
       toolbar={
-        <AdminStockFilters
-          filters={filters}
-          onChange={(next) => {
-            setEditingKey(null);
-            setActionError(null);
-            setFilters(next);
-          }}
-          disabled={busy}
-          hiddenLabel={t.admin.stockOnlyVisible}
-          stockLabel={t.admin.stockOnlyInStock}
-        />
+        <div className={styles.toolbarRow}>
+          <AdminStockFilters
+            filters={filters}
+            onChange={(next) => {
+              setEditingKey(null);
+              setActionError(null);
+              setFilters(next);
+            }}
+            disabled={busy}
+            hiddenLabel={t.admin.stockOnlyVisible}
+            stockLabel={t.admin.stockOnlyInStock}
+          />
+          {canEditProduct ? (
+            <Button type="button" variant="ghost" disabled={busy} onClick={() => setProductEditorUid(null)}>
+              {a.productEditor.addProduct}
+            </Button>
+          ) : null}
+        </div>
       }
       hasMore={hasMore}
       loadingMore={loadingMore}
@@ -245,22 +285,73 @@ export function AdminUserLibraryStockPage() {
           onSave={() => void saveEdit(editingRow)}
           onClose={cancelEdit}
         >
-          <StockSection>
-            <PriceField value={draftPrice} onChange={setDraftPrice} disabled={busy} />
-            <div className={stockFieldStyles.row}>
+          <StockSection
+            title={a.stock.stockBySize(
+              SIZES.reduce((sum, size) => sum + (Number.isFinite(draftSizes[size]) ? draftSizes[size] : 0), 0),
+            )}
+          >
+            <div className={stockFieldStyles.stepperGrid}>
               {SIZES.map((size) => (
-                <StockFigure key={size} label={size}>
-                  <StockStepper
-                    value={draftSizes[size]}
-                    onChange={(value) => setDraftSizes((current) => ({ ...current, [size]: value }))}
-                    disabled={busy}
-                  />
-                </StockFigure>
+                <StockStepper
+                  key={size}
+                  label={size}
+                  value={draftSizes[size]}
+                  onChange={(value) => setDraftSizes((current) => ({ ...current, [size]: value }))}
+                  disabled={busy}
+                />
               ))}
             </div>
           </StockSection>
+          <StockSection title={a.stock.price}>
+            <PriceField label={a.stock.unitPrice} value={draftPrice} onChange={setDraftPrice} disabled={busy} />
+          </StockSection>
+          <StockSection title={a.stock.ownersLabel}>
+            {draftOwners.length === 0 ? <p className={styles.metaNote}>{a.stock.nobody}</p> : null}
+            <ul className={styles.metaNote}>
+              {draftOwners.map((email) => (
+                <li key={email}>
+                  {email}{' '}
+                  <Button
+                    type="button"
+                    variant="ghostDanger"
+                    disabled={busy}
+                    onClick={() => setDraftOwners((current) => current.filter((entry) => entry !== email))}
+                  >
+                    {a.stock.removeOwner}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+            <TextField
+              id={ownerFieldId}
+              type="email"
+              value={ownerDraft}
+              onChange={setOwnerDraft}
+              placeholder={a.stock.ownerEmailPlaceholder}
+              autoComplete="off"
+              disabled={busy}
+              aria-label={a.stock.ownersLabel}
+            />
+            <Button type="button" variant="secondary" disabled={busy} onClick={addOwner}>
+              {a.stock.addOwner}
+            </Button>
+          </StockSection>
         </StockEditModal>
       )}
+      {resultDialog?.tone === 'success' ? (
+        <StatusModal message={resultDialog.message} onClose={() => setResultDialog(null)} />
+      ) : null}
+      {resultDialog?.tone === 'error' ? (
+        <ConfirmModal
+          variant="dialog"
+          title={resultDialog.message}
+          message={null}
+          confirmLabel={a.whiteLabel.applyDismiss}
+          closeIcon={false}
+          onConfirm={() => setResultDialog(null)}
+          onCancel={() => setResultDialog(null)}
+        />
+      ) : null}
     </AdminStockList>
   );
 }

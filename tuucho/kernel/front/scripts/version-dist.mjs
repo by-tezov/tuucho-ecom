@@ -78,8 +78,11 @@ function merge(base, overlay) {
 }
 
 function kernelHttp(target) {
-  const back = join(root, '..', 'back');
-  const json = merge(readJson(join(back, 'config', 'config.json')), readJson(join(back, 'config', target, 'config.json')));
+  const shopConfig = join(root, '../../..', 'tuucho-config');
+  const json = merge(
+    readJson(join(shopConfig, 'config.json')),
+    readJson(join(shopConfig, `config.${target}.json`)),
+  );
   return json.http ?? {};
 }
 
@@ -89,7 +92,7 @@ function kernelHttp(target) {
 function apiOrigin() {
   const value = kernelHttp(mode).apiBaseUrl;
   if (typeof value !== 'string' || !value.trim()) {
-    throw new Error(`version-dist: http.apiBaseUrl missing from kernel/back/config/${mode}/config.json`);
+    throw new Error(`version-dist: http.apiBaseUrl missing from tuucho-config/config.${mode}.json`);
   }
   try {
     return new URL(value).origin;

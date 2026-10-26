@@ -1,12 +1,12 @@
 /**
  * The one machine-readable map of what the database actually holds.
  *
- * `docs/schema/` describes the schema in prose and Mermaid, and nothing ever
+ * `tuucho/docs/schema/` describes the schema in prose and Mermaid, and nothing ever
  * compared that prose to a real database. Meanwhile 900-odd `query(...)` call
  * sites write raw SQL that TypeScript cannot check at all, so a renamed column
  * stays green through `npm run check` and fails in production.
  *
- * `--write` introspects the local dev database into `docs/schema/tables.json`.
+ * `--write` introspects the local dev database into `tuucho/docs/schema/tables.json`.
  * It is the only mode that needs a database.
  *
  * `--check` (used by `npm run check:schema`) needs no database, so it can run
@@ -14,7 +14,7 @@
  *
  * - the migration files on disk differ from the ones the snapshot was taken
  *   after, which is how a snapshot goes stale without anyone noticing;
- * - a table in the snapshot is named in no `docs/schema/` section, so nothing
+ * - a table in the snapshot is named in no `tuucho/docs/schema/` section, so nothing
  *   explains what it stores.
  *
  * SQL identifiers are checked against this snapshot separately, by
@@ -26,11 +26,12 @@ import { resolve } from 'node:path';
 process.env.APP_TARGET ??= 'dev';
 
 const root = resolve('.');
-const snapshotPath = resolve(root, 'docs/schema/tables.json');
+const docsRoot = resolve(root, '../../docs');
+const snapshotPath = resolve(docsRoot, 'schema/tables.json');
 const rowTypesPath = resolve(root, 'src/db/rows.ts');
 const adoptedPath = resolve(root, 'src/db/.adopted');
 const migrationsDir = resolve(root, 'src/db/migrations');
-const schemaDocsRoot = resolve(root, 'docs/schema');
+const schemaDocsRoot = resolve(docsRoot, 'schema');
 
 export type ColumnSnapshot = {
   name: string;
@@ -336,7 +337,7 @@ if (mode === 'write') {
   const tableCount = Object.keys(snapshot.tables).length;
   const columnCount = Object.values(snapshot.tables).reduce((total, entry) => total + entry.columns.length, 0);
   console.log(
-    `Wrote docs/schema/tables.json and src/db/rows.ts (${tableCount} tables, ${columnCount} columns, ${Object.keys(snapshot.enums).length} enums).`,
+    `Wrote tuucho/docs/schema/tables.json and src/db/rows.ts (${tableCount} tables, ${columnCount} columns, ${Object.keys(snapshot.enums).length} enums).`,
   );
 } else {
   const errors: string[] = [];
@@ -344,7 +345,7 @@ if (mode === 'write') {
   try {
     snapshot = await readSnapshot();
   } catch {
-    errors.push('docs/schema/tables.json is missing or unreadable. Run `npm run sync:schema`.');
+    errors.push('tuucho/docs/schema/tables.json is missing or unreadable. Run `npm run sync:schema`.');
   }
 
   if (snapshot) {
@@ -352,12 +353,12 @@ if (mode === 'write') {
     const recorded = snapshot.migrations ?? [];
     for (const name of onDisk) {
       if (!recorded.includes(name)) {
-        errors.push(`migration \`${name}\` is newer than docs/schema/tables.json. Run \`npm run sync:schema\`.`);
+        errors.push(`migration \`${name}\` is newer than tuucho/docs/schema/tables.json. Run \`npm run sync:schema\`.`);
       }
     }
     for (const name of recorded) {
       if (!onDisk.includes(name)) {
-        errors.push(`docs/schema/tables.json was taken after \`${name}\`, which no longer exists on disk.`);
+        errors.push(`tuucho/docs/schema/tables.json was taken after \`${name}\`, which no longer exists on disk.`);
       }
     }
 
@@ -368,7 +369,7 @@ if (mode === 'write') {
       errors.push('src/db/rows.ts is missing. Run `npm run sync:schema`.');
     }
     if (rowTypes && rowTypes !== renderRowTypes(snapshot)) {
-      errors.push('src/db/rows.ts does not match docs/schema/tables.json. Run `npm run sync:schema`.');
+      errors.push('src/db/rows.ts does not match tuucho/docs/schema/tables.json. Run `npm run sync:schema`.');
     }
 
     const adopted = await rowAdoption();
@@ -383,7 +384,7 @@ if (mode === 'write') {
     const docs = await schemaDocsText();
     for (const name of Object.keys(snapshot.tables)) {
       if (!docs.includes(name)) {
-        errors.push(`table \`${name}\` is named in no docs/schema/ section.`);
+        errors.push(`table \`${name}\` is named in no tuucho/docs/schema/ section.`);
       }
     }
   }

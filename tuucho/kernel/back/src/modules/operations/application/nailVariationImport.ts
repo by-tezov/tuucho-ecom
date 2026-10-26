@@ -5,7 +5,7 @@ import type { PartialTrilingual } from '../../../types.js';
 
 const SIZES = ['XS', 'S', 'M', 'L'] as const;
 
-/** One option's own product copy (docs/plans/nail-variation-copy.md), already
+/** One option's own product copy (tuucho/docs/plans/nail-variation-copy.md), already
  * resolved against the nail-level fallback by `library-nail`. Null on a
  * payload from an older importer: the option then reads the product's copy. */
 export interface NailVariationCopy {
@@ -24,7 +24,7 @@ export interface NailVariationOption {
 }
 
 /** The variation part of a `nail_single` import payload (see
- * docs/plans/nail-variations.md): the product's axis, its options in display
+ * tuucho/docs/plans/nail-variations.md): the product's axis, its options in display
  * order with an optional price override and its own copy each, and the sparse
  * "switched off" tree from data-static.json's `variations`. */
 export interface NailVariationPayload {

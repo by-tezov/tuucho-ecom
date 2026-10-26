@@ -3,7 +3,14 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GalleryItem } from '@/data/types';
 import { pressLikeUser, stubFocusableLayout, stubViewport } from '../../helpers/pointerPress';
-import { en } from '@/assets/i18n/strings.en';
+import { assembleDictionary, ensureLocaleCatalogsLoaded } from '@/plugins/localeCatalog';
+import type { Strings } from '@/assets/i18n/types';
+
+let en: Strings;
+beforeAll(async () => {
+  await ensureLocaleCatalogsLoaded();
+  en = assembleDictionary('en', 'all');
+});
 
 vi.mock('@/config/env', () => ({
   shopConfig: {
@@ -84,10 +91,12 @@ async function renderLightbox() {
 }
 
 /** The trigger's accessible name is the label plus the visible count. */
-const quantityTriggerName = new RegExp(`^${en.cart.quantityLabel}, \\d+$`);
+function quantityTriggerName(): RegExp {
+  return new RegExp(`^${en.cart.quantityLabel}, \\d+$`);
+}
 
 function quantityTrigger() {
-  return screen.getByRole('button', { name: quantityTriggerName, expanded: false });
+  return screen.getByRole('button', { name: quantityTriggerName(), expanded: false });
 }
 
 beforeAll(() => {
@@ -149,7 +158,7 @@ describe('PhotoLightbox quantity picker', () => {
     const requestModal = await screen.findByTestId('gallery-size-request-modal');
 
     pressLikeUser(
-      within(requestModal).getByRole('button', { name: quantityTriggerName, expanded: false }),
+      within(requestModal).getByRole('button', { name: quantityTriggerName(), expanded: false }),
       'touch',
     );
 

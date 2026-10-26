@@ -218,8 +218,14 @@
   color: var(--color-ink);
 }
 
-.content {
+.contentPane {
+  position: relative;
   flex: 1;
+  width: 100%;
+  min-height: calc(var(--layout-vh) - var(--admin-topbar-h) - var(--admin-bottomnav-h));
+}
+
+.content {
   width: 100%;
   max-width: var(--container-max);
   margin: 0 auto;

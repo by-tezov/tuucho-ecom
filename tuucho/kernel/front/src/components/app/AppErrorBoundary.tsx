@@ -4,8 +4,17 @@ import type { AppErrorStrings } from '../../assets/i18n/types';
 import { reportClientError } from '../../observability/clientError';
 import styles from './AppErrorBoundary.module.css';
 
+/** Last-resort recovery copy when locale packs have not assembled yet.
+ * Packs own the real strings; this only keeps the boundary from blanking
+ * the root if a child throws during that window. */
+const FALLBACK_APP_ERROR: AppErrorStrings = {
+  title: 'Something went wrong',
+  message: 'This page cannot be displayed right now. You can try again.',
+  retry: 'Try again',
+};
+
 interface BoundaryProps {
-  copy: AppErrorStrings;
+  copy: AppErrorStrings | undefined;
   children: ReactNode;
 }
 
@@ -30,13 +39,14 @@ class Boundary extends Component<BoundaryProps, BoundaryState> {
 
   render(): ReactNode {
     if (!this.state.failed) return this.props.children;
+    const copy = this.props.copy ?? FALLBACK_APP_ERROR;
     return (
       <main className={styles.root} aria-labelledby="app-error-title">
         <section className={styles.card} role="alert">
-          <h1 id="app-error-title">{this.props.copy.title}</h1>
-          <p>{this.props.copy.message}</p>
+          <h1 id="app-error-title">{copy.title}</h1>
+          <p>{copy.message}</p>
           <button className={styles.retry} type="button" onClick={this.retry}>
-            {this.props.copy.retry}
+            {copy.retry}
           </button>
         </section>
       </main>

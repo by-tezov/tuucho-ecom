@@ -12,11 +12,11 @@ May import: `account`, `activity`, `auth`, `cart`, `catalog`, `chat`, `commerce`
 
 Currently imports: `catalog`, `commerce`, `customers`, `delivery`, `identity`, `invoicing`, `messaging`, `payments`, `plugins`, `shipping`.
 
-Feature map entry: `orders` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- orders` for its full span.
+Feature map entry: `orders` in [tuucho/docs/features.json](../../../../../docs/features.json). Run `npm run feature -- orders` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |
-| `application/` | 53 | 9661 |
+| `application/` | 53 | 9662 |
 | `domain/` | 6 | 472 |
 | `http/` | 2 | 467 |
 | `infrastructure/` | 4 | 152 |
@@ -25,7 +25,7 @@ Feature map entry: `orders` in [docs/features.json](../../../docs/features.json)
 ## Sub-capabilities
 
 - `application/placement/` — 6 files, 1528 lines
-- `application/pricing/` — 5 files, 1277 lines
+- `application/pricing/` — 5 files, 1278 lines
 - `application/queries/` — 2 files, 700 lines
 - `application/reservation/` — 8 files, 1088 lines
 - `application/returns/` — 7 files, 1138 lines

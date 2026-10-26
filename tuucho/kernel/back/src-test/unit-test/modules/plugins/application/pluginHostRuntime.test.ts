@@ -62,7 +62,7 @@ test('disk catalogue includes bundled plugins and the demo user plugin', async (
   const ids = new Set(manifests.map((plugin) => plugin.id));
   for (const id of [
     'tuucho-theme-default',
-    'tuucho-page-home',
+    'page-home',
     'tuucho-payment-stripe',
     'tuucho-commerce-loyalty',
     'tuucho-contact',
@@ -70,7 +70,7 @@ test('disk catalogue includes bundled plugins and the demo user plugin', async (
     'tuucho-seo-sitemap',
     'tuucho-seo-robots',
     'tuucho-seo-redirects',
-    'demo-page-guides',
+    'page-guides',
     'page-legal',
     'page-accessibility',
     'footer-identity',
@@ -83,11 +83,11 @@ test('disk catalogue includes bundled plugins and the demo user plugin', async (
 test('page-guides plugin contributes pose and capsules sitemap URLs', async () => {
   resetHooks();
   const href = pathToFileURL(
-    join(repoRoot(), 'src/plugins/demo/guides/demo-page-guides/back/register.ts'),
+    join(repoRoot(), 'src/plugins/demo/guides/page-guides/back/register.ts'),
   ).href;
   const mod = (await import(href)) as { register: (api: ReturnType<typeof createPluginRegisterApi>) => void };
-  const api = createPluginRegisterApi('demo-page-guides', {
-    id: 'demo-page-guides',
+  const api = createPluginRegisterApi('page-guides', {
+    id: 'page-guides',
     name: 'Guides',
     version: '1.0.0',
     kind: 'page',
@@ -95,8 +95,8 @@ test('page-guides plugin contributes pose and capsules sitemap URLs', async () =
   });
   await mod.register(api);
   const entries = await applyFilters<Array<{ loc?: string; source?: string }>>('seo.sitemap.entries', []);
-  assert.ok(entries.some((entry) => entry.loc?.endsWith('/pose') && entry.source === 'demo-page-guides'));
-  assert.ok(entries.some((entry) => entry.loc?.endsWith('/capsules') && entry.source === 'demo-page-guides'));
+  assert.ok(entries.some((entry) => entry.loc?.endsWith('/pose') && entry.source === 'page-guides'));
+  assert.ok(entries.some((entry) => entry.loc?.endsWith('/capsules') && entry.source === 'page-guides'));
 });
 
 test('seo-robots plugin contributes Disallow rules', async () => {

@@ -16,7 +16,7 @@ _Not a feature-map entry; it is shared by several features._
 
 | Layer | Files | Lines |
 | --- | --- | --- |
-| `application/` | 25 | 3647 |
+| `application/` | 25 | 3666 |
 | `domain/` | 2 | 239 |
 | `infrastructure/` | 5 | 879 |
 

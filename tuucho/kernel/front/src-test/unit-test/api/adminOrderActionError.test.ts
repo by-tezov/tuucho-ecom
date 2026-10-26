@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { adminOrderActionError } from '@/api/adminOrderActionError';
 import { ApiError } from '@/api/errors';
-import { en } from '@/assets/i18n/strings.en';
-
-const t = en.admin;
+import { admin as t } from '@plugins-bundled/kernel-locale/tuucho-kernel-locale-en/front/strings/admin';
 
 function failure(code: string, serverMessage?: string): ApiError {
   return new ApiError(code, 409, undefined, serverMessage);

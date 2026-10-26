@@ -18,8 +18,8 @@ import {
   minimalNail,
   noelArt,
   noelNail,
-  tuuchoArt,
-  tuuchoNail,
+  classicArt,
+  classicNail,
   valentinArt,
   valentinNail,
 } from './shareCardArt/classic.js';
@@ -49,7 +49,7 @@ export interface ShareCardArt {
 }
 
 export const SHARE_CARD_ART: Record<GiftShareCardStyle, ShareCardArt> = {
-  tuucho: { art: tuuchoArt, nail: tuuchoNail },
+  classic: { art: classicArt, nail: classicNail },
   anniversaire: { art: anniversaireArt, nail: anniversaireNail },
   mariage: { art: mariageArt, nail: mariageNail },
   fete: { art: feteArt, nail: feteNail },

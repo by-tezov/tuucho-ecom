@@ -1,0 +1,15 @@
+{
+  "title": {
+    "fr": "Boîte exemple",
+    "en": "Sample box"
+  },
+  "desc": {
+    "fr": "Accessoire exemple, vendu à l'unité.",
+    "en": "Sample accessory, sold by the unit."
+  },
+  "photos": [
+    {
+      "photo": "1"
+    }
+  ]
+}

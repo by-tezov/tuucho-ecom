@@ -1,0 +1,29 @@
+{
+  "name": "@tuucho/plugin-tuucho-mail-spy-locale-en",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "English strings for spy e-mails. Enable with locale-en for English UI.",
+  "tuucho": {
+    "id": "tuucho-mail-spy-locale-en",
+    "installPath": "tuucho/plugins/messaging/mail-spy/tuucho-mail-spy-locale-en",
+    "name": "mail-spy English",
+    "kind": "locale",
+    "defaultEnabled": true,
+    "engines": {
+      "core": ">=0.0.1 <1.0.0"
+    },
+    "dependsOn": [
+      {
+        "id": "tuucho-mail-spy",
+        "version": ">=1.0.0"
+      }
+    ],
+    "provides": [
+      "Locale"
+    ]
+  },
+  "dependencies": {
+    "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"
+  }
+}

@@ -25,10 +25,10 @@ const tiers = new Map(
   [...tierBlock[1].matchAll(/^\s*([a-zA-Z]+):\s*(\d+),/gm)].map((m) => [m[1], Number(m[2])]),
 );
 
-const inventory = JSON.parse(await readFile(resolve(root, 'docs/api/routes.json'), 'utf8'));
+const inventory = JSON.parse(await readFile(resolve(root, '../../docs/api/routes.json'), 'utf8'));
 const allRoutes = [...inventory.publicSurface, ...inventory.opsSurface];
 
-const features = JSON.parse(await readFile(resolve(root, 'docs/features.json'), 'utf8'));
+const features = JSON.parse(await readFile(resolve(root, '../../docs/features.json'), 'utf8'));
 const featureOfModule = new Map();
 for (const [name, entry] of Object.entries(features)) {
   if (name.startsWith('$')) continue;
@@ -152,7 +152,7 @@ May import: ${mayImport.length > 0 ? mayImport.map((m) => `\`${m}\``).join(', ')
 
 Currently imports: ${imported.size > 0 ? [...imported].sort().map((m) => `\`${m}\``).join(', ') : '_no other module_'}.
 
-${feature ? `Feature map entry: \`${feature.name}\` in [docs/features.json](../../../docs/features.json). Run \`npm run feature -- ${feature.name}\` for its full span.` : '_Not a feature-map entry; it is shared by several features._'}
+${feature ? `Feature map entry: \`${feature.name}\` in [tuucho/docs/features.json](../../../../../docs/features.json). Run \`npm run feature -- ${feature.name}\` for its full span.` : '_Not a feature-map entry; it is shared by several features._'}
 
 | Layer | Files | Lines |
 | --- | --- | --- |

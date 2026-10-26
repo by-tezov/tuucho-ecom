@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { AdminUpdateCheck } from '@/api/admin/shopSetup';
-import { classifyUpdateCheck, coreLineCheckStatus, latestTagLabel } from '@/routes/pluginUpdateCheck';
+import { classifyUpdateCheck, coreLineCheckStatus, focusUpdateCheck, latestTagLabel } from '@/routes/pluginUpdateCheck';
 
 function check(overrides: Partial<AdminUpdateCheck> = {}): AdminUpdateCheck {
   return {
@@ -82,9 +82,50 @@ describe('classifyUpdateCheck', () => {
           latestTag: '0.0.4',
           canApplyOfficial: true,
           tagPath: ['0.0.3', '0.0.4'],
+          kernel: { id: 'kernel', from: '0.0.2', to: '0.0.4' },
         }),
       ),
     ).toBe('updateAvailable');
+  });
+
+  it('keeps a plugin-only release off the kernel line', () => {
+    const source = check({
+      officialUpToDate: false,
+      latestTag: '0.0.4',
+      canApplyOfficial: true,
+      tagPath: ['0.0.4'],
+      plugins: [{ id: 'tuucho-home', from: '0.1.0', to: '0.1.1' }],
+    });
+    expect(coreLineCheckStatus(source)).toBe('upToDate');
+    const plugins = focusUpdateCheck(source, 'plugins');
+    expect(plugins.kernel).toBeUndefined();
+    expect(plugins.plugins).toHaveLength(1);
+    expect(classifyUpdateCheck(plugins)).toEqual({ kind: 'plan', canApplyOfficial: true });
+    const kernel = focusUpdateCheck(
+      check({
+        officialUpToDate: false,
+        latestTag: '0.0.4',
+        canApplyOfficial: true,
+        tagPath: ['0.0.4'],
+        kernel: { id: 'kernel', from: '0.0.2', to: '0.0.4' },
+        plugins: [{ id: 'tuucho-home', from: '0.1.0', to: '0.1.1' }],
+        userPlugins: [
+          {
+            id: 'shop-notes',
+            name: 'Notes',
+            repository: 'https://github.com/example/notes',
+            from: '1.0.0',
+            to: '1.1.0',
+            toTag: '1.1.0',
+            tags: ['1.1.0'],
+          },
+        ],
+      }),
+      'kernel',
+    );
+    expect(kernel.plugins).toEqual([]);
+    expect(kernel.userPlugins).toEqual([]);
+    expect(kernel.kernel?.to).toBe('0.0.4');
   });
 
   it('keeps a dirty official path as a plan that cannot apply', () => {

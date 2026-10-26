@@ -5,7 +5,7 @@ import { getAvailableQuantity } from '@kernel/back/modules/catalog/application/a
 import { dbPacks, parseAccessoryType, stockUnitsForLine } from '@kernel/back/modules/catalog/domain/accessoryPacks';
 import { failGift } from '../domain/errors.js';
 import { assertReceiverCanMutate } from '../domain/access.js';
-import { giftConstraintViolation } from '../domain/remaining.js';
+import { giftConstraintViolation, type GiftBudgetExtraLine } from '../domain/remaining.js';
 import {
   getGiftDestination,
   lockOfferById,
@@ -53,7 +53,14 @@ export async function loadReceiverSummary(pool: pg.Pool, offer: GiftOfferRow, _l
     listGiftItems(pool, offer.id),
     getGiftDestination(pool, offer.id),
   ]);
-  const remaining = remainingFrom(offer, items);
+  // Peer plugins (composed sets and the like) add budget lines that count
+  // toward the offer ceilings without appearing among the receiver's items.
+  const extraBudgetLines = await applyFilters(
+    CORE_OPENING_FILTERS.giftReceiverBudget,
+    [] as GiftBudgetExtraLine[],
+    { offer, items },
+  );
+  const remaining = remainingFrom(offer, [...items, ...extraBudgetLines]);
   const summary = {
     ...receiverSummary(offer, items, publicDestination(destination)),
     remaining,

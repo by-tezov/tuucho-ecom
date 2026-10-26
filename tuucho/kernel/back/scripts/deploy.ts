@@ -522,7 +522,7 @@ function ftpConnection(mode: Mode): {
   const ftpPort = json.FTP_PORT ?? '21';
   const ftpUser = json.FTP_USER;
   const ftpPassword = json.FTP_PASSWORD;
-  if (!gatewayUrl) fail(`ops.gatewayUrl not found for ${mode} — set it in kernel/back/config/${mode}/config.json`);
+  if (!gatewayUrl) fail(`ops.gatewayUrl not found for ${mode} — set it in tuucho-config/config.${mode}.json`);
   if (!ftpHost || !ftpUser || !ftpPassword)
     fail(`FTP transport requires ftp.host, ftp.user and ftp.password in kernel private JSON`);
   if (!/^\d{1,5}$/.test(ftpPort) || Number(ftpPort) > 65535)
@@ -1911,7 +1911,7 @@ function installProductionCrons(args: Args, remoteDir: string): void {
   });
   // Every minute, each run pinging /healthz every 5s until the next one
   // starts: keep-warm, plus the liveness check that alerts and attempts a
-  // Passenger restore when /healthz fails. See docs/cron/README.md.
+  // Passenger restore when /healthz fails. See tuucho/docs/cron/README.md.
   installProductionCron(args, remoteDir, {
     enabledEnv: 'ENABLED_CRON_WARM',
     localHandler: join(backRoot, 'operation', 'cron', 'main-cron-warm.sh'),

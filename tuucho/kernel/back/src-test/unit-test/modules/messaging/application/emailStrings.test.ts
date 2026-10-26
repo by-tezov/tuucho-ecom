@@ -8,13 +8,15 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { EMAIL_STRINGS } from '../../../../../src/modules/messaging/application/emailStrings.js';
-import { GIFT_RECEIVER_ORDER_MAIL } from '../../../../../src/modules/messaging/application/giftReceiverOrderMail.js';
-import { GIFT_SHARE_CARD_MAIL } from '../../../../../../../plugins/commerce/gift/tuucho-commerce-gift/back/src/domain/giftShareCardMailCopy.js';
-import { GIFT_SELECT_REMINDER_MAIL } from '../../../../../../../plugins/commerce/gift/tuucho-commerce-gift/back/src/domain/giftSelectReminderMailCopy.js';
-import { GIVER_PROMISE_MAIL } from '../../../../../../../plugins/commerce/gift/tuucho-commerce-gift/back/src/domain/giverPromiseMailCopy.js';
-import { frEmail } from '../../../../../../../plugins/locale/tuucho-locale-fr/back/emailFr.js';
-import { frGiftReceiver } from '../../../../../../../plugins/locale/tuucho-locale-fr/back/giftReceiverFr.js';
+import { enEmail } from '../../../../../../../plugins/kernel-locale/tuucho-kernel-locale-en/back/emailEn.js';
+import { enGiftReceiver } from '../../../../../../../plugins/kernel-locale/tuucho-kernel-locale-en/back/giftReceiverEn.js';
+import {
+  enGiftSelectReminder,
+  enGiftShareCard,
+  enGiverPromise,
+} from '../../../../../../../plugins/commerce/gift/tuucho-commerce-gift-locale-en/back/mailEn.js';
+import { frEmail } from '../../../../../../../plugins/kernel-locale/tuucho-kernel-locale-fr/back/emailFr.js';
+import { frGiftReceiver } from '../../../../../../../plugins/kernel-locale/tuucho-kernel-locale-fr/back/giftReceiverFr.js';
 
 const LONG_DASH = /[–—]/;
 
@@ -37,33 +39,23 @@ function assertNoLongDash(name: string, catalogue: unknown) {
   assert.deepEqual(offenders, [], `long dash in ${offenders.join(', ')}`);
 }
 
-test('kernel email catalogues are English only', () => {
-  for (const catalogue of [
-    EMAIL_STRINGS,
-    GIFT_RECEIVER_ORDER_MAIL,
-    GIFT_SHARE_CARD_MAIL,
-    GIFT_SELECT_REMINDER_MAIL,
-    GIVER_PROMISE_MAIL,
-  ]) {
-    assert.deepEqual(Object.keys(catalogue).sort(), ['en']);
-  }
-});
-
-test('French locale overlays expose the same email string keys as English', () => {
+test('French locale packs expose the same email string keys as English', () => {
   const keysOf = (value: unknown, prefix = ''): string[] =>
     value && typeof value === 'object' && !Array.isArray(value)
       ? Object.entries(value).flatMap(([k, v]) => [`${prefix}${k}`, ...keysOf(v, `${prefix}${k}.`)])
       : [];
-  assert.deepEqual(keysOf(frEmail).sort(), keysOf(EMAIL_STRINGS.en).sort());
-  assert.deepEqual(keysOf(frGiftReceiver).sort(), keysOf(GIFT_RECEIVER_ORDER_MAIL.en).sort());
+  assert.deepEqual(keysOf(frEmail).sort(), keysOf(enEmail).sort());
+  assert.deepEqual(keysOf(frGiftReceiver).sort(), keysOf(enGiftReceiver).sort());
 });
 
 test('email string catalogues contain no em or en dash', () => {
-  assertNoLongDash('EMAIL_STRINGS', EMAIL_STRINGS);
-  assertNoLongDash('GIFT_RECEIVER_ORDER_MAIL', GIFT_RECEIVER_ORDER_MAIL);
-  assertNoLongDash('GIFT_SHARE_CARD_MAIL', GIFT_SHARE_CARD_MAIL);
-  assertNoLongDash('GIFT_SELECT_REMINDER_MAIL', GIFT_SELECT_REMINDER_MAIL);
-  assertNoLongDash('GIVER_PROMISE_MAIL', GIVER_PROMISE_MAIL);
+  assertNoLongDash('enEmail', enEmail);
+  assertNoLongDash('enGiftReceiver', enGiftReceiver);
+  assertNoLongDash('enGiftShareCard', enGiftShareCard);
+  assertNoLongDash('enGiftSelectReminder', enGiftSelectReminder);
+  assertNoLongDash('enGiverPromise', enGiverPromise);
+  assertNoLongDash('frEmail', frEmail);
+  assertNoLongDash('frGiftReceiver', frGiftReceiver);
 });
 
 const SRC = join(import.meta.dirname, '../../../../../src');

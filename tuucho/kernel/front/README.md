@@ -3,8 +3,8 @@
 Multilingual (`fr`/`en`) customer shop and admin. Vite + React +
 TypeScript, CSS Modules, mobile-first responsive. Catalogue, cart, auth,
 Stripe checkout, Mondial Relay addresses, and orders talk to
-[kernel/back](../back). See COMMAND.md for every `npm run`
-script's arguments.
+[kernel/back](../back). See [tuucho/docs/command/05-front.md](../../docs/command/05-front.md) for every
+`npm run` script's arguments.
 
 ## Getting started
 

@@ -8,7 +8,6 @@ const back = join(dirname(fileURLToPath(import.meta.url)), '..');
 const shop = join(back, '../../..');
 const target = process.env.APP_TARGET || 'dev';
 const commonDir = join(shop, 'tuucho-config');
-const envDir = join(commonDir, target);
 
 function readJson(path) {
   if (!existsSync(path)) return {};
@@ -27,17 +26,14 @@ function merge(base, overlay) {
   return out;
 }
 
-const commonPrivate = existsSync(join(commonDir, 'config.private.json'))
-  ? join(commonDir, 'config.private.json')
-  : join(commonDir, 'config.private.example.json');
-const envPrivate = existsSync(join(envDir, 'config.private.json'))
-  ? join(envDir, 'config.private.json')
-  : join(envDir, 'config.private.example.json');
-if (!existsSync(commonPrivate) || !existsSync(envPrivate)) {
+const envPrivate = existsSync(join(commonDir, `config.private.${target}.json`))
+  ? join(commonDir, `config.private.${target}.json`)
+  : join(commonDir, `config.private.${target}.example.json`);
+if (!existsSync(envPrivate)) {
   console.error(`missing private JSON for APP_TARGET=${target} under tuucho-config/`);
   process.exit(1);
 }
-const json = merge(readJson(commonPrivate), readJson(envPrivate));
+const json = merge(readJson(join(commonDir, 'config.private.json')), readJson(envPrivate));
 const user = json.database?.user ?? '';
 const password = json.database?.password ?? '';
 const name = json.database?.name ?? '';

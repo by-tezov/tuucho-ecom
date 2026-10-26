@@ -1,0 +1,33 @@
+{
+  "title": "Guides",
+  "summary": "Size, shape and care at /sizes, plus extra public URLs /pose and /capsules registered on seo.sitemap.entries.",
+  "sections": [
+    {
+      "heading": "Public URLs",
+      "blocks": [
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "/sizes",
+              "description": "Page-plugin route. Menu key from package.json tuucho.nav. Listed in the sitemap while Sitemap pages is on."
+            },
+            {
+              "term": "/pose, /capsules",
+              "description": "Kernel React pages this plugin also advertises. back/register.ts appends them on seo.sitemap.entries with source page-guides."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "api.addFilter(CORE_OPENING_FILTERS.seoSitemap, (entries) => [\n  ...entries,\n  { loc: `${origin}/pose`, source: api.pluginId },\n  { loc: `${origin}/capsules`, source: api.pluginId },\n]);"
+        },
+        {
+          "type": "p",
+          "text": "The filter contract is documented once under Extend SEO. Do not add a dead-end admin page that only prints /sitemap.xml."
+        }
+      ]
+    }
+  ]
+}

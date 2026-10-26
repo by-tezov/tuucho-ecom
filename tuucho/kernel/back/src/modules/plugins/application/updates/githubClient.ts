@@ -7,7 +7,10 @@ import {
 } from '../../domain/githubRepository.js';
 import { parseReleaseTag, sortReleaseTags, type ReleaseTag } from '../../domain/semverTags.js';
 
-export type GithubHttp = (url: string, init?: { headers?: Record<string, string> }) => Promise<{
+export type GithubHttp = (
+  url: string,
+  init?: { headers?: Record<string, string> },
+) => Promise<{
   ok: boolean;
   status: number;
   text: () => Promise<string>;
@@ -43,6 +46,8 @@ function defaultHttp(timeoutMs: number): GithubHttp {
   };
 }
 
+export type GithubTokenResolver = (ref: GithubRepoRef) => Promise<string | null> | string | null;
+
 export type GithubClient = {
   listReleaseTags: (ref: GithubRepoRef) => Promise<ReleaseTag[]>;
   readJson: (ref: GithubRepoRef, tag: string, path: string) => Promise<unknown>;
@@ -51,23 +56,51 @@ export type GithubClient = {
   downloadTagArchive: (ref: GithubRepoRef, tag: string) => Promise<Uint8Array>;
 };
 
-export function createGithubClient(http: GithubHttp = defaultHttp(DEFAULT_TIMEOUT_MS)): GithubClient {
-  const archiveHttp = defaultHttp(ARCHIVE_TIMEOUT_MS);
+function missingRepository(ref: GithubRepoRef, authed: boolean): string {
+  return authed
+    ? `GitHub repository ${ref.href} was not found with the saved access token.`
+    : `GitHub repository ${ref.href} was not found. If it is private, save an access token for it on the Core page.`;
+}
+
+function refused(ref: GithubRepoRef, status: number, authed: boolean, what: string): string {
+  return authed
+    ? `GitHub refused the saved access token for ${ref.href} (${status}).`
+    : `GitHub ${what} failed (${status}) for ${ref.href}.`;
+}
+
+export function createGithubClient(
+  options: {
+    http?: GithubHttp;
+    archiveHttp?: GithubHttp;
+    resolveToken?: GithubTokenResolver;
+  } = {},
+): GithubClient {
+  const http = options.http ?? defaultHttp(DEFAULT_TIMEOUT_MS);
+  const archiveHttp = options.archiveHttp ?? (options.http ? options.http : defaultHttp(ARCHIVE_TIMEOUT_MS));
+  const resolveToken = options.resolveToken;
+
+  async function authorization(
+    ref: GithubRepoRef,
+  ): Promise<{ headers: Record<string, string>; authed: boolean }> {
+    const token = resolveToken ? ((await resolveToken(ref))?.trim() ?? '') : '';
+    if (!token) return { headers: {}, authed: false };
+    return { headers: { Authorization: `Bearer ${token}` }, authed: true };
+  }
 
   return {
     async listReleaseTags(ref) {
       const tags: ReleaseTag[] = [];
+      const auth = await authorization(ref);
       let url: string | null = githubApiTagsUrl(ref);
       let page = 0;
       while (url && page < 10) {
         page += 1;
-        const response = await http(url);
-        if (response.status === 404) {
-          throw new Error(`GitHub repository ${ref.href} was not found (private repos need a token, which v1 does not send).`);
+        const response = await http(url, { headers: auth.headers });
+        if (response.status === 404) throw new Error(missingRepository(ref, auth.authed));
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(refused(ref, response.status, auth.authed, 'tags request'));
         }
-        if (!response.ok) {
-          throw new Error(`GitHub tags request failed (${response.status}) for ${ref.href}.`);
-        }
+        if (!response.ok) throw new Error(`GitHub tags request failed (${response.status}) for ${ref.href}.`);
         const body = JSON.parse(await response.text()) as unknown;
         if (!Array.isArray(body)) throw new Error('GitHub tags response was not a list.');
         for (const row of body) {
@@ -88,8 +121,12 @@ export function createGithubClient(http: GithubHttp = defaultHttp(DEFAULT_TIMEOU
     },
 
     async readOptionalText(ref, tag, path) {
-      const response = await http(githubRawFileUrl(ref, tag, path));
+      const auth = await authorization(ref);
+      const response = await http(githubRawFileUrl(ref, tag, path), { headers: auth.headers });
       if (response.status === 404) return null;
+      if (response.status === 401 || response.status === 403) {
+        throw new Error(refused(ref, response.status, auth.authed, 'file request'));
+      }
       if (!response.ok) {
         throw new Error(`GitHub file ${path} on ${tag} failed (${response.status}).`);
       }
@@ -107,9 +144,17 @@ export function createGithubClient(http: GithubHttp = defaultHttp(DEFAULT_TIMEOU
     },
 
     async downloadTagArchive(ref, tag) {
-      const response = await archiveHttp(githubCodeloadTarGzUrl(ref, tag));
+      const auth = await authorization(ref);
+      const response = await archiveHttp(githubCodeloadTarGzUrl(ref, tag), { headers: auth.headers });
       if (response.status === 404) {
-        throw new Error(`GitHub archive for ${ref.href} tag ${tag} was not found.`);
+        throw new Error(
+          auth.authed
+            ? `GitHub archive for ${ref.href} tag ${tag} was not found with the saved access token.`
+            : `GitHub archive for ${ref.href} tag ${tag} was not found.`,
+        );
+      }
+      if (response.status === 401 || response.status === 403) {
+        throw new Error(refused(ref, response.status, auth.authed, 'archive download'));
       }
       if (!response.ok) {
         throw new Error(`GitHub archive download failed (${response.status}) for ${tag}.`);

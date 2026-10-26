@@ -108,9 +108,7 @@ const AdminActivityPage = lazy(() =>
 const AdminPreferencesPage = lazy(() =>
   import('./routes/AdminPreferencesPage').then((m) => ({ default: m.AdminPreferencesPage })),
 );
-const AdminSeoPage = lazy(() =>
-  import('./routes/AdminSeoPage').then((m) => ({ default: m.AdminSeoPage })),
-);
+const AdminSeoPage = lazy(() => import('./routes/AdminSeoPage').then((m) => ({ default: m.AdminSeoPage })));
 const AdminCatalogueVocabularyPage = lazy(() =>
   import('./routes/AdminCatalogueVocabularyPage').then((m) => ({ default: m.AdminCatalogueVocabularyPage })),
 );
@@ -119,6 +117,9 @@ const AdminCourierCatalogPage = lazy(() =>
 );
 const AdminRolesPage = lazy(() =>
   import('./routes/AdminRolesPage').then((m) => ({ default: m.AdminRolesPage })),
+);
+const AdminCoreSettingsPage = lazy(() =>
+  import('./routes/AdminCoreSettingsPage').then((m) => ({ default: m.AdminCoreSettingsPage })),
 );
 const AdminUsersPage = lazy(() =>
   import('./routes/AdminUsersPage').then((m) => ({ default: m.AdminUsersPage })),
@@ -299,6 +300,7 @@ export default function App() {
             <Route path="user-library-stock" element={<AdminUserLibraryStockPage />} />
             <Route path="accessory-stock" element={<AdminAccessoryStockPage />} />
             <Route path="preferences" element={<AdminPreferencesPage />} />
+            <Route path="core" element={<AdminCoreSettingsPage />} />
             <Route path="seo" element={<AdminSeoPage />} />
             <Route path="plugins/:pluginId" element={<AdminPluginConfigurePage />} />
             <Route path="plugins" element={<AdminPluginsPage />} />

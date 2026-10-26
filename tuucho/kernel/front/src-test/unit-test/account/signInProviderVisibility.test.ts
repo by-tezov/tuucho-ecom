@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  signInBlockVisible,
   signInOpeningOn,
   signInProviderOffered,
   signInProviderVisible,
@@ -31,5 +32,24 @@ describe('signInProviderVisibility', () => {
     expect(signInProviderOffered(true, true, true)).toBe(true);
     expect(signInProviderOffered(true, false, true)).toBe(false);
     expect(signInProviderOffered(false, true, true)).toBe(false);
+  });
+
+  it('shows the block when the opening is on even without configured or linked providers', () => {
+    expect(signInBlockVisible(openings, [{ configured: false, linked: false }])).toBe(true);
+  });
+
+  it('shows the block when a provider is configured or linked, openings or not', () => {
+    expect(signInBlockVisible(undefined, [{ configured: true, linked: false }])).toBe(true);
+    expect(signInBlockVisible([], [{ configured: false, linked: true }])).toBe(true);
+  });
+
+  it('hides the block when nothing is open, configured, or linked', () => {
+    expect(
+      signInBlockVisible(undefined, [
+        { configured: false, linked: false },
+        { configured: false, linked: false },
+      ]),
+    ).toBe(false);
+    expect(signInBlockVisible([], [])).toBe(false);
   });
 });

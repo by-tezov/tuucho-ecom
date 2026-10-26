@@ -1,9 +1,17 @@
-import { describe, expect, it } from 'vitest';
-import { en } from '@/assets/i18n/strings.en';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { isRuntimeDictionary } from '@/assets/i18n/dictionaryCache';
+import { assembleDictionary, ensureLocaleCatalogsLoaded } from '@/plugins/localeCatalog';
+import type { Strings } from '@/assets/i18n/types';
 
 describe('isRuntimeDictionary', () => {
-  it('accepts the live English module', () => {
+  let en: Strings;
+
+  beforeAll(async () => {
+    await ensureLocaleCatalogsLoaded();
+    en = assembleDictionary('en', 'all');
+  });
+
+  it('accepts the live English locale pack', () => {
     expect(isRuntimeDictionary(en)).toBe(true);
   });
 

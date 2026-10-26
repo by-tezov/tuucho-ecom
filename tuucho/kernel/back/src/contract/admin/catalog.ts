@@ -20,7 +20,7 @@ export interface AdminLibraryStockRow {
   stockValue: number | null;
   /** The whole product is hidden. */
   hidden: boolean;
-  /** This shape/length alone is hidden (docs/plans/variant-visibility.md). */
+  /** This shape/length alone is hidden (tuucho/docs/plans/variant-visibility.md). */
   variantHidden: boolean;
   /** Last day of the "Nouveautés" window, `YYYY-MM-DD`, or null when the set
    * is not currently featured. Derived from `featured_from` + `featured_for`;
@@ -60,6 +60,16 @@ export interface AdminUserLibraryStockRow {
   /** This shape/length alone is hidden. */
   variantHidden: boolean;
   owners: string[];
+}
+
+/** `PATCH /admin/user-library-stock/:productUid`. `owners` replaces the
+ * assigned account emails. Omit it to leave assignments unchanged. */
+export interface AdminUserLibraryStockPatch {
+  shapeKey: string;
+  lengthKey: string;
+  price?: number;
+  sizes?: { XS: number; S: number; M: number; L: number };
+  owners?: string[];
 }
 
 /** Which catalogue the admin JSON editor targets. */

@@ -18,7 +18,7 @@ import {
 import { findUserById, toPublicUser } from '../../identity/application/users.js';
 
 import { requestMeta } from './authSessionSupport.js';
-import { notifySuperAdminSession } from '../application/superAdminSignInAlert.js';
+import { recordSuperAdminSignIn } from '../application/recordSuperAdminSignIn.js';
 import { isIdleResume } from '../domain/superAdminSignInAlert.js';
 
 export const authSessionRouter = Router();
@@ -55,7 +55,7 @@ authSessionRouter.post(
     // An open tab refreshing on schedule is not a sign-in; resuming a session
     // left idle (the site reopened later) is, for the super-admin alert.
     if (isIdleResume(result.previousIssuedAt, Date.now(), config.superAdminSignInAlert.idleMs)) {
-      notifySuperAdminSession(pool, user, meta, 'resume');
+      recordSuperAdminSignIn(pool, user, meta, 'resume');
     }
     const accessToken = signAccessToken({ sub: result.userId, email: user.email });
     res.setHeader(

@@ -1,6 +1,5 @@
 import type PDFDocument from 'pdfkit';
 import type { InvoiceData } from './invoiceDocument.js';
-import { KERNEL_INVOICE_COPY } from './invoiceDocument.js';
 import type { InvoiceTags } from './invoicePdfTags.js';
 
 function formatDate(date: Date, dateLocale: string): string {
@@ -18,7 +17,7 @@ export function drawInvoiceHeader(
     colors: { ink: string; muted: string; label: string; gold: string; cream: string };
   },
 ): void {
-  const copy = data.copy ?? KERNEL_INVOICE_COPY;
+  const copy = data.copy;
   const { ink, muted, label, gold, cream } = layout.colors;
   const width = layout.right - 50;
   tags.artifact(() => {

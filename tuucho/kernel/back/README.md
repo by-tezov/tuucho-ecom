@@ -6,9 +6,9 @@ for gallery/featured catalogue, auth/account, cart/checkout (Stripe +
 contact. Catalogue sets are written only via `npm run library` (ops import
 from catalog source); customer/auth/order writes go through `/auth`,
 `/account`, and Stripe webhooks. This file is the practical "how do I run
-this" reference — see [docs/](docs/README.md) for the split references
-(`docs/api`, `docs/schema`, `docs/command`, `docs/cron`; root `API.md` /
-`SCHEMA.md` / `COMMAND.md` / `CRON.md` are thin indexes), including every
+this" reference — see [tuucho/docs](../../docs/README.md) for the split references
+(`tuucho/docs/api`, `tuucho/docs/schema`, `tuucho/docs/command`, `tuucho/docs/cron`; `tuucho/API.md` /
+`tuucho/SCHEMA.md` / `tuucho/COMMAND.md` / `tuucho/CRON.md` are thin indexes), including every
 `npm run` script's arguments (`order`, `product-request`, `user`, `voucher`,
 `healthz`).
 
@@ -134,17 +134,16 @@ per-shipment cache limits carrier calls to at most six per day): it
 automatically moves Point Relais orders to
 `disponible` when they are ready for collection and all Mondial Relay orders
 to `received` on their delivered event. Its cache/rate-limit behavior is
-described in [docs/cron](docs/cron/README.md) (root [CRON.md](CRON.md) indexes it). The tracking cron is intentionally not
+described in [docs/cron](../../docs/cron/README.md) (root [CRON.md](../../CRON.md) indexes it). The tracking cron is intentionally not
 installed on preprod.
 
 Contact-form and chat owner copies are resolved by `tuucho-mail-spy`
-(`contact.inbound` / `contact.chat`). `EMAIL_CONTACT_RECIPIENT` and
-`EMAIL_CHAT_RECIPIENT` are one-shot seeds when they match an existing unlocked
-staff account and no recipients exist yet. Optionally set
-`CONTACT_RECIPIENT_NAME` for the unconnected-reply display name. They are
-distinct from `EMAIL_NO_REPLY_FROM` (transactional sender) and `EMAIL_CHAT_FROM`
-(piped chat mailbox From/Reply-To). Empty spy To skips the owner copy after the
-message is stored.
+(`contact.inbound` / `contact.chat`) from that plugin's `rules`. An empty
+list sends nothing. Optionally set `CONTACT_RECIPIENT_NAME` for the
+unconnected-reply display name. That name is distinct from
+`EMAIL_NO_REPLY_FROM` (transactional sender) and `EMAIL_CHAT_FROM` (piped chat
+mailbox From/Reply-To). Empty spy To skips the owner copy after the message
+is stored.
 
 Set `DISABLE_SPY_EMAIL=true` to suppress all owner/spy copies (new accounts,
 logins, orders, payment failures, cart activity, product requests, contact
@@ -159,16 +158,17 @@ the admin browser is closed.
 1. `npm install` at the **repo root** (workspaces). Do not install inside this folder.
 2. `npm run dev` — starts the local Postgres, then
    `scripts/devWithStripe.ts`: `tsx watch src/server.ts` on
-   `http://localhost:3010`, plus (when the Stripe CLI is installed and
-   logged in) `stripe listen --all-snapshot --forward-to localhost:<port>/webhooks/stripe`
-   and a sync of the webhook secret into the Stripe plugin secret store.
-   Without the CLI, the API still starts; only local webhook forwarding is
-   skipped. CORS is wide open in dev — it reflects whatever origin a
+   `http://localhost:3010`. `stripe listen` runs only when this project has a
+   real Stripe secret key. The CLI is given that key and does not use a
+   machine-wide `stripe login`. That also syncs the webhook secret into the
+   Stripe plugin secret store. With no project secret, or if Stripe rejects
+   it, the API still starts and local webhook forwarding is skipped. CORS is
+   wide open in dev: it reflects whatever origin a
    request actually comes from, so the front's dev server can run on any
    port without needing to match a fixed value here.
 3. Create the schema — same explicit-trigger endpoint as every environment
    (see "Deploying"), driven by `npm run operation` instead of typing the
-   curl command by hand (see docs/command):
+   curl command by hand (see tuucho/docs/command):
    ```
    npm run operation -- database-migrate --dev
    ```
@@ -182,7 +182,7 @@ the admin browser is closed.
    [catalog source](catalog import tree)'s `library/` (JSON + photos,
    plus seeding the `shapes`/`colors` tables from `product/data-common.json`)
    into this DB. Goes entirely through the `/operation/library-import/*`
-   API (see [docs/api](docs/api/README.md)), not a direct DB/filesystem connection — `--dev`/`--preprod`/`--prod` is
+   API (see [docs/api](../../docs/api/README.md)), not a direct DB/filesystem connection — `--dev`/`--preprod`/`--prod` is
    mandatory (`dev`/`preprod`/`prod`, picks both the target API and which
    `config/<mode>/config.private.json`'s `ops.token` to send), same reasoning as
    `build`'s `--dev`/`--preprod`/`--prod`. Assumes the repos are checked out as siblings; pass
@@ -200,15 +200,15 @@ the admin browser is closed.
    DB — not-yet-imported folders, DB rows with no matching folder, and
    per-set field/photo differences), and `stock-report` (read-only: stock
    units by size + total, from the `available` table by default or from
-   live order quantities with `--with-orders`/`--not-sent`). See docs/api's
+   live order quantities with `--with-orders`/`--not-sent`). See tuucho/docs/api's
    Library import section for the full command list and each endpoint's
-   contract, and docs/command for every flag.
+   contract, and tuucho/docs/command for every flag.
 
 5. `npm run courier -- seed --dev` — one-off: imports
    [catalog source](catalog import tree)'s `courier/*.json` (shipping
    carriers — Chronopost, Mondial Relay, ...) into this DB, same
-   idempotent-by-natural-key pattern as `library` above. See docs/command and
-   docs/api's Courier import section. Typical seed order after migrate:
+   idempotent-by-natural-key pattern as `library` above. See tuucho/docs/command and
+   tuucho/docs/api's Courier import section. Typical seed order after migrate:
    `library` → `courier` → (optional) `voucher`.
 
    `npm run seed -- --dev` runs the standard library → courier →
@@ -216,7 +216,7 @@ the admin browser is closed.
    `--direction local|remote`, and `--json`; local direction
    runs library/courier/accessory and explicitly skips cart-rule and
    payment-method because neither has reverse synchronization. See
-   docs/command.
+   tuucho/docs/command.
 
 6. Voucher source examples — each writes a validated JSON under
    `catalog import tree/voucher` **and** creates it in the selected target:
@@ -238,7 +238,7 @@ the admin browser is closed.
    npm run voucher -- init --name buy-2-get-1 --quantity 20 --end 30d --free-item-nth 2 --dev
    ```
 
-   See docs/command for the directional `--update`/`--delete` workflow and the
+   See tuucho/docs/command for the directional `--update`/`--delete` workflow and the
    private local usage report.
 
 To also run the front against this local backend: Vite reads
@@ -249,7 +249,7 @@ reads gallery/featured/auth/cart data live from your local DB.
 ### `npm run test`
 
 Unit tests under `src-test/unit-test/`. Same as `npm run test:unit`. See
-[docs/command/04-test.md](docs/command/04-test.md).
+[docs/command/04-test.md](../../docs/command/04-test.md).
 
 ## Project layout
 
@@ -367,7 +367,7 @@ silently deleting the proxy rule. Separate subdomains means separate
    ```
    npm run operation -- database-migrate --preprod
    ```
-   (`--prod` for prod; see docs/command — this is just a wrapper around
+   (`--prod` for prod; see tuucho/docs/command; this is just a wrapper around
    `curl -X POST -H "Authorization: Bearer <OPS_TOKEN>" <api-url>/operation/database-migrate`
    if you ever need the raw request). Safe to leave this route deployed
    permanently — gated by `OPS_TOKEN`, and a no-op when nothing's pending.

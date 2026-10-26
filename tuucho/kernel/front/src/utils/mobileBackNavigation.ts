@@ -1,4 +1,5 @@
 import { GALLERY_PATH, HOME_PATH } from '../config/paths';
+import { stripLangPrefix } from '../config/i18nRoutes';
 
 /** Mobile detail pages that deliberately hide MobileTabBar and expose their
  * own Retour links instead. They form one replaceable history slot: moving
@@ -17,8 +18,11 @@ const MOBILE_BACK_PAGES = new Set([
   '/account/notifications',
 ]);
 
+/** Callers pass `location.pathname` raw, locale prefix included
+ * (`/fr/account`): strip it before the lookup or the prefixed page never
+ * matches the unprefixed entries above. */
 export function isMobileBackPage(pathname: string): boolean {
-  return MOBILE_BACK_PAGES.has(pathname);
+  return MOBILE_BACK_PAGES.has(stripLangPrefix(pathname).rest);
 }
 
 export function isMobileBackViewport(): boolean {

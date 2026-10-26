@@ -12,13 +12,13 @@ May import: `account`, `activity`, `auth`, `cart`, `catalog`, `chat`, `checkout`
 
 Currently imports: `activity`, `catalog`, `commerce`, `customers`, `delivery`, `identity`, `messaging`, `operations`, `orders`, `payments`, `plugins`, `settings`, `shipping`.
 
-Feature map entry: `admin` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- admin` for its full span.
+Feature map entry: `admin` in [tuucho/docs/features.json](../../../../../docs/features.json). Run `npm run feature -- admin` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |
 | `application/` | 3 | 330 |
-| `domain/` | 7 | 1370 |
-| `http/` | 24 | 5098 |
+| `domain/` | 7 | 1373 |
+| `http/` | 28 | 5528 |
 
 ## Routes
 
@@ -46,6 +46,11 @@ Feature map entry: `admin` in [docs/features.json](../../../docs/features.json).
 - `GET /admin/catalogue/:catalogue/:productUid`
 - `PUT /admin/catalogue/:catalogue/:productUid`
 - `GET /admin/catalogue/:catalogue/template`
+- `GET /admin/core-config`
+- `PUT /admin/core-config`
+- `POST /admin/core-config/apply`
+- `GET /admin/core-config/export`
+- `POST /admin/core-config/import`
 - `GET /admin/courier-catalog`
 - `PUT /admin/courier-catalog/countries/:countryCode`
 - `PUT /admin/courier-catalog/couriers/:courierCode`
@@ -53,6 +58,9 @@ Feature map entry: `admin` in [docs/features.json](../../../docs/features.json).
 - `PUT /admin/courier-catalog/networks/:networkCode`
 - `PATCH /admin/couriers/:code`
 - `PATCH /admin/couriers/:code/countries/:countryCode`
+- `DELETE /admin/github-access`
+- `GET /admin/github-access`
+- `PUT /admin/github-access`
 - `POST /admin/impersonate`
 - `GET /admin/library-stock`
 - `PATCH /admin/library-stock/:productUid`
@@ -77,8 +85,15 @@ Feature map entry: `admin` in [docs/features.json](../../../docs/features.json).
 - `POST /admin/roles`
 - `DELETE /admin/roles/:code`
 - `PATCH /admin/roles/:code`
+- `GET /admin/roles/config-files`
+- `POST /admin/roles/config-files/apply`
+- `GET /admin/roles/config-files/export`
+- `POST /admin/roles/config-files/import`
 - `GET /admin/shipping-catalog`
 - `GET /admin/stats`
+- `GET /admin/user-library-stock`
+- `PATCH /admin/user-library-stock/:productUid`
+- `PATCH /admin/user-library-stock/:productUid/hidden`
 - `GET /admin/users`
 - `GET /admin/users/:id/chats`
 - `GET /admin/users/:id/contacts`

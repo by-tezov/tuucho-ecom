@@ -5,6 +5,7 @@
  * misconfigured deployment must fail at startup, not serve wrong behaviour.
  */
 import { parseDurationMs } from '../utils/duration.js';
+import { isLanguage, LANGUAGES, type Language } from '../utils/language.js';
 
 function required(value: string | undefined, name: string): string {
   if (value === undefined || value.trim() === '') {
@@ -205,9 +206,45 @@ function requiredList(value: string | undefined, name: string): string[] {
   return list;
 }
 
+/** A supported language code, falling back when unset (`i18n.default`).
+ * A set-but-unsupported value fails loudly, same as every other parser here. */
+function optionalLanguage(value: string | undefined, fallback: Language, name: string): Language {
+  const raw = (value ?? '').trim().toLowerCase();
+  if (!raw) return fallback;
+  if (!isLanguage(raw)) {
+    throw new Error(
+      `Invalid language environment variable ${name}: "${value}" (supported: ${LANGUAGES.join(', ')}).`,
+    );
+  }
+  return raw;
+}
+
+/** A comma-separated supported-language list (`i18n.enabled`), falling back
+ * to every supported language when unset. Unknown entries fail loudly. */
+function optionalLanguageList(value: string | undefined, name: string): Language[] {
+  const raw = (value ?? '').trim();
+  if (!raw) return [...LANGUAGES];
+  const entries = raw
+    .split(',')
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean);
+  for (const entry of entries) {
+    if (!isLanguage(entry)) {
+      throw new Error(
+        `Invalid language environment variable ${name}: "${entry}" in "${value}" (supported: ${LANGUAGES.join(', ')}).`,
+      );
+    }
+  }
+  const unique = [...new Set(entries)] as Language[];
+  if (unique.length === 0) return [...LANGUAGES];
+  return unique;
+}
+
 export {
   durationMsOrNull,
   optionalDurationMs,
+  optionalLanguage,
+  optionalLanguageList,
   optionalNonNegativeInteger,
   optionalPositiveInteger,
   optionalPositiveIntegerUnlessDeployed,

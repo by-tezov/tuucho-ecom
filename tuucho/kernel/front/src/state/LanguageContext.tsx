@@ -18,22 +18,20 @@ import {
   loadDictionary,
   setCachedDictionary,
 } from '../assets/i18n/dictionaryCache';
-import { en } from '../assets/i18n/strings.en';
 import { preferredLanguage, savePreferredLanguage } from '../assets/i18n/languagePreference';
 import { isLocalizablePath, localizedPath, stripLangPrefix } from '../config/i18nRoutes';
+import { shopConfig } from '../config/env';
 import { usePrerenderedLanguage } from './PrerenderPayload';
 import {
   assembleDictionary,
-  frenchAvailable,
+  localeAvailable,
   localeCatalogRevision,
   localeEnablementFromKey,
   localeEnablementKey,
   subscribeLocaleCatalogs,
 } from '../plugins/localeCatalog';
+import { LANGUAGE_ORDER } from '../assets/i18n/languages';
 import { useStorefrontBootstrap } from '../plugins/StorefrontBootstrap';
-
-const LANGUAGES_EN: Lang[] = ['en'];
-const LANGUAGES_EN_FR: Lang[] = ['en', 'fr'];
 
 interface LanguageContextValue {
   lang: Lang;
@@ -50,7 +48,7 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 function initialLangReady(): boolean {
   if (typeof window === 'undefined') return true;
-  return preferredLanguage() === defaultLang;
+  return preferredLanguage() === defaultLang();
 }
 
 // A language disabled since the preference was stored (VITE_ENABLED_LANGUAGES
@@ -69,15 +67,38 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const bootstrap = useStorefrontBootstrap();
   const enablementKey = localeEnablementKey(bootstrap.plugins);
   const localeEnabled = useMemo(() => localeEnablementFromKey(enablementKey), [enablementKey]);
-  const catalogsRev = useSyncExternalStore(subscribeLocaleCatalogs, localeCatalogRevision, localeCatalogRevision);
-  const frOn = frenchAvailable(localeEnabled);
-  const availableLanguages = frOn ? LANGUAGES_EN_FR : LANGUAGES_EN;
-
-  const [lang, setLangState] = useState<Lang>(urlLang ?? defaultLang);
-  const [dict, setDict] = useState<Strings>(
-    () => prerendered?.dict ?? (urlLang && getCachedDictionary(urlLang)) ?? en,
+  const catalogsRev = useSyncExternalStore(
+    subscribeLocaleCatalogs,
+    localeCatalogRevision,
+    localeCatalogRevision,
   );
-  const [langReady, setLangReady] = useState<boolean>(() => urlLang != null || initialLangReady());
+  // Bootstrap i18n.enabled narrows the build-time enabled set (applied in
+  // place onto shopConfig.enabledLanguages) — a shop can turn a language off
+  // without a rebuild. A language also needs its tuucho-kernel-locale-<lang> pack.
+  const enabledNow = shopConfig.enabledLanguages;
+  const availableLanguages = useMemo(
+    () => LANGUAGE_ORDER.filter((l) => enabledNow.includes(l) && localeAvailable(l, localeEnabled)),
+    [enabledNow, localeEnabled],
+  );
+
+  const [lang, setLangState] = useState<Lang>(urlLang ?? defaultLang());
+  const [dict, setDict] = useState<Strings>(
+    () =>
+      prerendered?.dict ??
+      (urlLang && getCachedDictionary(urlLang)) ??
+      getCachedDictionary(defaultLang()) ??
+      ({} as Strings),
+  );
+  // Prefer false until a runtime dictionary exists: SplashEntry and the rest
+  // of the tree read `t.*` on first paint, and an empty shell would throw.
+  const [langReady, setLangReady] = useState<boolean>(() => {
+    const seed =
+      prerendered?.dict ??
+      (urlLang && getCachedDictionary(urlLang)) ??
+      getCachedDictionary(defaultLang());
+    if (!seed || !isRuntimeDictionary(seed)) return false;
+    return urlLang != null || initialLangReady();
+  });
   // Dynamic locale chunks cannot be aborted, so their completion is versioned
   // instead. This covers a fast sequence of selections on private/admin
   // routes, where changing language does not navigate.
@@ -141,8 +162,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (urlLang) return; // locale-prefixed URL already drives this (lockstep effect above)
     const stored = preferredLanguage();
-    if (stored === defaultLang) {
-      setLangReady(true);
+    if (stored === defaultLang()) {
+      // Default language still needs packs assembled before SplashEntry
+      // reads `t.*`; the assemble effect below marks ready.
+      if (isRuntimeDictionary(dict)) setLangReady(true);
       return;
     }
     if (lang === stored) return; // already restored (e.g. via setLang)
@@ -167,7 +190,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return () => {
       if (languageLoadGenerationRef.current === loadGeneration) languageLoadGenerationRef.current += 1;
     };
-  }, [urlLang, lang]);
+  }, [urlLang, lang, dict]);
 
   // Every bare localizable URL goes to `/{lang}/…` (`/gallery` →
   // `/fr/gallery`, `/creations/ab-cd-123` → `/en/creations/ab-cd-123`).
@@ -200,15 +223,24 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [lang]);
 
   useEffect(() => {
-    const nextLang = lang === 'fr' && !frOn ? defaultLang : lang;
+    const nextLang = localeAvailable(lang, localeEnabled)
+      ? lang
+      : (availableLanguages[0] ?? defaultLang());
     if (nextLang !== lang) {
       setLangState(nextLang);
       savePreferredLanguage(nextLang);
     }
-    const assembled = assembleDictionary(en, nextLang, localeEnabled);
+    const assembled = assembleDictionary(nextLang, localeEnabled);
     setCachedDictionary(nextLang, assembled);
     setDict(assembled);
-  }, [lang, frOn, enablementKey, localeEnabled, catalogsRev]);
+    // Catalogs start empty; once packs land, mark ready for the default-lang
+    // cold boot path that used to flip langReady before `t` existed.
+    if (isRuntimeDictionary(assembled) && (!urlLang || nextLang === urlLang)) {
+      const stored = preferredLanguage();
+      if (!urlLang && stored !== defaultLang() && nextLang !== stored) return;
+      setLangReady(true);
+    }
+  }, [lang, availableLanguages, localeEnabled, catalogsRev, urlLang]);
 
   const setLang = useCallback(
     (next: Lang) => {
@@ -249,12 +281,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   // `setLang` is memoized with the current route dependencies above, so the
   // context value only changes when its actual public values change.
+  const dictionaryReady = isRuntimeDictionary(dict);
   const value = useMemo<LanguageContextValue>(
-    () => ({ lang, t: dict, setLang, langReady, availableLanguages }),
-    [lang, dict, setLang, langReady, availableLanguages],
+    () => ({ lang, t: dict, setLang, langReady: langReady && dictionaryReady, availableLanguages }),
+    [lang, dict, setLang, langReady, dictionaryReady, availableLanguages],
   );
 
-  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+  // Hold the app tree until locale packs assemble. An empty `t` shell makes
+  // SplashEntry / Layout throw, and AppErrorBoundary then blanked the root
+  // reading `t.appError.title` on undefined.
+  return (
+    <LanguageContext.Provider value={value}>{dictionaryReady ? children : null}</LanguageContext.Provider>
+  );
 }
 
 export function useLang(): LanguageContextValue {

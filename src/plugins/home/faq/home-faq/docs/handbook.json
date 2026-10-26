@@ -1,0 +1,125 @@
+{
+  "title": "Home FAQ",
+  "summary": "Fills slot.home.faq on the home page: contact CTA plus an accordion of { q, a } items. Disable the plugin to hide the block. There is no FAQ admin CRUD and no FAQ table.",
+  "sections": [
+    {
+      "heading": "What it mounts",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "Slot only",
+          "text": "front/index.tsx sets slots[CORE_FRONT_SLOTS.homeFaq] to <ContactFaq />. PluginSlot on the home page renders it. The block is not mounted on /contact."
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "Component",
+              "description": "plugins/.../front/ContactFaq.tsx"
+            },
+            {
+              "term": "Control",
+              "description": "kernel AccordionItem (KERNEL_UI.AccordionItem) per item"
+            },
+            {
+              "term": "CTA",
+              "description": "Link to localized /contact using t.contact.eyebrow, title, sub, pageCta"
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "export const pluginFront: PluginFrontModule = {\n  pluginId: 'home-faq',\n  slots: { [CORE_FRONT_SLOTS.homeFaq]: <ContactFaq /> },\n};",
+          "caption": "front/index.tsx"
+        }
+      ]
+    },
+    {
+      "heading": "How entries get in",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "important",
+          "title": "Not a database",
+          "text": "Entries are i18n. English lives in the kernel: kernel/front/src/assets/i18n/strings/en/faq.ts. ContactFaq maps t.faq.items. There is no Configure form, no admin list, and no plugin_* table."
+        },
+        {
+          "type": "defs",
+          "items": [
+            {
+              "term": "t.faq.title",
+              "description": "Heading above the accordion"
+            },
+            {
+              "term": "t.faq.items",
+              "description": "Array of { q: string, a: string }. Type FaqStrings in kernel/front/src/assets/i18n/types/faq.ts"
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "export const faq: Strings['faq'] = {\n  title: 'Frequently asked questions',\n  items: [\n    { q: 'How do I find my size?', a: 'It is all on the Size guide page\u2026' },\n  ],\n};",
+          "caption": "Shape of an entry"
+        },
+        {
+          "type": "p",
+          "text": "The second item (index 1) appends a link to /sizes (t.guide.title) inside the answer. Other items render item.a as text."
+        }
+      ]
+    },
+    {
+      "heading": "Change or add entries",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "English default: edit kernel/front/src/assets/i18n/strings/en/faq.ts. That is a kernel change, not a plugin settings form.",
+            "French overlay: home-faq-locale-fr ships front/catalog.ts with catalog.faq (same { title, items } shape). assembleDictionary merges it when lang is fr and the complement is enabled.",
+            "Different FAQ product: replace slot.home.faq with your own component and your own data. Do not ALTER kernel tables. Import CORE_FRONT_SLOTS from frontSlots.ts."
+          ]
+        },
+        {
+          "type": "code",
+          "language": "ts",
+          "code": "export const catalog: Partial<Strings> = { faq };\n\nexport const pluginFront: PluginFrontModule = {\n  pluginId: 'home-faq-locale-fr',\n  locales: [{ lang: 'fr', catalog }],\n};",
+          "caption": "French complement"
+        },
+        {
+          "type": "callout",
+          "tone": "warning",
+          "title": "No contact opening",
+          "text": "Replacing this slot changes the home teaser only. The guest form and account chat on /contact are kernel. See Contact."
+        }
+      ]
+    },
+    {
+      "heading": "Openings",
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Kind",
+            "Name"
+          ],
+          "rows": [
+            [
+              "Slot provided",
+              "slot.home.faq"
+            ],
+            [
+              "Filters",
+              "none (back/register.ts is a no-op)"
+            ],
+            [
+              "Permissions",
+              "none"
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

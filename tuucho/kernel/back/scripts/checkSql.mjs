@@ -7,7 +7,7 @@
  * and missed in one of them is green through `npm run check`, green through
  * `tsc`, and fails only when that code path runs in production.
  *
- * This closes that gap without a database: it reads `docs/schema/tables.json`
+ * This closes that gap without a database: it reads `tuucho/docs/schema/tables.json`
  * (kept current by `npm run sync:schema`, enforced by `npm run check:schema`)
  * and checks two things per SQL literal:
  *
@@ -24,7 +24,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 
 const root = resolve('.');
-const snapshotPath = resolve(root, 'docs/schema/tables.json');
+const snapshotPath = resolve(root, '../../docs/schema/tables.json');
 const sourceRoot = resolve(root, 'src');
 
 /** Postgres names that are not tables in the snapshot but are legal here. */

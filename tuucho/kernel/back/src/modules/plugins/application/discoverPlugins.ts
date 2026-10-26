@@ -50,18 +50,20 @@ function asString(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
 
-/** Complements (`parent-locale-fr`) and standalone packs (`tuucho-locale-fr`). */
+/** Complements (`parent-locale-fr`) and standalone packs (`tuucho-kernel-locale-fr`). */
 const LOCALE_PLUGIN_ID_RE = /^(.+)-locale-[a-z]{2}$/;
 
 export function isLocalePluginId(id: string): boolean {
   return LOCALE_PLUGIN_ID_RE.test(id);
 }
 
-/** Parent plugin id for a nested complement. `tuucho-locale-fr` has none. */
+/** Parent plugin id for a nested complement. `tuucho-kernel-locale-fr` has none. */
 export function localeComplementParentId(id: string): string | null {
   const match = LOCALE_PLUGIN_ID_RE.exec(id);
   const parent = match?.[1];
-  if (!parent || parent === 'tuucho') return null;
+  // Standalone kernel packs are `tuucho-kernel-locale-<lang>` (parent token
+  // would be `tuucho-kernel`, which is not a real plugin).
+  if (!parent || parent === 'tuucho' || parent === 'tuucho-kernel') return null;
   return parent;
 }
 
@@ -285,6 +287,7 @@ function parseSettingField(raw: unknown): PluginSettingField | undefined {
     placeholder: asString(field.placeholder),
     ...(options ? { options } : {}),
     ...(field.long === true ? { long: true } : {}),
+    ...(field.hidden === true ? { hidden: true } : {}),
   };
 }
 

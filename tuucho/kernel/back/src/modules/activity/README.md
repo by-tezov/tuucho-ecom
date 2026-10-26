@@ -12,7 +12,7 @@ May import: _nothing above platform_.
 
 Currently imports: _no other module_.
 
-Feature map entry: `activity` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- activity` for its full span.
+Feature map entry: `activity` in [tuucho/docs/features.json](../../../../../docs/features.json). Run `npm run feature -- activity` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |

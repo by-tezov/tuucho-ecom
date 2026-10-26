@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiError } from '@kernel/front/api/errors';
 import { useAuthSession } from '@kernel/front/state/AuthContext';
+import { shopConfig } from '@kernel/front/config/env';
 import { withMinDuration } from '@kernel/front/utils/withMinDuration';
 import {
   addAdminSpyMailRecipient,
@@ -10,7 +11,6 @@ import {
   type SpyMailChannel,
   type SpyMailStaffRole,
 } from './api';
-import { spyMailCopy } from './copy';
 import { spyMailLoadError, useSpyMailCopy, type SpyMailCopy } from './useSpyMailCopy';
 
 export function useSpyMailAdmin(channelIds?: ReadonlySet<string>): {
@@ -43,11 +43,11 @@ export function useSpyMailAdmin(channelIds?: ReadonlySet<string>): {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    void withMinDuration(reload(), 250)
+    void withMinDuration(reload(), shopConfig.loadingMinMs.short)
       .catch((err: unknown) => {
         if (cancelled) return;
         const status = err instanceof ApiError ? err.status : 0;
-        setError(spyMailLoadError(status, spyMailCopy));
+        setError(spyMailLoadError(status, copy));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -63,6 +63,7 @@ export function useSpyMailAdmin(channelIds?: ReadonlySet<string>): {
     try {
       await authedRequest((token) => patchAdminSpyMailChannel(token, channel.id, enabled));
       await reload();
+      window.dispatchEvent(new CustomEvent('tuucho-plugin-config-saved', { detail: { pluginId: 'tuucho-mail-spy' } }));
     } catch {
       setError(copy.saveError);
     } finally {
@@ -76,6 +77,7 @@ export function useSpyMailAdmin(channelIds?: ReadonlySet<string>): {
     try {
       await authedRequest((token) => addAdminSpyMailRecipient(token, channel.id, filter, value));
       await reload();
+      window.dispatchEvent(new CustomEvent('tuucho-plugin-config-saved', { detail: { pluginId: 'tuucho-mail-spy' } }));
     } catch (err) {
       const code = err instanceof ApiError ? err.code : '';
       if (code === 'not_staff_account') setError(copy.notStaff);
@@ -92,6 +94,7 @@ export function useSpyMailAdmin(channelIds?: ReadonlySet<string>): {
     try {
       await authedRequest((token) => deleteAdminSpyMailRecipient(token, id));
       await reload();
+      window.dispatchEvent(new CustomEvent('tuucho-plugin-config-saved', { detail: { pluginId: 'tuucho-mail-spy' } }));
     } catch {
       setError(copy.saveError);
     } finally {

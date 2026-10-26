@@ -1,5 +1,5 @@
 /** Which shape/length pairs a catalogue folder offers, and which of them are
- * hidden (docs/plans/variant-visibility.md).
+ * hidden (tuucho/docs/plans/variant-visibility.md).
  *
  * - The folders are the only source of shapes and lengths: a pair is offered
  *   when `modal/<shape>/<length>/` holds a photo (or, for a single nail with

@@ -19,6 +19,7 @@ import { useOutOfStockSizeFlags } from '../../hooks/useFilterOptions';
 import { useGalleryFavorites } from '../../hooks/useGalleryFavorites';
 import { shopConfig } from '../../config/env';
 import { galleryRowIndexForProduct } from './galleryRowIndex';
+import { nextGalleryLoadMoreLatch } from './galleryLoadMoreLatch';
 import { scrollWindowInstant } from '../../utils/scroll';
 import cardStyles from './GalleryCard.module.css';
 import styles from './GalleryGrid.module.css';
@@ -217,21 +218,19 @@ export function GalleryGrid({
 
   // Same trigger point the old IntersectionObserver sentinel gave (near
   // the end of the rendered list), just driven by the virtualizer's own
-  // rendered range instead of a separate observed DOM element.
+  // rendered range instead of a separate observed DOM element. The latch
+  // rules live in galleryLoadMoreLatch; the one to remember here is that a
+  // finished fetch (loadingMore falling) re-arms the trigger, so sitting at
+  // the end of the grid no longer strands paging on page 3+.
   useEffect(() => {
-    if (lastVirtualRowIndex === undefined || lastVirtualRowIndex < rowCount - 1) {
-      // The visitor has left the end of the currently loaded grid. A later
-      // return to it is a new, deliberate request for the next page.
-      loadMoreLatchedRef.current = false;
-      return;
-    }
-    if (!hasMore || loadingMore || loadMoreLatchedRef.current) return;
-
-    // Appending a page remounts/re-measures rows. Without this latch, the
-    // effect could immediately request every following page while the same
-    // last row remained rendered, moving the document under an active card.
-    loadMoreLatchedRef.current = true;
-    onLoadMore();
+    const next = nextGalleryLoadMoreLatch({
+      latched: loadMoreLatchedRef.current,
+      atEnd: lastVirtualRowIndex !== undefined && lastVirtualRowIndex >= rowCount - 1,
+      hasMore,
+      loadingMore,
+    });
+    loadMoreLatchedRef.current = next.latched;
+    if (next.fire) onLoadMore();
   }, [lastVirtualRowIndex, rowCount, hasMore, loadingMore, onLoadMore]);
 
   return (

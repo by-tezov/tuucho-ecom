@@ -14,11 +14,15 @@ import { desiredGiftQuantities, listCartRules } from './cartRules.js';
  * A rule never takes over a line the customer added themselves: the line key
  * has no origin, so when the gift product is also in the cart as a paid line,
  * that line is left alone instead of being turned into free locked units. */
-export async function syncGiftLinesForCart(client: pg.Pool | pg.PoolClient, cartId: string): Promise<void> {
+export async function syncGiftLinesForCart(
+  client: pg.Pool | pg.PoolClient,
+  cartId: string,
+  excludeReservationId?: string,
+): Promise<void> {
   const rules = await listCartRules(client);
   const { rows: unitRows } = await client.query<{ set_units: string }>(
     `select ${CART_SET_UNITS_SQL}::text as set_units`,
-    [cartId],
+    [cartId, excludeReservationId ?? null],
   );
   const gifts = desiredGiftQuantities(rules, {
     setUnits: Number(unitRows[0]?.set_units ?? 0),
@@ -97,6 +101,7 @@ export async function syncGiftLinesForCart(client: pg.Pool | pg.PoolClient, cart
 export async function syncGiftLinesForActiveCart(
   client: pg.Pool | pg.PoolClient,
   userId: string,
+  excludeReservationId?: string,
 ): Promise<void> {
   const { rows } = await client.query<{ id: string }>(
     `select id from carts where user_id = $1 and is_active = true`,
@@ -104,5 +109,5 @@ export async function syncGiftLinesForActiveCart(
   );
   const cartId = rows[0]?.id;
   if (!cartId) return;
-  await syncGiftLinesForCart(client, cartId);
+  await syncGiftLinesForCart(client, cartId, excludeReservationId);
 }

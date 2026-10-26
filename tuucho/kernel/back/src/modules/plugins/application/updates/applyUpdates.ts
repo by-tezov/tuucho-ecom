@@ -10,11 +10,12 @@ import { OFFICIAL_ORIGIN, parseGithubHttpsRepo } from '../../domain/githubReposi
 import { readReleaseCatalogJson } from '../../domain/releaseFiles.js';
 import { parsePluginReleaseManifest, parseShopReleaseManifest } from '../../domain/releaseManifest.js';
 import { isTuuchoPluginId, isUserPluginId, readPluginPackageFields, repoRoot } from '../discoverPlugins.js';
+import { createUpdatingGithubClient } from '../githubRepositoryAccess.js';
 import { assessPluginCompatibility } from '../pluginCompatibility.js';
 import { listPlugins, scanPlugins } from '../pluginStore.js';
 import { copyScopedPaths, pathExists } from './copyScoped.js';
 import { extractTagTarGz } from './extractTagArchive.js';
-import { createGithubClient, type GithubClient } from './githubClient.js';
+import type { GithubClient } from './githubClient.js';
 import { logItem, type UpdateLogItem } from './log.js';
 import { officialCopyPaths, type ApplyRequest, type UpdateScope } from './scopedPaths.js';
 import {
@@ -50,7 +51,7 @@ function setLog(log: UpdateLogItem[], name: string, status: UpdateLogItem['statu
 
 export async function applyUpdates(
   request: ApplyRequest,
-  client: GithubClient = createGithubClient(),
+  client: GithubClient = createUpdatingGithubClient(),
   onLog?: (log: UpdateLogItem[]) => void,
 ): Promise<ApplyResult> {
   const log: UpdateLogItem[] = [];
@@ -88,12 +89,15 @@ async function applyOfficial(
       const latest = checked.plugins.find((entry) => entry.id === pluginId);
       if (live && latest) {
         const probe = assessPluginCompatibility(
-          { id: pluginId, manifest: { ...live.manifest, version: latest.to, engines: live.manifest.engines } },
+          {
+            id: pluginId,
+            manifest: { ...live.manifest, version: latest.to, engines: live.manifest.engines },
+          },
           plugins,
         );
         if (!probe.ok) {
           throw new Error(
-            `${pluginId} needs a kernel that matches engines.core. Use Kernel or All instead. ${probe.errors.map((entry) => entry.message).join(' ')}`,
+            `${pluginId} needs a kernel that matches engines.core. Update the kernel from Core first. ${probe.errors.map((entry) => entry.message).join(' ')}`,
           );
         }
       }
@@ -205,9 +209,19 @@ async function applyOfficial(
     if (snapshot) await removeSnapshot(snapshot);
     const behind = await migrateStampBehind(root, join(root, 'tuucho-config'));
     if (behind.length > 0) {
-      setLog(log, 'config:migrate', 'ok', `Factory config has pending steps (${behind.join(', ')}). Run npm run config:migrate. Apply never writes tuucho-config/.`);
+      setLog(
+        log,
+        'config:migrate',
+        'ok',
+        `Factory config has pending steps (${behind.join(', ')}). Run npm run config:migrate. Apply never writes tuucho-config/.`,
+      );
     }
-    setLog(log, 'done', 'ok', scope === 'all' || scope === 'kernel' ? 'Restart the API process to load the new kernel.' : undefined);
+    setLog(
+      log,
+      'done',
+      'ok',
+      scope === 'all' || scope === 'kernel' ? 'Restart the API process to load the new kernel.' : undefined,
+    );
     emit();
     return { ok: true, log, restartRequired: scope === 'all' || scope === 'kernel' };
   } catch (error) {
@@ -291,16 +305,18 @@ async function applyUserPlugin(
         if (id !== pluginId) throw new Error(`Tag ${tag} id ${id} does not match ${pluginId}.`);
         const releaseRaw = await client.readOptionalJson(ref, tag, 'plugin-release.json');
         const release = parsePluginReleaseManifest(releaseRaw, { id, version, tag });
-        if (release.id !== pluginId) throw new Error(`plugin-release.json id ${release.id} does not match ${pluginId}.`);
+        if (release.id !== pluginId)
+          throw new Error(`plugin-release.json id ${release.id} does not match ${pluginId}.`);
         const enginesRaw = pluginPkg.tuucho.engines;
         const compatibility = assessPluginCompatibility(
           {
             id,
             manifest: {
               version,
-              engines: enginesRaw && typeof enginesRaw === 'object'
-                ? (enginesRaw as { core?: string })
-                : live.manifest.engines,
+              engines:
+                enginesRaw && typeof enginesRaw === 'object'
+                  ? (enginesRaw as { core?: string })
+                  : live.manifest.engines,
               dependsOn: live.manifest.dependsOn,
             },
           },

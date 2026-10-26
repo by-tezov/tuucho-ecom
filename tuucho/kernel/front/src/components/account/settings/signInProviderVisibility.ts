@@ -16,3 +16,14 @@ export function signInProviderOffered(
 ): boolean {
   return pluginOn && preferenceOn && configured;
 }
+
+/** The whole social block renders when the sign-in opening is on for at
+ * least one provider, or the shop has OAuth credentials configured for one,
+ * or the customer already linked one — even when no per-row
+ * signInProviderVisible passes yet (rows keep their own rule above). */
+export function signInBlockVisible(
+  openings: { id: string }[] | undefined,
+  providers: { configured: boolean; linked: boolean }[],
+): boolean {
+  return (openings?.length ?? 0) > 0 || providers.some((provider) => provider.configured || provider.linked);
+}

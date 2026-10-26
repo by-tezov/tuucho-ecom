@@ -1,5 +1,5 @@
 import { appendFileSync, constants, existsSync, renameSync, statSync } from 'node:fs';
-import { access } from 'node:fs/promises';
+import { access, mkdir } from 'node:fs/promises';
 import { constants as moduleConstants, enableCompileCache } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -18,7 +18,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
  * vanishing into whatever Passenger does with a dead process.
  *
  * Cold-start budget. Passenger on the LWS host stops an idle app after a few
- * seconds (docs/cron/README.md), so most visitors meet a fresh boot, which
+ * seconds (tuucho/docs/cron/README.md), so most visitors meet a fresh boot, which
  * took ~4s there. Two things here keep it short: the app is loaded from the
  * single-file bundle the deployed build writes (see serverEntry.ts), and the
  * server starts listening before the probes run, which are diagnostics, not
@@ -231,6 +231,9 @@ async function main(): Promise<void> {
     [
       'media dir writable',
       async () => {
+        // outputDir is operator-configurable, so a fresh tree may not have
+        // the directory yet: create, then verify writability.
+        await mkdir(config.mediaDir, { recursive: true });
         await access(config.mediaDir, constants.W_OK);
       },
     ],

@@ -18,6 +18,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { addConfirmOption, addTargetOptions, makeFail, requireConfirmForProdWrite } from './cliCommon.js';
 import { loadApiBaseUrl, loadOpsToken, type Mode } from './envFile.js';
+import { outputRoot } from '../src/config/shopPaths.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -315,7 +316,7 @@ function timestampForFile(): string {
 }
 
 async function createDownload(mode: Mode, kind: Args['kind'], lines: string[]): Promise<string> {
-  const directory = join(root, 'output', 'log', mode);
+  const directory = join(outputRoot(), 'log', mode);
   const path = join(directory, `${kind}-${timestampForFile()}.jsonl`);
   await mkdir(directory, { recursive: true, mode: 0o700 });
   await writeFile(path, lines.length > 0 ? `${lines.join('\n')}\n` : '', { encoding: 'utf8', mode: 0o600 });
@@ -487,7 +488,7 @@ addModeOption(program.command('errors'))
       });
     }),
   );
-addReadLikeCommand('download', 'Save selected server-log records to output/log/<mode>/.');
+addReadLikeCommand('download', 'Save selected server-log records to <outputDir>/log/<mode>/.');
 
 interface ClearOpts {
   mode: Mode;

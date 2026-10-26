@@ -12,7 +12,7 @@ May import: `account`, `activity`, `catalog`, `commerce`, `customers`, `delivery
 
 Currently imports: _no other module_.
 
-Feature map entry: `contact-chat` in [docs/features.json](../../../docs/features.json). Run `npm run feature -- contact-chat` for its full span.
+Feature map entry: `contact-chat` in [tuucho/docs/features.json](../../../../../docs/features.json). Run `npm run feature -- contact-chat` for its full span.
 
 | Layer | Files | Lines |
 | --- | --- | --- |

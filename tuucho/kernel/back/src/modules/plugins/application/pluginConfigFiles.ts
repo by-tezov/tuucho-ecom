@@ -4,7 +4,7 @@
  */
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join, relative, resolve, sep } from 'node:path';
+import { join, relative, resolve, sep } from 'node:path';
 import { deepMerge, resolveAppTarget, type JsonObject } from '../../../config/loadJsonConfig.js';
 import { configRoot, shopRoot } from '../../../config/shopPaths.js';
 import type { PluginManifest, PluginSettingField } from '../domain/contracts.js';
@@ -57,8 +57,10 @@ function loadPrivateLayer(
 ): JsonObject {
   if (existsSync(file)) return loadOptionalJson(file, warnings, pluginId);
   if (existsSync(example)) {
+    const obj = loadOptionalJson(example, warnings, pluginId);
+    if (Object.keys(obj).length === 0) return {};
     warnings.push(`${pluginId}: ${shopRelative(file)} is missing; loading ${shopRelative(example)}.`);
-    return loadOptionalJson(example, warnings, pluginId);
+    return obj;
   }
   return {};
 }
@@ -161,11 +163,11 @@ export function loadPluginConfigFiles(manifest: PluginManifest): LoadedPluginCon
   }
   const paths = {
     commonPublic: join(dir, 'config.json'),
-    envPublic: join(dir, target, 'config.json'),
+    envPublic: join(dir, `config.${target}.json`),
     commonPrivate: join(dir, 'config.private.json'),
     commonPrivateExample: join(dir, 'config.private.example.json'),
-    envPrivate: join(dir, target, 'config.private.json'),
-    envPrivateExample: join(dir, target, 'config.private.example.json'),
+    envPrivate: join(dir, `config.private.${target}.json`),
+    envPrivateExample: join(dir, `config.private.${target}.example.json`),
   };
   const presentFiles = Object.values(paths).filter((path) => existsSync(path));
   if (presentFiles.length === 0) return empty;
@@ -174,9 +176,7 @@ export function loadPluginConfigFiles(manifest: PluginManifest): LoadedPluginCon
   const secretAllowed = new Set(secretKeys);
   const publicMerged = deepMerge(
     pickKnown(loadOptionalJson(paths.commonPublic, warnings, manifest.id), publicAllowed, manifest.id, 'public', warnings),
-    existsSync(dirname(paths.envPublic))
-      ? pickKnown(loadOptionalJson(paths.envPublic, warnings, manifest.id), publicAllowed, manifest.id, 'public', warnings)
-      : {},
+    pickKnown(loadOptionalJson(paths.envPublic, warnings, manifest.id), publicAllowed, manifest.id, 'public', warnings),
   );
   const privateMerged = deepMerge(
     pickKnown(
@@ -186,15 +186,13 @@ export function loadPluginConfigFiles(manifest: PluginManifest): LoadedPluginCon
       'private',
       warnings,
     ),
-    existsSync(dirname(paths.envPrivate))
-      ? pickKnown(
-          loadPrivateLayer(paths.envPrivate, paths.envPrivateExample, warnings, manifest.id),
-          secretAllowed,
-          manifest.id,
-          'private',
-          warnings,
-        )
-      : {},
+    pickKnown(
+      loadPrivateLayer(paths.envPrivate, paths.envPrivateExample, warnings, manifest.id),
+      secretAllowed,
+      manifest.id,
+      'private',
+      warnings,
+    ),
   );
   if (secretKeys.length > 0 && Object.keys(privateMerged).length === 0 && !existsSync(paths.commonPrivate) && !existsSync(paths.commonPrivateExample)) {
     warnings.push(`${manifest.id}: no secrets file.`);

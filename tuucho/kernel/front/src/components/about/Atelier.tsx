@@ -1,10 +1,14 @@
 import { useLang } from '../../assets/i18n';
 import { Figure } from '../ui/Figure';
 import { images } from '../../assets/images/manifest';
+import { resolveBrandAsset, useBrandAssets } from '../../plugins/BrandAssetsContext';
 import styles from './Atelier.module.css';
+
+const COLOR_KEYS = ['aboutColor1', 'aboutColor2', 'aboutColor3'] as const;
 
 export function Atelier() {
   const { t } = useLang();
+  const brandAssets = useBrandAssets();
 
   return (
     <section aria-labelledby="atelier-h" className={styles.section}>
@@ -18,7 +22,7 @@ export function Atelier() {
         </div>
 
         <Figure
-          src={images.about.desk}
+          src={resolveBrandAsset(brandAssets, 'aboutDesk', images.about.desk)}
           alt={t.atelier.deskAlt}
           aspectRatio="16 / 10"
           className={styles.desk}
@@ -48,7 +52,15 @@ export function Atelier() {
         <ul className={styles.colorsGrid}>
           {t.atelier.colors.map((color, i) => (
             <li key={color.alt}>
-              <Figure src={images.about.colors[i] ?? ''} alt={color.alt} aspectRatio="4 / 5" />
+              <Figure
+                src={resolveBrandAsset(
+                  brandAssets,
+                  COLOR_KEYS[i] ?? 'aboutColor1',
+                  images.about.colors[i] ?? '',
+                )}
+                alt={color.alt}
+                aspectRatio="4 / 5"
+              />
             </li>
           ))}
         </ul>

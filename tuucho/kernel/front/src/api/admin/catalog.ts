@@ -170,6 +170,7 @@ export function patchAdminUserLibraryStock(
     lengthKey: string;
     price?: number;
     sizes?: { XS: number; S: number; M: number; L: number };
+    owners?: string[];
   },
 ): Promise<{ success: true; row: AdminUserLibraryStockRow }> {
   return request(`/admin/user-library-stock/${encodeURIComponent(productUid)}`, {

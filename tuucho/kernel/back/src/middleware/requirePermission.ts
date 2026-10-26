@@ -19,7 +19,7 @@ export function requirePermission(...codes: PermissionCode[]): RequestHandler {
     if (!(await accountHasPermission(pool, req.user, codes))) return forbidden(res);
     next();
   };
-  // Named after its grant so the route inventory (docs/api/09-reference.md)
+  // Named after its grant so the route inventory (tuucho/docs/api/09-reference.md)
   // shows which permission gates each route.
   Object.defineProperty(handler, 'name', { value: `requirePermission(${codes.join('/')})` });
   return handler;
