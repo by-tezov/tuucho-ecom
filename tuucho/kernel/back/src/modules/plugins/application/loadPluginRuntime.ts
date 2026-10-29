@@ -7,6 +7,7 @@ import {
   resetHooks,
   resetMailTemplates,
   resetEmailCatalogs,
+  resetLanguages,
   resetPluginServices,
   resetShells,
   setPluginCacheSealer,
@@ -15,8 +16,10 @@ import {
   resetPluginSettingsAccess,
   type PluginRegisterFn,
 } from '@tuucho/plugin-sdk';
+import { config } from '../../../config/env.js';
 import { decryptJsonPii, encryptJsonPii } from '../../../platform/security/piiCrypto.js';
 import { bindPluginMailShell } from '../../../platform/pluginMailShell.js';
+import { assertConfiguredLanguagesRegistered } from '../../../utils/language.js';
 import { pluginPackageDir } from './discoverPlugins.js';
 import {
   getCachedPluginSecret,
@@ -49,6 +52,7 @@ export function resetPluginRuntime(): void {
   resetShells();
   resetMailTemplates();
   resetEmailCatalogs();
+  resetLanguages();
   resetPluginSettingsAccess();
   loadedKey = '';
   loadChain = Promise.resolve();
@@ -92,6 +96,7 @@ async function loadEnabledPluginsLocked(force: boolean): Promise<void> {
   resetShells();
   resetMailTemplates();
   resetEmailCatalogs();
+  resetLanguages();
   const runtimeIds: string[] = [];
   for (const plugin of enabled) {
     try {
@@ -110,6 +115,7 @@ async function loadEnabledPluginsLocked(force: boolean): Promise<void> {
       }
     }
   }
+  assertConfiguredLanguagesRegistered(config.i18n.defaultLanguage, config.i18n.enabledLanguages);
   setRuntimeEnabledPluginIds(runtimeIds);
   loadedKey = key;
 }

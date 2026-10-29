@@ -1,0 +1,27 @@
+{
+  "_comment": "Documentation only. Copy to YYYYMMDD_NN_slug.json (digit first) before shipping a real step. config:migrate ignores this file.",
+  "id": "YYYYMMDD_NN_slug",
+  "owner": "kernel",
+  "ops": [
+    {
+      "op": "add",
+      "path": "http.requestTimeoutMs",
+      "layer": "public",
+      "env": "common",
+      "fromFactory": true
+    },
+    {
+      "op": "rename",
+      "from": "http.smallPhotoSize",
+      "to": "http.image.smallPx",
+      "layer": "public",
+      "env": "common"
+    },
+    {
+      "op": "remove",
+      "path": "http.legacyFlag",
+      "layer": "public",
+      "env": "common"
+    }
+  ]
+}

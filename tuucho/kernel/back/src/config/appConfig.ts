@@ -9,8 +9,9 @@ export interface AppConfig {
   /** Supported-language configuration (`i18n.default` / `i18n.enabled` in
    * public JSON). `defaultLanguage` is the fallback for header/preference
    * resolution (utils/language.ts); `enabledLanguages` is what the storefront
-   * bootstrap advertises to the front. Values are validated against
-   * utils/language.ts's LANGUAGES at load. */
+   * bootstrap advertises to the front. Codes match `^[a-z]{2,3}$` at config
+   * load; membership in the plugin-sdk language registry is asserted after
+   * plugins load. */
   i18n: {
     defaultLanguage: import('../utils/language.js').Language;
     enabledLanguages: import('../utils/language.js').Language[];

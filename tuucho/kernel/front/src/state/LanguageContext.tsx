@@ -82,13 +82,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 
   const [lang, setLangState] = useState<Lang>(urlLang ?? defaultLang());
-  const [dict, setDict] = useState<Strings>(
-    () =>
+  const [dict, setDict] = useState<Strings>(() => {
+    const seed =
       prerendered?.dict ??
-      (urlLang && getCachedDictionary(urlLang)) ??
-      getCachedDictionary(defaultLang()) ??
-      ({} as Strings),
-  );
+      (urlLang ? getCachedDictionary(urlLang) : undefined) ??
+      getCachedDictionary(defaultLang());
+    return seed ?? ({} as Strings);
+  });
   // Prefer false until a runtime dictionary exists: SplashEntry and the rest
   // of the tree read `t.*` on first paint, and an empty shell would throw.
   const [langReady, setLangReady] = useState<boolean>(() => {

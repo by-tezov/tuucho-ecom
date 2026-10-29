@@ -106,9 +106,10 @@ export interface GalleryItem {
   availableByOption?: Record<string, Record<string, Record<string, Partial<Record<Size, number>>>>>;
 }
 
-/** Catalog copy stored on products and related rows. Product languages are
- * English and French only. */
+/** Catalog copy stored on products and related rows. French is the import
+ * anchor; English and any `registerLanguage` codes are optional overlays. */
 export interface PartialTrilingual {
   en?: string;
   fr?: string;
+  [code: string]: string | undefined;
 }

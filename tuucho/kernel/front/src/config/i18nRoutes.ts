@@ -1,4 +1,5 @@
 import type { Lang } from '../assets/i18n/types';
+import { languageMeta } from '../assets/i18n/languages';
 import { shopConfig } from './env';
 import { runtimeDefaultLang } from './runtimeI18n';
 
@@ -15,10 +16,18 @@ export const DEFAULT_LANG: Lang = 'en';
  * BCP-47 tag (schema.org `inLanguage`, `<html lang>`'s region-qualified
  * form): swap the underscore for a hyphen. Shared by Seo.tsx (runtime) and
  * entry-server.tsx (prerendered) so both describe a page identically. */
-export const OG_LOCALES: Record<Lang, string> = {
-  en: 'en_US',
-  fr: 'fr_FR',
-};
+export const OG_LOCALES: Record<string, string> = new Proxy(
+  {},
+  {
+    get(_target, prop) {
+      if (typeof prop !== 'string') return undefined;
+      return languageMeta(prop).ogLocale;
+    },
+    has(_target, prop) {
+      return typeof prop === 'string';
+    },
+  },
+) as Record<string, string>;
 
 /**
  * Locale-prefixed URLs (`/fr/gallery`, `/en/gallery`) exist
@@ -47,8 +56,8 @@ export function orderedLanguages(): Lang[] {
  * private path like `/admin` (neither carries a real language segment)
  * returns `{ lang: null, rest: pathname }` unchanged. */
 export function stripLangPrefix(pathname: string): { lang: Lang | null; rest: string } {
-  const match = /^\/([a-z]{2})(\/.*|$)/.exec(pathname);
-  const candidate = match?.[1] as Lang | undefined;
+  const match = /^\/([a-z]{2,3})(\/.*|$)/.exec(pathname);
+  const candidate = match?.[1];
   if (match && candidate && ENABLED_LANGUAGES.includes(candidate)) {
     return { lang: candidate, rest: match[2] || '/' };
   }

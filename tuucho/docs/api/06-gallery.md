@@ -9,10 +9,12 @@ separate subdomains.
 Public shop chrome payload: `coreVersion`, store identity, tax mode, product axes, theme
 tokens, menus (page plugins that are on, plus the catalog), `i18n`
 (`default`: the configured fallback language from `i18n.default`;
-`enabled`: `i18n.enabled` intersected with the languages the kernel
-supports), `brandAssets` (static artwork overrides, key to absolute image
-URL; empty unless a plugin fills it through the `storefront.bootstrap`
-filter — front keys are `BRAND_ASSET_KEYS`), and
+`enabled`: `i18n.enabled` intersected with registered language codes;
+`languages`: `{ code, nativeName, ogLocale, dateLocale? }[]` for those
+enabled codes), `brandAssets` (static artwork overrides, key to absolute
+image URL; empty unless a plugin fills it through the
+`storefront.bootstrap` filter — front keys are `BRAND_ASSET_KEYS`, including
+optional `favicon`, `ogImage`, `lockProbe`), and
 `plugins[]` (`id`, `enabled`, `kind`, `route`, `nav`, `dependsOn`, `settings`)
 and `openings` (preferences, profile, signInMethods, notifications, cart
 shipping/loyalty/vouchers/gifts, orderHistory). `enabled`

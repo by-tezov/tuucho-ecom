@@ -18,11 +18,14 @@
  * are required in the environment and have no code default to fall back on, so
  * calling one a default was itself part of the confusion.
  */
+import { existsSync } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import { extname, relative, resolve } from 'node:path';
 
 const root = resolve('.');
-const configPath = resolve(root, '../../../tuucho-config/config.json');
+const nestedConfig = resolve(root, '../../../tuucho-config/kernel/config.json');
+const flatConfig = resolve(root, '../../../tuucho-config/config.json');
+const configPath = existsSync(nestedConfig) ? nestedConfig : flatConfig;
 const mapPath = resolve(root, 'src/config/configEnvMap.ts');
 const docsRoot = resolve(root, '../../docs');
 

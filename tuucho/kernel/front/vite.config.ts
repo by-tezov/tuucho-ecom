@@ -55,15 +55,29 @@ function stampPostcssFrom() {
   };
 }
 
-function loadKernelHttp(target: string): { apiBaseUrl?: string; frontendBaseUrl?: string } {
+function loadKernelHttp(target: string): {
+  apiBaseUrl?: string;
+  frontendBaseUrl?: string;
+  enabledLanguages?: string;
+} {
   const status = inspectConfig(resolve(process.cwd(), '../../../tuucho-config'), target);
   if (!status.ok || !status.merged) {
     throw new Error(status.errors.join('\n') || `kernel config for ${target} failed`);
   }
   const http = (status.merged.http ?? {}) as Record<string, unknown>;
-  const loaded: { apiBaseUrl?: string; frontendBaseUrl?: string } = {};
+  const i18n = (status.merged.i18n ?? {}) as Record<string, unknown>;
+  const loaded: { apiBaseUrl?: string; frontendBaseUrl?: string; enabledLanguages?: string } = {};
   if (typeof http.apiBaseUrl === 'string') loaded.apiBaseUrl = http.apiBaseUrl;
   if (typeof http.frontendBaseUrl === 'string') loaded.frontendBaseUrl = http.frontendBaseUrl;
+  if (Array.isArray(i18n.enabled) && i18n.enabled.every((entry) => typeof entry === 'string')) {
+    loaded.enabledLanguages = i18n.enabled.map((entry) => entry.trim().toLowerCase()).filter(Boolean).join(',');
+  } else if (typeof i18n.enabled === 'string' && i18n.enabled.trim()) {
+    loaded.enabledLanguages = i18n.enabled
+      .split(',')
+      .map((entry) => entry.trim().toLowerCase())
+      .filter(Boolean)
+      .join(',');
+  }
   return loaded;
 }
 
@@ -82,6 +96,9 @@ export default defineConfig(({ mode }) => {
   const kernelHttp = loadKernelHttp(targetFileSuffix);
   if (kernelHttp.apiBaseUrl) process.env.VITE_API_BASE_URL = kernelHttp.apiBaseUrl;
   if (kernelHttp.frontendBaseUrl) process.env.VITE_SITE_URL = kernelHttp.frontendBaseUrl;
+  // Build list matches config `i18n.enabled` so shops can enable codes that
+  // are not hard-coded in the kernel (locale plugins supply catalogs).
+  if (kernelHttp.enabledLanguages) process.env.VITE_ENABLED_LANGUAGES = kernelHttp.enabledLanguages;
   const testApi = process.env.TUUCHO_TEST_API_BASE?.trim();
   const testSite = process.env.TUUCHO_TEST_SITE_URL?.trim() || process.env.TUUCHO_TEST_FRONTEND_BASE?.trim();
   if (testApi) process.env.VITE_API_BASE_URL = testApi.replace(/\/$/, '');

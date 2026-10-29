@@ -8,6 +8,7 @@ import { StatusModal } from '../components/ui/StatusModal';
 import { SegmentedSwitch } from '../components/ui/SegmentedSwitch';
 import { ToggleSwitch } from '../components/ui/ToggleSwitch';
 import { useAuthSession } from '../state/AuthContext';
+import { useToast } from '../state/ToastContext';
 import { useAdminStrings } from '../assets/i18n/admin';
 import { ApiError } from '../api/errors';
 import { shopConfig } from '../config/env';
@@ -68,6 +69,7 @@ function TrashIcon() {
 export function AdminPluginsPage() {
   const w = useAdminStrings().whiteLabel;
   const { authedRequest } = useAuthSession();
+  const toast = useToast();
   const refreshBootstrap = useRefreshStorefrontBootstrap();
   const [plugins, setPlugins] = useState<AdminPlugin[]>([]);
   const [coreVersion, setCoreVersion] = useState('');
@@ -221,7 +223,7 @@ export function AdminPluginsPage() {
 
   async function toggle(plugin: AdminPlugin, enabled: boolean) {
     if (plugin.manifest.required) {
-      setActionResult({ tone: 'error', message: w.cannotDisableHome });
+      toast(w.cannotDisableHome);
       return;
     }
     setActionResult(null);
@@ -233,15 +235,13 @@ export function AdminPluginsPage() {
       );
       await reload();
       refreshBootstrap();
-      setActionResult({ tone: 'success', message: w.saved });
+      toast(enabled ? w.enabledToast : w.disabledToast);
     } catch (err) {
-      setActionResult({
-        tone: 'error',
-        message:
-          err instanceof ApiError && err.code === 'plugin_incompatible'
-            ? err.serverMessage || w.incompatibleCannotEnable
-            : w.saveError,
-      });
+      toast(
+        err instanceof ApiError && err.code === 'plugin_incompatible'
+          ? err.serverMessage || w.incompatibleCannotEnable
+          : w.saveError,
+      );
     } finally {
       setActionLoading(null);
     }
@@ -601,7 +601,13 @@ function PluginRow({
   onApplyPlugin: (plugin: AdminPlugin) => void;
 }) {
   const configureTo = pluginConfigurePath(plugin);
+  const missingFromDisk = Boolean(plugin.missingFromDisk);
   const compatible = plugin.compatibility?.ok !== false;
+  /** Missing-folder copy is localized on the client; never echo the English
+   * compatibility payload the API attaches for the same case. */
+  const compatibilityErrors = missingFromDisk
+    ? []
+    : (plugin.compatibility?.errors ?? []).map((entry) => entry.message).filter(Boolean);
   const userUpdate = updateCheck?.userPlugins.find((row) => row.id === plugin.id);
   const bundledUpdate = updateCheck?.plugins.find((row) => row.id === plugin.id);
   const originHost = plugin.repository ? plugin.repository.replace(/^https:\/\/github\.com\//, '') : null;
@@ -609,17 +615,19 @@ function PluginRow({
     <div className={nested ? `${styles.row} ${styles.rowNested}` : styles.row}>
       <div className={styles.rowMain}>
         <h2 className={styles.rowName}>{plugin.manifest.name}</h2>
-        {!nested && plugin.manifest.description ? (
+        {!nested && !missingFromDisk && plugin.manifest.description ? (
           <p className={styles.rowDescription}>{plugin.manifest.description}</p>
         ) : null}
         <div className={styles.rowMeta}>
           <span className={styles.badge}>{plugin.id}</span>
           <span className={styles.badge}>{kindText(plugin.manifest.kind, w)}</span>
           {plugin.manifest.required ? <span className={styles.badge}>{w.required}</span> : null}
-          {plugin.missingFromDisk ? (
+          {missingFromDisk ? (
             <span className={`${styles.badge} ${styles.badgeDanger}`}>{w.missingFolder}</span>
           ) : null}
-          {compatible ? null : <span className={`${styles.badge} ${styles.badgeDanger}`}>{w.incompatible}</span>}
+          {compatible || missingFromDisk ? null : (
+            <span className={`${styles.badge} ${styles.badgeDanger}`}>{w.incompatible}</span>
+          )}
           {userUpdate && !userUpdate.error ? (
             <span className={`${styles.badge} ${styles.badgeUpdate}`}>{w.updateAvailable}</span>
           ) : null}
@@ -646,10 +654,10 @@ function PluginRow({
             ) : null}
           </div>
         ) : null}
-        {plugin.missingFromDisk ? <p className={styles.rowError}>{w.missingFolderHint}</p> : null}
-        {compatible ? null : (
-          <p className={styles.rowError}>{plugin.compatibility?.errors.map((entry) => entry.message).join(' ')}</p>
-        )}
+        {missingFromDisk ? <p className={styles.rowError}>{w.missingFolderHint}</p> : null}
+        {compatibilityErrors.length > 0 ? (
+          <p className={styles.rowError}>{compatibilityErrors.join(' ')}</p>
+        ) : null}
       </div>
       <div className={styles.rowActions}>
         {configureTo && !plugin.missingFromDisk ? (

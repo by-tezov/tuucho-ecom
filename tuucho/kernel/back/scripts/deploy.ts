@@ -522,7 +522,9 @@ function ftpConnection(mode: Mode): {
   const ftpPort = json.FTP_PORT ?? '21';
   const ftpUser = json.FTP_USER;
   const ftpPassword = json.FTP_PASSWORD;
-  if (!gatewayUrl) fail(`ops.gatewayUrl not found for ${mode} — set it in tuucho-config/config.${mode}.json`);
+  if (!gatewayUrl) {
+    fail(`ops.gatewayUrl not found for ${mode}; set it in the public JSON for that env under tuucho-config/kernel/`);
+  }
   if (!ftpHost || !ftpUser || !ftpPassword)
     fail(`FTP transport requires ftp.host, ftp.user and ftp.password in kernel private JSON`);
   if (!/^\d{1,5}$/.test(ftpPort) || Number(ftpPort) > 65535)

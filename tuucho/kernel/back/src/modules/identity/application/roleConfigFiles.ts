@@ -1,8 +1,9 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { pool } from '../../../db/pool.js';
 import { configRoot } from '../../../config/shopPaths.js';
 import { isEnvName, resolveAppTarget } from '../../../config/loadJsonConfig.js';
+import { resolveKernelConfigPaths } from '../../../config/configTreePaths.js';
 import { isSystemRole, type PermissionGrant } from '../domain/staffPermissions.js';
 import { insertRole } from '../infrastructure/rolesStore.js';
 import { grantablePermissionCodes, listStaffRoles, updateStaffRole, type StaffRole } from './staffRoles.js';
@@ -22,9 +23,10 @@ export type RoleConfigEntry = {
 const ROLE_FILE = /^config\.role(?:\.([a-z][a-z0-9-]*))?\.json$/;
 
 export function roleConfigPaths(target = resolveAppTarget(process.env.APP_TARGET)) {
+  const paths = resolveKernelConfigPaths(configRoot, target);
   return {
-    common: join(configRoot, 'config.role.json'),
-    env: join(configRoot, `config.role.${target}.json`),
+    common: paths.commonRole,
+    env: paths.envRole,
   };
 }
 
@@ -156,7 +158,10 @@ export function writeRoleConfigFile(name: string, roles: readonly RoleConfigEntr
   const base = name.split(/[/\\]/).pop() ?? name;
   const env = ROLE_FILE.exec(base)?.[1];
   if (env !== undefined && !isEnvName(env)) throw new Error('invalid_name');
-  const path = env ? join(configRoot, `config.role.${env}.json`) : join(configRoot, 'config.role.json');
+  const target = env ?? resolveAppTarget(process.env.APP_TARGET);
+  const paths = resolveKernelConfigPaths(configRoot, target);
+  const path = env ? paths.envRole : paths.commonRole;
+  mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, `${JSON.stringify({ roles }, null, 2)}\n`);
   return path;
 }

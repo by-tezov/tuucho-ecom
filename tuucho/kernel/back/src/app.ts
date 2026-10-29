@@ -169,6 +169,15 @@ export function createApp(): Express {
   // imply a login is needed.
   app.use('/checkout/guest', corsForFront, customerJson, guestCheckoutRouter);
   app.use('/checkout', corsForFront, customerJson, checkoutRouter);
+
+  // URL_PUBLIC_MEDIA points at wherever Apache serves MEDIA_DIR directly as
+  // static files (a folder inside the front's own docroot) — images are never
+  // proxied through Node in prod/preprod. This route is a local-dev fallback.
+  // Mounted before any `app.use('/')` plugin catch-all so thumbnails do not
+  // pay plugin-load work. maxAge: photos are immutable once written (a new
+  // upload gets a new path), so a long max-age is safe.
+  app.use('/media', express.static(config.mediaDir, { maxAge: '30d' }));
+
   // Shop robots and sitemap must answer without the plugin catalogue (and
   // without Postgres): non-prod emits Disallow: / and 404s the sitemap from
   // APP_TARGET alone.
@@ -184,15 +193,6 @@ export function createApp(): Express {
     seoRedirectRouter,
     pluginHttpMiddleware('public'),
   );
-
-  // URL_PUBLIC_MEDIA points at wherever Apache serves MEDIA_DIR directly as
-  // static files (a folder inside the front's own docroot) — images are never
-  // proxied through Node in prod/preprod. This route is a local-dev fallback.
-  // maxAge: express.static defaults to 0 (no caching) — photos are immutable
-  // once written (a new upload gets a new position/path, nothing overwrites
-  // in place), so a long max-age is safe and lets the browser's native HTTP
-  // cache do the work instead of a custom client-side cache.
-  app.use('/media', express.static(config.mediaDir, { maxAge: '30d' }));
 
   app.use('/', corsForFront, storefrontBootstrapRouter);
 

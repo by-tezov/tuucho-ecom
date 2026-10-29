@@ -76,7 +76,7 @@ New keys go on that plugin’s `settingsSchema` (public) or `type: "secret"`
 to kernel JSON or leftover env. A plugin with `settingsSchema` must also ship
 committed `config.json`. Ship `config.private.example.json` only when the
 schema has secret keys, and never as `{}` (bundled templates:
-`tuucho/factory-config/plugins/<id>/`; shop files: `tuucho-config/plugins/<id>/`;
+`tuucho/factory-backup/config/plugins/<id>/`; shop files: `tuucho-config/plugins/<id>/`;
 upgrades: `npm run config:migrate`; user: next to `package.json` or
 `tuucho.configDir`) and handbook **Config files** JSON code blocks matching
 those files. Schema plugins join Plugins list Update all / Import all /

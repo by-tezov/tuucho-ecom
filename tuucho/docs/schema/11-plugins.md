@@ -14,11 +14,14 @@ tables**. Extra columns for a plugin live in tables the plugin creates, named
 
 Required plugins (`tuucho-theme-default`) cannot be disabled or
 uninstalled. Storefront example pages (`page-home`, `page-about`) live under
-`src/plugins/` and are not bundled. Deleting a folder without uninstall leaves an orphan row:
-Admin, Plugins shows **Folder missing**. Restore the folder, or uninstall to
+`src/plugins/` (first-install copy from `tuucho/factory-backup/plugins/`;
+gitignored; Apply never writes it) and are not bundled. Deleting a folder
+without uninstall leaves an orphan row:
+Admin, Plugins shows the localized **Folder missing** badge and hint (never
+the English API compatibility string). Restore the folder, or uninstall to
 drop tables.
 
-Example: `plugins/messaging/mail-spy/tuucho-mail-spy/back/migrations/001_spy_mail.js`
+Example: `tuucho/plugins/messaging/mail-spy/tuucho-mail-spy/back/migrations/001_spy_mail.js`
 is that plugin's **only** baseline (channels + recipients). Enable applies it
 once; uninstall runs `down`. Plugin-owned tables are not part of the kernel
 schema snapshot (`sync:schema` skips names that start with `plugin_`).
@@ -26,9 +29,9 @@ schema snapshot (`sync:schema` skips names that start with `plugin_`).
 ## `plugins`
 
 One row per installed plugin id (bundled under
-`plugins/<group>/<feature>/<id>/` or drop-in under `plugins/user/`, nested
-folders allowed). Disk is the
-catalogue; this table is enable, settings, and schema bookkeeping.
+`tuucho/plugins/<group>/<feature>/<id>/` or drop-in under `src/plugins/`,
+nested folders allowed). Disk is the catalogue; this table is enable,
+settings, and schema bookkeeping.
 
 | Column                    | Meaning                                                                                                                                                                 |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

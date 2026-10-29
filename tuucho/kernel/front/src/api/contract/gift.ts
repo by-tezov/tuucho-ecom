@@ -145,7 +145,7 @@ export interface AdminGiftOffer {
  * capability token is the customer link, the pin token is a real PIN grant. */
 export interface AdminGiftEnter {
   role: 'giver' | 'receiver';
-  language: 'en' | 'fr';
+  language: string;
   capabilityToken: string;
   pinToken: string;
   expiresAt: string;

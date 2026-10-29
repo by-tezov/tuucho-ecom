@@ -2,8 +2,8 @@
 name: tuucho-plugin-locale
 description: >-
   Adds tuucho-ecom locale plugins (tuucho-kernel-locale-en / fr and
-  <id>-locale-en / <id>-locale-fr complements). Use when overlaying kernel or
-  plugin copy, or email catalogs. Never adds extra product languages.
+  <id>-locale-<code> complements). Use when overlaying kernel or plugin copy,
+  email catalogs, or registering an extra storefront language code.
 ---
 
 # Locale plugins
@@ -19,8 +19,9 @@ description: >-
 
 ## Recipe
 
-Kernel UI and every bundled feature plugin package own **keys** only. English
-and French sentence values live in locale plugins.
+Kernel UI and every bundled feature plugin package own **keys** only. Sentence
+values live in locale plugins. Builtins are `en` and `fr`; extra codes are
+allowed when a locale plugin calls `registerLanguage`.
 
 - Locale `package.json` may omit npm `description`; every other plugin must have one.
 - Keep `@tuucho/plugin-sdk` `file:` on **one line**, matching the sibling pack
@@ -32,10 +33,25 @@ and French sentence values live in locale plugins.
   language only). Examples:
   `tuucho/plugins/kernel-locale/tuucho-kernel-locale-en`,
   `tuucho/plugins/kernel-locale/tuucho-kernel-locale-fr`.
-- `<id>-locale-en` and `<id>-locale-fr` with `dependsOn` on the parent: plugin
-  values. Live in the same feature folder as the parent. Example:
-  `src/plugins/onboarding/onboarding-locale-en`.
-- Product languages are **en+fr**. Do not add es/it/nl/pt/th.
+- `<id>-locale-<code>` with `dependsOn` on the parent: plugin values. Live in
+  the same feature folder as the parent. Example:
+  `src/plugins/onboarding/onboarding-locale-en`. Code is a 2–3 letter
+  lowercase subtag (`en`, `fr`, `th`, …).
+- To offer a language beyond the builtins, the standalone kernel (or shop)
+  pack for that code must call:
+
+```ts
+api.registerLanguage({
+  code: 'th',
+  nativeName: 'ไทย',
+  ogLocale: 'th_TH',
+  dateLocale: 'th-TH',
+});
+```
+
+  Put the code in `tuucho-config` `i18n.enabled` (and usually `i18n.default`
+  when it should lead). Vite copies `i18n.enabled` into
+  `VITE_ENABLED_LANGUAGES`. Boot fails if an enabled code was never registered.
 
 Front:
 
@@ -58,6 +74,3 @@ api.registerEmailCatalog('key:fr', overlay);
 Disable a complement and that plugin's keys stay untranslated for that
 language even when `tuucho-kernel-locale-en` / `tuucho-kernel-locale-fr` is
 on. `dependsOn` is not auto-enabled.
-
-If you need a language that is not `en` or `fr`, **stop**. The locale shell
-stays in the kernel; this skill does not extend it.

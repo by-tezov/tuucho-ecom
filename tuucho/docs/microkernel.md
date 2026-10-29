@@ -8,10 +8,11 @@ Read from the tree at `/home/tezov/Local/tuucho-ecom` (product version is root `
 
 | Layer | Path | Role |
 | --- | --- | --- |
-| Kernel | `kernel/` | Catalogue, cart, checkout, orders, accounts, plugin host, UI registry, **shells** for email, payment, courier, SEO. |
-| SDK | `plugin-sdk/` | `PluginRegisterApi`: hooks, HTTP mounts, payment/shipping register, `sendMail` / `sendTemplatedMail` / `enqueueMailJob`. |
-| Bundled plugins | `plugins/tuucho/` | First-party shop features. Ids start with `tuucho-`. Set listed in `plugins/tuucho/manifest.json`. |
-| User plugins | `plugins/user/` | Shop-owned zip uploads and demos. Never overwrite `plugins/tuucho`. |
+| Kernel | `tuucho/kernel/` | Catalogue, cart, checkout, orders, accounts, plugin host, UI registry, **shells** for email, payment, courier, SEO. |
+| SDK | `tuucho/plugin-sdk/` | `PluginRegisterApi`: hooks, HTTP mounts, payment/shipping register, `sendMail` / `sendTemplatedMail` / `enqueueMailJob`. |
+| Bundled plugins | `tuucho/plugins/` | First-party shop features. Ids start with `tuucho-`. Set listed in `tuucho/plugins/manifest.json`. |
+| User plugins | `src/plugins/` | Shop-owned zip uploads and demos (gitignored; first-install copy from `tuucho/factory-backup/plugins/`). Never overwritten by Tuucho Apply. |
+| Factory backup | `tuucho/factory-backup/` | Shipped templates: `config/` → `tuucho-config/`, `plugins/` → `src/plugins/`, optional `migrations/kernel/` for `config:migrate`. |
 
 ## Shells
 
@@ -28,7 +29,7 @@ Guest form + account chat + admin inbox = **`tuucho-contact`**. Tables stay kern
 
 ## Install / update
 
-One public repo, one tag (`MAJOR.MINOR.PATCH`, no `v` prefix), `tuucho/tuucho-versioning.json` on every tag (historical tags still use `release.json` / `tuucho-release.json`; Check/Apply fall back). In this product repo the version Te publishes is root `package.json`. Shop owners clone a tag. Admin Core **Check for updates** / **Apply** compares the kernel (live root `package.json`) to the latest official GitHub tag and walks every intermediate tag when local is behind. Admin Plugins checks plugin updates only. Local ahead of the published tag has no Apply. `tuucho-versioning.lock.json` records last-applied Apply state (gitignored; missing on a fresh clone is fine until setup or Apply writes it). Zip install still writes `plugins/user/` (or `plugins/tuucho/` for `tuucho-*` ids). Tuucho Apply never writes `plugins/user/`. Kernel Apply writes `tuucho/kernel`, `tuucho/plugin-sdk`, `tuucho/factory-config`, `tuucho/docs`, the versioning catalog, and the shop root `package.json`; `all` adds `tuucho/plugins`. Paths outside that list are never written or removed, so root-level moves between tags need `git pull`.
+One public repo, one tag (`MAJOR.MINOR.PATCH`, no `v` prefix), `tuucho/tuucho-versioning.json` on every tag (historical tags still use `release.json` / `tuucho-release.json`; Check/Apply fall back). In this product repo the version Te publishes is root `package.json`. Shop owners clone a tag. Admin Core **Check for updates** / **Apply** compares the kernel (live root `package.json`) to the latest official GitHub tag and walks every intermediate tag when local is behind. Admin Plugins checks plugin updates only. Local ahead of the published tag has no Apply. `tuucho-versioning.lock.json` records last-applied Apply state (gitignored; missing on a fresh clone is fine until setup or Apply writes it). Zip install still writes `src/plugins/` (or `tuucho/plugins/` for `tuucho-*` ids). Tuucho Apply never writes `src/plugins/` or `tuucho-config/`. Kernel Apply writes `tuucho/kernel`, `tuucho/plugin-sdk`, `tuucho/factory-backup`, `tuucho/docs`, the versioning catalog, and the shop root `package.json`; `all` adds `tuucho/plugins`. Paths outside that list are never written or removed, so root-level moves between tags need `git pull`. In this product repo, after editing live `tuucho-config/` or `src/plugins/`, run `npm run factory-sync`.
 
 ## Stale claims (do not reuse)
 

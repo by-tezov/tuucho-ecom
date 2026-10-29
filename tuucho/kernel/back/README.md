@@ -28,21 +28,20 @@ Everything below runs entirely on your machine — no LWS/FTP involved.
 
 ### Config files
 
-Kernel config is JSON under `config/`. Common files sit in `config/` itself;
-each environment is `config/<name>/`. This tree ships **only** `dev/`. Add
-another env by copying `config/dev/` (public + `*.example` only) or
-`npm run config:env -- create <name>`. `APP_TARGET` is that folder name
-(local default `dev` via `npm run dev`). Missing folder → error naming it.
-Unknown names are allowed if the folder exists. Deliberately not `NODE_ENV`.
+Kernel config is JSON under shop `tuucho-config/kernel/`. Common files sit
+there; each environment is declared in that file’s `environments` map
+(this tree ships folder style under `kernel/dev/`). Add another env with
+`npm run config:env -- create <name>` (creates `kernel/<name>/` and appends
+the map entry). `APP_TARGET` is an env key (local default `dev` via
+`npm run dev`). Missing env → error naming it. Deliberately not `NODE_ENV`.
 
-Merge top to bottom (bottom wins): `config/config.json` →
-`config/<env>/config.json` → common private (or example) → env private (or
-example) → leftover `APP_TARGET` / `PORT` / `DATABASE_URL`. Private files
-are gitignored; each has a committed functional `*.example`. Do not copy
-one env’s private file onto another. Stripe and Mondial keys live in the
-plugin secret store. Shop name lives in Admin / `store.identity`.
-`npm run config:doctor` prints the same missing list as boot, plus every
-folder under `config/`.
+Merge top to bottom (bottom wins): common public → env public → common
+private (or example) → env private (or example) → leftover `APP_TARGET` /
+`PORT` / `DATABASE_URL`. Private files are gitignored; each has a committed
+functional `*.example`. Do not copy one env’s private file onto another.
+Stripe and Mondial keys live in the plugin secret store. Shop name lives in
+Admin / `store.identity`. `npm run config:doctor` prints the same missing
+list as boot, plus every known kernel environment.
 
 `CHECKOUT_PRIVACY_SESSION_IDLE_TTL` is safe public configuration and defaults
 to `30m`. It is the server-authoritative sliding inactivity limit for

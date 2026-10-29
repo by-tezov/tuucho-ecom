@@ -1,7 +1,8 @@
 import type { Pool } from 'pg';
 import { pool } from '../../../db/pool.js';
 import { config } from '../../../config/env.js';
-import { isLanguage } from '../../../utils/language.js';
+import { getRegisteredLanguage, isLanguage } from '../../../utils/language.js';
+import { rememberBrandAssets } from './brandAssetsPeek.js';
 import { CORE_VERSION, listPlugins, type InstalledPlugin } from './pluginStore.js';
 import { pluginSurfaceEnabled } from './pluginSurface.js';
 import {
@@ -29,17 +30,18 @@ function publicPluginSettings(plugin: InstalledPlugin): Record<string, unknown> 
  * after `applyFilters`; `core-catalog` menus always survive. Extracted from
  * `buildStorefrontBootstrap` so the ordering is unit-testable without a
  * database. */
-export async function finalizeStorefrontBootstrap<P extends { menus: StoreMenuItem[] }>(
-  payload: P,
-  enabled: ReadonlySet<string>,
-): Promise<P> {
+export async function finalizeStorefrontBootstrap<
+  P extends { menus: StoreMenuItem[]; brandAssets?: Record<string, string> },
+>(payload: P, enabled: ReadonlySet<string>): Promise<P> {
   const filtered = await applyFilters('storefront.bootstrap', payload);
-  return {
+  const next = {
     ...filtered,
     menus: filtered.menus
       .filter((item) => item.pluginId === 'core-catalog' || enabled.has(item.pluginId))
       .sort((a, b) => a.order - b.order),
   };
+  rememberBrandAssets(next.brandAssets);
+  return next;
 }
 
 export async function buildStorefrontBootstrap(db: Pool = pool) {
@@ -67,6 +69,15 @@ export async function buildStorefrontBootstrap(db: Pool = pool) {
     i18n: {
       default: config.i18n.defaultLanguage,
       enabled: config.i18n.enabledLanguages.filter(isLanguage),
+      languages: config.i18n.enabledLanguages
+        .map((code) => getRegisteredLanguage(code))
+        .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+        .map((entry) => ({
+          code: entry.code,
+          nativeName: entry.nativeName,
+          ogLocale: entry.ogLocale,
+          ...(entry.dateLocale ? { dateLocale: entry.dateLocale } : {}),
+        })),
     },
     /** Static brand artwork overrides (key -> absolute image URL), empty until
      * a plugin sets entries through the `storefront.bootstrap` filter. Keys are

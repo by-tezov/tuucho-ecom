@@ -1,8 +1,8 @@
 /**
  * The assembled configuration.
  *
- * Sources are layered in `envSources.ts` from shop JSON (`tuucho-config/`
- * common then `tuucho-config/<env>/`, private overlays), validated by
+ * Sources are layered in `envSources.ts` from shop JSON (`tuucho-config/kernel/`
+ * common then the env paths from that tree’s `environments` map, private overlays), validated by
  * `envParsers.ts`, and described by `appConfig.ts`. This file only puts the
  * `config` stays a single import for the modules that read it. Shop identity,
  * Stripe, Mondial Relay, gift, loyalty, contact, spy, and sign-in provider
@@ -85,6 +85,23 @@ function privateLogFilePath(value: string | undefined, variableName: string): st
   }
   return resolved;
 }
+
+/** Subdir under PUBLIC_DIR or PRIVATE_DIR. Leading `/` is cosmetic (same as
+ * private log paths): `/media` means `<publicDir>/media`, never the OS root. */
+function rootedSubdir(
+  rootDir: string,
+  value: string | undefined,
+  variableName: string,
+  rootLabel: string,
+): string {
+  const relative = required(value, variableName).replace(/^[/\\]+/, '');
+  const resolved = resolve(rootDir, relative);
+  const root = resolve(rootDir);
+  if (resolved !== root && !resolved.startsWith(`${root}/`)) {
+    throw new Error(`${variableName} must stay within ${rootLabel}.`);
+  }
+  return resolved;
+}
 // Email preview dump root. Resolved in dev, and on preprod so a runtime
 // folder-routing override can write files. Prod never resolves these.
 const devDir = emailFolderDirsNeeded ? fromOutputOr(process.env.DEV_DIR, 'dev') : undefined;
@@ -104,14 +121,26 @@ export const config: AppConfig = {
   outputDir,
   port: optionalPositiveInteger(process.env.APP_PORT, 3000),
   databaseUrl: required(process.env.DATABASE_URL, 'DATABASE_URL'),
-  mediaDir: join(publicDir, required(process.env.PUBLIC_MEDIA_DIR, 'PUBLIC_MEDIA_DIR')),
-  invoiceDir: join(privateDir, required(process.env.PRIVATE_INVOICE_DIR, 'PRIVATE_INVOICE_DIR')),
-  shipmentLabelDir: join(
+  mediaDir: rootedSubdir(publicDir, process.env.PUBLIC_MEDIA_DIR, 'PUBLIC_MEDIA_DIR', 'PUBLIC_DIR'),
+  invoiceDir: rootedSubdir(
     privateDir,
-    required(process.env.PRIVATE_SHIPMENT_LABEL_DIR, 'PRIVATE_SHIPMENT_LABEL_DIR'),
+    process.env.PRIVATE_INVOICE_DIR,
+    'PRIVATE_INVOICE_DIR',
+    'PRIVATE_DIR',
   ),
-  testDir: join(privateDir, required(process.env.PRIVATE_TEST_DIR, 'PRIVATE_TEST_DIR')),
-  backupDir: join(privateDir, required(process.env.PRIVATE_BACKUP_DIR, 'PRIVATE_BACKUP_DIR')),
+  shipmentLabelDir: rootedSubdir(
+    privateDir,
+    process.env.PRIVATE_SHIPMENT_LABEL_DIR,
+    'PRIVATE_SHIPMENT_LABEL_DIR',
+    'PRIVATE_DIR',
+  ),
+  testDir: rootedSubdir(privateDir, process.env.PRIVATE_TEST_DIR, 'PRIVATE_TEST_DIR', 'PRIVATE_DIR'),
+  backupDir: rootedSubdir(
+    privateDir,
+    process.env.PRIVATE_BACKUP_DIR,
+    'PRIVATE_BACKUP_DIR',
+    'PRIVATE_DIR',
+  ),
   apiLog: {
     enabled: process.env.ENABLED_API_LOG === 'true',
     filePath: privateLogFilePath(process.env.PRIVATE_LOG_API_FILE, 'PRIVATE_LOG_API_FILE'),

@@ -45,7 +45,9 @@ import type { SitemapPageStrings } from './types/sitemapPage';
 import type { TermsStrings } from './types/terms';
 import type { ValuesStrings } from './types/values';
 
-export type Lang = 'en' | 'fr';
+/** Open language code. Build list comes from `VITE_ENABLED_LANGUAGES`;
+ * runtime metadata from bootstrap `i18n.languages`. */
+export type Lang = string;
 
 export interface Strings {
   skip: string;

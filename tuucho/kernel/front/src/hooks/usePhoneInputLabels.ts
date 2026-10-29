@@ -5,8 +5,9 @@ import { useLang } from '../assets/i18n';
 import type { Lang } from '../assets/i18n/types';
 
 /** react-phone-number-input's own country names, one small chunk per locale
- * (English is already inside the library, it is its default). */
-const LOADERS: Record<Lang, () => Promise<{ default: Labels }>> = {
+ * (English is already inside the library, it is its default). Extra language
+ * codes fall back to English until a matching locale chunk is registered. */
+const LOADERS: Partial<Record<string, () => Promise<{ default: Labels }>>> = {
   fr: () => import('react-phone-number-input/locale/fr'),
   en: () => Promise.resolve({ default: en }),
 };
@@ -28,8 +29,10 @@ export function usePhoneInputLabels(): Labels {
       setLabels(ready);
       return;
     }
+    const load = LOADERS[lang] ?? LOADERS.en;
+    if (!load) return;
     let cancelled = false;
-    void LOADERS[lang]()
+    void load()
       .then((module) => {
         loaded.set(lang, module.default);
         if (!cancelled) setLabels(module.default);

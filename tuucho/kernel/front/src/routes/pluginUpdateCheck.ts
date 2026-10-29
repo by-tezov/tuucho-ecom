@@ -8,33 +8,40 @@ export type UpdateCheckKind = 'nothing' | 'ahead' | 'error' | 'plan';
 export function focusUpdateCheck(check: AdminUpdateCheck, focus: UpdateFocus): AdminUpdateCheck {
   const githubFailed = Boolean(check.officialRefuse) && check.tagPath.length === 0 && !check.officialAhead;
   if (githubFailed) {
-    return focus === 'kernel' ? { ...check, plugins: [], userPlugins: [] } : { ...check, kernel: undefined };
+    if (focus === 'kernel') return { ...check, plugins: [], userPlugins: [] };
+    const { kernel: _kernel, ...rest } = check;
+    return rest;
   }
   if (focus === 'kernel') {
     const kernel = check.kernel;
-    return {
+    const next: AdminUpdateCheck = {
       ...check,
       plugins: [],
       userPlugins: [],
-      kernel,
       tagPath: kernel ? check.tagPath : [],
       canApplyOfficial: Boolean(kernel) && check.canApplyOfficial,
-      officialRefuse: kernel ? check.officialRefuse : undefined,
       officialUpToDate: !kernel && !check.officialAhead,
       restartRequired: Boolean(kernel),
     };
+    if (kernel) next.kernel = kernel;
+    else delete next.kernel;
+    if (kernel && check.officialRefuse) next.officialRefuse = check.officialRefuse;
+    else delete next.officialRefuse;
+    return next;
   }
   const bundled = check.plugins.length > 0;
-  return {
-    ...check,
-    kernel: undefined,
+  const { kernel: _kernel, ...withoutKernel } = check;
+  const next: AdminUpdateCheck = {
+    ...withoutKernel,
     tagPath: bundled ? check.tagPath : [],
     canApplyOfficial: bundled && check.canApplyOfficial,
-    officialRefuse: bundled ? check.officialRefuse : undefined,
     officialAhead: false,
     officialUpToDate: !bundled,
     restartRequired: false,
   };
+  if (bundled && check.officialRefuse) next.officialRefuse = check.officialRefuse;
+  else delete next.officialRefuse;
+  return next;
 }
 
 export function classifyUpdateCheck(check: AdminUpdateCheck): {

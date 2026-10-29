@@ -396,24 +396,51 @@ every path referenced by [`docs/features.json`](../features.json) exists
 
 ## `npm run config:migrate`
 
-`--dry-run` optional. Copies `tuucho/factory-config/` → `tuucho-config/` on first
-install (public + examples; private from example). If `tuucho-config/` exists,
-applies pending kernel and plugin JSON steps (add / rename / drop) and fills
-missing public keys from factory. Never writes plugin DB. Apply never writes
-`tuucho-config/`. Same at clone root: `npm run config:migrate`.
+`--dry-run` optional. Copies `tuucho/factory-backup/config/` → `tuucho-config/`
+on first install (public + examples; private from example). Copies
+`tuucho/factory-backup/plugins/` → `src/plugins/` when that folder is missing.
+If `tuucho-config/` exists, applies pending kernel and plugin JSON steps
+(add / rename / drop) and fills missing public keys from factory. Never writes
+plugin DB. Apply never writes `tuucho-config/` or `src/plugins/`. Same at clone
+root: `npm run config:migrate`.
 
 ## `npm run config:doctor`
 
-No arguments. Reports `tuucho-config/` merge / required private keys / env
-files (`config.<env>.json`), plus the resolved output directory
-(`paths.outputDir`, default `<clone root>/output`). Warns when migrate stamp
-is behind factory. Does not copy files.
+No arguments. Reports `tuucho-config/kernel/` merge / required private keys /
+env files (from that tree’s `environments` map, or folder/name discovery),
+plus the resolved output directory (`paths.outputDir`, default
+`<clone root>/output`). Warns when migrate stamp is behind factory or when
+the common file has no `environments` map. Example files are never listed in
+the map: each is the `.example` sibling of the private path
+(`dev/config.private.json` → `dev/config.private.example.json`). Does not
+copy files.
 
 ## `npm run config:env`
 
-`create <name>`. Copies factory `config.<name>.json` (fallback `config.dev.json`)
-and a non-empty `config.private.<name>.example.json` into `tuucho-config/` when
-`config.<name>.json` does not exist. Empty `{}` examples are skipped.
+`create <name>`. Creates `tuucho-config/kernel/<name>/` from the factory
+`dev` env (public + non-empty private example) and appends
+`environments.<name>` in `tuucho-config/kernel/config.json` with folder-style
+paths. Fails when that public file already exists. Empty `{}` examples are
+skipped.
+
+## `npm run factory-sync` / `npm run factory-sync:check`
+
+Root scripts (`node scripts/factory-sync.mjs`). Same idea as `versioning`:
+
+- `npm run factory-sync` copies live `tuucho-config/` →
+  `tuucho/factory-backup/config/` and live `src/plugins/` →
+  `tuucho/factory-backup/plugins/`. Skips live secrets
+  (`config.private.json` / `config.private.<env>.json`), maps `plugins.json` →
+  `plugins.example.json`. Never touches `factory-backup/migrations/`
+  (`config:migrate` steps for publishers; see
+  `tuucho/factory-backup/migrations/kernel/.example.json`).
+- `npm run factory-sync:check` (also
+  `npm --prefix tuucho/kernel/back run check:factory-sync`) fails when factory
+  backup drifts. Part of `npm run check`.
+
+Run `factory-sync` in the same turn you change `tuucho-config/` or
+`src/plugins/` in this product repo. First install still copies factory → live;
+this command is the reverse (live → factory) for publishers.
 
 ## `npm run check:release`
 
@@ -890,11 +917,11 @@ theme drift. Part of `npm run check`.
 No arguments. The default read-only pre-review gate: runs `typecheck`,
 `check:architecture`, `check:docs`, `check:routes`, `check:api-reference`,
 `check:module-docs`, `check:policy`, `check:contract`, `check:context`,
-`check:sharecard`, `check:release`, `lint`, then `test:unit`. It stops at
-the first failure. It does not create a database or run the API/browser
-suites. `test:unit` briefly binds an ephemeral loopback port to exercise the
-composed app in process, and touches neither PostgreSQL nor any external
-service.
+`check:sharecard`, `check:release`, `check:factory-sync`, `lint`, then
+`test:unit`. It stops at the first failure. It does not create a database or
+run the API/browser suites. `test:unit` briefly binds an ephemeral loopback
+port to exercise the composed app in process, and touches neither PostgreSQL
+nor any external service.
 
 ## `npm run check:all`
 

@@ -71,10 +71,11 @@ A route whose preference is off answers `403`.
 ## 4. Leftover process env
 
 Deploy SetEnv on the cPanel Node app is leftover process overlay only:
-`APP_TARGET` (config folder name) and optional `PORT`. Optional host
-`DATABASE_URL` may overlay kernel private JSON. Product keys live in kernel
-`config/` and plugin settings/secrets. Production deploys always install the
-crontab entries (see `docs/command/01-dev-build-deploy.md`).
+`APP_TARGET` (kernel env key from `tuucho-config/kernel/config.json`
+`environments`) and optional `PORT`. Optional host `DATABASE_URL` may overlay
+kernel private JSON. Product keys live under `tuucho-config/kernel/` and
+plugin settings/secrets. Production deploys always install the crontab
+entries (see `docs/command/01-dev-build-deploy.md`).
 
 `npm run test` is the unit suite (`src-test/unit-test/`). There is no
 `ALLOW_TEST_API` gate.

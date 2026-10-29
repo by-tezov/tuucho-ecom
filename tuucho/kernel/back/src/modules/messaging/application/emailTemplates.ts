@@ -2,7 +2,7 @@ import Handlebars from 'handlebars';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Language } from '../../../utils/language.js';
+import { pickLanguage, type Language } from '../../../utils/language.js';
 import { peekStoreIdentity } from '../../plugins/application/storeSettings.js';
 import { emailStrings } from './emailStrings.js';
 
@@ -28,7 +28,7 @@ const PARTIAL_NAMES = ['header', 'footer', 'orderItemsTable', 'orderTotals', 'sh
 export const SPY_FOOTER = 'Copie automatique envoyée au propriétaire du site (Shop).';
 
 /** The footer's "handmade with care" line, in the email's own language. */
-const BRAND_TAGLINE: Record<Language, string> = {
+const BRAND_TAGLINE: Partial<Record<string, string>> = {
   fr: 'Fait main avec soin',
   en: 'Handmade with care',
 };
@@ -67,7 +67,7 @@ export function renderEmailTemplate(name: string, language: Language, context: o
     compiledTemplates.set(name, template);
   }
   const body = template({
-    brandTagline: BRAND_TAGLINE[language],
+    brandTagline: pickLanguage(BRAND_TAGLINE, language),
     shopName: peekStoreIdentity().name,
     ...context,
   });

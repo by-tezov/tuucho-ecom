@@ -73,8 +73,18 @@ export interface StorefrontBootstrap {
   theme: { tokens: Record<string, string>; logoText?: string; suffixText?: string };
   /** Runtime language contract: `default` is the shop's configured fallback
    * language, `enabled` narrows the build-time `VITE_ENABLED_LANGUAGES` set
-   * (intersection). Consumed by `applyStorefrontBootstrap` (env.ts). */
-  i18n: { default: string; enabled: string[] };
+   * (intersection), `languages` carries native name / OG / date metadata for
+   * enabled codes. Consumed by `applyStorefrontBootstrap` (env.ts). */
+  i18n: {
+    default: string;
+    enabled: string[];
+    languages?: Array<{
+      code: string;
+      nativeName: string;
+      ogLocale: string;
+      dateLocale?: string;
+    }>;
+  };
   /** Brand artwork overrides (key -> image URL) from the
    * `storefront.bootstrap` filter; keys are BRAND_ASSET_KEYS. Empty in the
    * kernel payload: kernel demo images stay the default. */

@@ -1,4 +1,11 @@
 {
+  "environments": {
+    "dev": {
+      "public": "dev/config.json",
+      "private": "dev/config.private.json",
+      "role": "dev/config.role.json"
+    }
+  },
   "paths": {
     "outputDir": "./output",
     "publicMediaDir": "/media",
@@ -29,7 +36,10 @@
   },
   "i18n": {
     "default": "en",
-    "enabled": ["en", "fr"]
+    "enabled": [
+      "en",
+      "fr"
+    ]
   },
   "session": {
     "jwtAccessTtl": "15m",

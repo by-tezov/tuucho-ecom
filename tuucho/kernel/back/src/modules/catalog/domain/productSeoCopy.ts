@@ -1,4 +1,4 @@
-import type { Language } from '../../../utils/language.js';
+import { pickLocalized, type Language } from '../../../utils/language.js';
 import { resolveProductCopy, type CopyContext, type CopyTerm } from './productCopy.js';
 
 /**
@@ -58,7 +58,7 @@ interface ProductSeoCopy {
   closing: string;
 }
 
-const PRODUCT_SEO_COPY: Record<Language, ProductSeoCopy> = {
+const PRODUCT_SEO_COPY: Partial<Record<string, ProductSeoCopy>> = {
   fr: {
     nouns: ['piece artisanale', 'objet d atelier'],
     titleTerm: 'piece artisanale',
@@ -78,7 +78,7 @@ const PRODUCT_SEO_COPY: Record<Language, ProductSeoCopy> = {
 function nounFor(productUid: string, language: Language): string {
   let sum = 0;
   for (const char of productUid) sum += char.codePointAt(0) ?? 0;
-  return PRODUCT_SEO_COPY[language].nouns[sum % 2]!;
+  return pickLocalized(PRODUCT_SEO_COPY, language).nouns[sum % 2]!;
 }
 
 /** Cuts on a word boundary. A snippet is cut by the search engine anyway;
@@ -93,7 +93,10 @@ function clamp(text: string, limit: number): string {
 /** A product noun and a shape word in this language's order: "pieces artisanales
  * handmade coffin", but "coffin handmade pieces". */
 function withShape(noun: string, shapeWord: string, language: Language): string {
-  return (PRODUCT_SEO_COPY[language].shapeFirst ? `${shapeWord} ${noun}` : `${noun} ${shapeWord}`).trim();
+  return (pickLocalized(PRODUCT_SEO_COPY, language).shapeFirst
+    ? `${shapeWord} ${noun}`
+    : `${noun} ${shapeWord}`
+  ).trim();
 }
 
 /** Authored copy whose sentence opens on the shape title: the only copy the
@@ -142,7 +145,7 @@ export function productSeoDescription(
     : context;
   const resolved = authored ? resolveProductCopy(authored, copyContext) : fallback;
   const head = resolved.charAt(0).toLocaleUpperCase() + resolved.slice(1);
-  const closing = closingOverride ?? PRODUCT_SEO_COPY[language].closing;
+  const closing = closingOverride ?? pickLocalized(PRODUCT_SEO_COPY, language).closing;
   const withClosing = `${head} ${closing}`;
   if (withClosing.length <= DESCRIPTION_LIMIT) return withClosing;
   return clamp(head, DESCRIPTION_LIMIT);
@@ -163,7 +166,7 @@ export function productSeoTitle(
   title: string,
   { shapeWord, language }: { shapeWord: string | undefined; language: Language },
 ): string {
-  const term = PRODUCT_SEO_COPY[language].titleTerm;
+  const term = pickLocalized(PRODUCT_SEO_COPY, language).titleTerm;
   const candidates = [
     shapeWord ? `${title}, ${withShape(term, shapeWord, language)} · ${TITLE_BRAND}` : '',
     `${title}, ${term} · ${TITLE_BRAND}`,
@@ -176,7 +179,7 @@ export function productSeoTitle(
  * people search with. The `<h1>` stays the set's own name, because that is
  * what the visitor sees. `shapeWord` as for productSeoTitle. */
 export function productSeoHeading(shapeWord: string | undefined, language: Language): string {
-  const term = PRODUCT_SEO_COPY[language].titleTerm;
+  const term = pickLocalized(PRODUCT_SEO_COPY, language).titleTerm;
   const heading = shapeWord ? withShape(term, shapeWord, language) : term;
   return heading.charAt(0).toLocaleUpperCase() + heading.slice(1);
 }

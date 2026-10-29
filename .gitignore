@@ -20,6 +20,9 @@ tuucho-config/plugins/**/config.private.json
 **/config.private.*.json
 !**/config.private.example.json
 !**/config.private.*.example.json
+# Shop-owned plugins (first-install copy from tuucho/factory-backup/plugins/).
+# Apply / git updates never replace this tree; same idea as tuucho-config/.
+/src/plugins/
 tuucho/kernel/back/.compose.env
 tuucho/kernel/front/dist/
 tuucho/kernel/back/dist/

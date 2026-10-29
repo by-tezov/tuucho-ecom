@@ -18,8 +18,8 @@ admin sidebar, above Accueil, with no group label. It is a small website
 | Say this            | Meaning                                                                                                                                                                                                        |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Kernel**          | Always-on host: plugin host, cart, checkout orchestration, orders, stock, users, payment-method shell, courier shell, product SEO fields                                                                       |
-| **Bundled plugin**  | First-party package under `plugins/tuucho/<group>/<feature>/<id>/` (can be disabled). Id starts with `tuucho-`.                                                                                                |
-| **User plugin**     | Same contract under `plugins/user/<group>/…/<id>/` (drop-in, no kernel edit). Id must not start with `tuucho-`. When a user plugin has locale complements, parent and `*-locale-*` live in one feature folder. |
+| **Bundled plugin**  | First-party package under `tuucho/plugins/<group>/<feature>/<id>/` (can be disabled). Id starts with `tuucho-`.                                                                                                 |
+| **User plugin**     | Same contract under `src/plugins/<group>/…/<id>/` (drop-in, no kernel edit; gitignored shop tree). Id must not start with `tuucho-`. When a user plugin has locale complements, parent and `*-locale-*` live in one feature folder. |
 | **Opening**         | Named filter or action the kernel applies (`addFilter` / `addAction`)                                                                                                                                          |
 | **Shell**           | Kernel list that **gateways** or **shipping methods** register into                                                                                                                                            |
 | **Payment gateway** | e.g. `tuucho-payment-stripe`, registers methods into the payment-method shell                                                                                                                                  |
@@ -45,14 +45,16 @@ Inspect the assembled shop document at **Settings → SEO** or `GET /storefront/
 ## Where plugins live
 
 ```
-plugins/tuucho/<group>/<feature>/<id>/package.json  # bundled; tuucho.id starts with tuucho-
-plugins/tuucho/<group>/<feature>/<id>/back/register.ts
-plugins/tuucho/<group>/<feature>/<id>-locale-en/    # English complement next to parent
-plugins/tuucho/<group>/<feature>/<id>-locale-fr/    # French complement next to parent
-plugins/tuucho/kernel-locale/tuucho-kernel-locale-en/  # standalone English pack (no parent)
-plugins/tuucho/kernel-locale/tuucho-kernel-locale-fr/  # standalone French pack (no parent)
-plugins/user/<group>/<feature>/<id>/                # user / upload; id must not use tuucho-
-plugin-sdk/                                         # @tuucho/plugin-sdk (not a plugin)
+tuucho/plugins/<group>/<feature>/<id>/package.json     # bundled; tuucho.id starts with tuucho-
+tuucho/plugins/<group>/<feature>/<id>/back/register.ts
+tuucho/plugins/<group>/<feature>/<id>-locale-en/       # English complement next to parent
+tuucho/plugins/<group>/<feature>/<id>-locale-fr/       # French complement next to parent
+tuucho/plugins/kernel-locale/tuucho-kernel-locale-en/  # standalone English pack (no parent)
+tuucho/plugins/kernel-locale/tuucho-kernel-locale-fr/  # standalone French pack (no parent)
+src/plugins/<group>/<feature>/<id>/                    # user / upload / shop examples; id must not use tuucho-
+tuucho/factory-backup/plugins/                         # shipped shop examples (first-install → src/plugins/)
+tuucho/factory-backup/config/                          # shipped JSON → tuucho-config/ on first install
+tuucho/plugin-sdk/                                     # @tuucho/plugin-sdk (not a plugin)
 ```
 
 The leaf `package.json` is the only plugin file. npm `version` /
@@ -68,18 +70,19 @@ The plugin host `import()`s `back/register.ts` for every effectively enabled
 plugin. Disk manifests are the catalogue. There is no second shipped list.
 Scan walks nested folders. The **leaf** folder name is the plugin id. It must
 match `"id"` in the manifest and use only `a-z`, `0-9` and `-`. Grouping
-folders (`tuucho/commerce/gift`, `user/demo/guides`) are not
+folders (`commerce/gift`, `demo/guides`) are not
 plugins. A plugin and its `*-locale-*` complements share one feature folder
 (short slug: `gift`, `faq`, `guides`). The kernel locale pack
 `tuucho-kernel-locale-en` and `tuucho-kernel-locale-fr` stay in `kernel-locale/` — do not invent a fake parent for them.
+
+Shop examples under `src/plugins/` (not bundled; first-install copy from
+`tuucho/factory-backup/plugins/`): `page-home`, `page-about`,
+`home-faq`, `home-featured`, `onboarding` (+ their locale packs).
 
 | Folder                             | Kind     | What it does                                                              |
 | ---------------------------------- | -------- | ------------------------------------------------------------------------- |
 | `tuucho-theme-default`             | Theme    | CSS tokens. Required. Configure: colour customizer.                       |
 | `tuucho-contact`                   | Generic  | `/contact`. Info menu while enabled. Not a page-plugin nav.key.           |
-
-Shop examples under `src/plugins/` (not bundled): `page-home`, `page-about`,
-`home-faq`, `home-featured`, `onboarding` (+ their locale packs).
 | `tuucho-kernel-locale-en`                 | Locale   | Kernel English (admin + storefront chrome + email + invoice).             |
 | `tuucho-kernel-locale-fr`                 | Locale   | Kernel French (admin + storefront chrome + email + invoice).              |
 | `tuucho-payment-stripe`            | Payment  | Stripe methods. Checkout switches live in App Preferences, not Configure. |
@@ -116,21 +119,23 @@ or cart-rules. A page plugin can still ship with only a manifest and settings.
 
 ## How to add a plugin
 
-1. Copy `plugins/user/demo/guides/page-guides/` to
-   `plugins/user/<group>/your-id/`.
+1. Copy `src/plugins/demo/guides/page-guides/` to
+   `src/plugins/<group>/your-id/` (in this product repo, also mirror under
+   `tuucho/factory-backup/plugins/` then `npm run factory-sync`).
 2. Edit leaf `package.json`: npm `version` and `description` (locale packs may omit description),
    optional HTTPS GitHub `repository` (user plugins only). Under `"tuucho"`, set `"id"` to `your-id`
    (same as the leaf folder, not `tuucho-*`), `"kind"`, `name`, `engines.core` `>=0.0.1 <1.0.0`,
-   `installPath`, plus `route` / `nav` for a page or `courierCodes` for shipping. Omit `nav` for
+   `installPath` under `src/plugins/…`, plus `route` / `nav` for a page or `courierCodes` for shipping. Omit `nav` for
    footer-only documents (`page-legal`, `page-accessibility`). Depend on `@tuucho/plugin-sdk`.
 3. Add `back/register.ts` that calls `addFilter` / `addAction` /
    `registerPluginService` / `registerPaymentGateway` / `registerShippingMethod`.
 4. Open the shop admin: **Plugins** in the sidebar.
 5. Click **Check for updates**. That scans for the new folder. Enable it, then **Configure**.
 
-Toggling a plugin reloads the host. No kernel source edit is required for a
-profile opening or a `checkout.quote` filter. The shipped page-plugin demo is
-`plugins/user/demo/guides/page-guides`.
+Toggling a plugin reloads the host (Admin uses a transient toast for
+enable/disable, not a click-to-dismiss dialog). No kernel source edit is
+required for a profile opening or a `checkout.quote` filter. The shipped
+page-plugin demo is `src/plugins/demo/guides/page-guides`.
 
 There is no Menus tab. If a page plugin is on, its header / burger / footer
 entry shows. If it is off, the entry disappears.
@@ -140,22 +145,26 @@ on `slot.admin.dashboard` (`ui.AdminStatCard`, loyalty) and **attention** tiles 
 `slot.admin.dashboard.attention` (`ui.AdminAttentionCard`, product-requests).
 Disabled plugins drop out. New home regions are extra `CORE_FRONT_SLOTS` ids.
 
-## Languages (en + fr)
+## Languages
 
 Kernel and feature plugins own **keys** only (`t.nav.home`, email catalog
 keys). Sentence values live in locale packs. The locale shell (switcher,
-`t()`, catalog load) stays in the kernel. Product languages are English and
-French; extra codes (es/it/nl/pt/th) are not supported.
+`t()`, catalog load) stays in the kernel. Builtins are English and French;
+a shop adds more codes with `api.registerLanguage({ code, nativeName, ogLocale, dateLocale? })` from a locale plugin `register()`.
 
-The `i18n` section of `tuucho-config/config.json` (`default`, `enabled`) is
-served on the bootstrap payload as `i18n: { default, enabled }`
-(`enabled` is intersected with the languages the kernel supports). On the
-front, `applyStorefrontBootstrap` narrows the build-time
-`VITE_ENABLED_LANGUAGES` set to that intersection (a shop turns a language
-off without a rebuild) and a valid `default` becomes the runtime default
-language (`runtimeDefaultLang()` in `kernel/front/src/config/runtimeI18n.ts`,
-used by the dictionary cache, locale routes, and the preference fallback).
-Before bootstrap lands, the build-time default `'en'` holds.
+The `i18n` section of `tuucho-config/kernel/config.json` (`default`, `enabled`) is
+served on the bootstrap payload as
+`i18n: { default, enabled, languages }` (`enabled` is intersected with the
+registered language registry; `languages` carries native name / OG / date
+metadata for those codes). Vite copies `i18n.enabled` into
+`VITE_ENABLED_LANGUAGES` at build so the front list can include codes that
+are not hard-coded in the kernel. On the front, `applyStorefrontBootstrap`
+narrows that build list to the bootstrap intersection (a shop turns a
+language off without a rebuild) and a valid `default` becomes the runtime
+default language (`runtimeDefaultLang()` in
+`kernel/front/src/config/runtimeI18n.ts`). Before bootstrap lands, the
+build-time default `'en'` holds. Config load accepts `^[a-z]{2,3}$` codes;
+boot fails if an enabled code was never registered.
 
 - Enable `tuucho-kernel-locale-en` / `tuucho-kernel-locale-fr` to offer that language in the
   switcher and supply kernel chrome, admin, email, and invoice values.
@@ -164,7 +173,11 @@ Before bootstrap lands, the build-time default `'en'` holds.
   with `dependsOn` on the parent (`kind: locale`). Disable a complement and
   that plugin's keys stay untranslated for that language even when the
   matching kernel locale pack is on.
-- Register email values with `api.registerEmailCatalog('en'|'fr', catalog)`
+- Extra codes (for example `th`): ship `tuucho-kernel-locale-th` (or a shop
+  pack) that calls `registerLanguage` and contributes `front/catalog.ts`
+  plus `registerEmailCatalog('th', …)`. Name packs `*-locale-<code>` with a
+  2–3 letter code.
+- Register email values with `api.registerEmailCatalog('en'|'fr'|code, catalog)`
   or `api.registerEmailCatalog('key:lang', catalog)`.
   `emailStrings(language)` and `localizedCatalog(language, key)` read those
   packs only.
@@ -190,7 +203,7 @@ Leaf `package.json` only. npm fields plus a `tuucho` block:
     "provides": ["StorefrontPage"],
     "dependsOn": [{ "id": "optional-parent", "version": ">=1.0.0" }],
     "engines": { "core": ">=0.0.1 <1.0.0" },
-    "installPath": "plugins/user/demo/guides/page-guides",
+    "installPath": "src/plugins/demo/guides/page-guides",
     "route": "/sizes",
     "nav": { "key": "guide", "order": 30, "bottomBar": false },
     "courierCodes": ["colissimo-home"],
@@ -213,7 +226,7 @@ Leaf `package.json` only. npm fields plus a `tuucho` block:
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `id`              | Must equal the leaf folder name. Bundled: `tuucho-*`. User: anything else matching `[a-z0-9-]+`.                                                                                                                                                                              |
 | `description`     | Short operator-facing summary of what the plugin does. Required. Scan skips and archive import rejects a non-locale plugin with a missing or empty description. Locale plugins (`*-locale-[a-z]{2}` complements and standalone packs such as `tuucho-kernel-locale-fr`) may omit it. |
-| `installPath`     | Repo-relative posix path of the package folder (leaf equals `id`). Tuucho ids: `plugins/tuucho/…`. User ids: `plugins/user/…`. Required on archive import.                                                                                                                    |
+| `installPath`     | Repo-relative posix path of the package folder (leaf equals `id`). Tuucho ids: `tuucho/plugins/…`. User ids: `src/plugins/…`. Required on archive import.                                                                                                                      |
 | `repository`      | Optional HTTPS GitHub repo root (`https://github.com/owner/repo`) on **user** plugins only. Check for updates uses that origin for this id. Ignored on `tuucho-*`. Missing means zip-only.                                                                                    |
 | `kind`            | `theme`, `page`, `payment`, `shipping`, `commerce`, `docs`, `generic`, `seo`, or `locale`. One active theme.                                                                                                                                                                  |
 | `required`        | Admin cannot disable it (`tuucho-theme-default`). Storefront example pages (`page-home`, `page-about`) live under `src/plugins/` and are not bundled.                                                                                                                          |
@@ -262,7 +275,7 @@ plugin owns:
    files, then set `plugins.schema_version` to the package `version`. Applied
    filenames are stored in `plugins_schema_migrations`.
 
-Worked example: `plugins/tuucho/messaging/mail-spy/tuucho-mail-spy/back/migrations/001_spy_mail.js`
+Worked example: `tuucho/plugins/messaging/mail-spy/tuucho-mail-spy/back/migrations/001_spy_mail.js`
 creates `plugin_tuucho_mail_spy_channels` (and recipients) and drops them on uninstall.
 Spy copies are not read from those tables. Who receives which channel is the
 `rules` list in that plugin's `config.json` (Plugins, Configure). An empty
@@ -395,12 +408,20 @@ Each preinstalled plugin ships `docs/handbook.json` (and docs-developer also shi
 
 ## Versioning
 
-Admin, Plugins “Core” and Check current are the live **root** `package.json` version. Latest is the newest official GitHub tag (`MAJOR.MINOR.PATCH`, no `v`). Local greater than latest: this checkout is ahead of the published tag, no Apply. Equal: nothing to update. Local less than latest: walk every tag. `tuucho-versioning.lock.json` is last-applied Apply state (gitignored hashes / jump cursor; setup / Apply write it locally), not the displayed current. Each plugin shows npm `version` and `tuucho.engines.core` from its leaf `package.json`. Kernel Apply writes `tuucho/kernel`, `tuucho/plugin-sdk`, `tuucho/factory-config`, `tuucho/docs`, the versioning catalog, and root `package.json`; `all` adds `tuucho/plugins`. Never `plugins/user/`. Apply replaces each scoped tree wholesale but never writes or removes a path outside that list, so root-level moves between 0.0.5 and 0.0.6 (root `docs/` removed, `scripts/` trimmed, root `AGENTS.md` / `CLAUDE.md` / `.agents/` / `.prettierrc` added, docs relocated to `tuucho/docs`) require `git pull`; from 0.0.6 on, `tuucho/docs` is in scope again.
+Admin, Plugins “Core” and Check current are the live **root** `package.json` version. Latest is the newest official GitHub tag (`MAJOR.MINOR.PATCH`, no `v`). Local greater than latest: this checkout is ahead of the published tag, no Apply. Equal: nothing to update. Local less than latest: walk every tag. `tuucho-versioning.lock.json` is last-applied Apply state (gitignored hashes / jump cursor; setup / Apply write it locally), not the displayed current. Each plugin shows npm `version` and `tuucho.engines.core` from its leaf `package.json`. Kernel Apply writes `tuucho/kernel`, `tuucho/plugin-sdk`, `tuucho/factory-backup`, `tuucho/docs`, the versioning catalog, and root `package.json`; `all` adds `tuucho/plugins`. Never `src/plugins/` or `tuucho-config/`. Apply replaces each scoped tree wholesale but never writes or removes a path outside that list, so root-level moves between 0.0.5 and 0.0.6 (root `docs/` removed, `scripts/` trimmed, root `AGENTS.md` / `CLAUDE.md` / `.agents/` / `.prettierrc` added, docs relocated to `tuucho/docs`) require `git pull`; from 0.0.6 on, `tuucho/docs` is in scope again.
 
 - Scan disables plugins whose `engines.core` or `dependsOn` range fails, and lists them in `incompatible`.
 - `PATCH /admin/plugins/:id` `{ "enabled": true }` returns `409 plugin_incompatible` when the kernel is outside `engines.core`, a `dependsOn` plugin is missing, or its version is out of range.
 
 Bump the product by changing root `package.json` `version`. Official-repo CI (`npm run check:release`) keeps `tuucho/tuucho-versioning.json` and `tuucho/plugins/manifest.json` `kernel` in lockstep with that root version, and rejects a `version` field on `kernel/back/package.json`, `kernel/front/package.json`, or `plugin-sdk/package.json`. Plugin `engines.core` for this 0.x line is `>=0.0.1 <1.0.0`. A 1.0 kernel needs plugins to raise that range. Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
+
+### What 0.0.7 changes for plugin authors
+
+- `api.registerLanguage({ code, nativeName, ogLocale, dateLocale? })` opens the storefront language registry beyond en/fr. Bootstrap `i18n` gains `languages` metadata; Vite sets `VITE_ENABLED_LANGUAGES` from config `i18n.enabled`.
+- `brandAssets` gains optional `favicon`, `ogImage`, and `lockProbe` absolute URLs (kernel public/ paths remain the defaults). Ops lock-probe still hits `{front}/lock-probe.jpg`.
+- Cart commands expose `wrapNotifiedAdd` and `notifyCartAdded` for plugins that write extras / custom lines and need the header "adding…" → green notice path.
+- `paths.publicMediaDir` (and private subdir keys) strip a cosmetic leading `/` so `/media` resolves under `PUBLIC_DIR`. Local-dev `/media` is mounted before public plugin catch-all middleware.
+- `config.private.json` is not listed as an environment by `config:doctor` (same exclusion as `config.role.json`).
 
 ### What 0.0.6 changes for plugin authors
 
@@ -437,9 +458,9 @@ migration filenames live in `plugins_schema_migrations`.
 - `GET /admin/plugins` lists installed plugins (`schemaVersion`, `missingFromDisk`)
 - `GET /admin/plugins/:id` is one plugin
 - `POST /admin/plugins/scan` discovers new folders and runs pending `up` when enabled
-- `POST /admin/plugins/upload` accepts a `.zip` or `.tgz` (`archive` file). Unpacks a `tuucho-*` id under `plugins/tuucho/…` and every other id under `plugins/user/…` after zip-slip / absolute-path / kernel-overwrite checks, then scan+enable. Rejects `engines.core` mismatch (`409 plugin_incompatible`).
+- `POST /admin/plugins/upload` accepts a `.zip` or `.tgz` (`archive` file). Unpacks a `tuucho-*` id under `tuucho/plugins/…` and every other id under `src/plugins/…` after zip-slip / absolute-path / kernel-overwrite checks, then scan+enable. Rejects `engines.core` mismatch (`409 plugin_incompatible`).
 - `POST /admin/plugins/updates/check` reads the latest **tag** on the official origin (and each user plugin `repository`). Never `master`. A private repository uses the fine-grained token saved for that URL on Admin, Core. No saved token means the fetch stays public.
-- `POST /admin/plugins/updates/apply` walks every tag between the shop and latest (2 then 3 then 4 then 5), snapshots first, restores on failure. Scope: `all`, `kernel`, `plugins`, or `plugin` (that folder only). Kernel writes `tuucho/kernel`, `tuucho/plugin-sdk`, `tuucho/factory-config`, `tuucho/docs`, the versioning catalog, and root `package.json`; `all` adds `tuucho/plugins`. Tuucho Apply never writes `plugins/user/`. Paths outside the scope list are never written or removed, so root-level moves need `git pull` (0.0.5 to 0.0.6).
+- `POST /admin/plugins/updates/apply` walks every tag between the shop and latest (2 then 3 then 4 then 5), snapshots first, restores on failure. Scope: `all`, `kernel`, `plugins`, or `plugin` (that folder only). Kernel writes `tuucho/kernel`, `tuucho/plugin-sdk`, `tuucho/factory-backup`, `tuucho/docs`, the versioning catalog, and root `package.json`; `all` adds `tuucho/plugins`. Tuucho Apply never writes `src/plugins/` or `tuucho-config/`. Paths outside the scope list are never written or removed, so root-level moves need `git pull` (0.0.5 to 0.0.6).
 - `GET /admin/plugins/updates/status` is the Apply log.
 - `PATCH /admin/plugins/:id` accepts `enabled` or `settings`
 - `POST /admin/plugins/:id/uninstall` body `{ "confirm": true }` runs `down` then deletes the row
@@ -619,7 +640,7 @@ HTTP (also in `tuucho/docs/api/01-admin.md`):
 
 - `GET /admin/plugins` list
 - `GET /admin/plugins/:id` one plugin
-- `POST /admin/plugins/scan` discover nested plugin `package.json` (`tuucho` block) under `plugins/tuucho/` and `plugins/user/` (runs `up` for enabled plugins)
+- `POST /admin/plugins/scan` discover nested plugin `package.json` (`tuucho` block) under `tuucho/plugins/` and `src/plugins/` (runs `up` for enabled plugins)
 - `PATCH /admin/plugins/:id` body: `{ "enabled": true }` or `{ "settings": { ... } }`
 - `GET /admin/courier-catalog` and `PUT /admin/courier-catalog/…` JSON groups (permission `courier_edit`)
 - `POST /admin/plugins/:id/uninstall` body `{ "confirm": true }`
@@ -688,8 +709,9 @@ install still paints the kernel demo images from
 Front code reads overrides with `useBrandAsset(key)` /
 `useBrandAssets()` / `resolveBrandAsset(assets, key, default)` from
 `@kernel/front/plugins/BrandAssetsContext`. The key list is `BRAND_ASSET_KEYS`
-in the same module: `hero`, `aboutPortrait`, `aboutDesk`,
-`aboutColor1..3`, `guideMeasureStep1..3`, `guideSizeChart`, `poseKit`,
-`posePrep1..3`, `posePrep4Glue`, `posePrep4Patch`, `posePrep5`,
-`poseVideoPoster`, `onboardingHandmade`, `onboardingCustom`,
-`onboardingLoyalty`, `onboardingDeals`.
+in the same module: `favicon`, `ogImage`, `lockProbe`, `hero`,
+`aboutPortrait`, `aboutDesk`, `aboutColor1..3`, `guideMeasureStep1..3`,
+`guideSizeChart`, `poseKit`, `posePrep1..3`, `posePrep4Glue`,
+`posePrep4Patch`, `posePrep5`, `poseVideoPoster`, `onboardingHandmade`,
+`onboardingCustom`, `onboardingLoyalty`, `onboardingDeals`. Defaults for the
+first three are `/favicon.svg`, `/og-image.jpg`, and `/lock-probe.jpg`.

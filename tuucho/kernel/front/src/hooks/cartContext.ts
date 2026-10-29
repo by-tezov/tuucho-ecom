@@ -219,7 +219,14 @@ export type CartCommandsContextValue = Pick<
   | 'rebuyOrder'
   | 'setCardComment'
   | 'setExtraSets'
->;
+> & {
+  /** Run a custom add (e.g. after `setExtraSets`) with the same header
+   * "adding…" → green/red notice path as a normal `addToCart`. */
+  wrapNotifiedAdd: (display: JustAddedItem | undefined, run: () => Promise<void>) => Promise<void>;
+  /** Show the green "just added" header notice after a plugin already finished
+   * writing cart lines or extras. */
+  notifyCartAdded: (display: JustAddedItem) => void;
+};
 export type CartOverlayContextValue = Pick<
   CartContextValue,
   | 'justAdded'

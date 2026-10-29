@@ -1,5 +1,6 @@
 import { fetchFilterOptions } from './gallery';
 import { getReceiverGalleryFilters } from './gift';
+import { pickLang } from '../assets/i18n/pickLang';
 import { filterAllLabel } from '../data/filters';
 import type { FilterCategory } from '../data/types';
 import type { Lang } from '../assets/i18n';
@@ -20,7 +21,7 @@ export interface FilterOptionsData {
 }
 
 function withAll(category: FilterCategory, options: FilterOption[], lang: Lang): FilterOption[] {
-  return [{ value: 'all', label: filterAllLabel[category][lang] }, ...options];
+  return [{ value: 'all', label: pickLang(filterAllLabel[category], lang) }, ...options];
 }
 
 function buildFilterOptionsData(

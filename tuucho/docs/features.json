@@ -213,7 +213,7 @@
       "src/api/loyalty.ts"
     ],
     "frontComponents": [
-      "../../src/plugins/onboarding/onboarding/front"
+      "../factory-backup/plugins/onboarding/onboarding/front"
     ],
     "i18n": [
       "loyalty"

@@ -1,8 +1,9 @@
 import { config } from '../../../config/env.js';
 import { peekStoreIdentity } from '../../plugins/application/storeSettings.js';
 import { isPublicSeoTarget, PRIVATE_SEO_ROBOTS, PUBLIC_SEO_ROBOTS } from '../../../config/publicSeo.js';
-import { LANGUAGES, type Language } from '../../../utils/language.js';
+import { configuredEnabledLanguages, pickLocalized, type Language } from '../../../utils/language.js';
 import type { GalleryItem } from '../../../types.js';
+import { peekBrandAsset } from '../../plugins/application/brandAssetsPeek.js';
 import { GALLERY_SEO_COPY, type GallerySeoCopy } from '../domain/gallerySeoCopy.js';
 import { productSeoDescription, productSeoHeading, productSeoTitle } from '../domain/productSeoCopy.js';
 import { defaultCopyContext } from './productVariants.js';
@@ -29,7 +30,9 @@ import type { GallerySeoRow } from './gallerySeoQuery.js';
 function SITE_NAME(): string {
   return peekStoreIdentity().name;
 }
-const DEFAULT_OG_IMAGE = `${config.frontendBaseUrl}/og-image.jpg`;
+function defaultOgImage(): string {
+  return peekBrandAsset('ogImage', `${config.frontendBaseUrl}/og-image.jpg`);
+}
 
 /** Kernel SEO family: ready-made sets (`/gallery`, pages under `/creations/`).
  * Extra catalogue families are contributed by plugins. */
@@ -44,7 +47,7 @@ export interface ExtraSeoFamily {
 
 const SET_FAMILY: ExtraSeoFamily = {
   galleryPath: '/gallery',
-  copy: (language) => GALLERY_SEO_COPY[language],
+  copy: (language) => pickLocalized(GALLERY_SEO_COPY, language),
   closing: () => undefined,
   pagePath: (item) => setPagePath(item.productUid),
   rowPath: (row) => setPagePath(row.productUid),
@@ -201,7 +204,7 @@ function commonHead(
     ...(publicIndexing
       ? [
           `<link rel="canonical" href="${escapeHtml(canonical)}" />`,
-          ...LANGUAGES.map(
+          ...configuredEnabledLanguages().map(
             (alternate) =>
               `<link rel="alternate" hreflang="${alternate}" href="${escapeHtml(frontendUrl(path, alternate))}" />`,
           ),
@@ -304,7 +307,7 @@ function productPageDocument(
       price: option.price ?? item.price,
     }));
   const relatedRows = [...siblings, ...related];
-  const image = firstPhotoUrl(item) ?? DEFAULT_OG_IMAGE;
+  const image = firstPhotoUrl(item) ?? defaultOgImage();
   // Same shape and length the rest of the page shows, so the sentence names
   // the variant the visitor is actually looking at.
   const context = defaultCopyContext(item);
@@ -395,7 +398,7 @@ function indexDocument(rows: GallerySeoRow[], language: Language, family: ExtraS
   const galleryPath = family.galleryPath;
   const head = [
     ...commonHead(
-      { path: galleryPath, title: copy.title, description: copy.description, image: DEFAULT_OG_IMAGE },
+      { path: galleryPath, title: copy.title, description: copy.description, image: defaultOgImage() },
       language,
       'website',
     ),

@@ -16,7 +16,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const lockPath = join(root, 'installed.lock');
 const back = join(root, 'tuucho/kernel/back');
 const configRoot = join(root, 'tuucho-config');
-const factoryRoot = join(root, 'tuucho/factory-config');
+const factoryRoot = join(root, 'tuucho/factory-backup');
 
 function parseArgs(argv) {
   const out = {

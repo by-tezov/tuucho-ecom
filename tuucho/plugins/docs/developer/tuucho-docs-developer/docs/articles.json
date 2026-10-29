@@ -133,7 +133,7 @@
             },
             {
               "type": "p",
-              "text": "Merge matches boot: config.json, then config.<env>.json, then config.private.json or its example, then config.private.<env>.json or its example. Files are siblings, not an environment folder. Public JSON is committed. Private JSON is gitignored. An example with no keys is skipped. Shipped templates live in tuucho/factory-config/ (Apply may replace them). First install copies factory to tuucho-config/. Existing shops run npm run config:migrate (add/rename/drop). Apply / Tuucho updates never write tuucho-config/."
+              "text": "Merge matches boot: config.json, then config.<env>.json, then config.private.json or its example, then config.private.<env>.json or its example. Files are siblings, not an environment folder. Public JSON is committed. Private JSON is gitignored. An example with no keys is skipped. Shipped templates live in tuucho/factory-backup/config/ (Apply may replace them). First install copies factory to tuucho-config/. Existing shops run npm run config:migrate (add/rename/drop). Apply / Tuucho updates never write tuucho-config/. Shop example plugins ship in tuucho/factory-backup/plugins/ and copy to src/plugins/ on first install only (Apply never writes src/plugins/)."
             },
             {
               "type": "code",
@@ -927,7 +927,7 @@
               "type": "callout",
               "tone": "important",
               "title": "Kernel surface",
-              "text": "Contact is tuucho-contact (plugins/tuucho/messaging/contact/tuucho-contact). Enable shows /contact and Admin → Contact. Disable unloads HTTP and UI. Tables unconnected_contacts and chat_* stay kernel-named. home-faq fills slot.home.faq. Product-requests owns POST /contact/product-request."
+              "text": "Contact is tuucho-contact (tuucho/plugins/messaging/contact/tuucho-contact). Enable shows /contact and Admin → Contact. Disable unloads HTTP and UI. Tables unconnected_contacts and chat_* stay kernel-named. home-faq fills slot.home.faq. Product-requests owns POST /contact/product-request."
             },
             {
               "type": "cards",
@@ -1355,11 +1355,11 @@
               "items": [
                 {
                   "term": "Bundled",
-                  "description": "plugins/tuucho/<group>/<feature>/<id>/. Leaf folder name is the plugin id. Bundled ids start with tuucho-."
+                  "description": "tuucho/plugins/<group>/<feature>/<id>/. Leaf folder name is the plugin id. Bundled ids start with tuucho-."
                 },
                 {
                   "term": "User",
-                  "description": "plugins/user/<group>/<feature>/<id>/. User ids must not start with tuucho-."
+                  "description": "src/plugins/<group>/<feature>/<id>/. User ids must not start with tuucho-."
                 },
                 {
                   "term": "Minimum",
@@ -1477,7 +1477,7 @@
               "type": "callout",
               "tone": "info",
               "title": "Official Tuucho is one repo",
-              "text": "Kernel and every tuucho-* plugin update only from https://github.com/by-tezov/tuucho-ecom tags (MAJOR.MINOR.PATCH, never a v prefix). There is no per-plugin GitHub for Tuucho. plugins/user/ is never overwritten by a Tuucho Apply. Plugins Core and Check current are the live root package.json version. Latest is the newest official tag. Local ahead of that tag has no Apply. tuucho-versioning.lock.json is gitignored last-applied Apply state, not displayed current."
+              "text": "Kernel and every tuucho-* plugin update only from https://github.com/by-tezov/tuucho-ecom tags (MAJOR.MINOR.PATCH, never a v prefix). There is no per-plugin GitHub for Tuucho. src/plugins/ is never overwritten by a Tuucho Apply. Plugins Core and Check current are the live root package.json version. Latest is the newest official tag. Local ahead of that tag has no Apply. tuucho-versioning.lock.json is gitignored last-applied Apply state, not displayed current."
             },
             {
               "type": "p",
@@ -1513,7 +1513,7 @@
                 ],
                 [
                   "installPath",
-                  "Under plugins/user/..., leaf equals id."
+                  "Under src/plugins/..., leaf equals id."
                 ],
                 [
                   "Id",
@@ -1635,7 +1635,7 @@
               ],
               "rows": [
                 [
-                  "plugins/user/",
+                  "src/plugins/",
                   "Never",
                   "Only that plugin folder"
                 ],
@@ -1659,8 +1659,8 @@
             {
               "type": "callout",
               "tone": "warning",
-              "title": "Local edits under plugins/tuucho",
-              "text": "Check hashes the bundled tree. If it disagrees with the recorded tag, Apply is refused until you copy those edits out (or into a plugins/user plugin). There is no force in v1."
+              "title": "Local edits under tuucho/plugins",
+              "text": "Check hashes the bundled tree. If it disagrees with the recorded tag, Apply is refused until you copy those edits out (or into a src/plugins plugin). There is no force in v1."
             }
           ]
         },

@@ -7,11 +7,15 @@ export type Mode = string;
 
 /** Seed fixture reader (`sample/seed-defaults.env`). Not leftover process env. */
 
+function hasKernelOrFlatConfig(dir: string): boolean {
+  return existsSync(join(dir, 'config.json')) || existsSync(join(dir, 'kernel', 'config.json'));
+}
+
 function resolveConfigRoot(root: string): string {
-  if (existsSync(join(root, 'config.json'))) return root;
-  if (existsSync(join(root, 'tuucho-config', 'config.json'))) return join(root, 'tuucho-config');
+  if (hasKernelOrFlatConfig(root)) return root;
+  if (hasKernelOrFlatConfig(join(root, 'tuucho-config'))) return join(root, 'tuucho-config');
   const nested = join(root, '../../..', 'tuucho-config');
-  if (existsSync(join(nested, 'config.json'))) return nested;
+  if (hasKernelOrFlatConfig(nested)) return nested;
   return root;
 }
 

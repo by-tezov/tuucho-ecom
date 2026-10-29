@@ -8,15 +8,12 @@
 export type FilterCategory = 'occasion' | 'shape' | 'length' | 'size';
 
 /** Used only by static front-end dictionaries (for example filter controls).
- * API payloads deliberately use a single localized string instead. */
+ * API payloads deliberately use a single localized string instead. French is
+ * the catalog anchor; English and any `registerLanguage` codes are overlays. */
 export interface Trilingual {
   fr: string;
   en: string;
-  th: string;
-  es: string;
-  it: string;
-  nl: string;
-  pt: string;
+  [code: string]: string;
 }
 
 export interface GalleryPhoto {

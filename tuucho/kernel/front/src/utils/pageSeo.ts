@@ -2,7 +2,8 @@ import { shopConfig } from '../config/env';
 import type { Strings } from '../assets/i18n';
 import type { Lang } from '../assets/i18n/types';
 import { seoKeywords } from './seoKeywords';
-import { localizedPath, OG_LOCALES } from '../config/i18nRoutes';
+import { languageMeta } from '../assets/i18n/languages';
+import { localizedPath } from '../config/i18nRoutes';
 import { youtubeEmbedUrl, youtubeThumbnailUrl, youtubeVideoId } from './youtube';
 import { POSE_VIDEOS, type PoseVideoVariant } from '../config/poseVideos';
 import { poseVideoContent } from './poseVideo';
@@ -88,7 +89,7 @@ function demoVideo(
     // The property that answers "is this a watch page?". The caller is always
     // that page, so it is unconditional.
     mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
-    inLanguage: OG_LOCALES[lang].replace('_', '-'),
+    inLanguage: languageMeta(lang).ogLocale.replace('_', '-'),
     isFamilyFriendly: true,
     publisher: { '@id': `${shopConfig.siteUrl}/#shop` },
   };

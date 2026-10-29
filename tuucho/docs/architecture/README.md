@@ -148,3 +148,22 @@ module-to-module dependencies, endpoint handlers under `src/api`,
 non-router imports between legacy route files, impure domain imports,
 operations routes mounted on the public API, and growth beyond the current
 size ratchets.
+
+## Shop pack layout (paths outside `kernel/back/src`)
+
+Paths below are relative to the clone root (not to `tuucho/kernel/back`):
+
+| Path | Role |
+| ---- | ---- |
+| `tuucho/kernel/` | API + shop front |
+| `tuucho/plugins/` | Bundled plugins (`tuucho-*` ids) |
+| `tuucho/plugin-sdk/` | `@tuucho/plugin-sdk` |
+| `tuucho/factory-backup/config/` | Shipped JSON templates → `tuucho-config/` on first install |
+| `tuucho/factory-backup/plugins/` | Shipped shop examples → `src/plugins/` on first install |
+| `tuucho/factory-backup/migrations/` | Optional publisher `config:migrate` steps |
+| `tuucho-config/` | Live shop JSON (survives Apply; never written by Tuucho Apply) |
+| `src/plugins/` | Live user / demo / zip plugins (gitignored; survives Apply) |
+
+In this product repo, after changing live `tuucho-config/` or `src/plugins/`,
+run `npm run factory-sync` so factory backup matches
+(`factory-sync:check` / `check:factory-sync`).

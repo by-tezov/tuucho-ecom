@@ -1,7 +1,7 @@
 import { config } from '../../../../config/env.js';
 import type { MailMessage } from '../../../messaging/application/email.js';
 import { renderEmailTemplate } from '../../../messaging/application/emailTemplates.js';
-import type { Language } from '../../../../utils/language.js';
+import { pickLocalized, type Language } from '../../../../utils/language.js';
 
 interface ReturnEmailStrings {
   subject: (orderNumber: string) => string;
@@ -13,7 +13,7 @@ interface ReturnEmailStrings {
   footer: string;
 }
 
-const STRINGS: Record<Language, ReturnEmailStrings> = {
+const STRINGS: Partial<Record<string, ReturnEmailStrings>> = {
   fr: {
     subject: (number) => `Décision concernant votre commande ${number} : Shop`,
     title: 'Votre commande retournée a été traitée',
@@ -41,7 +41,7 @@ export function orderReturnResolvedEmail(
   language: Language,
   manageOrderUrl?: string,
 ): Omit<MailMessage, 'to'> {
-  const strings = STRINGS[language];
+  const strings = pickLocalized(STRINGS, language);
   const money = (value: number) => `${(value / 100).toFixed(2)} €`;
   const outcome = [
     `${strings.refundLabel} : ${money(refundAmountCents)}`,

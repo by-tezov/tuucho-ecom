@@ -1,5 +1,6 @@
 import type { CapsuleFormKey } from '../data/capsuleForms';
 import type { Lang } from '../assets/i18n/types';
+import { applyLanguageMeta, setLanguageOrder, type LanguageMeta } from '../assets/i18n/languages';
 import { configureGalleryImageGate } from '../utils/galleryImageGate';
 import { narrowEnabledLanguages, resolveRuntimeDefaultLang, setRuntimeDefaultLang } from './runtimeI18n';
 
@@ -7,7 +8,7 @@ export type ShopPlatformKey = 'vinted';
 export type SocialPlatformKey = 'tiktok' | 'instagram' | 'youtube' | 'facebook';
 export type PlatformKey = ShopPlatformKey | SocialPlatformKey;
 
-const ALL_LANGS: Lang[] = ['en', 'fr'];
+const LANGUAGE_CODE_RE = /^[a-z]{2,3}$/;
 
 export interface ShopConfig {
   brandName: string;
@@ -258,29 +259,30 @@ function requiredNonNegativeDurationMs(value: string | undefined, name: string):
 }
 
 /** A required comma-separated list of language codes (e.g. "en,fr") —
- * throws at load time if unset, contains an unknown code, or omits "en"
- * (the kernel language every other language falls back to). Order is
- * preserved and duplicates are dropped. */
+ * throws at load time if unset, contains a malformed code, or omits "en"
+ * (the kernel fallback every other language falls back to). Order is
+ * preserved and duplicates are dropped. Codes beyond en/fr are allowed;
+ * locale plugins must register them and supply catalogs. */
 function requiredLanguageList(value: string | undefined, name: string): Lang[] {
   if (value === undefined || value.trim() === '') {
     throw new Error(`Missing required language list ${name}.`);
   }
   const codes = value
     .split(',')
-    .map((code) => code.trim())
+    .map((code) => code.trim().toLowerCase())
     .filter(Boolean);
 
   const result: Lang[] = [];
   for (const code of codes) {
-    if (!ALL_LANGS.includes(code as Lang)) {
+    if (!LANGUAGE_CODE_RE.test(code)) {
       throw new Error(
-        `${name} lists unknown language "${code}" — must be a comma-separated list from: ${ALL_LANGS.join(', ')}.`,
+        `${name} lists invalid language "${code}" — use 2–3 letter lowercase codes (e.g. en,fr,th).`,
       );
     }
-    if (!result.includes(code as Lang)) result.push(code as Lang);
+    if (!result.includes(code)) result.push(code);
   }
   if (result.length === 0) {
-    throw new Error(`${name} must list at least one language code — from: ${ALL_LANGS.join(', ')}.`);
+    throw new Error(`${name} must list at least one language code.`);
   }
   if (!result.includes('en')) {
     throw new Error(
@@ -420,6 +422,7 @@ export const shopConfig: ShopConfig = {
 };
 
 configureGalleryImageGate(shopConfig.galleryImageMaxConcurrent, shopConfig.galleryImageTimeoutMs);
+setLanguageOrder(shopConfig.enabledLanguages);
 
 function enabledPluginSettings(
   bootstrap: { plugins: Array<{ id: string; enabled?: boolean; settings?: Record<string, unknown> }> },
@@ -437,7 +440,11 @@ function overlayString(value: unknown): string | undefined {
 export function applyStorefrontBootstrap(bootstrap: {
   store: { name: string; suffix?: string; contactEmail: string };
   plugins: Array<{ id: string; enabled?: boolean; settings?: Record<string, unknown> }>;
-  i18n?: { default: string; enabled: string[] };
+  i18n?: {
+    default: string;
+    enabled: string[];
+    languages?: LanguageMeta[];
+  };
 }): void {
   shopConfig.shopName = bootstrap.store.name || shopConfig.shopName;
   shopConfig.brandName = bootstrap.store.name || shopConfig.brandName;
@@ -450,7 +457,11 @@ export function applyStorefrontBootstrap(bootstrap: {
   if (bootstrap.i18n) {
     const narrowed = narrowEnabledLanguages(shopConfig.enabledLanguages, bootstrap.i18n.enabled);
     shopConfig.enabledLanguages.splice(0, shopConfig.enabledLanguages.length, ...narrowed);
+    setLanguageOrder(narrowed);
     setRuntimeDefaultLang(resolveRuntimeDefaultLang(bootstrap.i18n.default, narrowed));
+    if (Array.isArray(bootstrap.i18n.languages)) {
+      applyLanguageMeta(bootstrap.i18n.languages);
+    }
   }
   const google = enabledPluginSettings(bootstrap, 'tuucho-signin-google');
   shopConfig.googleClientId = overlayString(google?.clientId);

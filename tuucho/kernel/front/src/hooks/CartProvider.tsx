@@ -508,13 +508,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     },
     [authedRequest, cartReady, enqueueMutation, gift, items, refreshCart, status],
   );
-  const { pendingAdd, addToCart } = usePendingAdd({
+  const { pendingAdd, addToCart, wrapNotifiedAdd } = usePendingAdd({
     cartReady,
     addToCartNow,
     setJustAdded,
     setJustRebought,
     setCartError,
   });
+  const notifyCartAdded = useCallback((display: JustAddedItem) => {
+    setJustRebought(false);
+    setCartError(null);
+    setJustAdded(display);
+  }, []);
 
   const toggleCart = useCallback(
     (
@@ -849,6 +854,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       mergeIntoActive,
       moveToWishlist,
       setExtraSets,
+      wrapNotifiedAdd,
+      notifyCartAdded,
       ...commentCommands,
     }),
     [
@@ -866,6 +873,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       mergeIntoActive,
       moveToWishlist,
       setExtraSets,
+      wrapNotifiedAdd,
+      notifyCartAdded,
       commentCommands,
     ],
   );

@@ -33,6 +33,18 @@ test('APP_TARGET defaults to dev and accepts a new folder name', () => {
   assert.throws(() => resolveAppTarget('Staging'), /APP_TARGET must match/);
 });
 
+test('listEnvironments ignores config.private.json and config.role.json', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tuucho-config-'));
+  writeTree(dir, {
+    'config.json': {},
+    'config.dev.json': {},
+    'config.preprod.json': {},
+    'config.private.json': requiredPrivate,
+    'config.role.json': {},
+  });
+  assert.deepEqual(listEnvironments(dir), ['dev', 'preprod']);
+});
+
 test('missing env file errors naming it', () => {
   const dir = mkdtempSync(join(tmpdir(), 'tuucho-config-'));
   writeTree(dir, {

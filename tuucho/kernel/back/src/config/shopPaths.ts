@@ -24,7 +24,7 @@ function isPackRoot(dir: string): boolean {
 export function findPackRoot(startDir: string = dirname(fileURLToPath(import.meta.url))): string {
   let dir = resolve(startDir);
   for (let i = 0; i < 16; i += 1) {
-    if (isPackRoot(dir) && existsSync(join(dir, 'tuucho', 'factory-config'))) return dir;
+    if (isPackRoot(dir) && existsSync(join(dir, 'tuucho', 'factory-backup'))) return dir;
     if (isPackRoot(dir)) return dir;
     const parent = dirname(dir);
     if (parent === dir) break;
@@ -43,7 +43,7 @@ export function findShopRoot(startDir: string = dirname(fileURLToPath(import.met
     dir = parent;
   }
   throw new Error(
-    'Shop root not found. Clone root must contain tuucho/ (kernel, plugin-sdk, plugins) and tuucho-config/. Run npm run config:migrate to copy factory-config.',
+    'Shop root not found. Clone root must contain tuucho/ (kernel, plugin-sdk, plugins) and tuucho-config/. Run npm run config:migrate to copy factory-backup/config.',
   );
 }
 

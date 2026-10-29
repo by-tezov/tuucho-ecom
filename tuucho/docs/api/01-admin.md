@@ -143,8 +143,8 @@ accounts hold the role (for `user`: accounts holding no staff role).
 
 ### `GET /admin/roles/config-files`
 
-Administrator only. Compares `tuucho-config/config.role.json` merged with
-`tuucho-config/config.role.<APP_TARGET>.json` (an env entry replaces the role
+Administrator only. Compares `tuucho-config/kernel/config.role.json` merged with
+the env role path from the kernel `environments` map (or discovery) (an env entry replaces the role
 with the same code) to the staff roles in the database. Built-in `user` and
 `super-admin` are not in the file. Names are not in the file: the admin shows
 the language-file name, and English is the default.
@@ -754,8 +754,8 @@ shape: `shapeKey` is `400`). Missing product → `404`; bad body → `400`.
 ## Plugins and store
 
 Plugin runtime for the shop kernel. Drop-in manifests live under nested
-plugin `package.json` files (`tuucho` discriminator) in `plugins/` (bundled) and `plugins/user/` (user).
-The operator guide is
+plugin `package.json` files (`tuucho` discriminator) in `tuucho/plugins/`
+(bundled) and `src/plugins/` (user / shop examples). The operator guide is
 [docs/plugins.md](../plugins.md) and inside admin
 (Documentation plugin). Requires `requireAuth` plus the `preferences`
 permission.
@@ -766,7 +766,9 @@ Installed plugins with manifest (`name`, `description`, `version`, `engines.core
 `enabled`, `settings`, `schemaVersion` (package version after plugin
 `back/migrations/` ran), `missingFromDisk` (folder gone, row still present),
 `compatibility` (`ok` plus `errors[]`, including `missing_from_disk`).
-Packet prices are not on this payload: they are the courier catalog
+Admin UI localizes the missing-folder case (`missingFolder` /
+`missingFolderHint`) and does not echo the English API error text for that
+code. Packet prices are not on this payload: they are the courier catalog
 (`courier_edit`). Top-level `coreVersion` is the live root `package.json`
 product version (Plugins “Core”), not `tuucho-versioning.lock.json`. Requires
 `requireAuth` plus `preferences`.
@@ -788,9 +790,10 @@ Multipart field `archive` (`.zip` or `.tgz`, max 20 MB). Validates
 `package.json` with a `tuucho` object (including required `installPath` and, except locale plugins,
 a non-empty npm `description`) and `engines.core`, rejects
 zip-slip, absolute paths, and archive members that would write under
-`plugins/` or `kernel`. Unpacks a `tuucho-*` id under `plugins/…`
-and every other id under `plugins/user/…`, using `installPath`. Path guards
-reject escape, the wrong tree, overlapping ids/paths, and overwrite.
+`tuucho/plugins/` or `tuucho/kernel`. Unpacks a `tuucho-*` id under
+`tuucho/plugins/…` and every other id under `src/plugins/…`, using
+`installPath`. Path guards reject escape, the wrong tree, overlapping
+ids/paths, and overwrite.
 Scans (install / `up`), then enables. Existing disk id → `400 already_installed`.
 Unsafe preferred path → `400 unsafe_path`. Occupied dest → `400 path_conflict`.
 Incompatible → `409 plugin_incompatible`. Missing file → `400 invalid_request`.
@@ -806,7 +809,7 @@ Check `currentTag` is the live root `package.json`
 version, not `tuucho-versioning.lock.json`. Latest is that origin’s newest official tag.
 Local greater than latest: ahead of the published tag, no Apply. Equal:
 nothing to update. Local less than latest: walk every tag. Returns the tag
-path, kernel/plugin diffs, dirty `plugins/` paths, and third-party
+path, kernel/plugin diffs, dirty `tuucho/plugins/` paths, and third-party
 rows. GitHub unreachable → `502 update_check_failed`. Requires `preferences`.
 
 ### `POST /admin/plugins/updates/apply`
@@ -815,14 +818,16 @@ Body `{ "scope": "all"|"kernel"|"plugins"|"plugin", "pluginId"?: string }`.
 Admin Core checks and applies `kernel` only. Admin Plugins checks and applies
 `plugins` or one `plugin`. `all` stays available on this route.
 Starts a snapshot then walks every intermediate tag. Tuucho scopes never write
-`plugins/user/`. Kernel scope writes `tuucho/kernel`, `tuucho/plugin-sdk`,
-`tuucho/factory-config`, `tuucho/docs`, `tuucho/tuucho-versioning.json`, and
-the shop root `package.json`; `all` adds `tuucho/plugins`. Each scoped tree is
-replaced wholesale, so files removed inside it between tags disappear, but a
-path outside this list (root `scripts/`, `AGENTS.md`, `.agents/`, `.prettierrc`,
-a deleted root `docs/`) is never written or cleaned up: root-level moves
-between 0.0.5 and 0.0.6 require `git pull`. A user `plugin` scope replaces that folder only. Concurrent
-Apply → `409 update_busy`. Poll `GET /admin/plugins/updates/status` for the log.
+`src/plugins/` or `tuucho-config/`. Kernel scope writes `tuucho/kernel`,
+`tuucho/plugin-sdk`, `tuucho/factory-backup`, `tuucho/docs`,
+`tuucho/tuucho-versioning.json`, and the shop root `package.json`; `all` adds
+`tuucho/plugins`. Each scoped tree is replaced wholesale, so files removed
+inside it between tags disappear, but a path outside this list (root
+`scripts/`, `AGENTS.md`, `.agents/`, `.prettierrc`, a deleted root `docs/`) is
+never written or cleaned up: root-level moves between 0.0.5 and 0.0.6 require
+`git pull`. A user `plugin` scope replaces that folder only under
+`src/plugins/`. Concurrent Apply → `409 update_busy`. Poll
+`GET /admin/plugins/updates/status` for the log.
 
 ### `GET /admin/plugins/updates/status`
 
@@ -830,7 +835,8 @@ Current Apply job (`running` / `ok` / `error`) plus log lines, or `job: null`.
 
 ### `POST /admin/plugins/scan`
 
-Reads every nested plugin `package.json` (`tuucho` block) under `plugins/` and `plugins/user/`, inserts missing `plugins`
+Reads every nested plugin `package.json` (`tuucho` block) under
+`tuucho/plugins/` and `src/plugins/`, inserts missing `plugins`
 rows, disables plugins whose `engines.core` or `dependsOn` range fails, applies
 pending plugin `up` migrations for enabled compatible plugins, and
 returns `{ "success": true, "added": string[], "incompatible": string[],
@@ -982,7 +988,7 @@ Deletes one rule. Missing → `404`.
 ### `GET /admin/core-config`
 
 Permission `preferences`. Returns the public kernel file
-`tuucho-config/config.json` as text. Private config is never read.
+`tuucho-config/kernel/config.json` as text. Private config is never read.
 
 ```json
 { "success": true, "present": true, "text": "{\n  \"http\": {}\n}\n" }

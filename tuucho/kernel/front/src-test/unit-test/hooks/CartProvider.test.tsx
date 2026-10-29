@@ -126,6 +126,22 @@ describe('CartProvider for a guest', () => {
     expect(loadGuestState().cart[0]?.quantity).toBe(3);
   });
 
+  it('exposes notifyCartAdded and wrapNotifiedAdd for plugin extras', async () => {
+    await renderReadyCart();
+    await act(() => {
+      ctx.commands!.notifyCartAdded(display);
+    });
+    expect(ctx.overlay!.justAdded).toEqual(display);
+
+    let ran = false;
+    await act(async () => {
+      await ctx.commands!.wrapNotifiedAdd(display, async () => {
+        ran = true;
+      });
+    });
+    expect(ran).toBe(true);
+  });
+
   it('moves a line onto an existing variant by summing quantities', async () => {
     saveGuestState({ cart: [line({ size: 'S', quantity: 1 }), line({ size: 'M', quantity: 2 })] });
     await renderReadyCart();

@@ -843,7 +843,7 @@ export const adminCatalog = {
     intro:
       "Un rôle donne accès à des sections de l'administration. Super-administrateur a toujours accès à tout et Client à rien : ces deux rôles ne se modifient pas.",
     configHint:
-      'Les définitions sont dans tuucho-config/config.role.json. config.role.<environnement>.json remplace un rôle du même code. Mettre à jour charge ce fichier dans la base. Client et Super-administrateur sont intégrés et ne sont pas dans le fichier. Les noms sont dans les fichiers de langue. L anglais est la langue par défaut.',
+      'Les définitions sont dans tuucho-config/kernel/config.role.json. Un fichier de rôles d’environnement issu de la carte environments du noyau remplace un rôle du même code. Mettre à jour charge ce fichier dans la base. Client et Super-administrateur sont intégrés et ne sont pas dans le fichier. Les noms sont dans les fichiers de langue. L anglais est la langue par défaut.',
     create: 'Nouveau rôle',
     createTitle: 'Créer un rôle',
     nameLabel: 'Nom',
@@ -958,6 +958,8 @@ export const adminCatalog = {
     required: 'Obligatoire',
     cannotDisableHome: 'La page Accueil ne peut pas etre desactivee.',
     saved: 'Enregistre.',
+    enabledToast: 'Plugin active.',
+    disabledToast: 'Plugin desactive.',
     loadError: 'Impossible de charger le parametrage.',
     saveError: 'Enregistrement impossible.',
     themeIntro: 'Ces couleurs s’appliquent a toutes les pages. Le changement s’applique des que tu choisis.',
@@ -1189,7 +1191,7 @@ export const adminCatalog = {
     title: 'Noyau',
     navDescription: 'config.json public du noyau, et jetons d’accès pour les mises à jour GitHub privées.',
     intro:
-      'Ceci est uniquement tuucho-config/config.json. La config privée n’est pas affichée. Les jetons GitHub des mises à jour privées sont stockés à part et ne font pas partie de ce fichier. Enregistrer écrit le fichier. Redémarre l’API pour que le processus en cours utilise les nouvelles valeurs.',
+      'Ceci est uniquement tuucho-config/kernel/config.json. La config privée n’est pas affichée. Les jetons GitHub des mises à jour privées sont stockés à part et ne font pas partie de ce fichier. Enregistrer écrit le fichier. Redémarre l’API pour que le processus en cours utilise les nouvelles valeurs.',
     jsonLabel: 'config.json',
     save: 'Enregistrer',
     saved: 'Enregistré. Redémarre l’API pour l’appliquer.',

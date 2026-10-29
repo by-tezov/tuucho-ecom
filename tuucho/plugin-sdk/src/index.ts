@@ -106,6 +106,18 @@ export {
 
 export { getEmailCatalog, localizedCatalog, registerEmailCatalog, resetEmailCatalogs } from './locale.js';
 
+export {
+  getRegisteredLanguage,
+  getRegisteredLanguageCodes,
+  getRegisteredLanguages,
+  isLanguageCodeFormat,
+  isRegisteredLanguage,
+  LANGUAGE_CODE_RE,
+  registerLanguage,
+  resetLanguages,
+  type RegisteredLanguage,
+} from './languages.js';
+
 export { getPluginSecret, resetPluginSecretAccess, setPluginSecret, setPluginSecretAccess } from './secrets.js';
 export { getPluginSettings, resetPluginSettingsAccess, setPluginSettingsAccess } from './settings.js';
 
@@ -116,6 +128,7 @@ import { pluginCacheNamespace } from './cache.js';
 import { registerMailTemplate } from './mail.js';
 import { enqueuePluginMailJob, sendPluginMail, sendPluginTemplatedMail } from './mailSend.js';
 import { registerEmailCatalog } from './locale.js';
+import { registerLanguage, type RegisteredLanguage } from './languages.js';
 import { getPluginSecret, setPluginSecret } from './secrets.js';
 import { getPluginSettings } from './settings.js';
 import type { HttpMount, PluginManifest } from './contracts.js';
@@ -136,6 +149,8 @@ export interface PluginRegisterApi {
   cache: PluginCacheNamespace;
   registerMailTemplate: (id: string, render: MailTemplateFn) => void;
   registerEmailCatalog: (lang: string, catalog: unknown) => void;
+  /** Declare a storefront language code (native name, OG locale, date locale). */
+  registerLanguage: (def: RegisteredLanguage) => void;
   /** Kernel mail shell. Plugins never own SMTP. */
   sendMail: (message: PluginMailMessage) => Promise<void>;
   sendTemplatedMail: (input: PluginTemplatedMail) => Promise<void>;
@@ -158,6 +173,7 @@ export function createPluginRegisterApi(pluginId: string, manifest: PluginManife
     cache: pluginCacheNamespace(pluginId),
     registerMailTemplate,
     registerEmailCatalog,
+    registerLanguage,
     sendMail: sendPluginMail,
     sendTemplatedMail: sendPluginTemplatedMail,
     enqueueMailJob: enqueuePluginMailJob,

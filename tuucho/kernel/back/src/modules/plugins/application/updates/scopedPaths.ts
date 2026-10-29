@@ -17,7 +17,7 @@ export type ApplyRequest = {
 const KERNEL_PATHS = [
   'tuucho/kernel',
   'tuucho/plugin-sdk',
-  'tuucho/factory-config',
+  'tuucho/factory-backup',
   'tuucho/docs',
   TUCHO_VERSIONING_CATALOG,
   ...LEGACY_RELEASE_CATALOGS,
@@ -28,7 +28,7 @@ export const OFFICIAL_SNAPSHOT_PATHS = [
   'tuucho/kernel',
   'tuucho/plugin-sdk',
   'tuucho/plugins',
-  'tuucho/factory-config',
+  'tuucho/factory-backup',
   'tuucho/docs',
   TUCHO_VERSIONING_CATALOG,
   ...LEGACY_RELEASE_CATALOGS,

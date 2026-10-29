@@ -16,7 +16,12 @@ import {
 } from '../application/seoDocument.js';
 import { productSeoDescription, productSeoTitle } from '../domain/productSeoCopy.js';
 import { defaultCopyContext } from '../application/productVariants.js';
-import { isLanguage, LANGUAGES, requestLanguage, type Language } from '../../../utils/language.js';
+import {
+  configuredEnabledLanguages,
+  isLanguage,
+  requestLanguage,
+  type Language,
+} from '../../../utils/language.js';
 import type { GalleryItem } from '../../../types.js';
 import {
   isGalleryItemPubliclyAccessible,
@@ -25,13 +30,17 @@ import {
 
 import { isProductUid } from '../domain/productUid.js';
 import { applyFilters } from '../../plugins/application/hooks.js';
+import { peekBrandAsset } from '../../plugins/application/brandAssetsPeek.js';
 
 export const galleryPreviewRouter = Router();
 
 function SITE_NAME(): string {
   return peekStoreIdentity().name;
 }
-const DEFAULT_OG_IMAGE = `${config.frontendBaseUrl}/og-image.jpg`;
+
+function defaultOgImage(): string {
+  return peekBrandAsset('ogImage', `${config.frontendBaseUrl}/og-image.jpg`);
+}
 
 /** The language segment of a shared front-end URL is passed through the
  * bot-only rewrite as `?lang=`. It must win over the crawler's own device
@@ -52,7 +61,7 @@ function genericPreviewHtml(galleryUrl: string, language: Language): string {
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${SITE_NAME()}">
 <meta property="og:title" content="${SITE_NAME()}">
-<meta property="og:image" content="${escapeHtml(DEFAULT_OG_IMAGE)}">
+<meta property="og:image" content="${escapeHtml(defaultOgImage())}">
 <meta property="og:url" content="${url}">
 <meta http-equiv="refresh" content="0;url=${url}">
 </head>
@@ -105,7 +114,7 @@ function productPreviewHtml(
     closing,
   });
   const description = escapeHtml(descriptionText);
-  const image = escapeHtml(firstPhotoUrl(item) ?? DEFAULT_OG_IMAGE);
+  const image = escapeHtml(firstPhotoUrl(item) ?? defaultOgImage());
   const canonical = escapeHtml(canonicalUrl);
   const redirect = escapeHtml(redirectUrl);
   // </script>-safe: a title/desc containing a literal "</" could otherwise
@@ -239,14 +248,15 @@ galleryPreviewRouter.get('/sitemap-products.xml', async (req, res) => {
       const productPath = row.path;
       const localizedUrl = (language: Language) =>
         `${config.frontendBaseUrl}${localizedFrontendPath(productPath, language)}`;
+      const langs = configuredEnabledLanguages();
       const alternates = [
-        ...LANGUAGES.map(
+        ...langs.map(
           (language) =>
             `    <xhtml:link rel="alternate" hreflang="${language}" href="${escapeHtml(localizedUrl(language))}" />`,
         ),
         `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeHtml(localizedUrl('fr'))}" />`,
       ].join('\n');
-      return LANGUAGES.map((language) => {
+      return langs.map((language) => {
         const loc = localizedUrl(language);
         return `  <url>\n    <loc>${escapeHtml(loc)}</loc>\n    <lastmod>${row.lastmod}</lastmod>\n${alternates}\n  </url>`;
       });

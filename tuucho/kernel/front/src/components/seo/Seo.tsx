@@ -2,8 +2,14 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLang } from '../../assets/i18n';
 import { shopConfig } from '../../config/env';
+import {
+  BRAND_ASSET_DEFAULTS,
+  resolveBrandAsset,
+  useBrandAssets,
+} from '../../plugins/BrandAssetsContext';
 import { staticPageJsonLd } from '../../utils/pageSeo';
-import { DEFAULT_LANG, OG_LOCALES, localizedPath, localizedSiblings } from '../../config/i18nRoutes';
+import { languageMeta } from '../../assets/i18n/languages';
+import { DEFAULT_LANG, localizedPath, localizedSiblings } from '../../config/i18nRoutes';
 
 interface SeoProps {
   title: string;
@@ -116,6 +122,7 @@ export function Seo({
 }: SeoProps) {
   const { lang, t } = useLang();
   const location = useLocation();
+  const brandAssets = useBrandAssets();
   // Product pages pass their own graph; every other route gets whatever
   // utils/pageSeo.ts defines for its path (FAQ on the guides, CollectionPage
   // on the gallery, …), which is the same block the prerenderer emits.
@@ -132,10 +139,16 @@ export function Seo({
     const canonicalPathname = canonicalPath ? localizedPath(canonicalPath, lang) : location.pathname;
     const url = `${shopConfig.siteUrl}${canonicalPathname}`;
     const effectiveNoindex = noindex || !isProd;
+    const faviconHref = resolveBrandAsset(brandAssets, 'favicon', BRAND_ASSET_DEFAULTS.favicon);
+    const ogImageRaw = resolveBrandAsset(brandAssets, 'ogImage', BRAND_ASSET_DEFAULTS.ogImage);
+    const ogImage = /^https?:\/\//i.test(ogImageRaw)
+      ? ogImageRaw
+      : `${shopConfig.siteUrl}${ogImageRaw.startsWith('/') ? '' : '/'}${ogImageRaw}`;
 
     document.title = fullTitle;
     upsertMeta('name', 'robots', effectiveNoindex ? 'noindex, nofollow' : 'index, follow');
     upsertMeta('name', 'description', description);
+    upsertLink('icon', faviconHref);
     // A canonical/hreflang set on a noindex page is contradictory — the URL
     // is arbitrary.
     if (effectiveNoindex) {
@@ -148,9 +161,11 @@ export function Seo({
     upsertMeta('property', 'og:title', fullTitle);
     upsertMeta('property', 'og:description', description);
     upsertMeta('property', 'og:url', url);
-    upsertMeta('property', 'og:locale', OG_LOCALES[lang]);
+    upsertMeta('property', 'og:locale', languageMeta(lang).ogLocale);
+    upsertMeta('property', 'og:image', ogImage);
     upsertMeta('name', 'twitter:title', fullTitle);
     upsertMeta('name', 'twitter:description', description);
+    upsertMeta('name', 'twitter:image', ogImage);
     // A noindex page's structured data can only mislead — it describes a
     // page that is explicitly not meant to appear in results.
     upsertJsonLd(
@@ -160,7 +175,18 @@ export function Seo({
           ? (JSON.parse(jsonLdKey) as Record<string, unknown>)
           : undefined,
     );
-  }, [title, exactTitle, description, path, canonicalPath, location.pathname, lang, noindex, jsonLdKey]);
+  }, [
+    title,
+    exactTitle,
+    description,
+    path,
+    canonicalPath,
+    location.pathname,
+    lang,
+    noindex,
+    jsonLdKey,
+    brandAssets,
+  ]);
 
   return null;
 }

@@ -140,7 +140,8 @@ export function frenchAvailable(enabled: LocaleEnablement): boolean {
 
 /** `tuucho-kernel-locale-<lang>` and `*-locale-<lang>` packs for the active language. */
 export function localePackLang(pluginId: string): string | null {
-  const match = /^tuucho-kernel-locale-([a-z]{2})$/.exec(pluginId) ?? /^.+-locale-([a-z]{2})$/.exec(pluginId);
+  const match =
+    /^tuucho-kernel-locale-([a-z]{2,3})$/.exec(pluginId) ?? /^.+-locale-([a-z]{2,3})$/.exec(pluginId);
   return match?.[1] ?? null;
 }
 

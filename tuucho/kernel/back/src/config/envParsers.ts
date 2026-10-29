@@ -5,7 +5,11 @@
  * misconfigured deployment must fail at startup, not serve wrong behaviour.
  */
 import { parseDurationMs } from '../utils/duration.js';
-import { isLanguage, LANGUAGES, type Language } from '../utils/language.js';
+import {
+  getRegisteredLanguageCodes,
+  isLanguageCodeFormat,
+  type Language,
+} from '../utils/language.js';
 
 function required(value: string | undefined, name: string): string {
   if (value === undefined || value.trim() === '') {
@@ -206,37 +210,38 @@ function requiredList(value: string | undefined, name: string): string[] {
   return list;
 }
 
-/** A supported language code, falling back when unset (`i18n.default`).
- * A set-but-unsupported value fails loudly, same as every other parser here. */
+/** A language code (`i18n.default`). Format is validated here; membership in
+ * the plugin-sdk registry is asserted after plugins load. */
 function optionalLanguage(value: string | undefined, fallback: Language, name: string): Language {
   const raw = (value ?? '').trim().toLowerCase();
   if (!raw) return fallback;
-  if (!isLanguage(raw)) {
+  if (!isLanguageCodeFormat(raw)) {
     throw new Error(
-      `Invalid language environment variable ${name}: "${value}" (supported: ${LANGUAGES.join(', ')}).`,
+      `Invalid language environment variable ${name}: "${value}" (expected a 2–3 letter lowercase code).`,
     );
   }
   return raw;
 }
 
-/** A comma-separated supported-language list (`i18n.enabled`), falling back
- * to every supported language when unset. Unknown entries fail loudly. */
+/** A comma-separated language list (`i18n.enabled`). Format only at config
+ * load; registry membership is asserted after plugins load. Unset falls back
+ * to every currently registered language (builtins en/fr before plugins). */
 function optionalLanguageList(value: string | undefined, name: string): Language[] {
   const raw = (value ?? '').trim();
-  if (!raw) return [...LANGUAGES];
+  if (!raw) return getRegisteredLanguageCodes();
   const entries = raw
     .split(',')
     .map((entry) => entry.trim().toLowerCase())
     .filter(Boolean);
   for (const entry of entries) {
-    if (!isLanguage(entry)) {
+    if (!isLanguageCodeFormat(entry)) {
       throw new Error(
-        `Invalid language environment variable ${name}: "${entry}" in "${value}" (supported: ${LANGUAGES.join(', ')}).`,
+        `Invalid language environment variable ${name}: "${entry}" in "${value}" (expected 2–3 letter lowercase codes).`,
       );
     }
   }
-  const unique = [...new Set(entries)] as Language[];
-  if (unique.length === 0) return [...LANGUAGES];
+  const unique = [...new Set(entries)];
+  if (unique.length === 0) return getRegisteredLanguageCodes();
   return unique;
 }
 

@@ -21,14 +21,14 @@ Clone a **version tag**, not untagged `master`:
 ```bash
 git clone --branch 0.0.6 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
 cd tuucho-ecom
-# public JSON is already in git: tuucho-config/config.json and tuucho-config/config.dev.json
-cp tuucho-config/config.private.dev.example.json tuucho-config/config.private.dev.json
-# replace placeholders in tuucho-config/config.private.dev.json (database url, jwt, pii, ops, smtp)
+# public JSON is already in git under tuucho-config/kernel/ (common + kernel/dev/)
+cp tuucho-config/kernel/dev/config.private.example.json tuucho-config/kernel/dev/config.private.json
+# replace placeholders in that private file (database url, jwt, pii, ops, smtp)
 npm run setup:cli -- --yes \
   --store-name Shop \
   --admin-email admin@shop.example \
   --admin-password 'ShopAdmin1!'
-# APP_TARGET=dev is the local default (selects tuucho-config/config.dev.json)
+# APP_TARGET=dev is the local default (selects the env named in kernel/config.json environments)
 npm run dev
 ```
 
@@ -51,20 +51,25 @@ them in kernel JSON.
 
 ## Configuration (JSON, not a mega `.env`)
 
-Files live under `tuucho-config/`. Common (all envs) sit in that folder;
-each environment is a subfolder. This clone ships **only** `dev/`.
-A new env is a folder, not a closed `dev|preprod|prod` list.
+Kernel files live under `tuucho-config/kernel/`. Shop stamps stay at the
+root (`plugins.json`, `migrate-stamp.json`, `plugins/`). Each config tree
+(kernel, and each plugin under `tuucho-config/plugins/<id>/`) may declare
+its own `environments` map in that tree’s common `config.json`. Paths in
+the map are relative to that tree only. Folder style (`dev/config.json`),
+name style (`config.dev.json`), or a mix are all valid when the map says so.
+When the map is absent, the loader still discovers both layouts. This clone
+ships folder style under `kernel/dev/` with an explicit map.
 
 Merge, top to bottom (bottom wins): common public → env public → common
 private (or its example) → env private (or its example) → leftover process
-overlay (`APP_TARGET`, `PORT`, optional `DATABASE_URL`). `APP_TARGET` is the
-folder name (local default `dev`). Missing folder → error naming it.
+overlay (`APP_TARGET`, `PORT`, optional `DATABASE_URL`). `APP_TARGET` must
+match a kernel env key (local default `dev`). Missing env → error naming it.
 
 Public JSON is committed. Private JSON is gitignored; each has a committed
 functional `*.example`. Boot: missing private + example present → warning,
 load example, launch. Both missing → error. Private present but required keys
 missing → error naming each key. `npm --prefix tuucho/kernel/back run config:doctor`
-prints the same list plus every folder under `tuucho-config/`.
+prints the same list plus every known kernel environment.
 
 `paths.outputDir` (env `OUTPUT_DIR`) roots every generated artifact: reports,
 caches, log downloads, coverage, and the dev email preview tree. Unset it
@@ -89,10 +94,10 @@ save stays `preferences`. See Admin → Documentation → **Config files**.
 
 | Concern | After first boot | File or Admin |
 | --- | --- | --- |
-| Kernel policy (TTLs, rates) | Committed `tuucho-config/config.json` | Git (common public) |
-| Languages (default, enabled) | `i18n` in committed `tuucho-config/config.json` | Git (common public) |
-| Env URLs / dirs | Committed `tuucho-config/<env>/config.json` | Git (env public) |
-| DB / JWT / PII / ops / SMTP passwords | `tuucho-config/config.private.json` and `tuucho-config/<env>/config.private.json` (from those `*.example` files) | Gitignored files |
+| Kernel policy (TTLs, rates) | Committed `tuucho-config/kernel/config.json` | Git (common public) |
+| Languages (default, enabled) | `i18n` in committed `tuucho-config/kernel/config.json` | Git (common public) |
+| Env URLs / dirs | Paths from that file’s `environments` map (shipped: `kernel/<env>/config.json`) | Git (env public) |
+| DB / JWT / PII / ops / SMTP passwords | Common + env private files under `tuucho-config/kernel/` (from those `*.example` files) | Gitignored files |
 | Plugin public settings | Committed `tuucho-config/plugins/<id>/config.json` (user plugins: beside `package.json`) | Git, then first launch / Update from files / Configure |
 | Plugin secrets | Gitignored `config.private.json` next to that public file (`*.example` committed) | Gitignored file, then sealed `plugins.secrets` |
 | Shop name, legal, footer | Admin + `footer-identity` / `page-legal` | Admin (that env’s DB) |
@@ -105,22 +110,18 @@ save stays `preferences`. See Admin → Documentation → **Config files**.
 **How to add an environment** (copy `dev`, do not invent files in the kernel)
 
 ```bash
-# public + example only — do not copy config.private.json
+# public + example only — creates kernel/<name>/ and appends environments.<name>
 npm --prefix tuucho/kernel/back run config:env -- create preprod
-# or by hand:
-# cp tuucho-config/config.dev.json tuucho-config/config.preprod.json
-# cp tuucho-config/config.private.dev.example.json tuucho-config/config.private.preprod.example.json
-cp tuucho-config/config.private.preprod.example.json \
-   tuucho-config/config.private.preprod.json
-# edit URLs/paths/CORS in tuucho-config/config.preprod.json — commit that
+cp tuucho-config/kernel/preprod/config.private.example.json \
+   tuucho-config/kernel/preprod/config.private.json
+# edit URLs/paths/CORS in tuucho-config/kernel/preprod/config.json — commit that
 # fill a **new** database URL, JWT, PII, ops in the private file — never commit
 # APP_TARGET=preprod  (or --env preprod on OPS CLIs)
 npm --prefix tuucho/kernel/back run config:doctor
 ```
 
-Do **not** copy another env’s private file onto this one. `prod` is the only
-indexed name, and only when `config.prod.json` exists. Same steps for any name
-(`staging`, `prod`, …). There is no `README.todo` on this checkout.
+Do **not** copy another env’s private file onto this one. Same steps for any
+name (`staging`, `prod`, …). There is no `README.todo` on this checkout.
 
 Install from a tag: `npm install` only at the **repo root** (npm workspaces, one lockfile). Do not `cd tuucho/kernel/front && npm install`.
 
@@ -133,11 +134,15 @@ Apply). Matching tags: nothing to update. Older local: walk every tag.
 `tuucho-versioning.lock.json` is gitignored last-applied Apply state (setup / Apply write it locally), not displayed current.
 The Check/Apply catalog is `tuucho/tuucho-versioning.json` (generate with
 `node scripts/tuucho-versioning.mjs` before tagging). Shipped JSON templates
-live in `tuucho/factory-config/`; operator files in `tuucho-config/` survive
+live in `tuucho/factory-backup/config/`; operator files in `tuucho-config/` survive
 Apply. First install copies factory; later: `npm run config:migrate`.
-`src/plugins/` is not overwritten
-by a Tuucho update. Kernel Apply writes `tuucho/kernel`, `tuucho/plugin-sdk`,
-`tuucho/factory-config`, `tuucho/docs`, the versioning catalog, and root `package.json`; `all` adds `tuucho/plugins`.
+Shop examples ship in `tuucho/factory-backup/plugins/` and copy to `src/plugins/`
+on first install only (`src/plugins/` is gitignored). Apply never overwrites
+`tuucho-config/` or `src/plugins/`. In this product repo, after editing live
+`tuucho-config/` or `src/plugins/`, run `npm run factory-sync` so factory backup
+matches (`npm run factory-sync:check` / `check:factory-sync` fails on drift).
+Kernel Apply writes `tuucho/kernel`, `tuucho/plugin-sdk`,
+`tuucho/factory-backup`, `tuucho/docs`, the versioning catalog, and root `package.json`; `all` adds `tuucho/plugins`.
 Apply replaces each scoped tree wholesale but never writes or removes a path
 outside that list: root-level moves between 0.0.5 and 0.0.6 (root `docs/`
 removed, `scripts/` trimmed, root `AGENTS.md` / `.agents/` / `.prettierrc`
@@ -177,13 +182,15 @@ line), as a store setting.
 tuucho/kernel/back     API: plugin host, shells, catalog, orders, users, stock, cart
 tuucho/kernel/front    Shop chrome (admin nav from bootstrap, plugin UI chunks)
 tuucho/plugins/        Bundled plugins grouped by kind (id starts with tuucho-; no extra tuucho/ segment)
-src/plugins/           Shop / demo / zip upload (id must not start with tuucho-)
+src/plugins/           Shop / demo / zip upload (gitignored; first-install copy; id must not start with tuucho-)
 tuucho/plugin-sdk/     @tuucho/plugin-sdk
 tuucho/docs/           All project documentation (api, schema, command, cron, front, plugins.md)
-tuucho/factory-config/ Shipped JSON templates, copied to tuucho-config/ on first install
-tuucho-config/         Operator public + private JSON
+tuucho/factory-backup/config/   Shipped JSON templates, copied to tuucho-config/ on first install
+tuucho/factory-backup/plugins/  Shipped shop examples, copied to src/plugins/ on first install
+tuucho/factory-backup/migrations/ Optional config:migrate steps (publisher-owned; see .example.json)
+tuucho-config/         Operator public + private JSON (survives Apply)
 sample/                Fictional catalog + courier JSON
-scripts/               dev.mjs, install.mjs, tuucho-versioning.mjs
+scripts/               dev.mjs, install.mjs, tuucho-versioning.mjs, factory-sync.mjs
 output/                Generated artifacts (paths.outputDir; gitignored)
 .agents/               Agent skills (skills-lock.json at root); AGENTS.md + CLAUDE.md at root
 .prettierrc            One formatter config for the repo (root format / format:check)

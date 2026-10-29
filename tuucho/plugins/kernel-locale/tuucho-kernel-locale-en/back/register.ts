@@ -9,6 +9,12 @@ import { INVOICE_COPY_EN } from './invoiceEn.js';
 type InvoiceCtx = { order?: { language?: string | null } };
 
 const register: PluginRegisterFn = async (api) => {
+  api.registerLanguage({
+    code: 'en',
+    nativeName: 'English',
+    ogLocale: 'en_US',
+    dateLocale: 'en-US',
+  });
   api.registerEmailCatalog('en', enEmail);
   api.registerEmailCatalog('gift-receiver:en', enGiftReceiver);
   api.registerEmailCatalog('custom-set:en', enCustomSet);

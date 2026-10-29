@@ -11,9 +11,9 @@ project. Thin stubs one level up (`../API.md`, `../SCHEMA.md`, `../COMMAND.md`,
 | [Orders](./orders.md)                    | Order lifecycle: statuses, graphs, payment capture, who can move what     |
 | [Command](./command/README.md)           | Every `npm run` script and flag, back and front                           |
 | [Cron](./cron/README.md)                 | Production shipment-tracking cron                                         |
-| [Architecture](./architecture/README.md) | Module boundaries and dependency rules                                    |
+| [Architecture](./architecture/README.md) | Module boundaries, dependency rules, shop pack layout (`factory-backup`, `src/plugins`) |
 | [Plugins](./plugins.md)                  | Plugin development guide (same text as Admin, Documentation)              |
-| [Microkernel](./microkernel.md)          | Kernel, plugin SDK, and opening contracts                                 |
+| [Microkernel](./microkernel.md)          | Kernel, plugin SDK, factory backup, and opening contracts                 |
 | [Front screens](./front/screens.md)      | Generated map of every front URL to its page file                         |
 | [Gift offers](./api/08-gift.md)          | Two-person gift promises (API). Schema: [08-gift.md](./schema/08-gift.md) |
 

@@ -916,6 +916,8 @@ export interface AdminUiStrings {
     required: string;
     cannotDisableHome: string;
     saved: string;
+    enabledToast: string;
+    disabledToast: string;
     loadError: string;
     saveError: string;
     themeIntro: string;

@@ -58,7 +58,9 @@ export function loadGatewayTarget(root: string, mode: 'preprod' | 'prod'): Gatew
   const opsToken = json.OPS_TOKEN;
 
   if (!gatewayUrl)
-    throw new Error(`ops.gatewayUrl not found for ${mode} — set it in tuucho-config/config.${mode}.json`);
+    throw new Error(
+      `ops.gatewayUrl not found for ${mode}; set it in the public JSON for that env under tuucho-config/kernel/`,
+    );
   if (!ftpHost || !ftpUser || !ftpPassword)
     throw new Error('FTP transport requires ftp.host, ftp.user and ftp.password in kernel private JSON');
   if (!/^\d{1,5}$/.test(ftpPort) || Number(ftpPort) > 65535)

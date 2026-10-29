@@ -1,11 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { registerLanguage, resetLanguages } from '@tuucho/plugin-sdk';
 import {
+  assertConfiguredLanguagesRegistered,
   configuredDefaultLanguage,
   configuredEnabledLanguages,
   FALLBACK_LANGUAGE,
   languageFromHeader,
   languageFromPreference,
+  pickLanguage,
 } from '../../../src/utils/language.js';
 
 function withEnv(key: string, value: string | undefined, run: () => void): void {
@@ -21,6 +24,7 @@ function withEnv(key: string, value: string | undefined, run: () => void): void 
 }
 
 test('the fallback language is en when nothing is configured', () => {
+  resetLanguages();
   withEnv('I18N_DEFAULT_LANG', undefined, () => {
     assert.equal(configuredDefaultLanguage(), FALLBACK_LANGUAGE);
     assert.equal(languageFromHeader(undefined), 'en');
@@ -30,6 +34,7 @@ test('the fallback language is en when nothing is configured', () => {
 });
 
 test('the configured default replaces the en fallback', () => {
+  resetLanguages();
   withEnv('I18N_DEFAULT_LANG', 'fr', () => {
     assert.equal(configuredDefaultLanguage(), 'fr');
     assert.equal(languageFromHeader(undefined), 'fr');
@@ -38,13 +43,15 @@ test('the configured default replaces the en fallback', () => {
   });
 });
 
-test('an invalid configured default falls back to en rather than crashing', () => {
-  withEnv('I18N_DEFAULT_LANG', 'xx', () => {
+test('a malformed configured default falls back to en rather than crashing', () => {
+  resetLanguages();
+  withEnv('I18N_DEFAULT_LANG', 'xxxx', () => {
     assert.equal(configuredDefaultLanguage(), 'en');
   });
 });
 
 test('header q-value negotiation is unchanged by the configured default', () => {
+  resetLanguages();
   withEnv('I18N_DEFAULT_LANG', 'fr', () => {
     assert.equal(languageFromHeader('fr-FR,fr;q=0.9,en;q=0.8'), 'fr');
     assert.equal(languageFromHeader('en;q=0.9,fr;q=0.1'), 'en');
@@ -52,14 +59,33 @@ test('header q-value negotiation is unchanged by the configured default', () => 
   });
 });
 
-test('the enabled list defaults to every supported language and is intersected', () => {
+test('the enabled list defaults to every registered language and keeps format-valid codes', () => {
+  resetLanguages();
   withEnv('I18N_ENABLED_LANGS', undefined, () => {
-    assert.deepEqual(configuredEnabledLanguages(), ['en', 'fr']);
+    assert.deepEqual(configuredEnabledLanguages().sort(), ['en', 'fr']);
   });
   withEnv('I18N_ENABLED_LANGS', 'fr', () => {
     assert.deepEqual(configuredEnabledLanguages(), ['fr']);
   });
   withEnv('I18N_ENABLED_LANGS', 'fr, en ,xx,fr', () => {
-    assert.deepEqual(configuredEnabledLanguages(), ['fr', 'en']);
+    assert.deepEqual(configuredEnabledLanguages(), ['fr', 'en', 'xx']);
+  });
+});
+
+test('assertConfiguredLanguagesRegistered rejects unknown codes after plugins load', () => {
+  resetLanguages();
+  assert.throws(() => assertConfiguredLanguagesRegistered('en', ['en', 'th']), /unregistered language "th"/);
+  registerLanguage({ code: 'th', nativeName: 'ไทย', ogLocale: 'th_TH' });
+  assert.doesNotThrow(() => assertConfiguredLanguagesRegistered('en', ['en', 'th']));
+  resetLanguages();
+});
+
+test('pickLanguage falls back through default then en then fr', () => {
+  resetLanguages();
+  withEnv('I18N_DEFAULT_LANG', 'fr', () => {
+    assert.equal(pickLanguage({ th: 'สวัสดี', fr: 'Bonjour', en: 'Hello' }, 'th'), 'สวัสดี');
+    assert.equal(pickLanguage({ fr: 'Bonjour', en: 'Hello' }, 'th'), 'Bonjour');
+    assert.equal(pickLanguage({ en: 'Hello' }, 'th'), 'Hello');
+    assert.equal(pickLanguage({ de: 'Hallo' }, 'th'), 'Hallo');
   });
 });

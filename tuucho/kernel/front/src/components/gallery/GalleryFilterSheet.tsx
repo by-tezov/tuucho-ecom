@@ -2,6 +2,7 @@ import { CloseIcon } from '../ui/CloseIcon';
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLang } from '../../assets/i18n';
+import { pickLang } from '../../assets/i18n/pickLang';
 import { filterGroupLabels } from '../../data/filters';
 import type { FilterOption } from '../../api/filterOptions';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
@@ -201,11 +202,11 @@ export function GalleryFilterSheet({
           {showSizeFilter && (
             <section className={styles.section}>
               <SectionHeader
-                title={filterGroupLabels.size[lang]}
+                title={pickLang(filterGroupLabels.size, lang)}
                 resetActive={draft.sizes.length === 0}
                 onReset={() => toggleDraftValue('sizes', 'all')}
               />
-              <div className={styles.chipRow} role="group" aria-label={filterGroupLabels.size[lang]}>
+              <div className={styles.chipRow} role="group" aria-label={pickLang(filterGroupLabels.size, lang)}>
                 {sizeOptions.slice(1).map((option) => (
                   <Chip
                     key={option.value}
@@ -224,11 +225,11 @@ export function GalleryFilterSheet({
 
           <section className={styles.section}>
             <SectionHeader
-              title={filterGroupLabels.shape[lang]}
+              title={pickLang(filterGroupLabels.shape, lang)}
               resetActive={draft.shape.length === 0}
               onReset={() => toggleDraftValue('shape', 'all')}
             />
-            <div className={styles.chipRow} role="group" aria-label={filterGroupLabels.shape[lang]}>
+            <div className={styles.chipRow} role="group" aria-label={pickLang(filterGroupLabels.shape, lang)}>
               {shapeOptions.slice(1).map((option) => (
                 <Chip
                   key={option.value}
@@ -244,11 +245,11 @@ export function GalleryFilterSheet({
 
           <section className={styles.section}>
             <SectionHeader
-              title={filterGroupLabels.length[lang]}
+              title={pickLang(filterGroupLabels.length, lang)}
               resetActive={draft.length.length === 0}
               onReset={() => toggleDraftValue('length', 'all')}
             />
-            <div className={styles.chipRow} role="group" aria-label={filterGroupLabels.length[lang]}>
+            <div className={styles.chipRow} role="group" aria-label={pickLang(filterGroupLabels.length, lang)}>
               {lengthOptions.slice(1).map((option) => (
                 <Chip
                   key={option.value}
@@ -279,11 +280,11 @@ export function GalleryFilterSheet({
 
           <section className={styles.section}>
             <SectionHeader
-              title={filterGroupLabels.occasion[lang]}
+              title={pickLang(filterGroupLabels.occasion, lang)}
               resetActive={draft.occasion.length === 0}
               onReset={() => toggleDraftValue('occasion', 'all')}
             />
-            <div className={styles.chipRow} role="group" aria-label={filterGroupLabels.occasion[lang]}>
+            <div className={styles.chipRow} role="group" aria-label={pickLang(filterGroupLabels.occasion, lang)}>
               {occasionOptions.slice(1).map((option) => (
                 <Chip
                   key={option.value}

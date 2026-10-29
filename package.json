@@ -1,7 +1,7 @@
 {
   "name": "tuucho-ecom",
   "private": true,
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Self-hosted batteries-included e-commerce platform: kernel plus bundled plugins.",
   "engines": {
     "node": ">=22.13"
@@ -30,6 +30,8 @@
     "dev:front": "npm --prefix tuucho/kernel/front run dev -- --port 5174 --strictPort",
     "versioning": "node scripts/tuucho-versioning.mjs",
     "versioning:check": "node scripts/tuucho-versioning.mjs --check",
+    "factory-sync": "node scripts/factory-sync.mjs",
+    "factory-sync:check": "node scripts/factory-sync.mjs --check",
     "config:migrate": "npm --prefix tuucho/kernel/back run config:migrate",
     "config:doctor": "npm --prefix tuucho/kernel/back run config:doctor",
     "config:env": "npm --prefix tuucho/kernel/back run config:env",

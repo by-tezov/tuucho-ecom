@@ -1,5 +1,3 @@
-import type { Language } from '../../../utils/language.js';
-
 /**
  * The only copy the server-rendered gallery index needs of its own.
  *
@@ -32,7 +30,7 @@ export interface GallerySeoCopy {
   related: string;
 }
 
-export const GALLERY_SEO_COPY: Record<Language, GallerySeoCopy> = {
+export const GALLERY_SEO_COPY: Partial<Record<string, GallerySeoCopy>> = {
   fr: {
     title: 'Galerie de pieces artisanales',
     description:

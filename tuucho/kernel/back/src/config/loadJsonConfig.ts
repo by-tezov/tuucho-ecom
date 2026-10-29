@@ -1,6 +1,12 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
 import { PRIVATE_ENV_MAP, PUBLIC_ENV_MAP, REQUIRED_PRIVATE_PATHS } from './configEnvMap.js';
+import {
+  isEnvName,
+  listTreeEnvironments,
+  resolveKernelConfigPaths,
+  resolveKernelTreeRoot,
+  type ResolvedConfigPaths,
+} from './configTreePaths.js';
 
 export type AppTarget = string;
 export type JsonObject = Record<string, unknown>;
@@ -20,8 +26,6 @@ export type ConfigBootStatus =
       warnings: string[];
       errors: string[];
     };
-
-const ENV_NAME = /^[a-z][a-z0-9-]*$/;
 
 function isObject(value: unknown): value is JsonObject {
   return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -73,7 +77,9 @@ function flattenMapped(obj: JsonObject, map: Record<string, string>): Record<str
 }
 
 export function flattenConfigToEnv(merged: JsonObject): Record<string, string> {
-  return { ...flattenMapped(merged, PUBLIC_ENV_MAP), ...flattenMapped(merged, PRIVATE_ENV_MAP) };
+  // Drop the declarative layout map: it is not a process env source.
+  const { environments: _environments, ...rest } = merged;
+  return { ...flattenMapped(rest, PUBLIC_ENV_MAP), ...flattenMapped(rest, PRIVATE_ENV_MAP) };
 }
 
 function missingRequiredPrivateKeys(privateObj: JsonObject): string[] {
@@ -85,9 +91,7 @@ function missingRequiredPrivateKeys(privateObj: JsonObject): string[] {
   return missing;
 }
 
-export function isEnvName(value: string): boolean {
-  return ENV_NAME.test(value);
-}
+export { isEnvName };
 
 export function resolveAppTarget(raw: string | undefined): AppTarget {
   const value = (raw ?? 'dev').trim() || 'dev';
@@ -101,30 +105,17 @@ export function resolveAppTarget(raw: string | undefined): AppTarget {
 
 /** `root` is the `tuucho-config/` directory (not kernel/back). */
 export function configDir(root: string): string {
-  return root;
+  return resolveKernelTreeRoot(root);
 }
-
-const ENV_PUBLIC_FILE = /^config\.([a-z][a-z0-9-]*)\.json$/;
 
 export function listEnvironments(root: string): string[] {
-  const dir = configDir(root);
-  if (!existsSync(dir)) return [];
-  return readdirSync(dir)
-    .map((name) => ENV_PUBLIC_FILE.exec(name)?.[1])
-    .filter((name): name is string => Boolean(name && name !== 'role' && isEnvName(name)))
-    .sort();
+  const treeRoot = resolveKernelTreeRoot(root);
+  return listTreeEnvironments(treeRoot, root);
 }
 
-export function configPaths(root: string, target: AppTarget) {
-  const common = configDir(root);
-  return {
-    commonPublic: join(common, 'config.json'),
-    envPublic: join(common, `config.${target}.json`),
-    commonPrivate: join(common, 'config.private.json'),
-    commonPrivateExample: join(common, 'config.private.example.json'),
-    envPrivate: join(common, `config.private.${target}.json`),
-    envPrivateExample: join(common, `config.private.${target}.example.json`),
-  };
+/** Kernel layer paths for `target`. Prefer `kernel/` tree; legacy flat root still resolves. */
+export function configPaths(root: string, target: AppTarget): ResolvedConfigPaths {
+  return resolveKernelConfigPaths(root, target);
 }
 
 function loadPrivateLayer(
@@ -157,9 +148,20 @@ export function inspectConfig(root: string, targetRaw?: string): ConfigBootStatu
       errors: [error instanceof Error ? error.message : String(error)],
     };
   }
-  const paths = configPaths(root, target);
+  let paths: ResolvedConfigPaths;
+  try {
+    paths = configPaths(root, target);
+  } catch (error) {
+    return {
+      ok: false,
+      target,
+      privateSource: 'none',
+      warnings: [],
+      errors: [error instanceof Error ? error.message : String(error)],
+    };
+  }
   const errors: string[] = [];
-  const warnings: string[] = [];
+  const warnings: string[] = [...paths.warnings];
   const known = listEnvironments(root);
   if (!existsSync(paths.envPublic)) {
     errors.push(`missing ${paths.envPublic}${known.length > 0 ? ` (known: ${known.join(', ')})` : ''}.`);
@@ -198,15 +200,16 @@ export function inspectConfig(root: string, targetRaw?: string): ConfigBootStatu
 }
 
 export function envSummary(root: string): string[] {
-  const dir = configDir(root);
+  if (!existsSync(root)) return ['(no tuucho-config/ folder)'];
   const names = listEnvironments(root);
-  if (!existsSync(dir)) return ['(no tuucho-config/ folder)'];
-  if (names.length === 0) return ['(no config.<env>.json files under tuucho-config/)'];
+  if (names.length === 0) {
+    return ['(no environments under tuucho-config/kernel/ or legacy flat config.<env>.json)'];
+  }
   return names.map((name) => {
     const paths = configPaths(root, name);
     const privateOk = existsSync(paths.envPrivate);
     const exampleOk = existsSync(paths.envPrivateExample);
-    return `${name}: public overlay present; private file ${privateOk ? 'present' : 'missing'}; example ${
+    return `${name}: public ${paths.envPublic}; private file ${privateOk ? 'present' : 'missing'}; example ${
       exampleOk ? 'present' : 'MISSING'
     }${!privateOk && exampleOk ? ' (would load example)' : ''}.`;
   });

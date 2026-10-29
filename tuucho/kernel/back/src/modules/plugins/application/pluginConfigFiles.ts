@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
 import { deepMerge, resolveAppTarget, type JsonObject } from '../../../config/loadJsonConfig.js';
+import { resolveConfigPaths } from '../../../config/configTreePaths.js';
 import { configRoot, shopRoot } from '../../../config/shopPaths.js';
 import type { PluginManifest, PluginSettingField } from '../domain/contracts.js';
 import { isTuuchoPluginId } from './discoverPlugins.js';
@@ -161,15 +162,24 @@ export function loadPluginConfigFiles(manifest: PluginManifest): LoadedPluginCon
   } catch {
     target = 'dev';
   }
+  const resolved = resolveConfigPaths(dir, target, { includeRole: false, warnIfUndeclared: false });
+  for (const warning of resolved.warnings) warnings.push(`${manifest.id}: ${warning}`);
   const paths = {
-    commonPublic: join(dir, 'config.json'),
-    envPublic: join(dir, `config.${target}.json`),
-    commonPrivate: join(dir, 'config.private.json'),
-    commonPrivateExample: join(dir, 'config.private.example.json'),
-    envPrivate: join(dir, `config.private.${target}.json`),
-    envPrivateExample: join(dir, `config.private.${target}.example.json`),
+    commonPublic: resolved.commonPublic,
+    envPublic: resolved.envPublic,
+    commonPrivate: resolved.commonPrivate,
+    commonPrivateExample: resolved.commonPrivateExample,
+    envPrivate: resolved.envPrivate,
+    envPrivateExample: resolved.envPrivateExample,
   };
-  const presentFiles = Object.values(paths).filter((path) => existsSync(path));
+  const presentFiles = [
+    paths.commonPublic,
+    paths.envPublic,
+    paths.commonPrivate,
+    paths.commonPrivateExample,
+    paths.envPrivate,
+    paths.envPrivateExample,
+  ].filter((path) => existsSync(path));
   if (presentFiles.length === 0) return empty;
   const { publicKeys, secretKeys } = splitSchemaKeys(manifest.settingsSchema);
   const publicAllowed = new Set(publicKeys);

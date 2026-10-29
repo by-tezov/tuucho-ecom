@@ -1,6 +1,6 @@
 import { config } from '../../../config/env.js';
 import { orderEmailItemGroups } from './orderEmailCustomSet.js';
-import type { Language } from '../../../utils/language.js';
+import { pickLocalized, type Language } from '../../../utils/language.js';
 import { emailStrings } from './emailStrings.js';
 import { giftReceiverOrderMail } from './giftReceiverOrderMail.js';
 import { genericNoticeHtml, renderEmailTemplate, SPY_FOOTER, spyNoticeHtml } from './emailTemplates.js';
@@ -394,7 +394,7 @@ export function orderStatusUpdateEmail(
   manageOrderUrl?: string,
 ): Omit<MailMessage, 'to'> {
   const preparing = status === 'in_preparation';
-  const copy: Record<Language, { preparing: string; sending: string; cta: string }> = {
+  const copy: Partial<Record<string, { preparing: string; sending: string; cta: string }>> = {
     fr: {
       preparing: 'Votre commande est en préparation.',
       sending: 'Votre commande est prête à être envoyée.',
@@ -406,11 +406,12 @@ export function orderStatusUpdateEmail(
       cta: 'View my orders',
     },
   };
-  const message = preparing ? copy[language].preparing : copy[language].sending;
+  const localized = pickLocalized(copy, language);
+  const message = preparing ? localized.preparing : localized.sending;
   const ctaUrl = manageOrderUrl ?? `${config.frontendBaseUrl}/orders`;
   const ctaLabel = manageOrderUrl
     ? emailStrings(language).orderConfirmation.guestAccountLinkLabel
-    : copy[language].cta;
+    : localized.cta;
   return {
     subject: `${orderNumber} : Shop`,
     text: `${message}\n\n${orderNumber}\n\n${ctaLabel} :\n${ctaUrl}`,

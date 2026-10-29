@@ -7,6 +7,9 @@ import { useStorefrontBootstrap } from './StorefrontBootstrap';
  * an absolute image URL under the same key in the bootstrap `brandAssets`
  * record (via the `storefront.bootstrap` filter). */
 export const BRAND_ASSET_KEYS = [
+  'favicon',
+  'ogImage',
+  'lockProbe',
   'hero',
   'aboutPortrait',
   'aboutDesk',
@@ -30,6 +33,17 @@ export const BRAND_ASSET_KEYS = [
   'onboardingLoyalty',
   'onboardingDeals',
 ] as const;
+
+/** Kernel public/ fallbacks when no bootstrap override is set. Paths are
+ * site-root relative; callers that need an absolute URL prefix with siteUrl. */
+export const BRAND_ASSET_DEFAULTS: Record<
+  'favicon' | 'ogImage' | 'lockProbe',
+  string
+> = {
+  favicon: '/favicon.svg',
+  ogImage: '/og-image.jpg',
+  lockProbe: '/lock-probe.jpg',
+};
 
 export type BrandAssetKey = (typeof BRAND_ASSET_KEYS)[number];
 

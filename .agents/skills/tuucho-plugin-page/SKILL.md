@@ -27,9 +27,11 @@ are **footer only** — do not add them to the shop info menu.
 ## Recipe (moved from the router)
 
 1. Copy `src/plugins/demo/guides/page-guides/` (or `home/main/page-home`)
-   into `src/plugins/<group>/<feature>/<id>/`. Page plugins are **shop examples
-   only**: never under `tuucho/plugins/`, never a `tuucho-` id. Leaf folder name
-   = `id`. Put any `*-locale-*` complement in that same feature folder.
+   into `src/plugins/<group>/<feature>/<id>/` (live shop tree; first-install
+   templates live under `tuucho/factory-backup/plugins/`). Page plugins are
+   **shop examples only**: never under `tuucho/plugins/`, never a `tuucho-`
+   id. Leaf folder name = `id`. Put any `*-locale-*` complement in that same
+   feature folder.
 2. `kind: "page"`. Set `route` (no locale prefix) and `nav.key` / `order` /
    optional `bottomBar`. `provides: ["StorefrontPage"]`. Omit `nav` when the
    page must stay footer-only (`page-legal`, `page-accessibility`).

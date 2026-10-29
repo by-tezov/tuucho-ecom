@@ -1,9 +1,13 @@
 import { cp, mkdir, readdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { REQUIRED_PRIVATE_PATHS } from './configEnvMap.js';
+import { resolveKernelConfigPaths, resolveKernelTreeRoot } from './configTreePaths.js';
 import { listEnvironments, type JsonObject } from './loadJsonConfig.js';
 
-export const FACTORY_REL = 'tuucho/factory-config';
+export const FACTORY_BACKUP_REL = 'tuucho/factory-backup';
+export const FACTORY_REL = `${FACTORY_BACKUP_REL}/config`;
+export const FACTORY_PLUGINS_REL = `${FACTORY_BACKUP_REL}/plugins`;
+export const USER_PLUGINS_REL = 'src/plugins';
 export const STAMP_NAME = 'migrate-stamp.json';
 const STEP_FILE = /^[0-9][0-9a-z_-]+\.json$/;
 const REQUIRED_PRIVATE = new Set<string>(REQUIRED_PRIVATE_PATHS);
@@ -16,6 +20,7 @@ export type MigrateOptions = {
 
 export type MigrateResult = {
   copied: boolean;
+  copiedPlugins: boolean;
   dryRun: boolean;
   logs: string[];
   warnings: string[];
@@ -141,7 +146,7 @@ async function loadStamp(shopConfig: string): Promise<Stamp> {
 }
 
 export async function listKernelStepIds(packRoot: string): Promise<string[]> {
-  const files = await listStepFiles(join(packRoot, FACTORY_REL, 'migrations', 'kernel'));
+  const files = await listStepFiles(join(packRoot, FACTORY_BACKUP_REL, 'migrations', 'kernel'));
   return files.map((name) => name.replace(/\.json$/, ''));
 }
 
@@ -154,22 +159,36 @@ export async function migrateStampBehind(packRoot: string, shopConfig: string): 
 function shouldCopyFactoryFile(rel: string): boolean {
   const posix = rel.replaceAll('\\', '/');
   const base = posix.split('/').pop() ?? '';
-  if (posix === 'migrations' || posix.startsWith('migrations/')) return false;
   if (/^config\.private(?:\.[a-z][a-z0-9-]*)?\.json$/.test(base) && !base.includes('example')) return false;
   if (posix === 'plugins.json') return false;
   return true;
 }
 
-function envPublicName(env: string): string {
-  return env ? `config.${env}.json` : 'config.json';
+/** Relative path from a shop/factory config root to a resolved absolute file. */
+function relFromConfigRoot(configRoot: string, absolutePath: string): string {
+  return relative(configRoot, absolutePath).replaceAll('\\', '/');
 }
 
-function envPrivateName(env: string): string {
-  return env ? `config.private.${env}.json` : 'config.private.json';
-}
-
-function envPrivateExampleName(env: string): string {
-  return env ? `config.private.${env}.example.json` : 'config.private.example.json';
+/** Public/private/example paths for common (env='') or a named env, under kernel/ when nested. */
+function layerRels(configRoot: string, env: string): {
+  public: string;
+  private: string;
+  privateExample: string;
+} {
+  if (!env) {
+    const tree = resolveKernelTreeRoot(configRoot);
+    return {
+      public: relFromConfigRoot(configRoot, join(tree, 'config.json')),
+      private: relFromConfigRoot(configRoot, join(tree, 'config.private.json')),
+      privateExample: relFromConfigRoot(configRoot, join(tree, 'config.private.example.json')),
+    };
+  }
+  const paths = resolveKernelConfigPaths(configRoot, env);
+  return {
+    public: relFromConfigRoot(configRoot, paths.envPublic),
+    private: relFromConfigRoot(configRoot, paths.envPrivate),
+    privateExample: relFromConfigRoot(configRoot, paths.envPrivateExample),
+  };
 }
 
 async function copyFactory(factory: string, dest: string, dryRun: boolean, logs: string[]): Promise<void> {
@@ -177,7 +196,6 @@ async function copyFactory(factory: string, dest: string, dryRun: boolean, logs:
     const names = await readdir(fromDir, { withFileTypes: true });
     for (const entry of names) {
       const childRel = rel ? `${rel}/${entry.name}` : entry.name;
-      if (!shouldCopyFactoryFile(childRel) && entry.isDirectory() && entry.name === 'migrations') continue;
       if (!shouldCopyFactoryFile(childRel) && !entry.isDirectory()) continue;
       const from = join(fromDir, entry.name);
       const to = join(dest, childRel);
@@ -209,11 +227,15 @@ async function materialisePrivates(dest: string, dryRun: boolean, logs: string[]
         await walk(full);
         continue;
       }
+      // Name style: config.private.<env>.example.json; folder style: config.private.example.json
       const exampleMatch = /^config\.private(?:\.([a-z][a-z0-9-]*))?\.example\.json$/.exec(entry.name);
       if (exampleMatch) {
         const raw = await readJson(full);
         if (!isObject(raw) || Object.keys(raw).length === 0) continue;
-        const privatePath = join(dir, exampleMatch[1] ? `config.private.${exampleMatch[1]}.json` : 'config.private.json');
+        const privatePath = join(
+          dir,
+          exampleMatch[1] ? `config.private.${exampleMatch[1]}.json` : 'config.private.json',
+        );
         if (await pathExists(privatePath)) continue;
         logs.push(`private from example ${privatePath}`);
         if (!dryRun) await cp(full, privatePath);
@@ -319,10 +341,12 @@ async function applyStep(
     };
     const envNames = envSel === 'all' ? ['', ...envs] : envSel === 'common' ? [''] : [envSel];
     for (const env of envNames) {
-      if (layer === 'public' || layer === 'both') push(envPublicName(env), envPublicName(env));
+      const shopRels = layerRels(shopConfig, env);
+      const factoryRels = layerRels(factory, env);
+      if (layer === 'public' || layer === 'both') push(shopRels.public, factoryRels.public);
       if (layer === 'private' || layer === 'both') {
-        push(envPrivateName(env), envPrivateExampleName(env));
-        push(envPrivateExampleName(env), envPrivateExampleName(env));
+        push(shopRels.private, factoryRels.privateExample);
+        push(shopRels.privateExample, factoryRels.privateExample);
       }
     }
     for (const target of targets) {
@@ -380,6 +404,18 @@ async function pluginIdsWithFactory(factory: string): Promise<string[]> {
   return names.filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
 }
 
+async function copyUserPluginsFactory(
+  factoryPlugins: string,
+  dest: string,
+  dryRun: boolean,
+  logs: string[],
+): Promise<void> {
+  logs.push(`first install: copy ${FACTORY_PLUGINS_REL}/ → ${USER_PLUGINS_REL}/`);
+  if (dryRun) return;
+  await mkdir(dest, { recursive: true });
+  await cp(factoryPlugins, dest, { recursive: true });
+}
+
 export async function runConfigMigrate(options: MigrateOptions): Promise<MigrateResult> {
   const dryRun = Boolean(options.dryRun);
   const logs: string[] = [];
@@ -388,10 +424,12 @@ export async function runConfigMigrate(options: MigrateOptions): Promise<Migrate
   const pending: string[] = [];
   const packRoot = options.packRoot;
   const factory = join(packRoot, FACTORY_REL);
+  const factoryPlugins = join(packRoot, FACTORY_PLUGINS_REL);
   const shopConfig = join(packRoot, 'tuucho-config');
+  const userPlugins = join(packRoot, USER_PLUGINS_REL);
   if (!(await pathExists(factory))) {
     errors.push(`missing ${factory}`);
-    return { copied: false, dryRun, logs, warnings, errors, pending };
+    return { copied: false, copiedPlugins: false, dryRun, logs, warnings, errors, pending };
   }
   const firstInstall = !(await pathExists(shopConfig));
   if (firstInstall) {
@@ -401,8 +439,18 @@ export async function runConfigMigrate(options: MigrateOptions): Promise<Migrate
     await materialisePrivates(shopConfig, dryRun, logs, warnings);
   }
 
+  let copiedPlugins = false;
+  if (!(await pathExists(userPlugins))) {
+    if (!(await pathExists(factoryPlugins))) {
+      errors.push(`missing ${factoryPlugins}`);
+      return { copied: firstInstall, copiedPlugins: false, dryRun, logs, warnings, errors, pending };
+    }
+    await copyUserPluginsFactory(factoryPlugins, userPlugins, dryRun, logs);
+    copiedPlugins = true;
+  }
+
   const stamp = firstInstall ? { kernel: [] as string[], plugins: {} as Record<string, string[]> } : await loadStamp(shopConfig);
-  const kernelDir = join(factory, 'migrations', 'kernel');
+  const kernelDir = join(packRoot, FACTORY_BACKUP_REL, 'migrations', 'kernel');
   const kernelFiles = await listStepFiles(kernelDir);
   for (const file of kernelFiles) {
     const id = file.replace(/\.json$/, '');
@@ -512,11 +560,21 @@ export async function runConfigMigrate(options: MigrateOptions): Promise<Migrate
   }
 
   if (!firstInstall) {
-    await fillPublicFromFactory(join(factory, 'config.json'), join(shopConfig, 'config.json'), dryRun, warnings, logs);
+    const commonShop = layerRels(shopConfig, '');
+    const commonFactory = layerRels(factory, '');
+    await fillPublicFromFactory(
+      join(factory, commonFactory.public),
+      join(shopConfig, commonShop.public),
+      dryRun,
+      warnings,
+      logs,
+    );
     for (const env of await listShopEnvs(shopConfig)) {
+      const shopRels = layerRels(shopConfig, env);
+      const factoryRels = layerRels(factory, env);
       await fillPublicFromFactory(
-        join(factory, envPublicName(env)),
-        join(shopConfig, envPublicName(env)),
+        join(factory, factoryRels.public),
+        join(shopConfig, shopRels.public),
         dryRun,
         warnings,
         logs,
@@ -530,7 +588,7 @@ export async function runConfigMigrate(options: MigrateOptions): Promise<Migrate
   if (!dryRun) await writeJsonAtomic(join(shopConfig, STAMP_NAME), stamp);
 
   if (errors.length > 0) {
-    return { copied: firstInstall, dryRun, logs, warnings, errors, pending };
+    return { copied: firstInstall, copiedPlugins, dryRun, logs, warnings, errors, pending };
   }
-  return { copied: firstInstall, dryRun, logs, warnings, errors, pending };
+  return { copied: firstInstall, copiedPlugins, dryRun, logs, warnings, errors, pending };
 }

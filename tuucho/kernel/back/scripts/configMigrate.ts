@@ -14,7 +14,8 @@ for (const line of result.errors) console.error(`[config:migrate] error: ${line}
 if (result.pending.length > 0) {
   console.log(`[config:migrate] pending: ${result.pending.join(', ') || '(none)'}`);
 }
-if (result.copied) console.log('[config:migrate] first-install copy from tuucho/factory-config/');
+if (result.copied) console.log('[config:migrate] first-install copy from tuucho/factory-backup/config/');
+if (result.copiedPlugins) console.log('[config:migrate] first-install copy from tuucho/factory-backup/plugins/');
 if (dryRun) console.log('[config:migrate] dry-run (no writes)');
 
 const shopConfig = join(packRoot, 'tuucho-config');

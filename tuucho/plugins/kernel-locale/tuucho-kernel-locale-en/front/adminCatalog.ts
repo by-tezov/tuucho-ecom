@@ -831,7 +831,7 @@ export const adminCatalog: AdminUiStrings = {
     intro:
       'A role opens sections of the administration. Super administrator always has access to everything and Customer to nothing: these two roles cannot be changed.',
     configHint:
-      'Definitions live in tuucho-config/config.role.json. config.role.<environment>.json replaces a role with the same code. Update loads that into the database. Customer and Super administrator are built in and are not in the file. Names are in the language files. English is the default.',
+      'Definitions live in tuucho-config/kernel/config.role.json. An environment role file from the kernel environments map replaces a role with the same code. Update loads that into the database. Customer and Super administrator are built in and are not in the file. Names are in the language files. English is the default.',
     create: 'New role',
     createTitle: 'Create a role',
     nameLabel: 'Name',
@@ -946,6 +946,8 @@ export const adminCatalog: AdminUiStrings = {
     required: 'Required',
     cannotDisableHome: 'Home cannot be turned off.',
     saved: 'Saved.',
+    enabledToast: 'Plugin turned on.',
+    disabledToast: 'Plugin turned off.',
     loadError: 'Could not load shop setup.',
     saveError: 'Could not save.',
     themeIntro: 'These colours apply to every storefront page. Changes apply as you pick them.',
@@ -1170,7 +1172,7 @@ export const adminCatalog: AdminUiStrings = {
     title: 'Core',
     navDescription: 'Public kernel config.json, and access tokens for private GitHub updates.',
     intro:
-      'This is tuucho-config/config.json only. Private config is not shown. GitHub tokens for private updates are stored separately and are not part of this file. Saving writes the file. Restart the API before the running process uses the new values.',
+      'This is tuucho-config/kernel/config.json only. Private config is not shown. GitHub tokens for private updates are stored separately and are not part of this file. Saving writes the file. Restart the API before the running process uses the new values.',
     jsonLabel: 'config.json',
     save: 'Save',
     saved: 'Saved. Restart the API to apply it.',

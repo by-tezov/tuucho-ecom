@@ -3,6 +3,7 @@ import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router';
 import { LanguageProvider } from './assets/i18n';
 import type { Lang, Strings } from './assets/i18n/types';
+import { languageMeta } from './assets/i18n/languages';
 import { StorefrontBootstrapProvider } from './plugins/StorefrontBootstrap';
 import { assembleDictionary, ensureLocaleCatalogsLoaded } from './plugins/localeCatalog';
 import { ensurePluginFrontsLoaded } from './plugins/PluginHost';
@@ -18,7 +19,6 @@ import { PRERENDERED_PATHS } from './config/prerenderedPaths';
 import {
   DEFAULT_LANG,
   ENABLED_LANGUAGES,
-  OG_LOCALES,
   localizedPath,
   localizedSiblings,
   orderedLanguages,
@@ -38,10 +38,14 @@ import App from './App.tsx';
  * user plugin cannot white-screen the shop. */
 await ensureLocaleCatalogsLoaded();
 await ensurePluginFrontsLoaded();
-const DICTIONARIES: Record<Lang, Strings> = {
+const DICTIONARIES: Partial<Record<string, Strings>> = {
   en: assembleDictionary('en', 'all'),
   fr: assembleDictionary('fr', 'all'),
 };
+
+function dictionaryFor(lang: Lang): Strings {
+  return DICTIONARIES[lang] ?? DICTIONARIES.en ?? assembleDictionary('en', 'all');
+}
 
 /**
  * Build-time entry for scripts/prerender.mjs (never shipped to the browser).
@@ -119,7 +123,7 @@ const LEGAL_SITEMAP_HINT = { changefreq: 'yearly', priority: '0.2' };
 const localizedPages: PrerenderPage[] = PRERENDERED_PATHS.filter((path) => path !== '/').flatMap((path) => {
   const hint = PAGE_SITEMAP_HINTS[path] ?? LEGAL_SITEMAP_HINT;
   return orderedLanguages().map((lang) => {
-    const meta = pageMetaFor(DICTIONARIES[lang])[path];
+    const meta = pageMetaFor(dictionaryFor(lang))[path];
     if (!meta)
       throw new Error(`entry-server: PRERENDERED_PATHS has "${path}" but pageMetaFor has no entry for it`);
     return {
@@ -133,7 +137,7 @@ const localizedPages: PrerenderPage[] = PRERENDERED_PATHS.filter((path) => path 
   });
 });
 
-const rootSplashMeta = pageMetaFor(DICTIONARIES[DEFAULT_LANG])['/'];
+const rootSplashMeta = pageMetaFor(dictionaryFor(DEFAULT_LANG))['/'];
 if (!rootSplashMeta) {
   throw new Error('entry-server: pageMetaFor is missing the "/" splash entry');
 }
@@ -157,7 +161,7 @@ export const pages: PrerenderPage[] = [rootSplash, ...localizedPages];
  * its createRoot branch exactly as for any SPA-fallback route.
  */
 export const headOnlyPages: PrerenderPage[] = orderedLanguages().map((lang) => {
-  const t = DICTIONARIES[lang];
+  const t = dictionaryFor(lang);
   return {
     path: localizedPath('/gift', lang),
     file: `${lang}/gift.html`,
@@ -196,7 +200,7 @@ export const isProd = __APP_TARGET__ === 'prod';
 function buildPayload(page: PrerenderPage): PrerenderPayload {
   return {
     path: page.path,
-    ...(page.lang !== DEFAULT_LANG && { lang: page.lang, dict: DICTIONARIES[page.lang] }),
+    ...(page.lang !== DEFAULT_LANG && { lang: page.lang, dict: dictionaryFor(page.lang) }),
   };
 }
 
@@ -265,7 +269,7 @@ export function renderTitle(page: PrerenderPage): string {
  */
 function siteJsonLd(image: string, lang: Lang): Record<string, unknown> {
   const sameAs = Object.values(shopConfig.platformUrls).filter((href) => href.startsWith('http'));
-  const t = DICTIONARIES[lang];
+  const t = dictionaryFor(lang);
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -290,7 +294,7 @@ function siteJsonLd(image: string, lang: Lang): Record<string, unknown> {
         url: `${shopConfig.siteUrl}/`,
         name: shopConfig.shopName,
         ...(shopConfig.brandAliases.length > 0 && { alternateName: shopConfig.brandAliases }),
-        inLanguage: OG_LOCALES[lang].replace('_', '-'),
+        inLanguage: languageMeta(lang).ogLocale.replace('_', '-'),
         publisher: { '@id': `${shopConfig.siteUrl}/#shop` },
       },
     ],
@@ -304,9 +308,13 @@ function scriptTag(data: Record<string, unknown>): string {
 /** The tag block substituted for the `<!--app-head-->` placeholder in index.html. */
 export function renderHead(page: PrerenderPage): string {
   const url = `${shopConfig.siteUrl}${page.path === '/' ? '/' : page.path}`;
+  // Prerender has no live bootstrap; plugin `brandAssets.ogImage` applies at
+  // runtime via Seo.tsx and on the API after the first bootstrap build.
+  // Shops that need a custom image in the static shell keep a file at
+  // /og-image.jpg or deploy an absolute URL via their CDN in front of it.
   const siteImage = `${shopConfig.siteUrl}/og-image.jpg`;
   const image = siteImage;
-  const t = DICTIONARIES[page.lang];
+  const t = dictionaryFor(page.lang);
   const fullTitle = escapeAttr(`${page.title} · ${shopConfig.shopName}`);
   const description = escapeAttr(page.description);
   const imageAlt = escapeAttr(t.hero.imgAlt);
@@ -336,7 +344,7 @@ export function renderHead(page: PrerenderPage): string {
     `<meta property="og:title" content="${fullTitle}" />`,
     `<meta property="og:description" content="${description}" />`,
     `<meta property="og:url" content="${url}" />`,
-    `<meta property="og:locale" content="${OG_LOCALES[page.lang]}" />`,
+    `<meta property="og:locale" content="${languageMeta(page.lang).ogLocale}" />`,
     `<meta property="og:image" content="${escapeAttr(image)}" />`,
     // The shop banner is a known 1200x630.
     '<meta property="og:image:width" content="1200" />',
