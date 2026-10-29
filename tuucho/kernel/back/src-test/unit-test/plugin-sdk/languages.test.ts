@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  getRegisteredLanguage,
   getRegisteredLanguageCodes,
   isRegisteredLanguage,
   registerLanguage,
@@ -24,6 +25,17 @@ test('registerLanguage adds a code', () => {
   });
   assert.equal(isRegisteredLanguage('th'), true);
   assert.ok(getRegisteredLanguageCodes().includes('th'));
+});
+
+test('registerLanguage keeps optional flagUrl', () => {
+  resetLanguages();
+  registerLanguage({
+    code: 'th',
+    nativeName: 'ไทย',
+    ogLocale: 'th_TH',
+    flagUrl: 'https://shop.example/brand/flags/th.svg',
+  });
+  assert.equal(getRegisteredLanguage('th')?.flagUrl, 'https://shop.example/brand/flags/th.svg');
 });
 
 test('registerLanguage rejects malformed codes', () => {

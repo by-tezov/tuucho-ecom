@@ -150,13 +150,17 @@ Disabled plugins drop out. New home regions are extra `CORE_FRONT_SLOTS` ids.
 Kernel and feature plugins own **keys** only (`t.nav.home`, email catalog
 keys). Sentence values live in locale packs. The locale shell (switcher,
 `t()`, catalog load) stays in the kernel. Builtins are English and French;
-a shop adds more codes with `api.registerLanguage({ code, nativeName, ogLocale, dateLocale? })` from a locale plugin `register()`.
+a shop adds more codes with
+`api.registerLanguage({ code, nativeName, ogLocale, dateLocale?, flagUrl? })`
+from a locale plugin `register()`. Optional `flagUrl` is an absolute image URL
+for the language switcher; stock draws SVG only for `en` / `fr`, and unknown
+codes without a URL get a neutral badge (never a silent UK flag).
 
 The `i18n` section of `tuucho-config/kernel/config.json` (`default`, `enabled`) is
 served on the bootstrap payload as
 `i18n: { default, enabled, languages }` (`enabled` is intersected with the
-registered language registry; `languages` carries native name / OG / date
-metadata for those codes). Vite copies `i18n.enabled` into
+registered language registry; `languages` carries native name / OG / date /
+optional flag metadata for those codes). Vite copies `i18n.enabled` into
 `VITE_ENABLED_LANGUAGES` at build so the front list can include codes that
 are not hard-coded in the kernel. On the front, `applyStorefrontBootstrap`
 narrows that build list to the bootstrap intersection (a shop turns a
@@ -168,14 +172,19 @@ boot fails if an enabled code was never registered.
 
 - Enable `tuucho-kernel-locale-en` / `tuucho-kernel-locale-fr` to offer that language in the
   switcher and supply kernel chrome, admin, email, and invoice values.
-- Disable a kernel locale pack and that language leaves the switcher.
+- A language is available in the switcher when **any** enabled
+  `tuucho-kernel-locale-<lang>` or `*-locale-<lang>` pack for that code is
+  present (same rule as catalog assembly).
+- Disable a kernel locale pack and that language leaves the switcher unless
+  another pack for the same code stays on.
 - Every bundled feature plugin ships `<id>-locale-en` and `<id>-locale-fr`
   with `dependsOn` on the parent (`kind: locale`). Disable a complement and
   that plugin's keys stay untranslated for that language even when the
   matching kernel locale pack is on.
-- Extra codes (for example `th`): ship `tuucho-kernel-locale-th` (or a shop
-  pack) that calls `registerLanguage` and contributes `front/catalog.ts`
-  plus `registerEmailCatalog('th', …)`. Name packs `*-locale-<code>` with a
+- Extra codes (for example `th`): ship a shop `*-locale-th` pack (or
+  `tuucho-kernel-locale-th`) that calls `registerLanguage` (with optional
+  `flagUrl`) and contributes `front/catalog.ts` plus
+  `registerEmailCatalog('th', …)`. Name packs `*-locale-<code>` with a
   2–3 letter code.
 - Register email values with `api.registerEmailCatalog('en'|'fr'|code, catalog)`
   or `api.registerEmailCatalog('key:lang', catalog)`.
@@ -414,6 +423,13 @@ Admin, Plugins “Core” and Check current are the live **root** `package.json`
 - `PATCH /admin/plugins/:id` `{ "enabled": true }` returns `409 plugin_incompatible` when the kernel is outside `engines.core`, a `dependsOn` plugin is missing, or its version is out of range.
 
 Bump the product by changing root `package.json` `version`. Official-repo CI (`npm run check:release`) keeps `tuucho/tuucho-versioning.json` and `tuucho/plugins/manifest.json` `kernel` in lockstep with that root version, and rejects a `version` field on `kernel/back/package.json`, `kernel/front/package.json`, or `plugin-sdk/package.json`. Plugin `engines.core` for this 0.x line is `>=0.0.1 <1.0.0`. A 1.0 kernel needs plugins to raise that range. Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
+
+### What 0.0.9 changes for plugin authors
+
+- Optional `tuucho-config/front.json` then `front.<APP_TARGET>.json`: Vite merges `VITE_` / `SITEMAP_` / `SSR_` keys into `process.env` before the front build (timings, gallery concurrency, capsule flags, …). Missing files keep `env.ts` defaults. See `tuucho/factory-backup/config/front.example.json`.
+- Same overlay may set `shellTitle` (rewrites SPA `<title>Shop</title>`). Optional `tuucho-config/front-public/` overlays kernel `public/` at first paint (favicon, og-image, lock-probe). Runtime `brandAssets` still updates after bootstrap.
+- Language switcher unlocks when any enabled `*-locale-<lang>` pack is on (not only `tuucho-kernel-locale-<lang>`).
+- `registerLanguage` accepts optional `flagUrl`; bootstrap `i18n.languages` passes it through; `FlagIcon` prefers it over stock en/fr SVG.
 
 ### What 0.0.7 changes for plugin authors
 

@@ -5,6 +5,8 @@ export type LanguageMeta = {
   nativeName: string;
   ogLocale: string;
   dateLocale?: string;
+  /** Absolute URL for the switcher flag when a locale plugin registers one. */
+  flagUrl?: string;
 };
 
 const builtinMeta: Record<string, LanguageMeta> = {
@@ -34,6 +36,7 @@ export function applyLanguageMeta(entries: LanguageMeta[]): void {
       nativeName: entry.nativeName || entry.code,
       ogLocale: entry.ogLocale || defaultMeta(entry.code).ogLocale,
       ...(entry.dateLocale ? { dateLocale: entry.dateLocale } : {}),
+      ...(entry.flagUrl ? { flagUrl: entry.flagUrl } : {}),
     });
   }
 }

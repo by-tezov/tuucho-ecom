@@ -394,6 +394,28 @@ reference, documented `npm run` names exist, local Markdown links resolve, and
 every path referenced by [`docs/features.json`](../features.json) exists
 (front routes are resolved under `tuucho/kernel/front`).
 
+## Front Vite overlay (`tuucho-config/front.json`)
+
+Optional. The front Vite config loads `tuucho-config/front.json` then
+`tuucho-config/front.<APP_TARGET>.json` (same target suffix as kernel HTTP)
+and copies string/number/boolean values whose keys start with `VITE_`,
+`SITEMAP_`, or `SSR_` into `process.env` before the config object is built.
+Missing files are fine: defaults live in `tuucho/kernel/front/src/config/env.ts`.
+
+Optional non-env keys in those files:
+
+- `shellTitle` (string): replaces the SPA shell `<title>Shop</title>` at
+  first paint (`transformIndexHtml`).
+
+Optional directory `tuucho-config/front-public/`: files overlay kernel
+`tuucho/kernel/front/public/` in dev and in the build output (favicon,
+og-image, lock-probe, …). Absent directory keeps the demo public assets.
+Runtime `brandAssets` from bootstrap still updates favicon/OG after JS loads.
+
+Shipped sketch: `tuucho/factory-backup/config/front.example.json` (copy to
+`front.json` / `front.<env>.json` as needed). Not applied by `config:migrate`
+as a required stamp; shops opt in.
+
 ## `npm run config:migrate`
 
 `--dry-run` optional. Copies `tuucho/factory-backup/config/` → `tuucho-config/`

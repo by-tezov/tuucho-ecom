@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  localeAvailable,
   localeEnablement,
   localeEnablementFromKey,
   localeEnablementKey,
@@ -49,5 +50,24 @@ describe('localeEnablement', () => {
       'tuucho-kernel-locale-en',
       'tuucho-kernel-locale-fr',
     ]);
+  });
+});
+
+describe('localeAvailable', () => {
+  it('treats cold paint (all) as every language available', () => {
+    expect(localeAvailable('en', 'all')).toBe(true);
+    expect(localeAvailable('th', 'all')).toBe(true);
+  });
+
+  it('unlocks a code when any enabled *-locale-<lang> pack is on', () => {
+    const enabled = new Set(['page-home', 'shop-surface-locale-th']);
+    expect(localeAvailable('th', enabled)).toBe(true);
+    expect(localeAvailable('en', enabled)).toBe(false);
+  });
+
+  it('still unlocks via the standalone kernel locale pack', () => {
+    const enabled = new Set(['tuucho-kernel-locale-fr']);
+    expect(localeAvailable('fr', enabled)).toBe(true);
+    expect(localeAvailable('en', enabled)).toBe(false);
   });
 });

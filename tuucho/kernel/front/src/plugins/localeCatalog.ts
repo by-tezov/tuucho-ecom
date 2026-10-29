@@ -125,12 +125,18 @@ export function localeEnablement(pluginStates: Array<{ id: string; enabled: bool
   return localeEnablementFromKey(localeEnablementKey(pluginStates));
 }
 
-/** True when the standalone kernel pack for `lang` is on. Before bootstrap
- * lists plugins (`enabled === 'all'`), every product language is treated as
- * available so cold paint is not empty while catalogs settle. */
+/** True when a locale pack for `lang` is on. Stock ships
+ * `tuucho-kernel-locale-en|fr`; shops may unlock more codes with any enabled
+ * `*-locale-<lang>` pack. Before bootstrap lists plugins (`enabled === 'all'`),
+ * every product language is treated as available so cold paint is not empty
+ * while catalogs settle. */
 export function localeAvailable(lang: Lang, enabled: LocaleEnablement): boolean {
   if (enabled === 'all') return true;
-  return enabled.has(`tuucho-kernel-locale-${lang}`);
+  if (enabled.has(`tuucho-kernel-locale-${lang}`)) return true;
+  for (const pluginId of enabled) {
+    if (localePackLang(pluginId) === lang) return true;
+  }
+  return false;
 }
 
 /** @deprecated Prefer {@link localeAvailable}. */

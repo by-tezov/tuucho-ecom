@@ -103,6 +103,8 @@ save stays `preferences`. See Admin → Documentation → **Config files**.
 | Plugin public settings | Local `tuucho-config/plugins/<id>/config.json` (user plugins: beside `package.json`) | Operator file, then first launch / Update from files / Configure |
 | Plugin secrets | Gitignored `config.private.json` next to that public file (`*.example` in factory) | Gitignored file, then sealed `plugins.secrets` |
 | Shop name, legal, footer | Admin + `footer-identity` / `page-legal` | Admin (that env’s DB) |
+| Front Vite timings / UX flags (`VITE_*`) | Optional `tuucho-config/front.json` + `front.<env>.json` | Operator file (see `front.example.json`) |
+| First-paint shell title / public favicon | `shellTitle` in front JSON; optional `tuucho-config/front-public/` | Operator files |
 | Brand artwork (hero, about, guide, onboarding images) | Bootstrap `brandAssets`, set by a plugin’s `storefront.bootstrap` filter | Plugin (kernel demo images stay the default) |
 | Stripe | Plugin Configure + `tuucho-config/plugins/tuucho-payment-stripe/` | Admin (secret store on that env) |
 | Mondial Relay | Plugin Configure + shipping plugin JSON | Admin (secret store on that env) |

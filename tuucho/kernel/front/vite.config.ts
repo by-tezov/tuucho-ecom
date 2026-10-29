@@ -1,9 +1,135 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
+import { cp, mkdir, readdir } from 'node:fs/promises';
+import { join, resolve, sep } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { inspectConfig } from '../back/src/config/loadJsonConfig.ts';
 import { resolveCssComposeSpecifier, viteResolveAlias } from './importAliases.ts';
+
+const PACK_ROOT = resolve(process.cwd(), '../../..');
+const CONFIG_ROOT = resolve(PACK_ROOT, 'tuucho-config');
+const FRONT_PUBLIC_DIR = resolve(CONFIG_ROOT, 'front-public');
+
+type FrontOverlay = {
+  shellTitle?: string;
+};
+
+/**
+ * Optional shop Vite overlay: `tuucho-config/front.json` then
+ * `front.<APP_TARGET>.json`. Copies `VITE_` / `SITEMAP_` / `SSR_` keys into
+ * `process.env` (same consumers as `src/config/env.ts`). Optional
+ * `shellTitle` rewrites the SPA shell `<title>` at build/dev time.
+ */
+function loadFrontOverlay(target: string): FrontOverlay {
+  const overlay: FrontOverlay = {};
+  for (const name of ['front.json', `front.${target}.json`] as const) {
+    const path = resolve(CONFIG_ROOT, name);
+    let raw: string;
+    try {
+      raw = readFileSync(path, 'utf8');
+    } catch {
+      continue;
+    }
+    let data: unknown;
+    try {
+      data = JSON.parse(raw) as unknown;
+    } catch {
+      throw new Error(`${path} is not valid JSON`);
+    }
+    if (!data || typeof data !== 'object' || Array.isArray(data)) continue;
+    for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+      if (key === 'shellTitle' && typeof value === 'string' && value.trim()) {
+        overlay.shellTitle = value.trim();
+        continue;
+      }
+      if (!key.startsWith('VITE_') && !key.startsWith('SITEMAP_') && !key.startsWith('SSR_')) continue;
+      if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        process.env[key] = String(value);
+      }
+    }
+  }
+  return overlay;
+}
+
+function isPathInside(parent: string, child: string): boolean {
+  const root = resolve(parent) + sep;
+  return resolve(child).startsWith(root);
+}
+
+async function copyDirContents(src: string, dest: string): Promise<void> {
+  await mkdir(dest, { recursive: true });
+  const entries = await readdir(src, { withFileTypes: true });
+  for (const entry of entries) {
+    const from = join(src, entry.name);
+    const to = join(dest, entry.name);
+    if (entry.isDirectory()) {
+      await copyDirContents(from, to);
+      continue;
+    }
+    if (entry.isFile()) await cp(from, to);
+  }
+}
+
+/**
+ * First-paint shop brand: rewrite shell title and overlay kernel `public/`
+ * with optional `tuucho-config/front-public/` (favicon, og-image, lock-probe).
+ */
+function shopFrontShell(overlay: FrontOverlay): Plugin {
+  const hasPublicOverlay = existsSync(FRONT_PUBLIC_DIR) && statSync(FRONT_PUBLIC_DIR).isDirectory();
+  return {
+    name: 'tuucho-shop-front-shell',
+    configureServer(server) {
+      if (!hasPublicOverlay) return;
+      server.middlewares.use((req, res, next) => {
+        const urlPath = (req.url ?? '').split('?')[0] ?? '';
+        if (!urlPath || urlPath === '/' || urlPath.includes('\0')) {
+          next();
+          return;
+        }
+        let decoded: string;
+        try {
+          decoded = decodeURIComponent(urlPath);
+        } catch {
+          next();
+          return;
+        }
+        const file = resolve(FRONT_PUBLIC_DIR, `.${decoded}`);
+        if (!isPathInside(FRONT_PUBLIC_DIR, file) || !existsSync(file) || !statSync(file).isFile()) {
+          next();
+          return;
+        }
+        const ext = file.split('.').pop()?.toLowerCase();
+        const types: Record<string, string> = {
+          svg: 'image/svg+xml',
+          jpg: 'image/jpeg',
+          jpeg: 'image/jpeg',
+          png: 'image/png',
+          webp: 'image/webp',
+          ico: 'image/x-icon',
+          json: 'application/json',
+          txt: 'text/plain; charset=utf-8',
+        };
+        if (ext && types[ext]) res.setHeader('Content-Type', types[ext]);
+        res.statusCode = 200;
+        createReadStream(file).pipe(res);
+      });
+    },
+    async writeBundle(options) {
+      if (!hasPublicOverlay) return;
+      const outDir = options.dir;
+      if (!outDir) return;
+      await copyDirContents(FRONT_PUBLIC_DIR, outDir);
+    },
+    transformIndexHtml(html) {
+      if (!overlay.shellTitle) return html;
+      const escaped = overlay.shellTitle
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      return html.replace(/<title>[^<]*<\/title>/, `<title>${escaped}</title>`);
+    },
+  };
+}
 
 /**
  * Plugin CSS lives outside the Vite root (`tuucho/plugins/<group>/<feature>/<id>/front`). A relative
@@ -60,7 +186,7 @@ function loadKernelHttp(target: string): {
   frontendBaseUrl?: string;
   enabledLanguages?: string;
 } {
-  const status = inspectConfig(resolve(process.cwd(), '../../../tuucho-config'), target);
+  const status = inspectConfig(CONFIG_ROOT, target);
   if (!status.ok || !status.merged) {
     throw new Error(status.errors.join('\n') || `kernel config for ${target} failed`);
   }
@@ -81,7 +207,7 @@ function loadKernelHttp(target: string): {
   return loaded;
 }
 
-const rootPkg = JSON.parse(readFileSync(resolve(process.cwd(), '../../../package.json'), 'utf-8')) as {
+const rootPkg = JSON.parse(readFileSync(resolve(PACK_ROOT, 'package.json'), 'utf-8')) as {
   version?: unknown;
 };
 if (typeof rootPkg.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(rootPkg.version)) {
@@ -92,7 +218,9 @@ const appVersion = rootPkg.version;
 export default defineConfig(({ mode }) => {
   // Origins come from kernel JSON (`http.apiBaseUrl` / `http.frontendBaseUrl`).
   // Shop copy and plugin keys come from `/storefront/bootstrap`.
+  // Optional front timings / shell: `tuucho-config/front.json` + `front.<env>.json`.
   const targetFileSuffix = process.env.APP_TARGET || (mode === 'development' ? 'dev' : mode);
+  const frontOverlay = loadFrontOverlay(targetFileSuffix);
   const kernelHttp = loadKernelHttp(targetFileSuffix);
   if (kernelHttp.apiBaseUrl) process.env.VITE_API_BASE_URL = kernelHttp.apiBaseUrl;
   if (kernelHttp.frontendBaseUrl) process.env.VITE_SITE_URL = kernelHttp.frontendBaseUrl;
@@ -107,7 +235,7 @@ export default defineConfig(({ mode }) => {
   return {
     base: '/',
     resolve: { alias: viteResolveAlias },
-    plugins: [absoluteCssModuleComposes(), react()],
+    plugins: [absoluteCssModuleComposes(), shopFrontShell(frontOverlay), react()],
     css: {
       postcss: {
         plugins: [stampPostcssFrom()],

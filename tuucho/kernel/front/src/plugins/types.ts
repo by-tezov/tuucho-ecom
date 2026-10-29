@@ -83,6 +83,7 @@ export interface StorefrontBootstrap {
       nativeName: string;
       ogLocale: string;
       dateLocale?: string;
+      flagUrl?: string;
     }>;
   };
   /** Brand artwork overrides (key -> image URL) from the

@@ -1,0 +1,7 @@
+{
+  "shellTitle": "Shop",
+  "VITE_LOADING_MIN": "450ms",
+  "VITE_LOADING_MIN_SHORT": "250ms",
+  "VITE_LOADING_MIN_LONG": "1250ms",
+  "VITE_NOTICE": "2400ms"
+}

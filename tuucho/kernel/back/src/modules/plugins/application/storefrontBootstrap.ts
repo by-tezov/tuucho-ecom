@@ -77,6 +77,7 @@ export async function buildStorefrontBootstrap(db: Pool = pool) {
           nativeName: entry.nativeName,
           ogLocale: entry.ogLocale,
           ...(entry.dateLocale ? { dateLocale: entry.dateLocale } : {}),
+          ...(entry.flagUrl ? { flagUrl: entry.flagUrl } : {}),
         })),
     },
     /** Static brand artwork overrides (key -> absolute image URL), empty until

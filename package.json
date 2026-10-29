@@ -1,7 +1,7 @@
 {
   "name": "tuucho-ecom",
   "private": true,
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Self-hosted batteries-included e-commerce platform: kernel plus bundled plugins.",
   "engines": {
     "node": ">=22.13"

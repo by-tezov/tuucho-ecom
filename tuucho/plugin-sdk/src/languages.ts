@@ -11,6 +11,8 @@ export type RegisteredLanguage = {
   ogLocale: string;
   /** Optional BCP-47 tag for `Intl` date formatting (`en-US`). */
   dateLocale?: string;
+  /** Optional absolute URL for the language switcher flag (SVG/PNG). */
+  flagUrl?: string;
 };
 
 const BUILTIN_LANGUAGES: readonly RegisteredLanguage[] = [
@@ -49,11 +51,13 @@ export function registerLanguage(def: RegisteredLanguage): void {
     throw new Error(`registerLanguage(${code}): ogLocale is required.`);
   }
   const dateLocale = def.dateLocale?.trim();
+  const flagUrl = def.flagUrl?.trim();
   languages.set(code, {
     code,
     nativeName,
     ogLocale,
     ...(dateLocale ? { dateLocale } : {}),
+    ...(flagUrl ? { flagUrl } : {}),
   });
 }
 
