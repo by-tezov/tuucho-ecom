@@ -12,7 +12,7 @@ import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const lockPath = join(root, 'installed.lock');
 const back = join(root, 'tuucho/kernel/back');
 const configRoot = join(root, 'tuucho-config');
@@ -80,14 +80,27 @@ function copyPrivateFromExample(privatePath, examplePath) {
   console.warn(`[setup] copied ${examplePath} -> ${privatePath} (edit before production)`);
 }
 
+function kernelConfigRoot() {
+  const nested = join(configRoot, 'kernel');
+  if (existsSync(join(nested, 'config.json'))) return nested;
+  return configRoot;
+}
+
 function materialiseConfig() {
-  copyPrivateFromExample(join(configRoot, 'config.private.json'), join(configRoot, 'config.private.example.json'));
+  const kernel = kernelConfigRoot();
+  copyPrivateFromExample(join(kernel, 'config.private.json'), join(kernel, 'config.private.example.json'));
   copyPrivateFromExample(
-    join(configRoot, 'config.private.dev.json'),
-    join(configRoot, 'config.private.dev.example.json'),
+    join(kernel, 'dev', 'config.private.json'),
+    join(kernel, 'dev', 'config.private.example.json'),
   );
+  // Legacy name-style fallback if factory still ships it.
+  copyPrivateFromExample(join(kernel, 'config.private.dev.json'), join(kernel, 'config.private.dev.example.json'));
   if (!existsSync(join(configRoot, 'plugins.json'))) {
-    copyPrivateFromExample(join(configRoot, 'plugins.json'), join(configRoot, 'plugins.example.json'));
+    const example = join(configRoot, 'plugins.example.json');
+    if (existsSync(example)) {
+      writeFileSync(join(configRoot, 'plugins.json'), readFileSync(example));
+      console.warn('[setup] copied plugins.example.json -> plugins.json');
+    }
   }
 }
 
@@ -98,9 +111,12 @@ function writeConfig(options) {
   const piiPepper = randomBytes(32).toString('base64');
   const databaseUrl = `postgres://${options.postgresUser}:${encodeURIComponent(options.postgresPassword)}@127.0.0.1:5434/${options.postgresDb}`;
 
-  mkdirSync(configRoot, { recursive: true });
+  const kernel = kernelConfigRoot();
+  const destDir = existsSync(join(kernel, 'dev')) ? join(kernel, 'dev') : kernel;
+  const destName = existsSync(join(kernel, 'dev')) ? 'config.private.json' : 'config.private.dev.json';
+  mkdirSync(destDir, { recursive: true });
   writeFileSync(
-    join(configRoot, 'config.private.dev.json'),
+    join(destDir, destName),
     JSON.stringify(
       {
         database: {
@@ -147,10 +163,10 @@ async function install(options) {
   await waitForPostgres(options.postgresUser);
   run('npm', ['install'], root);
   run('npm', ['run', 'operation', '--', 'database-migrate', '--dev'], back);
-  run('npm', ['run', 'library', '--', 'seed', '--dev', '--source', join(root, 'sample/product/library')], back);
-  run('npm', ['run', 'library', '--', 'seed', '--dev', '--source', join(root, 'sample/product/library-user')], back);
-  run('npm', ['run', 'accessory', '--', 'seed', '--dev', '--source', join(root, 'sample/product/accessory')], back);
-  run('npm', ['run', 'courier', '--', 'seed', '--dev', '--source', join(root, 'sample/courier')], back);
+  run('npm', ['run', 'library', '--', 'seed', '--dev', '--source', join(root, 'tuucho/sample/product/library')], back);
+  run('npm', ['run', 'library', '--', 'seed', '--dev', '--source', join(root, 'tuucho/sample/product/library-user')], back);
+  run('npm', ['run', 'accessory', '--', 'seed', '--dev', '--source', join(root, 'tuucho/sample/product/accessory')], back);
+  run('npm', ['run', 'courier', '--', 'seed', '--dev', '--source', join(root, 'tuucho/sample/courier')], back);
   run('npm', ['run', 'payment-method', '--', 'seed', '--dev'], back);
   run('npm', ['run', 'payment-method-countries', '--', 'seed', '--dev'], back);
   run(

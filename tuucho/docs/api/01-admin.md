@@ -819,15 +819,14 @@ Admin Core checks and applies `kernel` only. Admin Plugins checks and applies
 `plugins` or one `plugin`. `all` stays available on this route.
 Starts a snapshot then walks every intermediate tag. Tuucho scopes never write
 `src/plugins/` or `tuucho-config/`. Kernel scope writes `tuucho/kernel`,
-`tuucho/plugin-sdk`, `tuucho/factory-backup`, `tuucho/docs`,
+`tuucho/plugin-sdk`, `tuucho/factory-backup`, `tuucho/docs`, `tuucho/scripts`, `tuucho/sample`,
 `tuucho/tuucho-versioning.json`, and the shop root `package.json`; `all` adds
 `tuucho/plugins`. Each scoped tree is replaced wholesale, so files removed
-inside it between tags disappear, but a path outside this list (root
-`scripts/`, `AGENTS.md`, `.agents/`, `.prettierrc`, a deleted root `docs/`) is
-never written or cleaned up: root-level moves between 0.0.5 and 0.0.6 require
-`git pull`. A user `plugin` scope replaces that folder only under
-`src/plugins/`. Concurrent Apply → `409 update_busy`. Poll
-`GET /admin/plugins/updates/status` for the log.
+inside it between tags disappear, but a path outside this list (`AGENTS.md`,
+`.agents/`, `.prettierrc`, a deleted root `docs/`) is never written or cleaned
+up: root-level moves between 0.0.5 and 0.0.6 require `git pull`. A user
+`plugin` scope replaces that folder only under `src/plugins/`. Concurrent Apply
+→ `409 update_busy`. Poll `GET /admin/plugins/updates/status` for the log.
 
 ### `GET /admin/plugins/updates/status`
 

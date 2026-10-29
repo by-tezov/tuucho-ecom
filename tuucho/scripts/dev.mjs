@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const children = [
   spawn('npm', ['run', 'dev'], { cwd: join(root, 'tuucho/kernel/back'), stdio: 'inherit', env: process.env }),
   spawn('npm', ['run', 'dev', '--', '--port', '5174', '--strictPort'], {

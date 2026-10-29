@@ -1,7 +1,7 @@
 {
   "name": "tuucho-ecom",
   "private": true,
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Self-hosted batteries-included e-commerce platform: kernel plus bundled plugins.",
   "engines": {
     "node": ">=22.13"
@@ -23,21 +23,21 @@
     "zod": "^4.6.1"
   },
   "scripts": {
-    "setup": "node scripts/install.mjs",
-    "setup:cli": "node scripts/install.mjs --yes",
-    "dev": "node scripts/dev.mjs",
+    "setup": "node tuucho/scripts/install.mjs",
+    "setup:cli": "node tuucho/scripts/install.mjs --yes",
+    "dev": "node tuucho/scripts/dev.mjs",
     "dev:back": "npm --prefix tuucho/kernel/back run dev",
     "dev:front": "npm --prefix tuucho/kernel/front run dev -- --port 5174 --strictPort",
-    "versioning": "node scripts/tuucho-versioning.mjs",
-    "versioning:check": "node scripts/tuucho-versioning.mjs --check",
-    "factory-sync": "node scripts/factory-sync.mjs",
-    "factory-sync:check": "node scripts/factory-sync.mjs --check",
+    "versioning": "node tuucho/scripts/tuucho-versioning.mjs",
+    "versioning:check": "node tuucho/scripts/tuucho-versioning.mjs --check",
+    "factory-sync": "node tuucho/scripts/factory-sync.mjs",
+    "factory-sync:check": "node tuucho/scripts/factory-sync.mjs --check",
     "config:migrate": "npm --prefix tuucho/kernel/back run config:migrate",
     "config:doctor": "npm --prefix tuucho/kernel/back run config:doctor",
     "config:env": "npm --prefix tuucho/kernel/back run config:env",
     "typecheck": "tsc -p tsconfig.json",
-    "format": "prettier --write \"tuucho/**/*.{ts,tsx,css,mjs,json,md}\" \"src/**/*.{ts,tsx,css,json,md}\" \"scripts/**/*.mjs\" \"*.{ts,mjs,json,md}\"",
-    "format:check": "prettier --check \"tuucho/**/*.{ts,tsx,css,mjs,json,md}\" \"src/**/*.{ts,tsx,css,json,md}\" \"scripts/**/*.mjs\" \"*.{ts,mjs,json,md}\""
+    "format": "prettier --write \"tuucho/**/*.{ts,tsx,css,mjs,json,md}\" \"src/**/*.{ts,tsx,css,json,md}\" \"*.{ts,mjs,json,md}\"",
+    "format:check": "prettier --check \"tuucho/**/*.{ts,tsx,css,mjs,json,md}\" \"src/**/*.{ts,tsx,css,json,md}\" \"*.{ts,mjs,json,md}\""
   },
   "devDependencies": {
     "prettier": "^3.9.5",

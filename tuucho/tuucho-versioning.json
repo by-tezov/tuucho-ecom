@@ -1,8 +1,8 @@
 {
-  "_comment": "Check/Apply tag catalog generated from shop-root package.json (the only product version). Not Plugins Core or Check current. Historical GitHub tags may still use tuucho-release.json or release.json. Generate before tagging: node scripts/tuucho-versioning.mjs",
-  "tag": "0.0.7",
-  "kernel": "0.0.7",
-  "releaseId": 7,
+  "_comment": "Check/Apply tag catalog generated from shop-root package.json (the only product version). Not Plugins Core or Check current. Historical GitHub tags may still use tuucho-release.json or release.json. Generate before tagging: node tuucho/scripts/tuucho-versioning.mjs",
+  "tag": "0.0.8",
+  "kernel": "0.0.8",
+  "releaseId": 8,
   "kernelMigrations": [
     "1738000000000_init",
     "1738000000001_compat_and_gift_classic",

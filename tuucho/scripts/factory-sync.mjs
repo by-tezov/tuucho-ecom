@@ -18,7 +18,7 @@ import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promi
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const checkOnly = process.argv.includes('--check');
 
 const LIVE_CONFIG = join(root, 'tuucho-config');
@@ -147,14 +147,26 @@ async function pruneEmptyDirs(dir, { preserveNames = [] } = {}) {
 }
 
 async function main() {
+  if (!(await pathExists(FACTORY_CONFIG))) {
+    throw new Error(`missing ${relative(root, FACTORY_CONFIG)}`);
+  }
   if (!(await pathExists(LIVE_CONFIG))) {
+    if (checkOnly) {
+      console.log(
+        'factory-sync:check skipped: no local tuucho-config/ (operator tree). Shipped templates are tuucho/factory-backup/config/.',
+      );
+      return;
+    }
     throw new Error(`missing ${relative(root, LIVE_CONFIG)} (run npm run config:migrate / setup first)`);
   }
   if (!(await pathExists(LIVE_PLUGINS))) {
+    if (checkOnly) {
+      console.log(
+        'factory-sync:check skipped: no local src/plugins/ (operator tree). Shipped examples are tuucho/factory-backup/plugins/.',
+      );
+      return;
+    }
     throw new Error(`missing ${relative(root, LIVE_PLUGINS)} (run npm run config:migrate / setup first)`);
-  }
-  if (!(await pathExists(FACTORY_CONFIG))) {
-    throw new Error(`missing ${relative(root, FACTORY_CONFIG)}`);
   }
 
   const configPlan = await collectConfigPlan();

@@ -6,7 +6,7 @@
  *
  * Runs, in order: library, library-user, courier, accessory, cart-rule,
  * payment-method, payment-method-countries, sign-in-method.
- * Library, user library, and accessory read tuucho-ecom/sample. Custom-set
+ * Library, user library, and accessory read tuucho/sample. Custom-set
  * (library-nail) stays out of this command. On --dev, unowned user-library
  * products are then attached to the sole super-admin.
  * Catalogue imports receive --update/--delete/direction. In local direction,
@@ -32,7 +32,7 @@ import { isValidMode, type Mode } from './envFile.js';
 import { parseTransportFlags, requireTransport, transportFlags, type Transport } from './transport.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const sampleRoot = join(root, '..', '..', '..', 'sample');
+const sampleRoot = join(root, '..', '..', 'sample');
 const userLibrarySource = join(sampleRoot, 'product', 'library-user');
 const accessorySource = join(sampleRoot, 'product', 'accessory');
 

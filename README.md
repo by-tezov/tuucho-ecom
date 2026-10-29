@@ -19,16 +19,14 @@ Needs Node 22+, Docker (Postgres 10 on host port **5434**), and npm.
 Clone a **version tag**, not untagged `master`:
 
 ```bash
-git clone --branch 0.0.6 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
+git clone --branch 0.0.7 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
 cd tuucho-ecom
-# public JSON is already in git under tuucho-config/kernel/ (common + kernel/dev/)
-cp tuucho-config/kernel/dev/config.private.example.json tuucho-config/kernel/dev/config.private.json
-# replace placeholders in that private file (database url, jwt, pii, ops, smtp)
+# setup copies tuucho/factory-backup/config → tuucho-config/ (operator tree, not in git)
 npm run setup:cli -- --yes \
   --store-name Shop \
   --admin-email admin@shop.example \
   --admin-password 'ShopAdmin1!'
-# APP_TARGET=dev is the local default (selects the env named in kernel/config.json environments)
+# APP_TARGET=dev is the local default (env key in tuucho-config/kernel/config.json)
 npm run dev
 ```
 
@@ -57,19 +55,23 @@ root (`plugins.json`, `migrate-stamp.json`, `plugins/`). Each config tree
 its own `environments` map in that tree’s common `config.json`. Paths in
 the map are relative to that tree only. Folder style (`dev/config.json`),
 name style (`config.dev.json`), or a mix are all valid when the map says so.
-When the map is absent, the loader still discovers both layouts. This clone
-ships folder style under `kernel/dev/` with an explicit map.
+When the map is absent, the loader still discovers both layouts. Shipped
+templates use folder style under `tuucho/factory-backup/config/kernel/dev/`
+with an explicit map; first install copies them into local `tuucho-config/`.
 
 Merge, top to bottom (bottom wins): common public → env public → common
 private (or its example) → env private (or its example) → leftover process
 overlay (`APP_TARGET`, `PORT`, optional `DATABASE_URL`). `APP_TARGET` must
 match a kernel env key (local default `dev`). Missing env → error naming it.
 
-Public JSON is committed. Private JSON is gitignored; each has a committed
-functional `*.example`. Boot: missing private + example present → warning,
-load example, launch. Both missing → error. Private present but required keys
-missing → error naming each key. `npm --prefix tuucho/kernel/back run config:doctor`
-prints the same list plus every known kernel environment.
+Pack git ships templates only under `tuucho/factory-backup/`. Live
+`tuucho-config/` is operator-owned (gitignored in this repo), created by
+setup / `config:migrate`. Private JSON stays gitignored; each has a
+functional `*.example` in the factory (and after install, locally). Boot:
+missing private + example present → warning, load example, launch. Both
+missing → error. Private present but required keys missing → error naming
+each key. `npm --prefix tuucho/kernel/back run config:doctor` prints the
+same list plus every known kernel environment.
 
 `paths.outputDir` (env `OUTPUT_DIR`) roots every generated artifact: reports,
 caches, log downloads, coverage, and the dev email preview tree. Unset it
@@ -94,12 +96,12 @@ save stays `preferences`. See Admin → Documentation → **Config files**.
 
 | Concern | After first boot | File or Admin |
 | --- | --- | --- |
-| Kernel policy (TTLs, rates) | Committed `tuucho-config/kernel/config.json` | Git (common public) |
-| Languages (default, enabled) | `i18n` in committed `tuucho-config/kernel/config.json` | Git (common public) |
-| Env URLs / dirs | Paths from that file’s `environments` map (shipped: `kernel/<env>/config.json`) | Git (env public) |
-| DB / JWT / PII / ops / SMTP passwords | Common + env private files under `tuucho-config/kernel/` (from those `*.example` files) | Gitignored files |
-| Plugin public settings | Committed `tuucho-config/plugins/<id>/config.json` (user plugins: beside `package.json`) | Git, then first launch / Update from files / Configure |
-| Plugin secrets | Gitignored `config.private.json` next to that public file (`*.example` committed) | Gitignored file, then sealed `plugins.secrets` |
+| Kernel policy (TTLs, rates) | Local `tuucho-config/kernel/config.json` (from factory) | Operator file |
+| Languages (default, enabled) | `i18n` in that common public file | Operator file |
+| Env URLs / dirs | Paths from that file’s `environments` map (shipped template: `kernel/<env>/config.json`) | Operator file |
+| DB / JWT / PII / ops / SMTP passwords | Common + env private files under `tuucho-config/kernel/` (from those `*.example` files) | Gitignored secrets |
+| Plugin public settings | Local `tuucho-config/plugins/<id>/config.json` (user plugins: beside `package.json`) | Operator file, then first launch / Update from files / Configure |
+| Plugin secrets | Gitignored `config.private.json` next to that public file (`*.example` in factory) | Gitignored file, then sealed `plugins.secrets` |
 | Shop name, legal, footer | Admin + `footer-identity` / `page-legal` | Admin (that env’s DB) |
 | Brand artwork (hero, about, guide, onboarding images) | Bootstrap `brandAssets`, set by a plugin’s `storefront.bootstrap` filter | Plugin (kernel demo images stay the default) |
 | Stripe | Plugin Configure + `tuucho-config/plugins/tuucho-payment-stripe/` | Admin (secret store on that env) |
@@ -114,7 +116,7 @@ save stays `preferences`. See Admin → Documentation → **Config files**.
 npm --prefix tuucho/kernel/back run config:env -- create preprod
 cp tuucho-config/kernel/preprod/config.private.example.json \
    tuucho-config/kernel/preprod/config.private.json
-# edit URLs/paths/CORS in tuucho-config/kernel/preprod/config.json — commit that
+# edit URLs/paths/CORS in tuucho-config/kernel/preprod/config.json
 # fill a **new** database URL, JWT, PII, ops in the private file — never commit
 # APP_TARGET=preprod  (or --env preprod on OPS CLIs)
 npm --prefix tuucho/kernel/back run config:doctor
@@ -133,7 +135,7 @@ the newest official GitHub tag. A checkout newer than that tag is ahead (no
 Apply). Matching tags: nothing to update. Older local: walk every tag.
 `tuucho-versioning.lock.json` is gitignored last-applied Apply state (setup / Apply write it locally), not displayed current.
 The Check/Apply catalog is `tuucho/tuucho-versioning.json` (generate with
-`node scripts/tuucho-versioning.mjs` before tagging). Shipped JSON templates
+`node tuucho/scripts/tuucho-versioning.mjs` before tagging). Shipped JSON templates
 live in `tuucho/factory-backup/config/`; operator files in `tuucho-config/` survive
 Apply. First install copies factory; later: `npm run config:migrate`.
 Shop examples ship in `tuucho/factory-backup/plugins/` and copy to `src/plugins/`
@@ -142,7 +144,7 @@ on first install only (`src/plugins/` is gitignored). Apply never overwrites
 `tuucho-config/` or `src/plugins/`, run `npm run factory-sync` so factory backup
 matches (`npm run factory-sync:check` / `check:factory-sync` fails on drift).
 Kernel Apply writes `tuucho/kernel`, `tuucho/plugin-sdk`,
-`tuucho/factory-backup`, `tuucho/docs`, the versioning catalog, and root `package.json`; `all` adds `tuucho/plugins`.
+`tuucho/factory-backup`, `tuucho/docs`, `tuucho/scripts`, `tuucho/sample`, the versioning catalog, and root `package.json`; `all` adds `tuucho/plugins`.
 Apply replaces each scoped tree wholesale but never writes or removes a path
 outside that list: root-level moves between 0.0.5 and 0.0.6 (root `docs/`
 removed, `scripts/` trimmed, root `AGENTS.md` / `.agents/` / `.prettierrc`
@@ -189,10 +191,10 @@ tuucho/factory-backup/config/   Shipped JSON templates, copied to tuucho-config/
 tuucho/factory-backup/plugins/  Shipped shop examples, copied to src/plugins/ on first install
 tuucho/factory-backup/migrations/ Optional config:migrate steps (publisher-owned; see .example.json)
 tuucho-config/         Operator public + private JSON (survives Apply)
-sample/                Fictional catalog + courier JSON
-scripts/               dev.mjs, install.mjs, tuucho-versioning.mjs, factory-sync.mjs
+tuucho/sample/         Fictional catalog + courier JSON
+tuucho/scripts/        pack scripts (dev, install, versioning, factory-sync)
 output/                Generated artifacts (paths.outputDir; gitignored)
-.agents/               Agent skills (skills-lock.json at root); AGENTS.md + CLAUDE.md at root
+.agents/               Agent skills (skills-lock.json at root); AGENTS.md at root
 .prettierrc            One formatter config for the repo (root format / format:check)
 ```
 

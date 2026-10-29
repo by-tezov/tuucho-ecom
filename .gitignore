@@ -13,9 +13,12 @@ tuucho/kernel/back/.env/
 tuucho/kernel/front/.env/
 tuucho/kernel/front/node_modules/
 tuucho/kernel/back/node_modules/
-# Operator secrets (kernel + plugins). Never ignore public JSON or *.example.json.
-tuucho-config/config.private.json
-tuucho-config/plugins/**/config.private.json
+# Operator tree (first-install copy from tuucho/factory-backup/config/).
+# Pack git ships templates only under tuucho/factory-backup/. Never track live
+# tuucho-config/ here; Apply never replaces it. Shop clones may delete this
+# line if they want to version public JSON in their own repo.
+/tuucho-config/
+# Operator secrets if a shop tracks part of tuucho-config/ or other trees.
 **/config.private.json
 **/config.private.*.json
 !**/config.private.example.json

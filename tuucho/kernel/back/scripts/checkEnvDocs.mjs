@@ -23,9 +23,17 @@ import { readdir, readFile } from 'node:fs/promises';
 import { extname, relative, resolve } from 'node:path';
 
 const root = resolve('.');
-const nestedConfig = resolve(root, '../../../tuucho-config/kernel/config.json');
-const flatConfig = resolve(root, '../../../tuucho-config/config.json');
-const configPath = existsSync(nestedConfig) ? nestedConfig : flatConfig;
+const candidates = [
+  resolve(root, '../../../tuucho-config/kernel/config.json'),
+  resolve(root, '../../../tuucho-config/config.json'),
+  resolve(root, '../../../tuucho/factory-backup/config/kernel/config.json'),
+  resolve(root, '../../../tuucho/factory-backup/config/config.json'),
+];
+const configPath = candidates.find((path) => existsSync(path));
+if (!configPath) {
+  console.error('Env documentation check failed: no kernel config.json under tuucho-config/ or factory-backup/config/.');
+  process.exit(1);
+}
 const mapPath = resolve(root, 'src/config/configEnvMap.ts');
 const docsRoot = resolve(root, '../../docs');
 

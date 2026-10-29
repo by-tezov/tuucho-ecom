@@ -3,19 +3,19 @@
  * Build or check tuucho/tuucho-versioning.json against the product version in
  * root package.json. Not Plugins Core / Check current. Run before tagging.
  *
- *   node scripts/tuucho-versioning.mjs           # write (create if missing)
- *   node scripts/tuucho-versioning.mjs --check   # fail on drift
+ *   node tuucho/scripts/tuucho-versioning.mjs           # write (create if missing)
+ *   node tuucho/scripts/tuucho-versioning.mjs --check   # fail on drift
  */
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const checkOnly = process.argv.includes('--check');
 const CATALOG = join('tuucho', 'tuucho-versioning.json');
 const LEGACY = ['tuucho-release.json', 'release.json'];
 const COMMENT =
-  'Check/Apply tag catalog generated from shop-root package.json (the only product version). Not Plugins Core or Check current. Historical GitHub tags may still use tuucho-release.json or release.json. Generate before tagging: node scripts/tuucho-versioning.mjs';
+  'Check/Apply tag catalog generated from shop-root package.json (the only product version). Not Plugins Core or Check current. Historical GitHub tags may still use tuucho-release.json or release.json. Generate before tagging: node tuucho/scripts/tuucho-versioning.mjs';
 
 async function walkPluginJson(dir, out) {
   let names = [];
@@ -114,7 +114,7 @@ async function main() {
     } else if (existing && existing.kernel !== kernel && typeof existing.releaseId === 'number') {
       if (checkOnly) {
         throw new Error(
-          `Kernel is ${kernel} but ${CATALOG} still has kernel ${existing.kernel} (releaseId ${existing.releaseId}). Run node scripts/tuucho-versioning.mjs`,
+          `Kernel is ${kernel} but ${CATALOG} still has kernel ${existing.kernel} (releaseId ${existing.releaseId}). Run node tuucho/scripts/tuucho-versioning.mjs`,
         );
       }
       releaseId = existing.releaseId + 1;
@@ -146,10 +146,10 @@ async function main() {
     try {
       current = await readFile(join(root, CATALOG), 'utf8');
     } catch {
-      throw new Error(`${CATALOG} is missing. Run node scripts/tuucho-versioning.mjs`);
+      throw new Error(`${CATALOG} is missing. Run node tuucho/scripts/tuucho-versioning.mjs`);
     }
     if (current !== serialized) {
-      throw new Error(`${CATALOG} is stale. Run node scripts/tuucho-versioning.mjs`);
+      throw new Error(`${CATALOG} is stale. Run node tuucho/scripts/tuucho-versioning.mjs`);
     }
     return;
   }

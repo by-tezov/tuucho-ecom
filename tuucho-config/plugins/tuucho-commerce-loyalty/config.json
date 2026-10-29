@@ -1,7 +1,0 @@
-{
-  "burnNoticeWeeks": 6,
-  "cronLog": "/log/cron-loyalty.jsonl",
-  "lotDurationMonths": 6,
-  "reminderIntervalDays": 7,
-  "valuePer100": 10
-}

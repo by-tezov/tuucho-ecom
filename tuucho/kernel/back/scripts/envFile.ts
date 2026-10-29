@@ -5,7 +5,7 @@ import { PRIVATE_ENV_MAP } from '../src/config/configEnvMap.js';
 
 export type Mode = string;
 
-/** Seed fixture reader (`sample/seed-defaults.env`). Not leftover process env. */
+/** Seed fixture reader (`tuucho/sample/seed-defaults.env`). Not leftover process env. */
 
 function hasKernelOrFlatConfig(dir: string): boolean {
   return existsSync(join(dir, 'config.json')) || existsSync(join(dir, 'kernel', 'config.json'));
@@ -32,7 +32,7 @@ export function loadPublicEnv(root: string, mode: string): Record<string, string
 }
 
 export function loadSeedEnv(_root: string, _mode: string): Record<string, string> {
-  const fixture = join(_root, '..', '..', '..', 'sample', 'seed-defaults.env');
+  const fixture = join(_root, '..', '..', 'sample', 'seed-defaults.env');
   if (!existsSync(fixture)) return {};
   const values: Record<string, string> = {};
   for (const line of readFileSync(fixture, 'utf-8').split('\n')) {

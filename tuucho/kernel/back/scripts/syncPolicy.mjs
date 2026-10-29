@@ -4,8 +4,8 @@
  *
  * Source of truth: `tuucho/docs/policy/hard-rules.md`. Embeds exist only where a
  * tool needs the rule without opening that file (see the consumer table
- * there). `CLAUDE.md` is a router and must not embed rules: Cursor already
- * loads `AGENTS.md`, and Claude Code is told to read `AGENTS.md` first.
+ * there). Repository agent policy lives in root `AGENTS.md` only (no
+ * `CLAUDE.md`).
  *
  * A consumer marks where a rule goes:
  *
@@ -14,8 +14,9 @@
  *     <!-- policy:no-dashes-in-copy end -->
  *
  * `--check` fails when a copy has drifted, a marker names an unknown rule, or
- * `CLAUDE.md` contains a policy marker. Rules are edited in the source only.
+ * a root `CLAUDE.md` is present. Rules are edited in the source only.
  */
+import { existsSync } from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { extname, relative, resolve } from 'node:path';
 
@@ -36,8 +37,7 @@ if (rules.size === 0) {
 }
 
 /** Files that may embed a rule. Kept explicit: a stray marker in an unrelated
- * file should be a mistake to notice, not something silently rewritten.
- * `CLAUDE.md` is deliberately absent: it must stay a thin router. */
+ * file should be a mistake to notice, not something silently rewritten. */
 async function consumers() {
   const paths = [resolve(repoRoot, 'AGENTS.md')];
   for (const base of [resolve(repoRoot, '.cursor/rules')]) {
@@ -65,12 +65,8 @@ const errors = [];
 let embedded = 0;
 let rewritten = 0;
 
-const claudePath = resolve(repoRoot, 'CLAUDE.md');
-const claude = await readFile(claudePath, 'utf8').catch(() => undefined);
-if (claude !== undefined && /<!-- policy:[a-z0-9-]+ (?:start|source) -->/.test(claude)) {
-  errors.push(
-    'CLAUDE.md must not embed hard rules (it is a router). Keep the full set in AGENTS.md only.',
-  );
+if (existsSync(resolve(repoRoot, 'CLAUDE.md'))) {
+  errors.push('Remove root CLAUDE.md; agent policy lives in AGENTS.md only.');
 }
 
 for (const path of await consumers()) {

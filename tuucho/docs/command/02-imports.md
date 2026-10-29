@@ -8,7 +8,7 @@ flag, `--ssh` or `--ftp`; `--dev` needs neither. See
 
 Seed-only configuration for cart rules, shop payment methods / countries,
 courier live toggles, and third-party sign-in methods lives in
-`sample/seed-defaults.env`. These keys are **not** loaded by the running API.
+`tuucho/sample/seed-defaults.env`. These keys are **not** loaded by the running API.
 Only the matching `npm run … -- seed` CLIs and the aggregate `npm run seed`
 read them.
 
@@ -498,7 +498,7 @@ Kind commands upsert by `--code`; omitted flags keep the existing rule’s
 values, or take the same defaults `seed` uses when the code is new.
 
 Those defaults are not hard-coded: they come from `CART_RULE_*` in
-`sample/seed-defaults.env`, so a different franco threshold or gift product
+`tuucho/sample/seed-defaults.env`, so a different franco threshold or gift product
 is a fixture edit, not a code change. A missing or malformed key fails the
 command immediately rather than silently falling back.
 
@@ -539,7 +539,7 @@ npm run payment-method -- disable <card|paypal|bancontact|google-pay|apple-pay|a
 ```
 
 `check` is read-only. `seed` explicitly applies the defaults from
-`sample/seed-defaults.env`; it is idempotent and has no dependency on
+`tuucho/sample/seed-defaults.env`; it is idempotent and has no dependency on
 `catalog source`. `enable` and `disable` change only the named shop-wide
 flag; use `all` deliberately to change every flag. As with every target write,
 production requires `--confirm`.
@@ -580,7 +580,7 @@ npm run sign-in-method -- disable <google|facebook|apple|all> [--json] --dev|--p
 ```
 
 `check` is read-only. `seed` applies the defaults from
-`sample/seed-defaults.env`; it is
+`tuucho/sample/seed-defaults.env`; it is
 idempotent. `enable` and `disable` change only the named shop-wide **availability**
 flag (not the per-provider verbose create/link flow); use `all` deliberately to
 change every availability flag. Production writes require `--confirm`.

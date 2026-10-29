@@ -1,5 +1,5 @@
 {
-  "kernel": "0.0.7",
+  "kernel": "0.0.8",
   "plugins": [
     {
       "id": "tuucho-commerce-cart-rules",

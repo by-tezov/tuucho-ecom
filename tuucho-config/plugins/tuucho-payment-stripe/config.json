@@ -1,6 +1,0 @@
-{
-  "oneTimeCardRetentionDays": 30,
-  "paymentAuthExpirySpyBefore": "2d",
-  "publishableKey": "",
-  "requestTimeout": "12s"
-}

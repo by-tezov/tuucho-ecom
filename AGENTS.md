@@ -17,9 +17,9 @@ One repository, npm workspaces. Backend at `tuucho/kernel/back`, front-end at
   `src/api/auth.ts` (Bearer access + httpOnly refresh via
   `credentials: 'include'`). Any `VITE_`-prefixed value ships in the client
   bundle.
-- `catalog import tree` owns source catalogue data, courier definitions, and
-  gitignored voucher/order archives. Import through documented commands only;
-  never depend on the manager at runtime. The front never treats local static
+- `tuucho/sample/` (catalog import tree) owns demo catalogue data, courier
+  definitions, and seed defaults. Import through documented commands only;
+  never depend on that tree at runtime. The front never treats local static
   gallery files as the runtime catalogue.
 
 For implementation work, use `.agents/skills/tuucho-backend-change/SKILL.md`
@@ -34,8 +34,8 @@ For implementation work, use `.agents/skills/tuucho-backend-change/SKILL.md`
 | Package script, CLI command/subcommand, option, default, target rule, or side effect | Update the matching `tuucho/docs/command/` section and examples; keep `npm --prefix tuucho/kernel/back run check:docs` passing.                                                                              |
 | Cron schedule, eligibility, state transition, preference, log, or deploy switch      | Update `tuucho/docs/cron/README.md` and the relevant operations API/command documentation.                                                                                                                   |
 | Source ownership, module boundary, compatibility facade, or size rule                | Update `tuucho/docs/architecture/README.md` and `tuucho/kernel/back/scripts/checkArchitecture.mjs` when the enforceable rule changes.                                                                        |
-| Catalogue/courier/voucher import shape                                               | Update operations API and command docs; verify the relevant `catalog import tree` source contract.                                                                                                           |
-| Live `tuucho-config/` or `src/plugins/` in this product repo                         | Run `npm run factory-sync` so `tuucho/factory-backup/` matches (public + examples only). `factory-sync:check` fails on drift.                                                                                 |
+| Catalogue/courier/voucher import shape                                               | Update operations API and command docs; verify the relevant `tuucho/sample/` (catalog import tree) source contract.                                                                                          |
+| Live `tuucho-config/` or `src/plugins/` in this product repo (both gitignored)       | Run `npm run factory-sync` so `tuucho/factory-backup/` matches (public + examples only). `factory-sync:check` fails on drift when the live trees exist. Pack git ships templates only under `factory-backup/`. |
 | Environment variable                                                                 | Update the relevant README/command/cron documentation and safe public env examples; never expose private values.                                                                                             |
 | Dependency, SDK, provider API version, or runtime requirement                        | Update `package.json` and its lockfile together; check current official migration/deprecation/security guidance; update affected API/command docs. Do not opportunistically upgrade unrelated packages.      |
 
@@ -86,8 +86,8 @@ Feature map: [`tuucho/docs/features.json`](./tuucho/docs/features.json).
 **Single source:** [`tuucho/docs/policy/hard-rules.md`](./tuucho/docs/policy/hard-rules.md).
 Edit there, then `npm --prefix tuucho/kernel/back run sync:policy`.
 `npm --prefix tuucho/kernel/back run check:policy` rejects an edited copy.
-This section is the always-on embed for Cursor and for agents that load
-`AGENTS.md`. `CLAUDE.md` must not re-embed these rules.
+This section is the always-on embed for Cursor and other agents that load
+`AGENTS.md`.
 
 **Unit tests:** live only under `src-test/unit-test/` (mirror the `src/` path)
 in each workspace. Never add `*.test.ts` beside production modules (nor

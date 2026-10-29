@@ -8,7 +8,7 @@ export const LEGACY_RELEASE_CATALOGS = ['tuucho-release.json', 'release.json'] a
 export const LEGACY_SHOP_RELEASES = ['tuucho-shop-release.json', 'shop-release.json'] as const;
 
 export const TUCHO_VERSIONING_CATALOG_COMMENT =
-  'Check/Apply tag catalog generated from shop-root package.json (the only product version). Not Plugins Core or Check current. Historical GitHub tags may still use tuucho-release.json or release.json. Generate before tagging: node scripts/tuucho-versioning.mjs';
+  'Check/Apply tag catalog generated from shop-root package.json (the only product version). Not Plugins Core or Check current. Historical GitHub tags may still use tuucho-release.json or release.json. Generate before tagging: node tuucho/scripts/tuucho-versioning.mjs';
 
 export const TUCHO_VERSIONING_LOCK_COMMENT =
   'Last successful Apply or setup stamp, plus tuucho/ hashes used to refuse a dirty Apply. Gitignored shop-instance state, not library source. Plugins Core and Check current still read shop-root package.json.';

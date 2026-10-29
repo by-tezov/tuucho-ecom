@@ -158,6 +158,8 @@ Paths below are relative to the clone root (not to `tuucho/kernel/back`):
 | `tuucho/kernel/` | API + shop front |
 | `tuucho/plugins/` | Bundled plugins (`tuucho-*` ids) |
 | `tuucho/plugin-sdk/` | `@tuucho/plugin-sdk` |
+| `tuucho/scripts/` | Pack scripts (setup, dev, versioning, factory-sync) |
+| `tuucho/sample/` | Demo catalogue + courier JSON and seed-defaults.env |
 | `tuucho/factory-backup/config/` | Shipped JSON templates → `tuucho-config/` on first install |
 | `tuucho/factory-backup/plugins/` | Shipped shop examples → `src/plugins/` on first install |
 | `tuucho/factory-backup/migrations/` | Optional publisher `config:migrate` steps |

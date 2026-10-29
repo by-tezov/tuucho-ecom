@@ -11,8 +11,8 @@ command can pass the chosen remote transport to every child import; `--dev`
 needs neither. In `remote` direction (the default), runs `library`, `library-user`,
 `courier`, `courier-live-state`, `accessory`, `cart-rule`, `payment-method`,
 `payment-method-countries`, then `sign-in-method`. Public library, user library,
-and accessory read `sample/product/library`, `sample/product/library-user`, and
-`sample/product/accessory`. Custom-set (`library-nail`) stays out of this command.
+and accessory read `tuucho/sample/product/library`, `tuucho/sample/product/library-user`, and
+`tuucho/sample/product/accessory`. Custom-set (`library-nail`) stays out of this command.
 Sample user-library files ship with `"users": []`. On `--dev`, after that import,
 unowned user-library products are attached to the sole super-admin. `--dev`/`--preprod`/`--prod` and `--json`
 are forwarded to all. `--update` and `--delete` are forwarded to catalogue/
@@ -425,7 +425,7 @@ skipped.
 
 ## `npm run factory-sync` / `npm run factory-sync:check`
 
-Root scripts (`node scripts/factory-sync.mjs`). Same idea as `versioning`:
+Pack scripts (`node tuucho/scripts/factory-sync.mjs`). Same idea as `versioning`:
 
 - `npm run factory-sync` copies live `tuucho-config/` →
   `tuucho/factory-backup/config/` and live `src/plugins/` →
@@ -445,12 +445,12 @@ this command is the reverse (live → factory) for publishers.
 ## `npm run check:release`
 
 No arguments. Read-only. Part of `npm run check`. Runs
-`node ../../../scripts/tuucho-versioning.mjs --check` so
+`node ../../scripts/tuucho-versioning.mjs --check` (from `tuucho/kernel/back`) so
 `tuucho/tuucho-versioning.json` matches the **root** `package.json` version,
 kernel migration names, and every bundled plugin `package.json` under
 `tuucho/plugins/` plus `tuucho/plugins/manifest.json`. `kernel/back`,
 `kernel/front`, and `plugin-sdk` `package.json` must not carry a `version`.
-Drift fails CI. Write the catalog with `node ../../../scripts/tuucho-versioning.mjs`
+Drift fails CI. Write the catalog with `node tuucho/scripts/tuucho-versioning.mjs`
 (no `--check`) before tagging. Last-applied stamp is gitignored shop-instance
 `tuucho-versioning.lock.json` (setup / Apply write it locally; missing lock is
 not a boot error). Git tags are `MAJOR.MINOR.PATCH` with no `v`
@@ -743,8 +743,7 @@ No arguments. Rewrites every embedded copy of a hard rule from its one source,
 
 Embeds are intentional and limited: the full set in the repository-root
 `AGENTS.md`, and high-urgency or glob-scoped rules in `.cursor/rules/*.mdc`.
-`CLAUDE.md` must not embed rules (it is a router). See the consumer table in
-`tuucho/docs/policy/hard-rules.md`.
+See the consumer table in `tuucho/docs/policy/hard-rules.md`.
 
 A consumer marks where a rule goes:
 
@@ -760,7 +759,7 @@ the source file.
 
 No arguments. Read-only. Part of `npm run check`. Fails when an embedded copy
 was edited by hand, when a marker names a rule the source does not define, or
-when `CLAUDE.md` contains a policy marker.
+when a root `CLAUDE.md` is present (policy is `AGENTS.md` only).
 
 ## `npm run sync:schema`
 
