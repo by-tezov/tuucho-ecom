@@ -8,7 +8,6 @@
     "id": "tuucho-docs-developer-locale-fr",
     "installPath": "tuucho/plugins/docs/developer/tuucho-docs-developer-locale-fr",
     "name": "docs-developer French",
-    "kind": "locale",
     "defaultEnabled": false,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
@@ -21,6 +20,9 @@
     ],
     "provides": [
       "Locale"
+    ],
+    "kinds": [
+      "locale"
     ]
   },
   "dependencies": {

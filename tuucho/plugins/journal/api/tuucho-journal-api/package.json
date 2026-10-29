@@ -8,14 +8,16 @@
     "id": "tuucho-journal-api",
     "installPath": "tuucho/plugins/journal/api/tuucho-journal-api",
     "name": "Journal API",
-    "kind": "generic",
     "defaultEnabled": false,
     "provides": [
       "JournalApi"
     ],
     "engines": {
       "core": ">=0.0.1 <1.0.0"
-    }
+    },
+    "kinds": [
+      "generic"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

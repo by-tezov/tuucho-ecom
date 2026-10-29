@@ -8,7 +8,6 @@
     "id": "tuucho-shipping-expedition-cron",
     "installPath": "tuucho/plugins/shipping/expedition-cron/tuucho-shipping-expedition-cron",
     "name": "Expedition cron",
-    "kind": "generic",
     "defaultEnabled": false,
     "dependsOnMode": "any",
     "dependsOn": [
@@ -26,7 +25,10 @@
     ],
     "engines": {
       "core": ">=0.0.1 <1.0.0"
-    }
+    },
+    "kinds": [
+      "generic"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

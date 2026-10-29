@@ -19,6 +19,7 @@ import { ThemeSwitch } from '../components/ui/ThemeSwitch';
 import { ContrastControl } from '../components/ui/ContrastControl';
 import { shopConfig } from '../config/env';
 import { useStorefrontBootstrap } from '../plugins/StorefrontBootstrap';
+import { resolveAdminNavLabel } from './resolveAdminNavLabel';
 import styles from './AdminLayout.module.css';
 
 function HomeIcon() {
@@ -163,21 +164,24 @@ function AdminLayoutInner() {
     ...buildAdminSections(t, a, counts),
     ...pluginAdminNav
       .filter((item) => !buildAdminSections(t, a, counts).some((section) => section.id === item.id))
-      .map((item) => ({
-        id: item.id,
-        access: item.permission,
-        group: item.group as AdminNavItem['group'],
-        to: adminPath(item.to.startsWith('/') ? item.to : `/${item.to}`),
-        label: item.label,
-        description: item.label,
-        icon: <PluginsTileIcon />,
-        pluginId: item.pluginId,
-        alsoActiveOn: (item.alsoActiveOn ?? []).map((path) =>
-          adminPath(path.startsWith('/') ? path : `/${path}`),
-        ),
-        count:
-          item.id === 'contact' ? (counts.chatsOpen ?? 0) + (counts.contactsNew ?? 0) : 0,
-      })),
+      .map((item) => {
+        const label = resolveAdminNavLabel(item, a) || item.label || item.id;
+        return {
+          id: item.id,
+          access: item.permission,
+          group: item.group as AdminNavItem['group'],
+          to: adminPath(item.to.startsWith('/') ? item.to : `/${item.to}`),
+          label,
+          description: label,
+          icon: <PluginsTileIcon />,
+          pluginId: item.pluginId,
+          alsoActiveOn: (item.alsoActiveOn ?? []).map((path) =>
+            adminPath(path.startsWith('/') ? path : `/${path}`),
+          ),
+          count:
+            item.id === 'contact' ? (counts.chatsOpen ?? 0) + (counts.contactsNew ?? 0) : 0,
+        };
+      }),
   ];
   const sections = allSections.filter((item) => {
     if (!canOpenSection(item, access)) return false;

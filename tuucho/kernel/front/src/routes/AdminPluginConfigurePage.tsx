@@ -63,7 +63,7 @@ export function AdminPluginConfigurePage() {
       const result = await authedRequest((token) => getAdminPlugin(token, pluginId));
       setPlugin(result.plugin);
       setMissing(false);
-      if (result.plugin.manifest.kind === 'theme') {
+      if (result.plugin.manifest.kinds.includes('theme')) {
         const store = await authedRequest((token) => getAdminStore(token));
         setThemeTokens({ ...DEFAULT_THEME_TOKENS, ...(store.theme.tokens ?? {}) });
       }
@@ -85,6 +85,8 @@ export function AdminPluginConfigurePage() {
     }
     window.addEventListener('tuucho-plugin-config-saved', onSaved);
     return () => window.removeEventListener('tuucho-plugin-config-saved', onSaved);
+    // Same as the load effect: reload is stable for this pluginId session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pluginId]);
 
   if (missing) return <NotFoundPage />;
@@ -169,7 +171,7 @@ export function AdminPluginConfigurePage() {
           ]}
         />
       ) : null}
-      {plugin.manifest.kind === 'theme' ? (
+      {plugin.manifest.kinds.includes('theme') ? (
         <ThemeForm
           labels={w}
           tokens={themeTokens}

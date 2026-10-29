@@ -41,3 +41,13 @@ export function preferredLanguage(): Lang {
 export function savePreferredLanguage(language: Lang): void {
   window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
 }
+
+/** Active UI language for API headers and feed keys: prefer `<html lang>`
+ * (kept in sync with URL / LanguageContext) over storage-only preference. */
+export function activeLanguage(): Lang {
+  if (typeof document !== 'undefined') {
+    const htmlLang = document.documentElement.lang?.toLowerCase().split('-')[0] ?? '';
+    if (isEnabled(htmlLang)) return htmlLang;
+  }
+  return preferredLanguage();
+}

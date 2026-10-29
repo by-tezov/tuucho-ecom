@@ -21,21 +21,21 @@ test('docs groups follow install path, not generic kind', () => {
   assert.deepEqual(
     docsGroupForPlugin({
       id: 'tuucho-journal-api',
-      manifest: { kind: 'generic', installPath: 'tuucho/plugins/journal/api/tuucho-journal-api' },
+      manifest: { kinds: ['generic'], installPath: 'tuucho/plugins/journal/api/tuucho-journal-api' },
     }),
     { id: 'kind:journal', title: 'Journals' },
   );
   assert.deepEqual(
     docsGroupForPlugin({
       id: 'tuucho-shipping-expedition-cron',
-      manifest: { kind: 'generic', installPath: 'tuucho/plugins/shipping/expedition-cron/tuucho-shipping-expedition-cron' },
+      manifest: { kinds: ['generic'], installPath: 'tuucho/plugins/shipping/expedition-cron/tuucho-shipping-expedition-cron' },
     }),
     { id: 'kind:shipping', title: 'Shipping' },
   );
   assert.deepEqual(
     docsGroupForPlugin({
       id: 'page-guides',
-      manifest: { kind: 'page', installPath: 'src/plugins/demo/guides/page-guides' },
+      manifest: { kinds: ['page'], installPath: 'src/plugins/demo/guides/page-guides' },
     }),
     { id: 'kind:user', title: 'User plugins' },
   );
@@ -77,7 +77,7 @@ test('handbookArticle skips identity filler and empty files', () => {
       id: 'home-faq',
       name: 'Home FAQ',
       version: '1.0.0',
-      kind: 'generic',
+      kinds: ['generic'],
       description: 'FAQ block',
       installPath: 'src/plugins/home/faq/home-faq',
     },

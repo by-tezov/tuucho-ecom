@@ -120,7 +120,7 @@ export function isBlankHandbookField(value: string | undefined): boolean {
 
 export function docsGroupForPlugin(plugin: {
   id: string;
-  manifest: { kind: string; installPath?: string; sourceDir?: string };
+  manifest: { kinds: string[]; installPath?: string; sourceDir?: string };
 }): { id: string; title: string } {
   const path = (plugin.manifest.installPath ?? plugin.manifest.sourceDir ?? plugin.id).replaceAll('\\', '/');
   const parts = path.split('/').filter(Boolean);
@@ -132,7 +132,8 @@ export function docsGroupForPlugin(plugin: {
   }
   const srcAt = parts.indexOf('src');
   if (srcAt >= 0 && parts[srcAt + 1] === 'plugins') return { id: 'kind:user', title: 'User plugins' };
-  return KIND_GROUP[plugin.manifest.kind] ?? { id: 'kind:generic', title: 'Other plugins' };
+  const primary = plugin.manifest.kinds[0] ?? 'generic';
+  return KIND_GROUP[primary] ?? { id: 'kind:generic', title: 'Other plugins' };
 }
 
 function parsePairList(value: unknown, left: string, right: string): Array<Record<string, string>> {
@@ -321,7 +322,7 @@ export async function buildDocsSite(): Promise<{ groups: DocsGroup[]; articles: 
   const plugins = await listPlugins();
   const articles: DocsArticle[] = [];
   for (const plugin of plugins) {
-    if (plugin.manifest.kind === 'locale') continue;
+    if (plugin.manifest.kinds.length === 1 && plugin.manifest.kinds[0] === 'locale') continue;
     const folder = plugin.missingFromDisk ? undefined : plugin.manifest.sourceDir;
     if (!folder) continue;
     const dir = join(pluginPackageDir(plugin.manifest), 'docs');

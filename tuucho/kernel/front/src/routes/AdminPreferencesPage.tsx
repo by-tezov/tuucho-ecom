@@ -410,15 +410,12 @@ export function AdminPreferencesPage() {
   const countryLabel = (code: string) =>
     shipping?.addressCountries.find((row) => row.code === code)?.label ?? code;
 
-  const paymentActiveCount = useMemo(() => {
-    if (!preferences) return 0;
-    return visiblePaymentRows.filter((row) => preferences[row.key]).length;
-  }, [preferences, visiblePaymentRows]);
-
-  const signInActiveCount = useMemo(() => {
-    if (!preferences) return 0;
-    return visibleSignInRows.filter((row) => preferences[row.key]).length;
-  }, [preferences, visibleSignInRows]);
+  const paymentActiveCount = preferences
+    ? visiblePaymentRows.filter((row) => preferences[row.key]).length
+    : 0;
+  const signInActiveCount = preferences
+    ? visibleSignInRows.filter((row) => preferences[row.key]).length
+    : 0;
 
   const statusLine = useMemo(() => {
     if (!preferences) return null;

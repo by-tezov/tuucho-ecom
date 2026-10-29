@@ -29,7 +29,7 @@ export interface AdminPlugin {
   repository?: string | null;
   manifest: {
     name: string;
-    kind: string;
+    kinds: string[];
     version?: string;
     required?: boolean;
     description: string;

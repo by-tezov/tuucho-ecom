@@ -33,7 +33,7 @@ function plugin(partial: {
     id: partial.id,
     name: partial.id,
     version: partial.version ?? '1.0.0',
-    kind: 'generic',
+    kinds: ['generic'],
     description: 'test',
     engines: { core: partial.core ?? '>=0.0.1 <1.0.0' },
     settingsSchema: {

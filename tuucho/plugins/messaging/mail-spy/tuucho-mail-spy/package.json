@@ -8,7 +8,6 @@
     "id": "tuucho-mail-spy",
     "installPath": "tuucho/plugins/messaging/mail-spy/tuucho-mail-spy",
     "name": "Spy e-mails",
-    "kind": "generic",
     "defaultEnabled": true,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
@@ -62,7 +61,10 @@
         "section": "rules",
         "placeholder": "[{\"channel\":\"login\",\"email\":\"ops@shop.example\"}]"
       }
-    }
+    },
+    "kinds": [
+      "generic"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

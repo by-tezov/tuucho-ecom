@@ -90,7 +90,7 @@ test('page-guides plugin contributes pose and capsules sitemap URLs', async () =
     id: 'page-guides',
     name: 'Guides',
     version: '1.0.0',
-    kind: 'page',
+    kinds: ['page'],
     description: 'guides',
   });
   await mod.register(api);
@@ -109,7 +109,7 @@ test('seo-robots plugin contributes Disallow rules', async () => {
     id: 'tuucho-seo-robots',
     name: 'Robots rules',
     version: '1.0.0',
-    kind: 'seo',
+    kinds: ['seo'],
     description: 'robots',
   });
   await mod.register(api);
@@ -152,7 +152,7 @@ test('gift, contact, and product-requests register spy channels', async () => {
       id,
       name: id,
       version: '1.0.0',
-      kind: 'generic',
+      kinds: ['generic'],
       description: id,
     });
     await mod.register(api);

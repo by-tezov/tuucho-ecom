@@ -21,7 +21,7 @@ describe('tuucho-mail-spy surface', () => {
     };
     const manifest = pkg.tuucho;
     expect(manifest.id).toBe('tuucho-mail-spy');
-    expect(manifest.kind).toBe('generic');
+    expect(manifest.kinds).toEqual(['generic']);
     expect(manifest.provides ?? []).not.toContain('AdminPage');
     expect(manifest.adminNav ?? []).toEqual([]);
     expect(manifest.permissions ?? []).toEqual([]);

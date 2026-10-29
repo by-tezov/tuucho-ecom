@@ -8,7 +8,6 @@
     "id": "tuucho-commerce-product-requests",
     "installPath": "tuucho/plugins/commerce/product-requests/tuucho-commerce-product-requests",
     "name": "Product requests",
-    "kind": "commerce",
     "defaultEnabled": false,
     "provides": [
       "StorefrontSlot",
@@ -73,7 +72,10 @@
         "description": "Turn on only on a local shop while testing. Leave off in production.",
         "section": "request"
       }
-    }
+    },
+    "kinds": [
+      "commerce"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

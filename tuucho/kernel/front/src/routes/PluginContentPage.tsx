@@ -14,7 +14,7 @@ export function PluginContentPage() {
   const plugin = bootstrap.plugins.find(
     (entry) =>
       entry.enabled &&
-      entry.kind === 'page' &&
+      Boolean(entry.route) &&
       (entry.route === `/${slug}` || entry.nav?.key === slug),
   );
   if (!plugin) return <NotFoundPage />;

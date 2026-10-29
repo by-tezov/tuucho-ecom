@@ -75,13 +75,41 @@ export async function fetchGalleryFeed(
   return fetchJson<GalleryFeedResult>(`/gallery/feed${query}`, lang, accessToken);
 }
 
-/** Composition catalogue is not part of this shop. */
+/** Units / composition catalogue (`GET /gallery/nails`). Empty when no plugin
+ * mounts the route (404). Same query shape as {@link fetchGalleryFeed}. */
 export async function fetchGalleryNailsFeed(
-  _params: GalleryFeedParams,
-  _lang: Lang,
-  _accessToken?: string,
+  params: GalleryFeedParams,
+  lang: Lang,
+  accessToken?: string,
 ): Promise<GalleryFeedResult> {
-  return { items: [], nextCursor: null, totalCount: 0 };
+  const query = buildQuery({
+    cursor: params.cursor,
+    limit: params.limit,
+    occasion: params.occasion?.length ? params.occasion.join(',') : undefined,
+    shape: params.shape?.length ? params.shape.join(',') : undefined,
+    length: params.length?.length ? params.length.join(',') : undefined,
+    size: params.size?.length ? params.size.join(',') : undefined,
+    ids: params.ids?.length ? params.ids.join(',') : undefined,
+    userLibraryOnly: params.userLibraryOnly ? 'true' : undefined,
+    stock: params.stock,
+    minPrice: params.minPrice,
+    maxPrice: params.maxPrice,
+  });
+  const response = await apiFetch(`/gallery/nails${query}`, {
+    headers: {
+      'Accept-Language': lang,
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+  });
+  if (response.status === 404) {
+    return { items: [], nextCursor: null, totalCount: 0 };
+  }
+  if (!response.ok) {
+    throw new Error(
+      `[gallery] GET /gallery/nails failed: ${response.status} ${response.statusText}`,
+    );
+  }
+  return (await response.json()) as GalleryFeedResult;
 }
 
 export async function fetchNailByUid(uid: string, lang: Lang): Promise<GalleryItem | null> {

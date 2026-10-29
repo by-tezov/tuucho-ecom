@@ -146,11 +146,15 @@ function sortRoutes(routes: RouteEntry[]): RouteEntry[] {
 
 async function collect(): Promise<{ public: RouteEntry[]; ops: RouteEntry[] }> {
   const { createApp } = await import('../src/app.js');
-  const { ensurePluginsLoaded } = await import('../src/modules/plugins/application/loadPluginRuntime.js');
+  const { registerDisabledPluginMountsForInventory } = await import(
+    '../src/modules/plugins/application/loadPluginRuntime.js'
+  );
   const { listHttpMounts } = await import('@tuucho/plugin-sdk');
   const publicRoutes: RouteEntry[] = [];
   walk((createApp() as unknown as { router: { stack: Layer[] } }).router.stack, '', [], publicRoutes);
-  await ensurePluginsLoaded();
+  // Enabled plugins plus disabled ones (inventory-only) so optional front
+  // clients (gift, …) still match routes.json.
+  await registerDisabledPluginMountsForInventory();
   for (const mount of listHttpMounts()) {
     const router = mount.router as { stack?: Layer[] } | undefined;
     if (!router?.stack) continue;

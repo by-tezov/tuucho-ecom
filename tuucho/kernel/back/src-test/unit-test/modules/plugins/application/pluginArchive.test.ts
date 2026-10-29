@@ -41,7 +41,7 @@ test('flattenArchiveRoot strips a wrapper folder when package.json has tuucho', 
     JSON.stringify({
       name: 'gift-wrap',
       version: '1.2.0',
-      tuucho: { id: 'gift-wrap', kind: 'generic', installPath: 'src/plugins/gift/gift-wrap' },
+      tuucho: { id: 'gift-wrap', kinds: ['generic'], installPath: 'src/plugins/gift/gift-wrap' },
     }),
   );
   const flattened = flattenArchiveRoot([

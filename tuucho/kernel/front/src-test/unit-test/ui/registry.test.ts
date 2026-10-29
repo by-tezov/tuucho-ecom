@@ -47,22 +47,22 @@ describe('resolveUiComponent', () => {
 
   it('lets a plugin extend a new name', () => {
     registerUiComponent('ui.StarRating', Stars, { pluginId: 'ratings' });
-    const plugins = [plugin({ id: 'ratings', kind: 'commerce' })];
+    const plugins = [plugin({ id: 'ratings', kinds: ['commerce'] })];
     expect(resolveUiComponent('ui.StarRating', plugins)).toBe(Stars);
   });
 
   it('does not let extend occupy a kernel name', () => {
     provideKernelUi(KERNEL_UI.Button, Default);
     registerUiComponent(KERNEL_UI.Button, LookBtn, { pluginId: 'look' });
-    expect(resolveUiComponent(KERNEL_UI.Button, [plugin({ id: 'look', kind: 'generic' })])).toBe(Default);
+    expect(resolveUiComponent(KERNEL_UI.Button, [plugin({ id: 'look', kinds: ['generic'] })])).toBe(Default);
   });
 
   it('applies replace while the plugin is enabled', () => {
     provideKernelUi(KERNEL_UI.Button, Default);
     registerUiComponent(KERNEL_UI.Button, LookBtn, { pluginId: 'look', replace: true });
-    expect(resolveUiComponent(KERNEL_UI.Button, [plugin({ id: 'look', kind: 'generic' })])).toBe(LookBtn);
+    expect(resolveUiComponent(KERNEL_UI.Button, [plugin({ id: 'look', kinds: ['generic'] })])).toBe(LookBtn);
     expect(
-      resolveUiComponent(KERNEL_UI.Button, [plugin({ id: 'look', kind: 'generic', enabled: false })]),
+      resolveUiComponent(KERNEL_UI.Button, [plugin({ id: 'look', kinds: ['generic'], enabled: false })]),
     ).toBe(Default);
   });
 
@@ -70,19 +70,19 @@ describe('resolveUiComponent', () => {
     provideKernelUi(KERNEL_UI.Button, Default);
     registerUiComponent(KERNEL_UI.Button, LookBtn, { pluginId: 'look', replace: true });
     registerUiComponent(KERNEL_UI.Button, ThemeBtn, { pluginId: 'theme', replace: true });
-    const plugins = [plugin({ id: 'look', kind: 'generic' }), plugin({ id: 'theme', kind: 'theme' })];
+    const plugins = [plugin({ id: 'look', kinds: ['generic'] }), plugin({ id: 'theme', kinds: ['theme'] })];
     expect(resolveUiComponent(KERNEL_UI.Button, plugins)).toBe(ThemeBtn);
   });
 
   it('registers pluginFront.ui batches and last enabled extend wins', () => {
     registerPluginUi('one', [{ name: 'ui.StarRating', component: Stars }]);
     registerPluginUi('two', [{ name: 'ui.StarRating', component: OtherStars }]);
-    const plugins = [plugin({ id: 'one', kind: 'commerce' }), plugin({ id: 'two', kind: 'commerce' })];
+    const plugins = [plugin({ id: 'one', kinds: ['commerce'] }), plugin({ id: 'two', kinds: ['commerce'] })];
     expect(resolveUiComponent('ui.StarRating', plugins)).toBe(OtherStars);
   });
 
   it('ignores invalid names', () => {
     registerUiComponent('nope', Stars, { pluginId: 'ratings' });
-    expect(resolveUiComponent('nope', [plugin({ id: 'ratings', kind: 'commerce' })])).toBeUndefined();
+    expect(resolveUiComponent('nope', [plugin({ id: 'ratings', kinds: ['commerce'] })])).toBeUndefined();
   });
 });

@@ -197,7 +197,7 @@ function missingDiskManifest(id: string, schemaVersion: string | null): PluginMa
     id,
     name: id,
     version: schemaVersion ?? '0.0.0',
-    kind: 'generic',
+    kinds: ['generic'],
     /** Empty: Admin localizes the missing-folder state; do not ship English UI copy. */
     description: '',
     required: false,

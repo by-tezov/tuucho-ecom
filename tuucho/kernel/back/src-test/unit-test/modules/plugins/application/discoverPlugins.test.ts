@@ -77,7 +77,7 @@ test('disk plugins that require a description have one', async () => {
   const manifests = await discoverDiskPlugins();
   assert.ok(manifests.length > 0);
   for (const plugin of manifests) {
-    if (pluginRequiresDescription(plugin.id, plugin.kind)) {
+    if (pluginRequiresDescription(plugin.id, plugin.kinds)) {
       assert.ok(plugin.description.trim(), plugin.id);
     }
   }

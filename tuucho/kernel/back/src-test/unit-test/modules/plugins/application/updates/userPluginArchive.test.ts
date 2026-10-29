@@ -13,7 +13,7 @@ test('user plugin tag root must be a package, not a nested shop tree', async () 
     JSON.stringify({
       name: '@tuucho/plugin-gift-wrap',
       version: '1.0.0',
-      tuucho: { id: 'gift-wrap', kind: 'generic', installPath: 'src/plugins/gift/gift-wrap' },
+      tuucho: { id: 'gift-wrap', kinds: ['generic'], installPath: 'src/plugins/gift/gift-wrap' },
     }),
   );
   await writeFile(join(staging, 'back/register.ts'), 'export {}');

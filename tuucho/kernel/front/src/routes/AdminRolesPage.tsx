@@ -26,6 +26,7 @@ import { adminPath, SUPER_ADMIN_ROLE } from '../utils/adminRoute';
 import { withMinDuration } from '../utils/withMinDuration';
 import { adminNavGroups, adminPermissionRows, type AdminNavGroup, type AdminPermissionRow } from './adminNav';
 import { useStorefrontBootstrap } from '../plugins/StorefrontBootstrap';
+import { resolveAdminNavLabel } from './resolveAdminNavLabel';
 import { BackButton, Chevron } from './adminBackButton';
 import { staffRoleLabel } from '../assets/i18n/admin/roleLabel';
 import styles from './AdminRolesPage.module.css';
@@ -155,11 +156,12 @@ function RolesManager() {
     for (const item of pluginAdminNav) {
       if (seen.has(item.permission)) continue;
       seen.add(item.permission);
+      const label = resolveAdminNavLabel(item, a) || item.label || item.permission;
       rows.push({
         code: item.permission,
         group: item.group as AdminNavGroup,
-        label: item.label,
-        description: item.label,
+        label,
+        description: label,
       });
     }
     if (!grantable) return rows;

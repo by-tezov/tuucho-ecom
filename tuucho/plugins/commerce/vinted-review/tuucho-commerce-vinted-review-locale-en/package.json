@@ -8,7 +8,6 @@
     "id": "tuucho-commerce-vinted-review-locale-en",
     "installPath": "tuucho/plugins/commerce/vinted-review/tuucho-commerce-vinted-review-locale-en",
     "name": "commerce-vinted-review English",
-    "kind": "locale",
     "defaultEnabled": true,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
@@ -21,6 +20,9 @@
     ],
     "provides": [
       "Locale"
+    ],
+    "kinds": [
+      "locale"
     ]
   },
   "dependencies": {

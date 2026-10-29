@@ -7,6 +7,11 @@ import { useLang } from '../assets/i18n';
 import { preferredLanguage } from '../assets/i18n/languagePreference';
 import { localizeIfBare } from '../config/i18nRoutes';
 import { shopConfig } from '../config/env';
+import {
+  hasRuntimeDefaultLang,
+  hasRuntimeFirstVisit,
+  runtimeFirstVisit,
+} from '../config/runtimeI18n';
 import { useCartData } from '../hooks/useCart';
 import { useIsDesktopNav } from '../hooks/useIsDesktopNav';
 import { useLockBodyScroll } from '../hooks/useLockBodyScroll';
@@ -95,13 +100,19 @@ export function SplashEntry() {
     return () => window.clearTimeout(timer);
   }, [showSplash, langReady, instant, exitAfterMs]);
 
+  // When `i18n.firstVisit=default`, bare `/` must not exit on build-time `en`
+  // before bootstrap applies the shop default.
+  const bootstrapI18nReady =
+    hasRuntimeFirstVisit() &&
+    (runtimeFirstVisit() !== 'default' || hasRuntimeDefaultLang());
+
   useEffect(() => {
     if (!showSplash || finishingRef.current) return;
     let cancelled = false;
 
     async function finish() {
       const authSettled = status !== 'loading';
-      if (!(authSettled && cartReady && langReady && animationDone)) return;
+      if (!(authSettled && cartReady && langReady && bootstrapI18nReady && animationDone)) return;
 
       if (typeof document !== 'undefined' && document.fonts?.ready) {
         try {
@@ -132,7 +143,17 @@ export function SplashEntry() {
     return () => {
       cancelled = true;
     };
-  }, [showSplash, status, cartReady, langReady, animationDone, instant, exitDestination, navigate]);
+  }, [
+    showSplash,
+    status,
+    cartReady,
+    langReady,
+    bootstrapI18nReady,
+    animationDone,
+    instant,
+    exitDestination,
+    navigate,
+  ]);
 
   useEffect(() => {
     if (!showSplash) return;

@@ -4,7 +4,7 @@ import { getReceiverGalleryFeed } from '../api/gift';
 import { isBackendUnavailableError } from '../api/http';
 import { shopConfig } from '../config/env';
 import type { GalleryItem } from '../data/types';
-import { preferredLanguage } from '../assets/i18n/languagePreference';
+import { activeLanguage } from '../assets/i18n/languagePreference';
 import { GALLERY_BOOT_PAGE_LIMIT, takeGalleryBootCache } from '../state/galleryBootCache';
 import { readGalleryFeedSession, writeGalleryFeedSession } from '../state/galleryFeedSession';
 import { readGiftLockSession } from '../state/giftLockSession';
@@ -102,7 +102,7 @@ export function useGalleryFeed(favoriteIds: string[], options?: { catalog?: 'set
   const giftRemainingBudget = gift.active ? (gift.summary?.remaining.remainingBudget ?? null) : null;
   const filterData = useFilterOptions({ catalog });
   const outOfStockEnabled = filterData?.outOfStockEnabled !== false;
-  const apiLanguage = preferredLanguage();
+  const apiLanguage = activeLanguage();
   const [session] = useState(() =>
     readGalleryFeedSession(
       apiLanguage,

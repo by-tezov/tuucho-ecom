@@ -8,7 +8,6 @@
     "id": "tuucho-signin-apple",
     "installPath": "tuucho/plugins/identity/apple/tuucho-signin-apple",
     "name": "Apple Sign-in",
-    "kind": "generic",
     "defaultEnabled": true,
     "provides": [
       "SignInProvider"
@@ -72,7 +71,10 @@
         "section": "oauth",
         "long": true
       }
-    }
+    },
+    "kinds": [
+      "generic"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

@@ -8,13 +8,15 @@
     "id": "home-faq",
     "installPath": "src/plugins/home/faq/home-faq",
     "name": "Home FAQ",
-    "kind": "generic",
     "defaultEnabled": true,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
     },
     "provides": [
       "StorefrontSlot"
+    ],
+    "kinds": [
+      "generic"
     ]
   },
   "dependencies": {

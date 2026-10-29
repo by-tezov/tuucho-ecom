@@ -42,7 +42,10 @@ vi.mock('@/hooks/useFilterOptions', () => ({
   useFilterOptions: () => ({ outOfStockEnabled: env.outOfStockEnabled }),
 }));
 vi.mock('@/hooks/useGiftReceiver', () => ({ useOptionalGiftReceiver: () => env.gift }));
-vi.mock('@/assets/i18n/languagePreference', () => ({ preferredLanguage: () => 'fr' }));
+vi.mock('@/assets/i18n/languagePreference', () => ({
+  preferredLanguage: () => 'fr',
+  activeLanguage: () => 'fr',
+}));
 
 import { useGalleryFeed } from '@/hooks/useGalleryFeed';
 

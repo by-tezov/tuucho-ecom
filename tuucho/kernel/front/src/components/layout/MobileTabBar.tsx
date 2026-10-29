@@ -13,6 +13,7 @@ import { adminPath } from '../../utils/adminRoute';
 import { GALLERY_PATH, HOME_PATH } from '../../config/paths';
 import { useGiftLock } from '../../hooks/useGiftLock';
 import { useOptionalGiftReceiver } from '../../hooks/useGiftReceiver';
+import { useStorefrontBootstrap } from '../../plugins/StorefrontBootstrap';
 import { receiverFollowsOrder } from '../../api/gift';
 import { formatCartItemCount } from '../../utils/cartDisplayName';
 import styles from './MobileTabBar.module.css';
@@ -138,7 +139,17 @@ export function MobileTabBar() {
   const isDesktop = useIsDesktopNav();
   const { shopLocked, originBlocked, lock } = useGiftLock();
   const gift = useOptionalGiftReceiver();
+  const bootstrap = useStorefrontBootstrap();
   const followOrder = receiverFollowsOrder(gift.summary?.status) || Boolean(lock?.followLocked);
+  const bottomBarMenus = [...bootstrap.menus]
+    .filter((item) => item.visible && item.bottomBar)
+    .sort((a, b) => a.order - b.order)
+    .flatMap((item) => {
+      const plugin = bootstrap.plugins.find((entry) => entry.id === item.pluginId && entry.enabled);
+      const route = plugin?.route;
+      if (!route) return [];
+      return [{ key: item.key, label: item.label, to: localizedPath(route, lang) }];
+    });
   const pathRest = stripLangPrefix(location.pathname).rest;
   const isHiddenRoute =
     originBlocked ||
@@ -209,6 +220,25 @@ export function MobileTabBar() {
             <span className={styles.tabLabel}>{followOrder ? t.nav.home : t.nav.gallery}</span>
           </span>
         </Link>
+        {bottomBarMenus.map((item) => {
+          const active = location.pathname === item.to || location.pathname.startsWith(`${item.to}/`);
+          return (
+            <Link
+              key={item.key}
+              to={item.to}
+              className={active ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+              aria-current={active ? 'page' : undefined}
+              data-testid={`tab-bar-${item.key}`}
+            >
+              <span className={styles.tabContent}>
+                <span className={styles.tabIconWrap}>
+                  <GalleryIcon />
+                </span>
+                <span className={styles.tabLabel}>{item.label}</span>
+              </span>
+            </Link>
+          );
+        })}
         <Link
           to={cartPath}
           className={[

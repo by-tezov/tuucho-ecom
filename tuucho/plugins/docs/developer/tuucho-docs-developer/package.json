@@ -8,7 +8,6 @@
     "id": "tuucho-docs-developer",
     "installPath": "tuucho/plugins/docs/developer/tuucho-docs-developer",
     "name": "Documentation",
-    "kind": "docs",
     "defaultEnabled": false,
     "provides": [
       "AdminPage"
@@ -25,6 +24,9 @@
         "order": 1,
         "label": "Documentation"
       }
+    ],
+    "kinds": [
+      "docs"
     ]
   },
   "dependencies": {

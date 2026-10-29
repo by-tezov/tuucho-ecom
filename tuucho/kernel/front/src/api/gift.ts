@@ -1,6 +1,6 @@
 import { authHeaders, requestJson as request } from './client';
 import { apiFetch } from './http';
-import { preferredLanguage } from '../assets/i18n/languagePreference';
+import { activeLanguage } from '../assets/i18n/languagePreference';
 import type { GalleryItem } from '../data/types';
 import type { Lang } from '../assets/i18n';
 import type { Courier } from './account';
@@ -236,7 +236,7 @@ export async function downloadGiftShareCard(
       credentials: 'include',
       headers: {
         ...giftPinHeaders('giver', token, accessToken ? authHeaders(accessToken) : undefined),
-        'Accept-Language': preferredLanguage(),
+        'Accept-Language': activeLanguage(),
       },
     },
   );

@@ -8,7 +8,6 @@
     "id": "page-home",
     "installPath": "src/plugins/home/main/page-home",
     "name": "Home",
-    "kind": "page",
     "required": false,
     "defaultEnabled": true,
     "provides": [
@@ -22,7 +21,10 @@
     },
     "engines": {
       "core": ">=0.0.1 <1.0.0"
-    }
+    },
+    "kinds": [
+      "page"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../../tuucho/plugin-sdk"

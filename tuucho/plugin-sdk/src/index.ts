@@ -173,7 +173,7 @@ export function createPluginRegisterApi(pluginId: string, manifest: PluginManife
     cache: pluginCacheNamespace(pluginId),
     registerMailTemplate,
     registerEmailCatalog,
-    registerLanguage,
+    registerLanguage: (def) => registerLanguage(def, pluginId),
     sendMail: sendPluginMail,
     sendTemplatedMail: sendPluginTemplatedMail,
     enqueueMailJob: enqueuePluginMailJob,

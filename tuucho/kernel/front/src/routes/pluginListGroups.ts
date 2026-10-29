@@ -1,7 +1,6 @@
 import type { AdminPlugin } from '../api/admin/shopSetup';
 
-const LOCALE_COMPLEMENT_RE = /^(.+)-locale-[a-z]{2}$/;
-const KERNEL_LOCALE_PACK_RE = /^tuucho-kernel-locale-[a-z]{2}$/;
+const LOCALE_COMPLEMENT_RE = /^(.+)-locale-[a-z]{2,3}$/;
 
 export type AdminPluginGroup = {
   parent: AdminPlugin;
@@ -14,13 +13,35 @@ export type PluginStatusFilter = 'all' | 'enabled' | 'disabled';
 export function localeComplementParentId(id: string): string | null {
   const match = id.match(LOCALE_COMPLEMENT_RE);
   const parent = match?.[1];
-  // Standalone kernel packs live on Admin → Core, not nested under a fake parent.
-  if (!parent || parent === 'tuucho' || parent === 'tuucho-kernel') return null;
+  // Standalone kernel packs (`*-kernel-locale-<code>`) have no feature parent.
+  if (!parent || parent === 'tuucho' || parent === 'tuucho-kernel' || parent.endsWith('-kernel')) {
+    return null;
+  }
   return parent;
 }
 
+/** Package declares only the locale role. */
+export function isLocaleOnlyPlugin(plugin: AdminPlugin): boolean {
+  const kinds = plugin.manifest.kinds ?? [];
+  return kinds.length === 1 && kinds[0] === 'locale';
+}
+
+/**
+ * Locale-only pack managed on Admin → Core (not Plugins tabs).
+ * Feature complements with a present parent stay on Plugins nested under that parent.
+ * Orphan complements (parent missing) are treated as standalone language packs.
+ */
+export function isStandaloneLocalePack(plugin: AdminPlugin, presentIds?: Set<string>): boolean {
+  if (!isLocaleOnlyPlugin(plugin)) return false;
+  const parentId = localeComplementParentId(plugin.id);
+  if (!parentId) return true;
+  if (presentIds && !presentIds.has(parentId)) return true;
+  return false;
+}
+
+/** @deprecated Prefer {@link isStandaloneLocalePack}. */
 export function isKernelLocalePack(id: string): boolean {
-  return KERNEL_LOCALE_PACK_RE.test(id);
+  return /^(?:.+-)?kernel-locale-[a-z]{2,3}$/.test(id);
 }
 
 function comparePlugins(a: AdminPlugin, b: AdminPlugin): number {
@@ -32,7 +53,7 @@ export function pluginSearchBlob(plugin: AdminPlugin): string {
   return [
     plugin.manifest.name,
     plugin.id,
-    plugin.manifest.kind,
+    ...(plugin.manifest.kinds ?? []),
     plugin.manifest.description,
     plugin.manifest.version,
     plugin.schemaVersion,
@@ -42,10 +63,11 @@ export function pluginSearchBlob(plugin: AdminPlugin): string {
     .toLowerCase();
 }
 
-/** One row per real plugin. `*-locale-*` packs nest when their parent is present.
- * Kernel language packs are omitted here; they are managed on Admin → Core. */
+/** One row per real plugin. Complements nest when their parent is present.
+ * Standalone locale-only packs are omitted; they are managed on Admin → Core. */
 export function groupAdminPlugins(plugins: AdminPlugin[]): AdminPluginGroup[] {
-  const listed = plugins.filter((plugin) => !isKernelLocalePack(plugin.id));
+  const presentIds = new Set(plugins.map((plugin) => plugin.id));
+  const listed = plugins.filter((plugin) => !isStandaloneLocalePack(plugin, presentIds));
   const byId = new Map(listed.map((plugin) => [plugin.id, plugin]));
   const nestedIds = new Set<string>();
   const localesByParent = new Map<string, AdminPlugin[]>();

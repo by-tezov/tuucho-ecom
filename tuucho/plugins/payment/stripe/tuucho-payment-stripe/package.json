@@ -8,7 +8,6 @@
     "id": "tuucho-payment-stripe",
     "installPath": "tuucho/plugins/payment/stripe/tuucho-payment-stripe",
     "name": "Stripe",
-    "kind": "payment",
     "defaultEnabled": true,
     "provides": [
       "PaymentGateway"
@@ -63,7 +62,10 @@
         "description": "Days to keep a card used once, then drop it. Raise only if you need longer replay for failed captures.",
         "section": "behaviour"
       }
-    }
+    },
+    "kinds": [
+      "payment"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

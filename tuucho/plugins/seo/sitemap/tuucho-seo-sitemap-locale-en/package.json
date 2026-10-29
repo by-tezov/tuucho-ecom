@@ -8,7 +8,6 @@
     "id": "tuucho-seo-sitemap-locale-en",
     "installPath": "tuucho/plugins/seo/sitemap/tuucho-seo-sitemap-locale-en",
     "name": "seo-sitemap English",
-    "kind": "locale",
     "defaultEnabled": true,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
@@ -21,6 +20,9 @@
     ],
     "provides": [
       "Locale"
+    ],
+    "kinds": [
+      "locale"
     ]
   },
   "dependencies": {

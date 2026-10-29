@@ -8,7 +8,6 @@
     "id": "tuucho-commerce-product-requests-locale-en",
     "installPath": "tuucho/plugins/commerce/product-requests/tuucho-commerce-product-requests-locale-en",
     "name": "commerce-product-requests English",
-    "kind": "locale",
     "defaultEnabled": true,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
@@ -21,6 +20,9 @@
     ],
     "provides": [
       "Locale"
+    ],
+    "kinds": [
+      "locale"
     ]
   },
   "dependencies": {

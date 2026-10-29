@@ -9,7 +9,8 @@ const register: PluginRegisterFn = async (api) => {
     const plugins = await listPlugins();
     const byId = new Map(plugins.map((plugin) => [plugin.id, plugin]));
     const extra = plugins.flatMap((plugin) => {
-      if (plugin.manifest.kind !== 'page' || !plugin.manifest.route) return [];
+      // Sitemap by storefront route (any kinds that expose one), not page-only.
+      if (!plugin.manifest.route) return [];
       if (!pluginSurfaceEnabled(plugin, byId)) return [];
       const origin = config.frontendBaseUrl.replace(/\/+$/, '');
       const path = plugin.manifest.route.startsWith('/') ? plugin.manifest.route : `/${plugin.manifest.route}`;

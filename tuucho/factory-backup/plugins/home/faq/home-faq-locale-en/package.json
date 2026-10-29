@@ -8,7 +8,6 @@
     "id": "home-faq-locale-en",
     "installPath": "src/plugins/home/faq/home-faq-locale-en",
     "name": "home-faq English",
-    "kind": "locale",
     "defaultEnabled": true,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
@@ -21,6 +20,9 @@
     ],
     "provides": [
       "Locale"
+    ],
+    "kinds": [
+      "locale"
     ]
   },
   "dependencies": {

@@ -8,7 +8,6 @@
     "id": "tuucho-signin-google",
     "installPath": "tuucho/plugins/identity/google/tuucho-signin-google",
     "name": "Google Sign-in",
-    "kind": "generic",
     "defaultEnabled": true,
     "provides": [
       "SignInProvider"
@@ -35,7 +34,10 @@
         "description": "How long a first-time Google signup token stays valid (for example 10m). Raise only if customers need longer to finish.",
         "section": "app"
       }
-    }
+    },
+    "kinds": [
+      "generic"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

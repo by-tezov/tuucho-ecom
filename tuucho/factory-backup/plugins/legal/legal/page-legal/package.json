@@ -3,12 +3,11 @@
   "private": true,
   "type": "module",
   "version": "1.0.0",
-  "description": "Legal notice, privacy, terms of use and terms of sale. Footer only \u2014 not in the shop info menu.",
+  "description": "Legal notice, privacy, terms of use and terms of sale. Footer only — not in the shop info menu.",
   "tuucho": {
     "id": "page-legal",
     "installPath": "src/plugins/legal/legal/page-legal",
     "name": "Legal",
-    "kind": "page",
     "defaultEnabled": true,
     "provides": [
       "StorefrontPage"
@@ -16,7 +15,10 @@
     "route": "/legal",
     "engines": {
       "core": ">=0.0.1 <1.0.0"
-    }
+    },
+    "kinds": [
+      "page"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../../tuucho/plugin-sdk"

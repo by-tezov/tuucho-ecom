@@ -71,15 +71,29 @@ export function localeComplementIdsFor(parentId: string, ids: Iterable<string>):
   return [...ids].filter((id) => localeComplementParentId(id) === parentId).sort();
 }
 
-/** Real plugins must describe what they do. Locale packs may omit it. */
-export function pluginRequiresDescription(id: string, kind: string): boolean {
-  return kind !== 'locale' && !isLocalePluginId(id);
+/** Real plugins must describe what they do. Locale-only packs may omit it. */
+export function pluginRequiresDescription(id: string, kinds: readonly string[]): boolean {
+  const localeOnly = kinds.length === 1 && kinds[0] === 'locale';
+  return !localeOnly && !isLocalePluginId(id);
 }
 
-export function resolvePluginDescription(id: string, kind: string, raw: unknown): string | undefined {
+export function resolvePluginDescription(
+  id: string,
+  kinds: readonly string[],
+  raw: unknown,
+): string | undefined {
   const description = asString(raw) ?? '';
-  if (pluginRequiresDescription(id, kind) && !description) return undefined;
+  if (pluginRequiresDescription(id, kinds) && !description) return undefined;
   return description;
+}
+
+/** True when the package declares only the locale role (Core languages, not Plugins tabs). */
+export function isLocaleOnlyKinds(kinds: readonly string[]): boolean {
+  return kinds.length === 1 && kinds[0] === 'locale';
+}
+
+export function manifestHasKind(manifest: Pick<PluginManifest, 'kinds'>, kind: PluginKind): boolean {
+  return manifest.kinds.includes(kind);
 }
 
 /** True when package.json is a plugin, not an npm dependency. */
@@ -121,17 +135,28 @@ export function readPluginPackageFields(raw: unknown): PluginPackageFields | nul
   };
 }
 
+function parseKinds(raw: unknown): PluginKind[] | null {
+  if (!Array.isArray(raw)) return null;
+  const kinds: PluginKind[] = [];
+  for (const entry of raw) {
+    if (typeof entry !== 'string' || !KINDS.has(entry as PluginKind)) return null;
+    if (!kinds.includes(entry as PluginKind)) kinds.push(entry as PluginKind);
+  }
+  return kinds.length > 0 ? kinds : null;
+}
+
 function parseManifest(raw: unknown, folderId: string, sourceDir: string): PluginManifest | null {
   const pkg = readPluginPackageFields(raw);
   if (!pkg) return null;
   const body = pkg.tuucho;
   const id = pkg.id;
   if (id !== folderId || !PLUGIN_ID_RE.test(id)) return null;
-  const kind = asString(body.kind);
-  if (!kind || !KINDS.has(kind as PluginKind)) return null;
+  if (Object.prototype.hasOwnProperty.call(body, 'kind')) return null;
+  const kinds = parseKinds(body.kinds);
+  if (!kinds) return null;
   const name = asString(body.name) ?? id;
   const version = pkg.version;
-  const description = resolvePluginDescription(id, kind, pkg.description);
+  const description = resolvePluginDescription(id, kinds, pkg.description);
   if (description === undefined) return null;
   const navRaw = body.nav;
   let nav: PluginManifest['nav'];
@@ -180,6 +205,7 @@ function parseManifest(raw: unknown, folderId: string, sourceDir: string): Plugi
         permission,
         order: typeof row.order === 'number' ? row.order : undefined,
         label: asString(row.label),
+        labelKey: asString(row.labelKey),
         ...(alsoActiveOn && alsoActiveOn.length > 0 ? { alsoActiveOn } : {}),
       });
     }
@@ -189,7 +215,7 @@ function parseManifest(raw: unknown, folderId: string, sourceDir: string): Plugi
     id,
     name,
     version,
-    kind: kind as PluginKind,
+    kinds,
     description,
     required: body.required === true,
     defaultEnabled: body.defaultEnabled !== false,

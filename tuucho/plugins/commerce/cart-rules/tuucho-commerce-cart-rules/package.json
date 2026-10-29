@@ -8,7 +8,6 @@
     "id": "tuucho-commerce-cart-rules",
     "installPath": "tuucho/plugins/commerce/cart-rules/tuucho-commerce-cart-rules",
     "name": "Cart rules",
-    "kind": "commerce",
     "defaultEnabled": true,
     "provides": [
       "CheckoutAlteration",
@@ -32,6 +31,9 @@
         "order": 20,
         "label": "Cart rules"
       }
+    ],
+    "kinds": [
+      "commerce"
     ]
   },
   "dependencies": {

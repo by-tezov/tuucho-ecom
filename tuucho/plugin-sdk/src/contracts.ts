@@ -50,7 +50,10 @@ export interface PluginAdminNavItem {
   to: string;
   permission: string;
   order?: number;
+  /** Fallback when `labelKey` is absent or unresolved. */
   label?: string;
+  /** Dot path into admin locale packs (e.g. `nav.nailAvailabilityLabel`). */
+  labelKey?: string;
   /** Extra admin paths that keep this nav item active. */
   alsoActiveOn?: string[];
 }
@@ -65,7 +68,8 @@ export interface PluginManifest {
   id: string;
   name: string;
   version: string;
-  kind: PluginKind;
+  /** One or more roles. Bundled tuucho packs use a single entry; shops may combine. */
+  kinds: PluginKind[];
   /** Operator-facing summary of what the plugin does. Required except locale plugins. */
   description: string;
   required?: boolean;

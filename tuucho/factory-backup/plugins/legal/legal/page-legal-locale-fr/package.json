@@ -8,7 +8,6 @@
     "id": "page-legal-locale-fr",
     "installPath": "src/plugins/legal/legal/page-legal-locale-fr",
     "name": "page-legal French",
-    "kind": "locale",
     "defaultEnabled": true,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
@@ -21,6 +20,9 @@
     ],
     "provides": [
       "Locale"
+    ],
+    "kinds": [
+      "locale"
     ]
   },
   "dependencies": {

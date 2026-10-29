@@ -8,13 +8,15 @@
     "id": "onboarding",
     "installPath": "src/plugins/onboarding/onboarding",
     "name": "Onboarding",
-    "kind": "generic",
     "defaultEnabled": false,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
     },
     "provides": [
       "StorefrontSlot"
+    ],
+    "kinds": [
+      "generic"
     ]
   },
   "dependencies": {

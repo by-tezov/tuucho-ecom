@@ -23,13 +23,14 @@ export interface StorefrontAdminNavItem {
   permission: string;
   order?: number;
   label: string;
+  labelKey?: string;
   alsoActiveOn?: string[];
 }
 
 export interface StorefrontPlugin {
   id: string;
   enabled: boolean;
-  kind: string;
+  kinds: string[];
   required: boolean;
   name: string;
   route?: string;

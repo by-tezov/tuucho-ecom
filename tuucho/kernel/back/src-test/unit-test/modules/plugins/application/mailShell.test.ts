@@ -12,7 +12,7 @@ test('plugin mail API throws until the kernel binds the sender', async () => {
     id: 'demo-mail',
     name: 'Demo',
     version: '1.0.0',
-    kind: 'generic',
+    kinds: ['generic'],
     description: 'demo',
   });
   await assert.rejects(
@@ -34,7 +34,7 @@ test('plugin mail API sends through the kernel sealer', async () => {
     id: 'demo-mail',
     name: 'Demo',
     version: '1.0.0',
-    kind: 'generic',
+    kinds: ['generic'],
     description: 'demo',
   });
   await api.sendMail({ to: 'a@b.c', subject: 'Hello', text: 'Body' });

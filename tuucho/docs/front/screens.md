@@ -73,18 +73,22 @@ path from `src/config/paths.ts`, which is deployment configuration.
 | `/auth/facebook-data-deletion` | [src/routes/FacebookDataDeletionPage.tsx](../../kernel/front/src/routes/FacebookDataDeletionPage.tsx) | auth, layout, seo | errors, identity | auth       |
 | `/auth/facebook-return`        | [src/routes/FacebookReturnPage.tsx](../../kernel/front/src/routes/FacebookReturnPage.tsx)             | seo, ui           | http, identity   | auth       |
 
-## Files under `src/routes/` with no URL of their own (46)
+## Files under `src/routes/` with no URL of their own (51)
 
 Layouts, shells, and pages composed inside another route.
 
 - `src/routes/AdminDashboardContext.tsx`
 - `src/routes/AdminDiskConfigBar.tsx`
+- `src/routes/AdminGithubAccess.tsx`
+- `src/routes/AdminKernelLocales.tsx`
+- `src/routes/AdminKernelUpdate.tsx`
 - `src/routes/AdminLayout.tsx`
 - `src/routes/AdminPageIcons.tsx`
 - `src/routes/AdminPluginConfigBulk.tsx`
 - `src/routes/AdminPluginConfigFiles.tsx`
 - `src/routes/AdminPreferenceOpenings.tsx`
 - `src/routes/AdminRoleConfigFiles.tsx`
+- `src/routes/AdminUpdateCheckDialogs.tsx`
 - `src/routes/CartPage.tsx`
 - `src/routes/admin/AdminInboxFilters.tsx`
 - `src/routes/admin/AdminOrderActionConfirm.tsx`
@@ -123,3 +127,4 @@ Layouts, shells, and pages composed inside another route.
 - `src/routes/pluginListGroups.ts`
 - `src/routes/pluginSettingsForm.ts`
 - `src/routes/pluginUpdateCheck.ts`
+- `src/routes/resolveAdminNavLabel.ts`

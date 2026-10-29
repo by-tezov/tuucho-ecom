@@ -7,7 +7,7 @@ import { adminPath } from '../utils/adminRoute';
  * and the kernel Couriers JSON catalog are sidebar items, not Configure. */
 export function pluginHasConfigure(plugin: AdminPlugin): boolean {
   if (pluginHasFrontConfigure(plugin.id)) return true;
-  if (plugin.manifest.kind === 'theme') return true;
+  if (plugin.manifest.kinds.includes('theme')) return true;
   const schema = plugin.manifest.settingsSchema ?? {};
   const settings = plugin.settings ?? {};
   return Object.keys(schema).length > 0 || Object.keys(settings).length > 0;

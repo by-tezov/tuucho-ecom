@@ -1,5 +1,5 @@
 /** Public and authenticated contact/product-request API. */
-import { preferredLanguage } from '../assets/i18n/languagePreference';
+import { activeLanguage } from '../assets/i18n/languagePreference';
 import { authHeaders, requestJson as request } from './client';
 import { ApiError } from './errors';
 
@@ -29,7 +29,7 @@ async function uploadContactForm(
 ): Promise<{ success: true }> {
   const { apiUploadFormData } = await import('./http');
   const headerRecord: Record<string, string> = {
-    'Accept-Language': preferredLanguage(),
+    'Accept-Language': activeLanguage(),
   };
   if (headers) {
     const normalized = new Headers(headers);

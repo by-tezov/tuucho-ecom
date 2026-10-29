@@ -24,13 +24,17 @@ test('assertReceiverCanMutate blocks frozen and inactive statuses', () => {
   assert.throws(() => assertReceiverCanMutate('cancelled'));
 });
 
-test('assertNotGone only after terminal visibility window ends', () => {
+test('assertNotGone after terminal visibility ends or offer expiry', () => {
   const now = new Date('2026-01-10T12:00:00Z');
   assert.doesNotThrow(() => assertNotGone('selecting', null, now));
   assert.doesNotThrow(() =>
     assertNotGone('ordered', new Date('2026-01-11T12:00:00Z'), now),
   );
   assert.throws(() => assertNotGone('ordered', new Date('2026-01-09T12:00:00Z'), now));
+  assert.throws(() => assertNotGone('cancelled', null, now));
+  assert.throws(() =>
+    assertNotGone('selecting', null, now, new Date('2026-01-09T12:00:00Z')),
+  );
 });
 
 test('isSpyKind matches the published list', () => {

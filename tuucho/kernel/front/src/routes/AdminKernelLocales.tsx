@@ -8,10 +8,10 @@ import { shopConfig } from '../config/env';
 import { useAuthSession } from '../state/AuthContext';
 import { useRefreshStorefrontBootstrap } from '../plugins/StorefrontBootstrap';
 import { withMinDuration } from '../utils/withMinDuration';
-import { isKernelLocalePack } from './pluginListGroups';
+import { isStandaloneLocalePack } from './pluginListGroups';
 import styles from './AdminPlugins.module.css';
 
-/** Enable / disable `tuucho-kernel-locale-*` packs from Admin → Core. */
+/** Enable / disable standalone locale packs from Admin → Core (any owner, any id). */
 export function AdminKernelLocales() {
   const a = useAdminStrings();
   const c = a.core;
@@ -24,7 +24,12 @@ export function AdminKernelLocales() {
 
   const reload = useCallback(async () => {
     const result = await authedRequest((token) => getAdminPlugins(token));
-    setPacks(result.plugins.filter((plugin) => isKernelLocalePack(plugin.id)).sort(compareByLang));
+    const presentIds = new Set(result.plugins.map((plugin) => plugin.id));
+    setPacks(
+      result.plugins
+        .filter((plugin) => isStandaloneLocalePack(plugin, presentIds))
+        .sort(compareByLang),
+    );
   }, [authedRequest]);
 
   useEffect(() => {

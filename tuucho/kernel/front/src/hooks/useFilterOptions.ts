@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { loadFilterOptions, loadGiftFilterOptions } from '../api/filterOptions';
 import type { FilterOptionsData } from '../api/filterOptions';
-import { preferredLanguage } from '../assets/i18n/languagePreference';
+import { activeLanguage } from '../assets/i18n/languagePreference';
 import { useOptionalGiftReceiver } from './useGiftReceiver';
 import { usePluginEnabled } from '../plugins/StorefrontBootstrap';
 
@@ -22,7 +22,7 @@ export function useFilterOptions(options?: {
   catalog?: GalleryFilterCatalog;
 }): FilterOptionsData | undefined {
   const catalog = options?.catalog ?? 'sets';
-  const apiLanguage = preferredLanguage();
+  const apiLanguage = activeLanguage();
   const gift = useOptionalGiftReceiver();
   const [data, setData] = useState<FilterOptionsData | undefined>(undefined);
 

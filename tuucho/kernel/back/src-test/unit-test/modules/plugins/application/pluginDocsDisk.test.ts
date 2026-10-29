@@ -22,7 +22,7 @@ test('every disk plugin ships docs/handbook.json', async () => {
     };
     assert.ok(body.title, plugin.id);
     assert.ok(body.summary, plugin.id);
-    if (plugin.kind === 'locale') continue;
+    if (plugin.kinds.includes('locale')) continue;
     assert.ok(body.sections && body.sections.length > 0, plugin.id);
     assert.ok(
       body.sections.every((section) => section.heading && section.blocks && section.blocks.length > 0),
@@ -121,7 +121,7 @@ test('visible handbook titles are unique among non-locale plugins', async () => 
   const plugins = await loadManifests();
   const titles: string[] = [];
   for (const plugin of plugins) {
-    if (plugin.kind === 'locale' || !plugin.sourceDir) continue;
+    if (plugin.kinds.includes('locale') || !plugin.sourceDir) continue;
     if (plugin.id === 'tuucho-docs-developer') continue;
     const text = await readFile(join(plugin.sourceDir, 'docs', 'handbook.json'), 'utf8');
     const body = JSON.parse(text) as { title?: string };

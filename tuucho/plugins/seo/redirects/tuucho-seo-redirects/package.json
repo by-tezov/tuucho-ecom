@@ -8,7 +8,6 @@
     "id": "tuucho-seo-redirects",
     "installPath": "tuucho/plugins/seo/redirects/tuucho-seo-redirects",
     "name": "Redirects apply",
-    "kind": "seo",
     "defaultEnabled": true,
     "provides": [
       "SeoRedirects"
@@ -21,7 +20,10 @@
     ],
     "engines": {
       "core": ">=0.0.1 <1.0.0"
-    }
+    },
+    "kinds": [
+      "seo"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

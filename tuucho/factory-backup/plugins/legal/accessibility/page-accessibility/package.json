@@ -3,12 +3,11 @@
   "private": true,
   "type": "module",
   "version": "1.0.0",
-  "description": "RGAA accessibility statement. Footer only \u2014 not in the shop info menu.",
+  "description": "RGAA accessibility statement. Footer only — not in the shop info menu.",
   "tuucho": {
     "id": "page-accessibility",
     "installPath": "src/plugins/legal/accessibility/page-accessibility",
     "name": "Accessibility",
-    "kind": "page",
     "defaultEnabled": true,
     "provides": [
       "StorefrontPage"
@@ -16,7 +15,10 @@
     "route": "/accessibility",
     "engines": {
       "core": ">=0.0.1 <1.0.0"
-    }
+    },
+    "kinds": [
+      "page"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../../tuucho/plugin-sdk"

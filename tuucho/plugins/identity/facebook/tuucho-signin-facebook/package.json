@@ -8,7 +8,6 @@
     "id": "tuucho-signin-facebook",
     "installPath": "tuucho/plugins/identity/facebook/tuucho-signin-facebook",
     "name": "Facebook Login",
-    "kind": "generic",
     "defaultEnabled": true,
     "provides": [
       "SignInProvider"
@@ -50,7 +49,10 @@
         "description": "How long a first-time Facebook signup token stays valid (for example 10m). Raise only if customers need longer to finish.",
         "section": "oauth"
       }
-    }
+    },
+    "kinds": [
+      "generic"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

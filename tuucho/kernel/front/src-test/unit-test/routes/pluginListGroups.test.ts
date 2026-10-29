@@ -12,6 +12,7 @@ function plugin(
   id: string,
   name = id,
   extra: Partial<AdminPlugin> = {},
+  kinds: string[] = ['generic'],
 ): AdminPlugin {
   return {
     id,
@@ -19,24 +20,21 @@ function plugin(
     settings: {},
     rates: [],
     bundled: id.startsWith('tuucho-'),
-    manifest: { name, kind: 'generic', description: '', version: '1.0.0' },
+    manifest: { name, kinds, description: '', version: '1.0.0' },
     ...extra,
   };
 }
 
 describe('groupAdminPlugins', () => {
-  it('nests locale complements under their parent and hides kernel locale packs', () => {
+  it('nests locale complements under their parent and hides standalone locale packs', () => {
     const gift = plugin('tuucho-commerce-gift', 'Gift');
-    const giftFr = plugin('tuucho-commerce-gift-locale-fr', 'Gift French');
-    const localeFr = plugin('tuucho-kernel-locale-fr', 'French');
-    const localeEn = plugin('tuucho-kernel-locale-en', 'English');
-    const orphan = plugin('shop-notes-locale-fr', 'Notes French');
+    const giftFr = plugin('tuucho-commerce-gift-locale-fr', 'Gift French', {}, ['locale']);
+    const localeFr = plugin('tuucho-kernel-locale-fr', 'French', {}, ['locale']);
+    const localeEn = plugin('tuucho-kernel-locale-en', 'English', {}, ['locale']);
+    const orphan = plugin('shop-notes-locale-fr', 'Notes French', {}, ['locale']);
     const groups = groupAdminPlugins([giftFr, localeFr, localeEn, gift, orphan]);
-    // Kernel locale packs are managed on Admin → Core, not listed here.
-    expect(groups.map((group) => group.parent.id)).toEqual([
-      'tuucho-commerce-gift',
-      'shop-notes-locale-fr',
-    ]);
+    // Standalone / orphan locale-only packs are managed on Admin → Core.
+    expect(groups.map((group) => group.parent.id)).toEqual(['tuucho-commerce-gift']);
     const giftGroup = groups.find((group) => group.parent.id === 'tuucho-commerce-gift');
     expect(giftGroup?.locales.map((entry) => entry.id)).toEqual(['tuucho-commerce-gift-locale-fr']);
     expect(localeComplementParentId('tuucho-kernel-locale-fr')).toBeNull();
@@ -46,7 +44,7 @@ describe('groupAdminPlugins', () => {
   it('searches parent plugins and keeps locales with the parent', () => {
     const groups = groupAdminPlugins([
       plugin('tuucho-commerce-gift', 'Gift'),
-      plugin('tuucho-commerce-gift-locale-fr', 'Gift French'),
+      plugin('tuucho-commerce-gift-locale-fr', 'Gift French', {}, ['locale']),
       plugin('page-home', 'Home'),
     ]);
     expect(filterPluginGroups(groups, 'gift').map((group) => group.parent.id)).toEqual([
@@ -111,7 +109,7 @@ describe('filterPluginGroups origin and status', () => {
 
   it('disabled filter uses the parent row only, not locale complements', () => {
     const parent = plugin('tuucho-commerce-gift', 'Gift', { enabled: true });
-    const locale = plugin('tuucho-commerce-gift-locale-fr', 'Gift French', { enabled: false });
+    const locale = plugin('tuucho-commerce-gift-locale-fr', 'Gift French', { enabled: false }, ['locale']);
     const groups = groupAdminPlugins([parent, locale]);
     expect(filterPluginGroups(groups, '', 'tuucho', 'disabled')).toEqual([]);
     expect(filterPluginGroups(groups, '', 'tuucho', 'enabled').map((group) => group.parent.id)).toEqual([

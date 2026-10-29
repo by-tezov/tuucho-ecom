@@ -29,6 +29,7 @@ vi.mock('@/plugins/StorefrontBootstrap', () => ({
 }));
 vi.mock('@/assets/i18n/languagePreference', () => ({
   preferredLanguage: () => testState.preference,
+  activeLanguage: () => testState.preference,
   savePreferredLanguage: (lang: Lang) => {
     testState.preference = lang;
   },

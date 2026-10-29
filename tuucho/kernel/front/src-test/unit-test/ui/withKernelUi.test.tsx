@@ -43,7 +43,7 @@ describe('withKernelUi', () => {
       {
         id: 'theme',
         enabled: true,
-        kind: 'theme',
+        kinds: ['theme'],
         required: true,
         name: 'Default theme',
       },

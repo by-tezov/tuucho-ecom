@@ -52,7 +52,8 @@ export interface PluginManifest {
   id: string;
   name: string;
   version: string;
-  kind: PluginKind;
+  /** One or more roles. Bundled tuucho packs use a single entry; shops may combine. */
+  kinds: PluginKind[];
   /** Operator-facing summary of what the plugin does. Required except locale plugins. */
   description: string;
   required?: boolean;
@@ -84,6 +85,8 @@ export interface PluginManifest {
     permission: string;
     order?: number;
     label?: string;
+    /** Dot path into admin locale packs (e.g. `nav.nailAvailabilityLabel`). */
+    labelKey?: string;
     alsoActiveOn?: string[];
   }>;
   /** Absolute plugin package directory (the folder that holds package.json). */

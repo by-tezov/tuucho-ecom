@@ -74,7 +74,10 @@ function lastEnabled(
   return [...(entries ?? [])]
     .reverse()
     .find((entry) =>
-      enabled.some((plugin) => plugin.id === entry.pluginId && (kind == null || plugin.kind === kind)),
+      enabled.some(
+        (plugin) =>
+          plugin.id === entry.pluginId && (kind == null || plugin.kinds.includes(kind)),
+      ),
     )?.component;
 }
 

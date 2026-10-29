@@ -13,5 +13,5 @@ export async function manifestById(id: string): Promise<PluginManifest | undefin
 
 export async function manifestsOfKind(kind: PluginKind): Promise<PluginManifest[]> {
   const all = await loadManifests();
-  return all.filter((plugin) => plugin.kind === kind);
+  return all.filter((plugin) => plugin.kinds.includes(kind));
 }

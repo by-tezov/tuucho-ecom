@@ -89,7 +89,7 @@ export async function buildStorefrontBootstrap(db: Pool = pool) {
     plugins: plugins.map((plugin) => ({
       id: plugin.id,
       enabled: pluginSurfaceEnabled(plugin, byId),
-      kind: plugin.manifest.kind,
+      kinds: plugin.manifest.kinds,
       required: Boolean(plugin.manifest.required),
       name: plugin.manifest.name,
       route: plugin.manifest.route,
@@ -104,6 +104,7 @@ export async function buildStorefrontBootstrap(db: Pool = pool) {
             ...item,
             pluginId: plugin.id,
             label: item.label ?? plugin.manifest.name,
+            ...(item.labelKey ? { labelKey: item.labelKey } : {}),
           }))
         : [],
     ),

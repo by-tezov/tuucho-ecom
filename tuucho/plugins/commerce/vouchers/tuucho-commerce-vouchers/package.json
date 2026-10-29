@@ -8,7 +8,6 @@
     "id": "tuucho-commerce-vouchers",
     "installPath": "tuucho/plugins/commerce/vouchers/tuucho-commerce-vouchers",
     "name": "Vouchers",
-    "kind": "commerce",
     "defaultEnabled": true,
     "provides": [
       "CheckoutAlteration",
@@ -59,7 +58,10 @@
         "description": "Turn on only on a local shop while testing. Leave off in production.",
         "section": "codes"
       }
-    }
+    },
+    "kinds": [
+      "commerce"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

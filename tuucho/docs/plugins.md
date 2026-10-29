@@ -25,7 +25,7 @@ admin sidebar, above Accueil, with no group label. It is a small website
 | **Payment gateway** | e.g. `tuucho-payment-stripe`, registers methods into the payment-method shell                                                                                                                                  |
 | **Shipping method** | e.g. `tuucho-shipping-home`, registers courier codes into the courier shell                                                                                                                                    |
 | **Complement**      | Plugin with `dependsOn` (expedition cron complements shipping; `<id>-locale-en` / `<id>-locale-fr` complements a parent)                                                                                                          |
-| **Locale plugin**   | `kind: locale`. Kernel and plugins own keys only. `tuucho-kernel-locale-en` / `tuucho-kernel-locale-fr` supply values. Each bundled plugin ships `<id>-locale-en` and `<id>-locale-fr`.                                      |
+| **Locale plugin**   | `kinds: ["locale"]` (or combined with other roles). Kernel and plugins own keys only. `tuucho-kernel-locale-en` / `tuucho-kernel-locale-fr` supply values. Each bundled plugin ships `<id>-locale-en` and `<id>-locale-fr`. |
 | **Secret store**    | `settingsSchema` field `type: "secret"` → `plugins.secrets`. Never kernel JSON, never bootstrap, never `VITE_*`.                                                                                               |
 
 Public plugin knobs go on that plugin’s `settingsSchema` / `plugins.settings`.
@@ -125,7 +125,7 @@ or cart-rules. A page plugin can still ship with only a manifest and settings.
    `tuucho/factory-backup/plugins/` then `npm run factory-sync`).
 2. Edit leaf `package.json`: npm `version` and `description` (locale packs may omit description),
    optional HTTPS GitHub `repository` (user plugins only). Under `"tuucho"`, set `"id"` to `your-id`
-   (same as the leaf folder, not `tuucho-*`), `"kind"`, `name`, `engines.core` `>=0.0.1 <1.0.0`,
+   (same as the leaf folder, not `tuucho-*`), `"kinds"` (non-empty array), `name`, `engines.core` `>=0.0.1 <1.0.0`,
    `installPath` under `src/plugins/…`, plus `route` / `nav` for a page or `courierCodes` for shipping. Omit `nav` for
    footer-only documents (`page-legal`, `page-accessibility`). Depend on `@tuucho/plugin-sdk`.
 3. Add `back/register.ts` that calls `addFilter` / `addAction` /
@@ -182,7 +182,7 @@ registered.
 - Disable a kernel locale pack and that language leaves the switcher unless
   another pack for the same code stays on.
 - Every bundled feature plugin ships `<id>-locale-en` and `<id>-locale-fr`
-  with `dependsOn` on the parent (`kind: locale`). Disable a complement and
+  with `dependsOn` on the parent (`kinds: ["locale"]`). Disable a complement and
   that plugin's keys stay untranslated for that language even when the
   matching kernel locale pack is on.
 - Extra codes (for example `th`): ship a shop `*-locale-th` pack (or
@@ -210,7 +210,7 @@ Leaf `package.json` only. npm fields plus a `tuucho` block:
   "tuucho": {
     "id": "page-guides",
     "name": "Guides",
-    "kind": "theme | page | payment | shipping | commerce | docs | generic | seo | locale",
+    "kinds": ["theme | page | payment | shipping | commerce | docs | generic | seo | locale"],
     "required": false,
     "defaultEnabled": true,
     "provides": ["StorefrontPage"],
@@ -241,7 +241,7 @@ Leaf `package.json` only. npm fields plus a `tuucho` block:
 | `description`     | Short operator-facing summary of what the plugin does. Required. Scan skips and archive import rejects a non-locale plugin with a missing or empty description. Locale plugins (`*-locale-[a-z]{2}` complements and standalone packs such as `tuucho-kernel-locale-fr`) may omit it. |
 | `installPath`     | Repo-relative posix path of the package folder (leaf equals `id`). Tuucho ids: `tuucho/plugins/…`. User ids: `src/plugins/…`. Required on archive import.                                                                                                                      |
 | `repository`      | Optional HTTPS GitHub repo root (`https://github.com/owner/repo`) on **user** plugins only. Check for updates uses that origin for this id. Ignored on `tuucho-*`. Missing means zip-only.                                                                                    |
-| `kind`            | `theme`, `page`, `payment`, `shipping`, `commerce`, `docs`, `generic`, `seo`, or `locale`. One active theme.                                                                                                                                                                  |
+| `kinds`           | Non-empty array of `theme`, `page`, `payment`, `shipping`, `commerce`, `docs`, `generic`, `seo`, `locale`. Bundled tuucho packs use one entry; a shop may combine several in one package. Legacy single `kind` is rejected. One active theme.                               |
 | `required`        | Admin cannot disable it (`tuucho-theme-default`). Storefront example pages (`page-home`, `page-about`) live under `src/plugins/` and are not bundled.                                                                                                                          |
 | `defaultEnabled`  | Seeded into `plugins.enabled` on first insert.                                                                                                                                                                                                                                |
 | `provides`        | Contract names this plugin implements.                                                                                                                                                                                                                                        |
@@ -379,7 +379,7 @@ add a nav item with `pluginId`, and gate it with `usePluginEnabled(id)` plus a
 server `isPluginEnabled` check. Disable the plugin and both the sidebar entry
 and the HTTP routes go away (`404 plugin_disabled`).
 
-This Documentation plugin is the example (`kind: docs`). Vouchers, cart
+This Documentation plugin is the example (`kinds: ["docs"]`). Vouchers, cart
 rules, Vinted review, gifts, loyalty and product requests add commerce admin pages
 the same way.
 
@@ -571,7 +571,7 @@ pages can omit `front/` and let `PluginContentPage` read `settingsSchema`.
 
 ## Sample: admin page plugin
 
-`tuucho-docs-developer` (`kind: docs`) adds Admin, Documentation: a small website
+`tuucho-docs-developer` (`kinds: ["docs"]`) adds Admin, Documentation: a small website
 (nav plus article), not a raw markdown dump. Disable it and the menu item
 disappears.
 
@@ -697,7 +697,7 @@ Modules that never call the hook keep working unchanged (`{}` by default).
 | Slot                            | Props                                                                                                 |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `slot.gallery.card.compose`     | `{ product: GalleryItem }` — the card's own item (title, price, availability, photos by shape/length) |
-| `slot.gallery.lightbox.compose` | `{ product: GalleryItem, media }` — the lightbox item plus its currently displayed photo              |
+| `slot.gallery.lightbox.compose` | `{ product: GalleryItem, media, activeShape, activeLength }` — lightbox item, current photo, zoom shape/length |
 | every other slot                | no props yet (`{}`)                                                                                   |
 
 `PluginView` accepts the same `props` record for replaceable views.

@@ -8,13 +8,15 @@
     "id": "home-featured",
     "installPath": "src/plugins/home/featured/home-featured",
     "name": "Home featured",
-    "kind": "generic",
     "defaultEnabled": true,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
     },
     "provides": [
       "StorefrontSlot"
+    ],
+    "kinds": [
+      "generic"
     ]
   },
   "dependencies": {

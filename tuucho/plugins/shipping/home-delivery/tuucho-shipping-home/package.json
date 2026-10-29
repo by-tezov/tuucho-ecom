@@ -8,7 +8,6 @@
     "id": "tuucho-shipping-home",
     "installPath": "tuucho/plugins/shipping/home-delivery/tuucho-shipping-home",
     "name": "Home address delivery",
-    "kind": "shipping",
     "defaultEnabled": true,
     "provides": [
       "ShippingMethod"
@@ -20,7 +19,10 @@
     ],
     "engines": {
       "core": ">=0.0.1 <1.0.0"
-    }
+    },
+    "kinds": [
+      "shipping"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

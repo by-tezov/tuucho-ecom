@@ -11,7 +11,7 @@ import {
 export async function loadGiverOffer(db: pg.Pool | pg.PoolClient, rawToken: string): Promise<GiftOfferRow> {
   const offer = await findOfferByGiverTokenHash(db, hashOpaqueToken(rawToken));
   if (!offer) failGift('not_found');
-  assertNotGone(offer.status, offer.receiverVisibleUntil);
+  assertNotGone(offer.status, offer.receiverVisibleUntil, new Date(), offer.offerExpiresAt);
   return offer;
 }
 
@@ -21,6 +21,6 @@ export async function loadReceiverOffer(
 ): Promise<GiftOfferRow> {
   const offer = await findOfferByReceiverTokenHash(db, hashOpaqueToken(rawToken));
   if (!offer) failGift('not_found');
-  assertNotGone(offer.status, offer.receiverVisibleUntil);
+  assertNotGone(offer.status, offer.receiverVisibleUntil, new Date(), offer.offerExpiresAt);
   return offer;
 }

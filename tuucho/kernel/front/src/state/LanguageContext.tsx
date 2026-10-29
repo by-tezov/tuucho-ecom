@@ -232,7 +232,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       : (availableLanguages[0] ?? defaultLang());
     if (nextLang !== lang) {
       setLangState(nextLang);
-      savePreferredLanguage(nextLang);
+      // URL prefix is authoritative: demotion must not overwrite storage to a
+      // different code while the visitor is still on /fr/… (or /th/…).
+      if (!urlLang) savePreferredLanguage(nextLang);
     }
     const assembled = assembleDictionary(nextLang, localeEnabled);
     setCachedDictionary(nextLang, assembled);

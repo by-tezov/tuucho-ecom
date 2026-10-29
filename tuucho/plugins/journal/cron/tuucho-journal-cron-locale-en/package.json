@@ -8,7 +8,6 @@
     "id": "tuucho-journal-cron-locale-en",
     "installPath": "tuucho/plugins/journal/cron/tuucho-journal-cron-locale-en",
     "name": "journal-cron English",
-    "kind": "locale",
     "defaultEnabled": true,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
@@ -21,6 +20,9 @@
     ],
     "provides": [
       "Locale"
+    ],
+    "kinds": [
+      "locale"
     ]
   },
   "dependencies": {

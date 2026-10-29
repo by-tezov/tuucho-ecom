@@ -8,7 +8,6 @@
     "id": "tuucho-commerce-loyalty",
     "installPath": "tuucho/plugins/commerce/loyalty/tuucho-commerce-loyalty",
     "name": "Loyalty wallet",
-    "kind": "commerce",
     "defaultEnabled": false,
     "provides": [
       "CheckoutAlteration",
@@ -75,7 +74,10 @@
         "description": "JSONL path for the loyalty cron. Change only if you relocated kernel logs.",
         "section": "program"
       }
-    }
+    },
+    "kinds": [
+      "commerce"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

@@ -131,6 +131,31 @@ export async function ensurePluginsLoaded(): Promise<void> {
   await loadEnabledPlugins();
 }
 
+/**
+ * Route inventory only: also `register()` plugins that are installed but off,
+ * so optional mounts (gift, …) appear in `docs/api/routes.json` for the front
+ * contract check. Does not enable them at runtime or run their migrations.
+ */
+export async function registerDisabledPluginMountsForInventory(): Promise<void> {
+  await ensurePluginsLoaded();
+  const plugins = await listPlugins();
+  const byId = new Map(plugins.map((plugin) => [plugin.id, plugin]));
+  for (const plugin of plugins) {
+    if (pluginSurfaceEnabled(plugin, byId)) continue;
+    try {
+      const register = await importRegister(plugin);
+      if (!register) continue;
+      const api = createPluginRegisterApi(plugin.id, plugin.manifest);
+      await register(api);
+    } catch (error) {
+      console.warn(
+        `[route-inventory] skip disabled plugin mounts for ${plugin.id}:`,
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
+}
+
 export async function reloadPluginRuntime(): Promise<void> {
   await loadEnabledPlugins(true);
 }

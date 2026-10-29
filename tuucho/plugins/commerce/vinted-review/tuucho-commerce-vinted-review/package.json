@@ -8,7 +8,6 @@
     "id": "tuucho-commerce-vinted-review",
     "installPath": "tuucho/plugins/commerce/vinted-review/tuucho-commerce-vinted-review",
     "name": "Vinted review",
-    "kind": "commerce",
     "defaultEnabled": false,
     "provides": [
       "StorefrontSlot",
@@ -45,7 +44,10 @@
         "sectionTitle": "Home reviews cache",
         "sectionDescription": "TTL for the Vinted reviews block on home. Empty means no cache."
       }
-    }
+    },
+    "kinds": [
+      "commerce"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

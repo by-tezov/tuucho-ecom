@@ -9,7 +9,10 @@ import {
 
 const apiFetch = vi.hoisted(() => vi.fn());
 vi.mock('@/api/http', () => ({ apiFetch }));
-vi.mock('@/assets/i18n/languagePreference', () => ({ preferredLanguage: () => 'fr' }));
+vi.mock('@/assets/i18n/languagePreference', () => ({
+  preferredLanguage: () => 'fr',
+  activeLanguage: () => 'fr',
+}));
 
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(body === undefined ? null : JSON.stringify(body), { status });

@@ -50,13 +50,16 @@ export function AccountPage() {
   // The profile previously let each section mount and fetch independently,
   // which made phone options, recent logins and social methods appear at
   // different times. Settle every initial request before mounting any form.
+  // Keep a same-account bootstrap across cleanup (lang remount / Strict Mode)
+  // so a cancelled in-flight Promise.all cannot leave ContentLoading forever.
   useEffect(() => {
     if (!accountId) {
       setBootstrap(null);
       return;
     }
     let cancelled = false;
-    setBootstrap(null);
+    const forAccount = accountId;
+    setBootstrap((prev) => (prev?.accountId === forAccount ? prev : null));
     void (async () => {
       const request = authedRequestRef.current;
       const [profileResult, countriesResult, loginsResult, signInMethodsResult] = await Promise.all([
@@ -68,7 +71,7 @@ export function AccountPage() {
       if (cancelled) return;
       if (profileResult) setUser(profileResult.user);
       setBootstrap({
-        accountId,
+        accountId: forAccount,
         phoneCountryCodes: countriesResult?.countries.map((country) => country.code) ?? [],
         recentLogins: loginsResult?.logins ?? [],
         signInMethods: signInMethodsResult?.signInMethods ?? SIGN_IN_METHODS_OFF,

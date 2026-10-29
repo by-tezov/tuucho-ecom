@@ -1,4 +1,4 @@
-/** Product language registry. Kernel seeds en/fr; locale plugins may add more. */
+/** Product language registry. Kernel seeds en/fr; plugins may add more via registerLanguage. */
 
 export const LANGUAGE_CODE_RE = /^[a-z]{2,3}$/;
 
@@ -21,9 +21,12 @@ const BUILTIN_LANGUAGES: readonly RegisteredLanguage[] = [
 ];
 
 const languages = new Map<string, RegisteredLanguage>();
+/** Language code → plugin ids that called registerLanguage for it. */
+const languageContributors = new Map<string, Set<string>>();
 
 function seedBuiltins(): void {
   languages.clear();
+  languageContributors.clear();
   for (const entry of BUILTIN_LANGUAGES) {
     languages.set(entry.code, { ...entry });
   }
@@ -35,7 +38,7 @@ export function isLanguageCodeFormat(code: string): boolean {
   return LANGUAGE_CODE_RE.test(code);
 }
 
-export function registerLanguage(def: RegisteredLanguage): void {
+export function registerLanguage(def: RegisteredLanguage, pluginId?: string): void {
   const code = def.code.trim().toLowerCase();
   if (!isLanguageCodeFormat(code)) {
     throw new Error(
@@ -59,6 +62,11 @@ export function registerLanguage(def: RegisteredLanguage): void {
     ...(dateLocale ? { dateLocale } : {}),
     ...(flagUrl ? { flagUrl } : {}),
   });
+  if (pluginId?.trim()) {
+    const set = languageContributors.get(code) ?? new Set();
+    set.add(pluginId.trim());
+    languageContributors.set(code, set);
+  }
 }
 
 /** Clears plugin registrations and restores builtin en/fr. */
@@ -80,4 +88,9 @@ export function getRegisteredLanguage(code: string): RegisteredLanguage | undefi
 
 export function isRegisteredLanguage(code: string): boolean {
   return languages.has(code.trim().toLowerCase());
+}
+
+/** Plugin ids that called registerLanguage for this code (empty for builtins until a pack re-registers). */
+export function getLanguageContributorPluginIds(code: string): string[] {
+  return [...(languageContributors.get(code.trim().toLowerCase()) ?? [])].sort();
 }

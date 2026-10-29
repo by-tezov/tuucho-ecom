@@ -8,7 +8,6 @@
     "id": "tuucho-mail-spy-locale-fr",
     "installPath": "tuucho/plugins/messaging/mail-spy/tuucho-mail-spy-locale-fr",
     "name": "mail-spy French",
-    "kind": "locale",
     "defaultEnabled": true,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
@@ -21,6 +20,9 @@
     ],
     "provides": [
       "Locale"
+    ],
+    "kinds": [
+      "locale"
     ]
   },
   "dependencies": {

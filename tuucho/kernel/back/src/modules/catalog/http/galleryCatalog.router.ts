@@ -66,6 +66,17 @@ function parsePriceBound(raw: unknown): number | undefined {
   return value;
 }
 
+/** Units / composition catalogue. Absent until a catalog plugin mounts a real
+ * handler; the storefront treats 404 as an empty feed. */
+galleryCatalogRouter.get('/gallery/nails', (_req, res) => {
+  res.status(404).json({ error: 'not_found', message: 'nails feed not mounted' });
+});
+
+/** Single nail unit. Same optional-plugin contract as `/gallery/nails`. */
+galleryCatalogRouter.get('/gallery/nail/:uid', (_req, res) => {
+  res.status(404).json({ error: 'not_found', message: 'nail detail not mounted' });
+});
+
 galleryCatalogRouter.get('/gallery/feed', optionalAuth, async (req, res) => {
   const language = requestLanguage(req);
   const ids = parseCsv(req.query.ids, MAX_FEED_IDS, 80);

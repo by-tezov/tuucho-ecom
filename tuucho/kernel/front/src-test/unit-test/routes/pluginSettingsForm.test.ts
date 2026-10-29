@@ -60,7 +60,7 @@ describe('AdminPluginConfigurePage kit', () => {
     expect(src).toMatch(/from '\.\.\/components\/ui\/ColorField'/);
     expect(src).not.toMatch(/<select/);
     expect(src).not.toMatch(/<textarea/);
-    expect(src).toMatch(/frontConfigure \?/);
+    expect(src).toMatch(/frontConfigure &&/);
     expect(src).toMatch(/<SettingsForm/);
   });
 });

@@ -8,7 +8,6 @@
     "id": "tuucho-contact",
     "installPath": "tuucho/plugins/messaging/contact/tuucho-contact",
     "name": "Contact",
-    "kind": "generic",
     "defaultEnabled": true,
     "provides": [
       "StorefrontPage",
@@ -173,7 +172,10 @@
         "description": "Folder where chat mail is written in development instead of SMTP. Ignore on a live host.",
         "section": "recipients"
       }
-    }
+    },
+    "kinds": [
+      "generic"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

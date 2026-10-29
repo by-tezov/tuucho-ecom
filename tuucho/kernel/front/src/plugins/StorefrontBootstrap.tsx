@@ -72,7 +72,7 @@ const FALLBACK: StorefrontBootstrap = {
     {
       id: 'tuucho-contact',
       enabled: true,
-      kind: 'generic',
+      kinds: ['generic'],
       required: false,
       name: 'Contact',
       route: '/contact',

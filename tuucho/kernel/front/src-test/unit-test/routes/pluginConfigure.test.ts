@@ -11,7 +11,10 @@ vi.mock('@/plugins/PluginHost', () => ({
 import type { AdminPlugin } from '@/api/admin/shopSetup';
 import { pluginConfigurePath, pluginHasConfigure } from '@/routes/pluginConfigure';
 
-function plugin(partial: Partial<AdminPlugin> & { id: string; kind?: string }): AdminPlugin {
+function plugin(
+  partial: Partial<AdminPlugin> & { id: string; kinds?: string[]; kind?: string },
+): AdminPlugin {
+  const kinds = partial.kinds ?? (partial.kind ? [partial.kind] : ['page']);
   return {
     id: partial.id,
     enabled: true,
@@ -19,7 +22,7 @@ function plugin(partial: Partial<AdminPlugin> & { id: string; kind?: string }): 
     rates: partial.rates ?? [],
     manifest: {
       name: partial.id,
-      kind: partial.kind ?? 'page',
+      kinds,
       description: '',
       ...(partial.manifest ?? {}),
     },
@@ -28,11 +31,11 @@ function plugin(partial: Partial<AdminPlugin> & { id: string; kind?: string }): 
 
 describe('pluginHasConfigure', () => {
   it('hides Configure when there is no plugin settings form', () => {
-    expect(pluginHasConfigure(plugin({ id: 'page-home', kind: 'page' }))).toBe(false);
-    expect(pluginHasConfigure(plugin({ id: 'page-about', kind: 'page' }))).toBe(false);
-    expect(pluginConfigurePath(plugin({ id: 'page-home', kind: 'page' }))).toBeNull();
-    expect(pluginHasConfigure(plugin({ id: 'tuucho-journal-api', kind: 'generic' }))).toBe(false);
-    expect(pluginHasConfigure(plugin({ id: 'page-guides', kind: 'page' }))).toBe(false);
+    expect(pluginHasConfigure(plugin({ id: 'page-home', kinds: ['page'] }))).toBe(false);
+    expect(pluginHasConfigure(plugin({ id: 'page-about', kinds: ['page'] }))).toBe(false);
+    expect(pluginConfigurePath(plugin({ id: 'page-home', kinds: ['page'] }))).toBeNull();
+    expect(pluginHasConfigure(plugin({ id: 'tuucho-journal-api', kinds: ['generic'] }))).toBe(false);
+    expect(pluginHasConfigure(plugin({ id: 'page-guides', kinds: ['page'] }))).toBe(false);
   });
 
   it('does not reuse Configure for host or plugin admin screens', () => {
@@ -53,35 +56,35 @@ describe('pluginHasConfigure', () => {
       ['tuucho-seo-sitemap', 'seo'],
     ] as const;
     for (const [id, kind] of hacks) {
-      expect(pluginHasConfigure(plugin({ id, kind })), id).toBe(false);
-      expect(pluginConfigurePath(plugin({ id, kind })), id).toBeNull();
+      expect(pluginHasConfigure(plugin({ id, kinds: [kind] })), id).toBe(false);
+      expect(pluginConfigurePath(plugin({ id, kinds: [kind] })), id).toBeNull();
     }
   });
 
   it('keeps Configure only for this plugin settings form', () => {
-    expect(pluginHasConfigure(plugin({ id: 'tuucho-contact', kind: 'generic' }))).toBe(true);
-    expect(pluginConfigurePath(plugin({ id: 'tuucho-contact', kind: 'generic' }))).toBe(
+    expect(pluginHasConfigure(plugin({ id: 'tuucho-contact', kinds: ['generic'] }))).toBe(true);
+    expect(pluginConfigurePath(plugin({ id: 'tuucho-contact', kinds: ['generic'] }))).toBe(
       '/admin/plugins/tuucho-contact',
     );
-    expect(pluginHasConfigure(plugin({ id: 'tuucho-theme-default', kind: 'theme' }))).toBe(true);
-    expect(pluginConfigurePath(plugin({ id: 'tuucho-theme-default', kind: 'theme' }))).toBe(
+    expect(pluginHasConfigure(plugin({ id: 'tuucho-theme-default', kinds: ['theme'] }))).toBe(true);
+    expect(pluginConfigurePath(plugin({ id: 'tuucho-theme-default', kinds: ['theme'] }))).toBe(
       '/admin/plugins/tuucho-theme-default',
     );
-    expect(pluginHasConfigure(plugin({ id: 'tuucho-shipping-home', kind: 'shipping' }))).toBe(false);
-    expect(pluginHasConfigure(plugin({ id: 'tuucho-shipping-mondial-relay', kind: 'shipping' }))).toBe(
+    expect(pluginHasConfigure(plugin({ id: 'tuucho-shipping-home', kinds: ['shipping'] }))).toBe(false);
+    expect(pluginHasConfigure(plugin({ id: 'tuucho-shipping-mondial-relay', kinds: ['shipping'] }))).toBe(
       false,
     );
-    expect(pluginConfigurePath(plugin({ id: 'tuucho-shipping-home', kind: 'shipping' }))).toBeNull();
-    expect(pluginHasConfigure(plugin({ id: 'tuucho-payment-stripe', kind: 'payment' }))).toBe(false);
-    expect(pluginConfigurePath(plugin({ id: 'tuucho-payment-stripe', kind: 'payment' }))).toBeNull();
+    expect(pluginConfigurePath(plugin({ id: 'tuucho-shipping-home', kinds: ['shipping'] }))).toBeNull();
+    expect(pluginHasConfigure(plugin({ id: 'tuucho-payment-stripe', kinds: ['payment'] }))).toBe(false);
+    expect(pluginConfigurePath(plugin({ id: 'tuucho-payment-stripe', kinds: ['payment'] }))).toBeNull();
     expect(
       pluginHasConfigure(
         plugin({
           id: 'shop-notes',
-          kind: 'page',
+          kinds: ['page'],
           manifest: {
             name: 'Shop notes',
-            kind: 'page',
+            kinds: ['page'],
             description: '',
             settingsSchema: {
               title: { type: 'string', label: 'Title', description: 'Shown on the page.' },
@@ -94,10 +97,10 @@ describe('pluginHasConfigure', () => {
       pluginConfigurePath(
         plugin({
           id: 'shop-notes',
-          kind: 'page',
+          kinds: ['page'],
           manifest: {
             name: 'Shop notes',
-            kind: 'page',
+            kinds: ['page'],
             description: '',
             settingsSchema: {
               title: { type: 'string', label: 'Title', description: 'Shown on the page.' },
@@ -110,10 +113,10 @@ describe('pluginHasConfigure', () => {
       pluginHasConfigure(
         plugin({
           id: 'tuucho-commerce-gift',
-          kind: 'commerce',
+          kinds: ['commerce'],
           manifest: {
             name: 'Gift',
-            kind: 'commerce',
+            kinds: ['commerce'],
             description: '',
             settingsSchema: {
               minBudget: { type: 'number', label: 'Minimum budget', description: 'Lowest gift budget.' },

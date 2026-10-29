@@ -33,6 +33,7 @@ import { localizedPath } from '../../config/i18nRoutes';
 import styles from './PhotoLightbox.module.css';
 import { ModalBackdrop } from '../ui/ModalBackdrop';
 import { CORE_FRONT_SLOTS, PluginSlot } from '../../plugins/PluginHost';
+import { lightboxComposeSlotProps } from './lightboxComposeSlotProps';
 
 interface PhotoLightboxProps {
   item: GalleryItem;
@@ -154,7 +155,7 @@ export function PhotoLightbox({
     setSizeRequest({ open: false });
   }
   const multi = images.length > 1;
-  const composeSlotProps = { product: item, media: images[index] };
+  const composeSlotProps = lightboxComposeSlotProps(item, images[index], activeShape, activeLength);
 
   useEffect(() => {
     resetZoom();

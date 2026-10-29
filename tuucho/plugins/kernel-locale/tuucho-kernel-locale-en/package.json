@@ -8,13 +8,15 @@
     "id": "tuucho-kernel-locale-en",
     "installPath": "tuucho/plugins/kernel-locale/tuucho-kernel-locale-en",
     "name": "English",
-    "kind": "locale",
     "defaultEnabled": true,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
     },
     "provides": [
       "Locale"
+    ],
+    "kinds": [
+      "locale"
     ]
   },
   "dependencies": {

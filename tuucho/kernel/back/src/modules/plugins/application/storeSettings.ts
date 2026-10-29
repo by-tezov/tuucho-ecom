@@ -215,7 +215,8 @@ export async function patchStoreMenus(menus: StoreMenuItem[], db: Pool = pool): 
 }
 
 export async function ensureMenuForPlugin(manifest: PluginManifest, db: Pool = pool): Promise<void> {
-  if (manifest.kind !== 'page' || !manifest.nav) return;
+  // Any plugin with storefront nav + route (page, commerce monolith, …).
+  if (!manifest.nav || !manifest.route) return;
   const menus = await getStoreMenus(db);
   if (menus.some((item) => item.pluginId === manifest.id || item.key === manifest.nav!.key)) return;
   menus.push({

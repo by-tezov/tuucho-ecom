@@ -50,16 +50,17 @@ export function useNavItems(options: { includeAdmin?: boolean; includeOfferWhenE
     ...(menuVisible('about')
       ? [{ key: 'about', label: t.nav.about, to: localizedPath('/about', lang) }]
       : []),
-    ...extraPluginPages(bootstrap, lang),
+    ...infoPluginPages(bootstrap, lang),
   ];
 
+  const peerPages = topLevelPluginPages(bootstrap, lang);
+
   const items: NavItem[] = [
-    // A link (it navigates), whose click still runs goHome for the
-    // scroll-to-top / mobile back-stack behaviour.
     { key: 'home', label: t.nav.home, to: homePath, onClick: goHome },
     ...(menuVisible('gallery')
       ? [{ key: 'gallery', label: t.nav.gallery, to: localizedPath('/gallery', lang) }]
       : []),
+    ...peerPages,
     ...((options.includeOfferWhenEnabled || (!shopLocked && !originBlocked)) && giftOn
       ? [{ key: 'offer', label: t.nav.offer, to: localizedPath('/gift', lang) }]
       : []),
@@ -76,10 +77,7 @@ export function useNavItems(options: { includeAdmin?: boolean; includeOfferWhenE
           },
         ]
       : []),
-    ...(infoChildren.length
-      ? [{ key: 'info', label: t.nav.info, children: infoChildren }]
-      : []),
-    // Admin is never localized — not part of the public/indexable subtree.
+    ...(infoChildren.length ? [{ key: 'info', label: t.nav.info, children: infoChildren }] : []),
     ...(options.includeAdmin && isStaffRole(user?.role) && !isImpersonating
       ? [{ key: 'admin', label: t.nav.admin, to: adminPath() }]
       : []),
@@ -93,14 +91,40 @@ function pluginEnabled(bootstrap: StorefrontBootstrap, id: string, whenMissing: 
   return found ? found.enabled : whenMissing;
 }
 
-const CORE_MENU_KEYS = new Set(['home', 'gallery', 'guide', 'about', 'legal', 'contact', 'info']);
+const CORE_MENU_KEYS = new Set(['home', 'gallery', 'guide', 'about', 'legal', 'contact', 'info', 'offer']);
+/** About/contact-style keys stay under Infos; catalogue peers are top-level by order. */
+const INFO_MENU_KEYS = new Set(['about', 'legal', 'contact', 'accessibility', 'sitemap']);
 
-function extraPluginPages(bootstrap: StorefrontBootstrap, lang: Lang): NavItem[] {
-  return bootstrap.menus.flatMap((item) => {
-    if (!item.visible || CORE_MENU_KEYS.has(item.key)) return [];
-    const plugin = bootstrap.plugins.find((entry) => entry.id === item.pluginId && entry.enabled);
-    const route = plugin?.route;
-    if (!route) return [];
-    return [{ key: item.key, label: item.label, to: localizedPath(route, lang) }];
-  });
+function resolvedMenuNav(
+  bootstrap: StorefrontBootstrap,
+  lang: Lang,
+  item: StorefrontBootstrap['menus'][number],
+): NavItem | null {
+  if (!item.visible) return null;
+  const plugin = bootstrap.plugins.find((entry) => entry.id === item.pluginId && entry.enabled);
+  const route = plugin?.route;
+  if (!route) return null;
+  return { key: item.key, label: item.label, to: localizedPath(route, lang) };
+}
+
+function topLevelPluginPages(bootstrap: StorefrontBootstrap, lang: Lang): NavItem[] {
+  return [...bootstrap.menus]
+    .sort((a, b) => a.order - b.order)
+    .flatMap((item) => {
+      if (CORE_MENU_KEYS.has(item.key) || INFO_MENU_KEYS.has(item.key)) return [];
+      const nav = resolvedMenuNav(bootstrap, lang, item);
+      return nav ? [nav] : [];
+    });
+}
+
+function infoPluginPages(bootstrap: StorefrontBootstrap, lang: Lang): NavItem[] {
+  return [...bootstrap.menus]
+    .sort((a, b) => a.order - b.order)
+    .flatMap((item) => {
+      // about/contact already rendered above with localized core labels.
+      if (item.key === 'about' || item.key === 'contact') return [];
+      if (!INFO_MENU_KEYS.has(item.key)) return [];
+      const nav = resolvedMenuNav(bootstrap, lang, item);
+      return nav ? [nav] : [];
+    });
 }

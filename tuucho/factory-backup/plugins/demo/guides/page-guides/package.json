@@ -8,7 +8,6 @@
     "id": "page-guides",
     "installPath": "src/plugins/demo/guides/page-guides",
     "name": "Guides",
-    "kind": "page",
     "defaultEnabled": true,
     "provides": [
       "StorefrontPage"
@@ -20,7 +19,10 @@
     },
     "engines": {
       "core": ">=0.0.1 <1.0.0"
-    }
+    },
+    "kinds": [
+      "page"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../../tuucho/plugin-sdk"

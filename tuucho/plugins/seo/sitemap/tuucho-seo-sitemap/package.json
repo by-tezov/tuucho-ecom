@@ -8,14 +8,16 @@
     "id": "tuucho-seo-sitemap",
     "installPath": "tuucho/plugins/seo/sitemap/tuucho-seo-sitemap",
     "name": "Sitemap pages",
-    "kind": "seo",
     "defaultEnabled": true,
     "provides": [
       "SeoSitemap"
     ],
     "engines": {
       "core": ">=0.0.1 <1.0.0"
-    }
+    },
+    "kinds": [
+      "seo"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

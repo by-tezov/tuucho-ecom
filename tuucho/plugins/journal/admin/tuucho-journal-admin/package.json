@@ -8,7 +8,6 @@
     "id": "tuucho-journal-admin",
     "installPath": "tuucho/plugins/journal/admin/tuucho-journal-admin",
     "name": "API journal",
-    "kind": "generic",
     "defaultEnabled": false,
     "dependsOn": [
       {
@@ -37,6 +36,9 @@
         "order": 20,
         "label": "API journal"
       }
+    ],
+    "kinds": [
+      "generic"
     ]
   },
   "dependencies": {

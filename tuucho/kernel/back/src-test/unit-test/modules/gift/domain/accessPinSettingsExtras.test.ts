@@ -11,11 +11,15 @@ import {
   type OrderItemRow,
 } from '../../../../../src/modules/orders/domain/order.js';
 
-test('assertNotGone fails only after terminal visibility window', () => {
+test('assertNotGone fails after terminal visibility window or offer expiry', () => {
   const now = new Date('2026-01-02T00:00:00.000Z');
   assert.doesNotThrow(() => assertNotGone('selecting', new Date('2026-01-03T00:00:00.000Z'), now));
   assert.throws(
     () => assertNotGone('cancelled', new Date('2026-01-01T00:00:00.000Z'), now),
+    (error: unknown) => error instanceof GiftFailure && error.code === 'gift_gone',
+  );
+  assert.throws(
+    () => assertNotGone('cancelled', null, now),
     (error: unknown) => error instanceof GiftFailure && error.code === 'gift_gone',
   );
 });

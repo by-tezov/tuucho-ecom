@@ -8,7 +8,6 @@
     "id": "tuucho-commerce-gift-locale-fr",
     "installPath": "tuucho/plugins/commerce/gift/tuucho-commerce-gift-locale-fr",
     "name": "commerce-gift French",
-    "kind": "locale",
     "defaultEnabled": false,
     "engines": {
       "core": ">=0.0.1 <1.0.0"
@@ -21,6 +20,9 @@
     ],
     "provides": [
       "Locale"
+    ],
+    "kinds": [
+      "locale"
     ]
   },
   "dependencies": {

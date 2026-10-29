@@ -514,6 +514,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setJustAdded,
     setJustRebought,
     setCartError,
+    closeActiveModal,
   });
   const notifyCartAdded = useCallback((display: JustAddedItem) => {
     setJustRebought(false);

@@ -1,6 +1,6 @@
 import { ApiError } from './errors';
 import { apiFetch } from './http';
-import { preferredLanguage } from '../assets/i18n/languagePreference';
+import { activeLanguage } from '../assets/i18n/languagePreference';
 import { shopConfig } from '../config/env';
 
 /** Payload shapes come from the backend contract (`npm run sync:contract`
@@ -16,7 +16,7 @@ async function request<T>(accessToken: string, path: string, init: RequestInit =
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
-      'Accept-Language': preferredLanguage(),
+      'Accept-Language': activeLanguage(),
       ...(init.headers ?? {}),
     },
   });
@@ -36,7 +36,7 @@ async function requestForm<T>(accessToken: string, path: string, form: FormData)
   const response = await apiFetch(`/account/chat${path}`, {
     method: 'POST',
     credentials: 'include',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Accept-Language': preferredLanguage() },
+    headers: { Authorization: `Bearer ${accessToken}`, 'Accept-Language': activeLanguage() },
     body: form,
   });
   const payload = (await response.json().catch(() => ({}))) as {
@@ -146,7 +146,7 @@ export async function fetchAccountChatAttachment(
     `${shopConfig.apiBaseUrl}/account/chat/sessions/${encodeURIComponent(publicId)}/attachments/${attachmentId}`,
     {
       credentials: 'include',
-      headers: { Authorization: `Bearer ${accessToken}`, 'Accept-Language': preferredLanguage() },
+      headers: { Authorization: `Bearer ${accessToken}`, 'Accept-Language': activeLanguage() },
     },
   );
   if (!response.ok) throw new ApiError('attachment_fetch_failed', response.status);
@@ -166,7 +166,7 @@ export async function streamAccountChatEvents(
     {
       credentials: 'include',
       signal,
-      headers: { Authorization: `Bearer ${accessToken}`, 'Accept-Language': preferredLanguage() },
+      headers: { Authorization: `Bearer ${accessToken}`, 'Accept-Language': activeLanguage() },
     },
   );
   if (!response.ok) throw new ApiError('chat_stream_failed', response.status);

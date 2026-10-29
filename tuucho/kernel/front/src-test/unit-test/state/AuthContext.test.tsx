@@ -69,7 +69,10 @@ vi.mock('@/state/cartBootstrapCache', () => ({
 vi.mock('@/state/giftLockSession', () => ({ clearGiftLockSession: vi.fn() }));
 vi.mock('@/state/adminSessionLand', () => ({ clearAdminBrowserSession: vi.fn() }));
 vi.mock('@/assets/i18n', () => ({ useLang: () => ({ t: {}, lang: 'fr' }) }));
-vi.mock('@/assets/i18n/languagePreference', () => ({ preferredLanguage: () => 'fr' }));
+vi.mock('@/assets/i18n/languagePreference', () => ({
+  preferredLanguage: () => 'fr',
+  activeLanguage: () => 'fr',
+}));
 // The merge-dialog floor is a real LoadingModal delay; tests only care about ordering.
 vi.mock('@/utils/withMinDuration', () => ({ delay: async () => {} }));
 vi.mock('@/components/cart/LoginMergeDialog', () => ({

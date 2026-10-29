@@ -8,7 +8,6 @@
     "id": "footer-identity",
     "installPath": "src/plugins/footer/identity/footer-identity",
     "name": "Footer identity",
-    "kind": "generic",
     "defaultEnabled": true,
     "provides": [
       "StorefrontSlot"
@@ -49,7 +48,10 @@
     },
     "engines": {
       "core": ">=0.0.1 <1.0.0"
-    }
+    },
+    "kinds": [
+      "generic"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../../tuucho/plugin-sdk"

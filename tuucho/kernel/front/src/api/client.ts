@@ -1,4 +1,4 @@
-import { preferredLanguage } from '../assets/i18n/languagePreference';
+import { activeLanguage } from '../assets/i18n/languagePreference';
 import { ApiError } from './errors';
 import { apiFetch } from './http';
 import {
@@ -37,7 +37,7 @@ export async function requestJson<T>(path: string, init: RequestInit = {}): Prom
     credentials: 'include',
     headers: {
       ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-      'Accept-Language': preferredLanguage(),
+      'Accept-Language': activeLanguage(),
       ...(checkoutPrivacyToken ? { 'X-Checkout-Session': checkoutPrivacyToken } : {}),
       ...(init.headers ?? {}),
     },
@@ -104,7 +104,7 @@ export async function requestDownload(path: string, init: RequestInit = {}): Pro
     ...init,
     credentials: 'include',
     headers: {
-      'Accept-Language': preferredLanguage(),
+      'Accept-Language': activeLanguage(),
       ...(checkoutPrivacyToken ? { 'X-Checkout-Session': checkoutPrivacyToken } : {}),
       ...(init.headers ?? {}),
     },

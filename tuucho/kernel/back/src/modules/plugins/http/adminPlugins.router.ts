@@ -178,10 +178,10 @@ adminPluginsRouter.patch('/plugins/:id', async (req, res) => {
       return;
     }
     const codes = result.manifest.courierCodes ?? [];
-    if (result.manifest.kind === 'shipping' && codes.length > 0) {
+    if (result.manifest.kinds.includes('shipping') && codes.length > 0) {
       await pool.query(`update couriers set enabled = $2 where code = any($1::text[])`, [codes, req.body.enabled]);
     }
-    if (result.manifest.kind === 'payment' && req.body.enabled === false && paymentMethods.length > 0) {
+    if (result.manifest.kinds.includes('payment') && req.body.enabled === false && paymentMethods.length > 0) {
       const keys = paymentMethods.map((method) => `payment_${method}_enabled`);
       await pool.query(
         `update app_preferences

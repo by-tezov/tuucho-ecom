@@ -27,17 +27,24 @@ export function usePendingAdd(deps: {
   setJustAdded: Dispatch<SetStateAction<JustAddedItem | null>>;
   setJustRebought: Dispatch<SetStateAction<boolean>>;
   setCartError: Dispatch<SetStateAction<JustAddedItem | null>>;
+  /** Close lightbox / other cart-registered overlays before the drawer opens. */
+  closeActiveModal?: () => void;
 }): {
   pendingAdd: JustAddedItem | null;
   addToCart: AddToCart;
   wrapNotifiedAdd: (display: JustAddedItem | undefined, run: () => Promise<void>) => Promise<void>;
 } {
-  const { cartReady, addToCartNow, setJustAdded, setJustRebought, setCartError } = deps;
+  const { cartReady, addToCartNow, setJustAdded, setJustRebought, setCartError, closeActiveModal } =
+    deps;
   const [pendingAdd, setPendingAdd] = useState<JustAddedItem | null>(null);
 
   const wrapNotifiedAdd = useCallback(
     async (display: JustAddedItem | undefined, run: () => Promise<void>) => {
       if (!display || !cartReady) return run();
+      // Pop zoom (or any cart-registered modal) before pendingAdd opens the
+      // drawer — otherwise CartControl waits on hasActiveModal and guest
+      // cart-auth / lang-prefix races can miss cart-drawer-success entirely.
+      closeActiveModal?.();
       setPendingAdd(display);
       setJustAdded(null);
       setJustRebought(false);
@@ -51,7 +58,7 @@ export function usePendingAdd(deps: {
         setPendingAdd(null);
       }
     },
-    [cartReady, setCartError, setJustAdded, setJustRebought],
+    [cartReady, closeActiveModal, setCartError, setJustAdded, setJustRebought],
   );
 
   const addToCart = useCallback<AddToCart>(

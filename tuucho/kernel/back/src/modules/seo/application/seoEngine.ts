@@ -43,7 +43,7 @@ async function pagePluginSitemapEntries(): Promise<SitemapEntry[]> {
   const plugins = await listPlugins();
   const byId = new Map(plugins.map((plugin) => [plugin.id, plugin]));
   return plugins.flatMap((plugin) => {
-    if (plugin.manifest.kind !== 'page' || !plugin.manifest.route) return [];
+    if (!plugin.manifest.route) return [];
     if (!pluginSurfaceEnabled(plugin, byId)) return [];
     const path = plugin.manifest.route.startsWith('/') ? plugin.manifest.route : `/${plugin.manifest.route}`;
     return [{ loc: absoluteShopUrl(config.frontendBaseUrl, path), source: plugin.id }];

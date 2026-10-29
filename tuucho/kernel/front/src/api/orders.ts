@@ -1,5 +1,5 @@
 /** Customer order history, tracking, revision and invoice API. */
-import { preferredLanguage } from '../assets/i18n/languagePreference';
+import { activeLanguage } from '../assets/i18n/languagePreference';
 import { authHeaders, requestJson as request } from './client';
 import { ApiError } from './errors';
 import { apiFetch } from './http';
@@ -177,7 +177,7 @@ export function updateOrderShipping(
 export async function downloadInvoice(accessToken: string, orderId: string): Promise<void> {
   const response = await apiFetch(`/account/orders/${orderId}/invoice`, {
     credentials: 'include',
-    headers: { ...authHeaders(accessToken), 'Accept-Language': preferredLanguage() },
+    headers: { ...authHeaders(accessToken), 'Accept-Language': activeLanguage() },
   });
   if (!response.ok) {
     let code = 'unknown_error';

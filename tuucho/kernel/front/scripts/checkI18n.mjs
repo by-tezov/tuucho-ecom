@@ -1,23 +1,24 @@
 #!/usr/bin/env node
 /**
- * Locale consistency for `src/assets/i18n/strings.*.ts`.
+ * Locale consistency for kernel locale packs
+ * (`tuucho/plugins/kernel-locale/tuucho-kernel-locale-<lang>/front`).
  *
  * `tsc` already proves every locale satisfies `Strings`, so this covers what a
  * type cannot:
  *
- * - key parity against French, which is the source language (an optional key
- *   present in `fr` and forgotten elsewhere typechecks fine and renders empty);
+ * - key parity against the source language (an optional key present in the
+ *   source and forgotten elsewhere typechecks fine and renders empty);
  * - interpolation parity, so `{email}` cannot be dropped or renamed in one
  *   locale and silently render a gap;
- * - arrow-function parity, so a string that takes arguments in `fr` is not a
- *   plain string somewhere else;
+ * - arrow-function parity, so a string that takes arguments in the source is
+ *   not a plain string somewhere else;
  * - no em dash or en dash anywhere in customer-visible copy, which is a hard
  *   project rule and was previously enforced by prose alone;
  * - type/copy layout parity, so `types/<namespace>.ts` keeps mirroring
- *   `strings/<lang>/<namespace>.ts` instead of drifting back into one file;
- * - the administration dictionary (`src/assets/i18n/admin/strings/<lang>.ts`,
- *   checked as `adminUi.*`) gets every check above;
- * - untranslated values, ratcheted: a value byte-identical to French in
+ *   locale-pack `strings/<namespace>.ts` instead of drifting back into one file;
+ * - the administration dictionary (`adminCatalog.ts` in each locale pack,
+ *   checked as `adminCatalog.*`) gets every check above;
+ * - untranslated values, ratcheted: a value byte-identical to the source in
  *   another locale is usually a placeholder, but plenty are legitimately the
  *   same word, so the committed baseline may shrink and never grow.
  */
@@ -28,30 +29,30 @@ import { resolve } from 'node:path';
 const SOURCE_LANG = 'en';
 const LANGS = ['en'];
 const baselinePath = resolve('src/assets/i18n/untranslated-baseline.json');
+const localePackFront = (lang) =>
+  resolve(`../../plugins/kernel-locale/tuucho-kernel-locale-${lang}/front`);
 
 const EM_DASH = '—';
 const EN_DASH = '–';
 
 /** Flattens one locale into `path -> value`.
  *
- * Copy lives in `strings/<lang>/<namespace>.ts`, one file per screen, and
- * `strings.<lang>.ts` only assembles them. Reading the namespace files directly
- * keeps this check independent of how the assembly is written, and lets an
- * error name the file the string is actually in.
+ * Shop copy lives in each kernel locale pack under `front/strings/<namespace>.ts`.
+ * Reading those files directly keeps this check independent of how the assembly
+ * is written, and lets an error name the file the string is actually in.
  *
  * A function-valued string is recorded by shape (`fn(a,b)`) rather than by
  * body, so parity can be checked without comparing implementations. */
 async function parseLocale(lang) {
-  const dir = `src/assets/i18n/strings/${lang}`;
+  const dir = resolve(localePackFront(lang), 'strings');
   const entries = (await readdir(dir)).filter((name) => name.endsWith('.ts')).sort();
   const values = new Map();
 
   for (const entry of entries) {
     await parseFile(`${dir}/${entry}`, entry.replace(/\.ts$/, ''), values);
   }
-  // The administration's own dictionary (src/assets/i18n/admin), loaded only
-  // with the admin routes, gets the same checks under `adminUi.*`.
-  await parseFile(`src/assets/i18n/admin/strings/${lang}.ts`, 'adminUi', values);
+  // Administration dictionary in the same locale pack (loaded only with admin routes).
+  await parseFile(resolve(localePackFront(lang), 'adminCatalog.ts'), 'adminCatalog', values);
 
   return values;
 }
@@ -177,7 +178,8 @@ for (const lang of LANGS) {
 // it is checked here: `common` and `checkoutSessionExpired` are deliberately
 // inline in `Strings`, because their keys sit at the top level.
 const INLINE_NAMESPACES = new Set(['common', 'checkoutSessionExpired']);
-const copyNamespaces = (await readdir(`src/assets/i18n/strings/${SOURCE_LANG}`))
+const sourceStringsDir = resolve(localePackFront(SOURCE_LANG), 'strings');
+const copyNamespaces = (await readdir(sourceStringsDir))
   .filter((name) => name.endsWith('.ts'))
   .map((name) => name.replace(/\.ts$/, ''))
   .filter((namespace) => !INLINE_NAMESPACES.has(namespace));
@@ -186,17 +188,13 @@ const typeNamespaces = new Set(
     .filter((name) => name.endsWith('.ts'))
     .map((name) => name.replace(/\.ts$/, '')),
 );
+// Kernel locale pack strings must keep a matching type. Extra type files for
+// plugin-owned namespaces (about, gift, onboarding, …) are allowed: their
+// values live in feature locale complements, not the kernel pack.
 for (const namespace of copyNamespaces) {
   if (!typeNamespaces.has(namespace)) {
     errors.push(
-      `src/assets/i18n/types/${namespace}.ts is missing, but \`strings/${SOURCE_LANG}/${namespace}.ts\` exists.`,
-    );
-  }
-}
-for (const namespace of typeNamespaces) {
-  if (!copyNamespaces.includes(namespace)) {
-    errors.push(
-      `src/assets/i18n/types/${namespace}.ts has no \`strings/${SOURCE_LANG}/${namespace}.ts\` to type.`,
+      `src/assets/i18n/types/${namespace}.ts is missing, but locale-pack \`strings/${namespace}.ts\` exists.`,
     );
   }
 }

@@ -8,7 +8,6 @@
     "id": "tuucho-theme-default",
     "installPath": "tuucho/plugins/theme/default/tuucho-theme-default",
     "name": "Default theme",
-    "kind": "theme",
     "required": false,
     "defaultEnabled": true,
     "provides": [
@@ -16,7 +15,10 @@
     ],
     "engines": {
       "core": ">=0.0.1 <1.0.0"
-    }
+    },
+    "kinds": [
+      "theme"
+    ]
   },
   "dependencies": {
     "@tuucho/plugin-sdk": "file:../../../../plugin-sdk"

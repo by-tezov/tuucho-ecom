@@ -620,7 +620,11 @@ function PluginRow({
         ) : null}
         <div className={styles.rowMeta}>
           <span className={styles.badge}>{plugin.id}</span>
-          <span className={styles.badge}>{kindText(plugin.manifest.kind, w)}</span>
+          {plugin.manifest.kinds.map((kind) => (
+            <span key={kind} className={styles.badge}>
+              {kindText(kind, w)}
+            </span>
+          ))}
           {plugin.manifest.required ? <span className={styles.badge}>{w.required}</span> : null}
           {missingFromDisk ? (
             <span className={`${styles.badge} ${styles.badgeDanger}`}>{w.missingFolder}</span>

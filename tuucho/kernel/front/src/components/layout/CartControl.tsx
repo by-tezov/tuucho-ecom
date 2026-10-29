@@ -89,8 +89,15 @@ export function CartControl({ className }: CartControlProps) {
   // stays open (list loading) until dismissed rather than flicker closed.
   const [stayOpen, setStayOpen] = useState(false);
   const drawerChunkReady = useCartDrawerChunk(wantsOpen);
+  // Once an add is pending or succeeded, do not wait on hasActiveModal: the
+  // add path already closed the zoom. Waiting left guest cart-auth races
+  // without cart-drawer-success when unregister lagged behind pendingAdd.
+  const addInFlight = pendingAdd !== null || justAdded !== null || cartError !== null;
   const open =
-    wantsOpen && drawerChunkReady && (pendingAdd !== null || drawerReady || stayOpen) && !hasActiveModal;
+    wantsOpen &&
+    drawerChunkReady &&
+    (pendingAdd !== null || drawerReady || stayOpen) &&
+    (addInFlight || !hasActiveModal);
   if (open !== stayOpen && (open || !wantsOpen)) setStayOpen(open);
   const showContinueShopping = !justRebought;
   const followOrder = receiverFollowsOrder(gift.summary?.status) || Boolean(lock?.followLocked);
@@ -251,11 +258,13 @@ export function CartControl({ className }: CartControlProps) {
 
   // Leave the "just added" / error notice behind when navigating away, so a
   // leftover scroll lock (Layout-mounted CartControl) cannot follow the
-  // customer onto another page with no way to dismiss it.
+  // customer onto another page with no way to dismiss it. Language-prefix
+  // only changes (same path rest) must not clear the notice — §1/§2 locale
+  // redirects were wiping cart-drawer-success mid guest cart-auth.
   useEffect(() => {
     dismissJustAdded();
     dismissCartError();
-  }, [location.pathname, dismissJustAdded, dismissCartError]);
+  }, [pathRest, dismissJustAdded, dismissCartError]);
 
   // Any drawer dismiss (X, backdrop, Escape, platform back, Continuer) must
   // also close a product lightbox still open underneath and leave the

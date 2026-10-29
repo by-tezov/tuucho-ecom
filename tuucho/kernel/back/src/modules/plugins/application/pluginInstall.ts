@@ -36,17 +36,30 @@ function parseManifest(files: ArchiveFile[]): PluginManifest {
   if (!pkg) {
     throw new PluginArchiveError(
       'invalid_manifest',
-      'package.json must contain a tuucho object (id, kind, installPath, engines.core).',
+      'package.json must contain a tuucho object (id, kinds, installPath, engines.core).',
     );
   }
   if (!PLUGIN_ID_RE.test(pkg.id)) {
     throw new PluginArchiveError('invalid_manifest', 'tuucho.id must match [a-z0-9-]+.');
   }
+  if (Object.prototype.hasOwnProperty.call(pkg.tuucho, 'kind')) {
+    throw new PluginArchiveError(
+      'invalid_manifest',
+      'tuucho.kind is removed; use tuucho.kinds as a non-empty array.',
+    );
+  }
   if (!files.some((file) => file.path === 'back/register.ts' || file.path === 'back/register.js')) {
     throw new PluginArchiveError('invalid_manifest', 'Archive needs back/register.ts.');
   }
-  const kind = (typeof pkg.tuucho.kind === 'string' ? pkg.tuucho.kind : 'generic') as PluginManifest['kind'];
-  const description = resolvePluginDescription(pkg.id, kind, pkg.description);
+  const kindsRaw = pkg.tuucho.kinds;
+  const kinds =
+    Array.isArray(kindsRaw) && kindsRaw.every((entry) => typeof entry === 'string')
+      ? ([...new Set(kindsRaw as string[])] as PluginManifest['kinds'])
+      : null;
+  if (!kinds || kinds.length === 0) {
+    throw new PluginArchiveError('invalid_manifest', 'tuucho.kinds must be a non-empty array.');
+  }
+  const description = resolvePluginDescription(pkg.id, kinds, pkg.description);
   if (description === undefined) {
     throw new PluginArchiveError('invalid_manifest', 'package.json description is required.');
   }
@@ -56,7 +69,7 @@ function parseManifest(files: ArchiveFile[]): PluginManifest {
     id: pkg.id,
     name: typeof pkg.tuucho.name === 'string' ? pkg.tuucho.name : pkg.id,
     version: pkg.version,
-    kind,
+    kinds,
     description,
     engines: enginesRaw && typeof enginesRaw === 'object' ? (enginesRaw as PluginManifest['engines']) : undefined,
     defaultEnabled: pkg.tuucho.defaultEnabled !== false,
