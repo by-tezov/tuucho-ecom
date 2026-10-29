@@ -1,33 +1,53 @@
 # tuucho-ecom deltas still required by PamSurin (against 0.0.9)
 
-Local `pamsurin-shop/tuucho` should track product **0.0.9**. The four
-0.0.8 forks below are opened upstream; Pam can drop the local patches and
-re-audit.
+Local `pamsurin-shop/tuucho` tracks product **0.0.9**. No kernel / plugin-sdk /
+docs / scripts **source** forks under `tuucho/`. Item **2** below is still
+required on tagged `0.0.9`; item **1** is implemented in the product checkout
+awaiting the next tag.
+
+## 1. Docker Compose env file is written inside the product tree
+
+**Status:** implemented in the product tree (not yet on tag `0.0.9`).
+`composeEnv.mjs` writes `<outputDir>/docker/.compose.env` (default
+`<clone root>/output/docker/.compose.env`). `composeUp.mjs`, install, deploy
+local Postgres start, and Apply DB snapshot fallbacks use that path. Nothing
+shop-generated for Compose lands under `tuucho/`.
+
+## 2. Kernel Apply overwrites the shop root project manifest
+
+**Status:** implemented in the product tree (not yet on tag `0.0.9`).
+Root scaffold ships under `tuucho/factory-backup/root/`, copies once on
+`node tuucho/scripts/install.mjs`, Apply no longer writes live
+`package.json`, Core / Check read `tuucho/tuucho-versioning.json` `kernel`.
+
+Stock `0.0.9` still includes live `package.json` in Apply scope; Pam must keep
+restoring shop scripts/name until that tag is applied.
+
+## Closed in product WIP (next tag)
+
+- Compose env outside `tuucho/` → `<outputDir>/docker/.compose.env`.
+- Shop-owned root scaffold + Apply never writes live root `package.json`.
 
 ## Closed in 0.0.9
 
-- Front Vite shop JSON (`front.json` / `front.<env>.json`) — product Vite
-  loads `VITE_` / `SITEMAP_` / `SSR_` from `tuucho-config/`.
-- Dev HTML shell title + public favicon — `shellTitle` +
-  `tuucho-config/front-public/` overlay.
-- Language switcher only unlocks `tuucho-kernel-locale-<lang>` — any
-  enabled `*-locale-<lang>` pack unlocks the code.
-- `FlagIcon` only draws FR / UK — optional `registerLanguage({ flagUrl })`
-  through bootstrap; stock SVG for en/fr only; unknown codes get a
-  neutral badge.
+- Front Vite shop JSON (`front.json` / `front.<env>.json`).
+- Dev HTML shell title + public favicon (`shellTitle` +
+  `tuucho-config/front-public/`).
+- Language switcher unlock for any enabled `*-locale-<lang>` pack.
+- Optional `registerLanguage({ flagUrl })` for switcher flags.
 
 ## Closed since 0.0.6
 
-- Storefront languages beyond en|fr — `registerLanguage` + `i18n.enabled` →
-  `VITE_ENABLED_LANGUAGES`.
+- Storefront languages beyond en|fr — `registerLanguage` + `i18n.enabled`.
 - Favicon / OG / lock-probe (runtime) — `brandAssets` keys.
 - Cart `wrapNotifiedAdd` / `notifyCartAdded` on commands context.
-- `paths.publicMediaDir` leading slash treated as under `publicDir`.
+- `paths.publicMediaDir` leading slash under `publicDir`.
 - `/media` mounted before catch-all `/` plugin middleware.
 
 ## Not a kernel opening
 
 - FTP host credentials and LWS API token — shop private JSON + shop deploy.
-- Production cron enable flags (`ENABLED_CRON_*`) — shop deploy.
-- Product-request SMTP password and similar plugin secrets — plugin private
-  / Configure secret store, not kernel schema.
+- Production crontab install ownership — shop `scripts/deploy.mjs`; stock
+  prod always installs cron entries; plugin enable gates gift/loyalty.
+- Product-request SMTP and similar plugin secrets — plugin private /
+  Configure secret store.

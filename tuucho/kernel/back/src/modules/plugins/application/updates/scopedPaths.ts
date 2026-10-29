@@ -23,7 +23,6 @@ const KERNEL_PATHS = [
   'tuucho/sample',
   TUCHO_VERSIONING_CATALOG,
   ...LEGACY_RELEASE_CATALOGS,
-  'package.json',
 ] as const;
 
 export const OFFICIAL_SNAPSHOT_PATHS = [
@@ -36,7 +35,6 @@ export const OFFICIAL_SNAPSHOT_PATHS = [
   'tuucho/sample',
   TUCHO_VERSIONING_CATALOG,
   ...LEGACY_RELEASE_CATALOGS,
-  'package.json',
   TUCHO_VERSIONING_LOCK,
   ...LEGACY_SHOP_RELEASES,
 ];

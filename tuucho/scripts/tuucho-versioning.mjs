@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Build or check tuucho/tuucho-versioning.json against the product version in
- * root package.json. Not Plugins Core / Check current. Run before tagging.
+ * tuucho/factory-backup/root/package.json (shipped scaffold; live root stays
+ * shop-owned and is kept equal via factory-sync). Not Plugins Core / Check current.
  *
  *   node tuucho/scripts/tuucho-versioning.mjs           # write (create if missing)
  *   node tuucho/scripts/tuucho-versioning.mjs --check   # fail on drift
@@ -13,9 +14,10 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const checkOnly = process.argv.includes('--check');
 const CATALOG = join('tuucho', 'tuucho-versioning.json');
+const FACTORY_ROOT_PKG = join('tuucho', 'factory-backup', 'root', 'package.json');
 const LEGACY = ['tuucho-release.json', 'release.json'];
 const COMMENT =
-  'Check/Apply tag catalog generated from shop-root package.json (the only product version). Not Plugins Core or Check current. Historical GitHub tags may still use tuucho-release.json or release.json. Generate before tagging: node tuucho/scripts/tuucho-versioning.mjs';
+  'Check/Apply tag catalog generated from tuucho/factory-backup/root/package.json (product version under tuucho/). Not Plugins Core or Check current. Historical GitHub tags may still use tuucho-release.json or release.json. Generate before tagging: node tuucho/scripts/tuucho-versioning.mjs';
 
 async function walkPluginJson(dir, out) {
   let names = [];
@@ -37,7 +39,9 @@ async function walkPluginJson(dir, out) {
 
 function assertNoProductVersion(pkg, label) {
   if (pkg && typeof pkg === 'object' && 'version' in pkg) {
-    throw new Error(`${label} must not contain version; root package.json is the only product version`);
+    throw new Error(
+      `${label} must not contain version; tuucho/factory-backup/root/package.json is the product version`,
+    );
   }
 }
 
@@ -54,13 +58,13 @@ async function readExistingCatalog() {
 }
 
 async function main() {
-  const rootPkg = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
+  const factoryPkg = JSON.parse(await readFile(join(root, FACTORY_ROOT_PKG), 'utf8'));
   const backPkg = JSON.parse(await readFile(join(root, 'tuucho/kernel/back/package.json'), 'utf8'));
   const frontPkg = JSON.parse(await readFile(join(root, 'tuucho/kernel/front/package.json'), 'utf8'));
   const sdkPkg = JSON.parse(await readFile(join(root, 'tuucho/plugin-sdk/package.json'), 'utf8'));
-  const kernel = rootPkg.version;
+  const kernel = factoryPkg.version;
   if (typeof kernel !== 'string' || !/^\d+\.\d+\.\d+$/.test(kernel)) {
-    throw new Error('Root package.json must contain a MAJOR.MINOR.PATCH version');
+    throw new Error(`${FACTORY_ROOT_PKG} must contain a MAJOR.MINOR.PATCH version`);
   }
   assertNoProductVersion(backPkg, 'tuucho/kernel/back/package.json');
   assertNoProductVersion(frontPkg, 'tuucho/kernel/front/package.json');

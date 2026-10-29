@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { applicationRoot } from './applicationRoot.js';
+import { applicationRoot, shopRoot } from './applicationRoot.js';
 
 function readPackageVersionAt(dir: string): string | null {
   const pkgPath = join(dir, 'package.json');
@@ -10,12 +10,31 @@ function readPackageVersionAt(dir: string): string | null {
   return pkg.version;
 }
 
-/** Live product version from repo-root package.json (MAJOR.MINOR.PATCH).
- * Walks toward the filesystem root so source (root package.json) and a dist
- * artifact (version injected at build) both resolve. Admin Plugins "Core"
- * and Check "current" re-read this on each request so a stale
- * tuucho-versioning.lock.json or leftover CORE_VERSION cannot win the display. */
+function readCatalogKernel(dir: string): string | null {
+  const catalogPath = join(dir, 'tuucho', 'tuucho-versioning.json');
+  if (!existsSync(catalogPath)) return null;
+  const catalog = JSON.parse(readFileSync(catalogPath, 'utf8')) as { kernel?: unknown };
+  if (typeof catalog.kernel !== 'string' || !/^\d+\.\d+\.\d+$/.test(catalog.kernel)) return null;
+  return catalog.kernel;
+}
+
+function readFactoryRootPackageVersion(dir: string): string | null {
+  return readPackageVersionAt(join(dir, 'tuucho', 'factory-backup', 'root'));
+}
+
+/**
+ * Live product version (MAJOR.MINOR.PATCH).
+ * Prefer `tuucho/tuucho-versioning.json` kernel (Apply updates `tuucho/`, never shop
+ * root package.json). Then factory scaffold package, then a walk for dist builds.
+ * Admin Plugins "Core" and Check "current" re-read this on each request.
+ */
 export function readRootPackageVersion(): string {
+  const fromCatalog = readCatalogKernel(shopRoot);
+  if (fromCatalog) return fromCatalog;
+
+  const fromFactory = readFactoryRootPackageVersion(shopRoot);
+  if (fromFactory) return fromFactory;
+
   let dir = applicationRoot;
   for (let i = 0; i < 10; i += 1) {
     const version = readPackageVersionAt(dir);
@@ -24,7 +43,9 @@ export function readRootPackageVersion(): string {
     if (parent === dir) break;
     dir = parent;
   }
-  throw new Error('Root package.json must contain a MAJOR.MINOR.PATCH version');
+  throw new Error(
+    'Product version missing: tuucho/tuucho-versioning.json kernel or a MAJOR.MINOR.PATCH package.json',
+  );
 }
 
 /** Bare product version (`0.9.8`). Use for backup ids / manifests. Snapshot

@@ -39,9 +39,16 @@ async function bundleServerEntry(outDir) {
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(root, '..', '..');
-const rootPackageJsonPath = join(repoRoot, 'package.json');
+const factoryRootPackageJsonPath = join(repoRoot, 'tuucho/factory-backup/root/package.json');
+const liveRootPackageJsonPath = join(repoRoot, 'package.json');
 
 const BUMP_KINDS = ['bump-patch', 'bump-minor', 'bump-major'];
+
+function productPackageJsonPath() {
+  if (existsSync(factoryRootPackageJsonPath)) return factoryRootPackageJsonPath;
+  if (existsSync(liveRootPackageJsonPath)) return liveRootPackageJsonPath;
+  usageError('missing tuucho/factory-backup/root/package.json (and live root package.json)');
+}
 
 function usageError(message) {
   console.error(`[build] ${message}`);
@@ -92,14 +99,14 @@ function parseArgs(argv) {
 }
 
 function readRootPackageVersion() {
-  const pkg = JSON.parse(readFileSync(rootPackageJsonPath, 'utf8'));
+  const pkg = JSON.parse(readFileSync(productPackageJsonPath(), 'utf8'));
   if (typeof pkg.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(pkg.version)) {
-    usageError('Root package.json must contain a MAJOR.MINOR.PATCH version');
+    usageError('Product package.json must contain a MAJOR.MINOR.PATCH version');
   }
   return pkg.version;
 }
 
-/** Resolves --version's argument against the current root package.json version:
+/** Resolves --version's argument against the current product package.json version:
  * either an explicit X.Y.Z, or one of bump-patch/bump-minor/bump-major to
  * increment it automatically (minor/major reset the parts below them, per semver). */
 function resolveVersion(versionArg, currentVersion) {
@@ -113,7 +120,7 @@ function resolveVersion(versionArg, currentVersion) {
   const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(currentVersion);
   if (!match) {
     usageError(
-      `--version ${versionArg} needs the current root package.json version to be X.Y.Z (got "${currentVersion}")`,
+      `--version ${versionArg} needs the current product package.json version to be X.Y.Z (got "${currentVersion}")`,
     );
   }
   let [major, minor, patch] = [Number(match[1]), Number(match[2]), Number(match[3])];
@@ -124,11 +131,16 @@ function resolveVersion(versionArg, currentVersion) {
 }
 
 function bumpVersion(versionArg) {
-  const pkg = JSON.parse(readFileSync(rootPackageJsonPath, 'utf8'));
   const version = resolveVersion(versionArg, readRootPackageVersion());
-  pkg.version = version;
-  writeFileSync(rootPackageJsonPath, JSON.stringify(pkg, null, 2) + '\n');
-  console.log(`[build] root package.json version set to ${version}`);
+  const targets = [factoryRootPackageJsonPath];
+  if (existsSync(liveRootPackageJsonPath)) targets.push(liveRootPackageJsonPath);
+  for (const path of targets) {
+    if (!existsSync(path)) continue;
+    const pkg = JSON.parse(readFileSync(path, 'utf8'));
+    pkg.version = version;
+    writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
+  }
+  console.log(`[build] product package.json version set to ${version}`);
 }
 
 function run(command, args) {

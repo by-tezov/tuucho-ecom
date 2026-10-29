@@ -13,6 +13,18 @@ tuucho/kernel/back/.env/
 tuucho/kernel/front/.env/
 tuucho/kernel/front/node_modules/
 tuucho/kernel/back/node_modules/
+# Shop-owned root scaffold (first-install copy from tuucho/factory-backup/root/).
+# Pack git ships templates only under tuucho/factory-backup/root/. Apply never
+# replaces these live paths. Keep local copies for product-repo development;
+# run npm run factory-sync (or node tuucho/scripts/factory-sync.mjs) after edits.
+/package.json
+/package-lock.json
+/LICENSE
+/AGENTS.md
+/.agents/
+/.prettierrc
+/.prettierignore
+/tsconfig.json
 # Operator tree (first-install copy from tuucho/factory-backup/config/).
 # Pack git ships templates only under tuucho/factory-backup/. Never track live
 # tuucho-config/ here; Apply never replaces it. Shop clones may delete this
@@ -26,10 +38,12 @@ tuucho/kernel/back/node_modules/
 # Shop-owned plugins (first-install copy from tuucho/factory-backup/plugins/).
 # Apply / git updates never replace this tree; same idea as tuucho-config/.
 /src/plugins/
+# Legacy Compose env path (pre-outputDir). Prefer <outputDir>/docker/.compose.env.
 tuucho/kernel/back/.compose.env
 tuucho/kernel/front/dist/
 tuucho/kernel/back/dist/
-# Generated/dev artifacts (reports, caches, log downloads). Default paths.outputDir.
+# Generated/dev artifacts (reports, caches, log downloads, Compose env).
+# Default paths.outputDir → <clone root>/output (includes output/docker/.compose.env).
 /output/
 # Legacy pre-outputDir location, kept for shops mid-migration.
 tuucho/kernel/back/output/

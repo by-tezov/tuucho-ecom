@@ -207,13 +207,27 @@ function loadKernelHttp(target: string): {
   return loaded;
 }
 
-const rootPkg = JSON.parse(readFileSync(resolve(PACK_ROOT, 'package.json'), 'utf-8')) as {
-  version?: unknown;
-};
-if (typeof rootPkg.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(rootPkg.version)) {
-  throw new Error('Root package.json must contain a MAJOR.MINOR.PATCH version');
+function readProductVersion(): string {
+  const catalogPath = resolve(PACK_ROOT, 'tuucho/tuucho-versioning.json');
+  try {
+    const catalog = JSON.parse(readFileSync(catalogPath, 'utf-8')) as { kernel?: unknown };
+    if (typeof catalog.kernel === 'string' && /^\d+\.\d+\.\d+$/.test(catalog.kernel)) {
+      return catalog.kernel;
+    }
+  } catch {
+    /* fall through */
+  }
+  for (const rel of ['tuucho/factory-backup/root/package.json', 'package.json']) {
+    try {
+      const pkg = JSON.parse(readFileSync(resolve(PACK_ROOT, rel), 'utf-8')) as { version?: unknown };
+      if (typeof pkg.version === 'string' && /^\d+\.\d+\.\d+$/.test(pkg.version)) return pkg.version;
+    } catch {
+      /* try next */
+    }
+  }
+  throw new Error('Product version missing: tuucho/tuucho-versioning.json kernel or factory/root package.json');
 }
-const appVersion = rootPkg.version;
+const appVersion = readProductVersion();
 
 export default defineConfig(({ mode }) => {
   // Origins come from kernel JSON (`http.apiBaseUrl` / `http.frontendBaseUrl`).

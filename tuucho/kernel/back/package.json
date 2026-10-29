@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/composeEnv.mjs && docker compose --env-file .compose.env up -d && tsx scripts/devWithStripe.ts",
+    "dev": "node scripts/composeUp.mjs && tsx scripts/devWithStripe.ts",
     "config:doctor": "tsx scripts/configDoctor.ts",
     "config:env": "tsx scripts/configEnv.ts",
     "config:migrate": "tsx scripts/configMigrate.ts",

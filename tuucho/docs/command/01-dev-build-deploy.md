@@ -35,14 +35,17 @@ stderr. The command stops at the first failed child.
 
 ## `npm run dev`
 
-No arguments. Starts the local Postgres (`docker compose ... up -d`), then
-`scripts/devWithStripe.ts`: `tsx watch src/server.ts` (API on
-`http://localhost:3010`, `APP_TARGET=dev`). Local webhook forwarding starts
-only when this project has a real Stripe secret key (`sk_test_…` or
-`sk_live_…` in the Stripe plugin private config or its secret store; the
-example placeholder does not count). The CLI is given that key and does not
-use a machine-wide `stripe login`. Then it runs `stripe listen
---all-snapshot --forward-to localhost:<port>/webhooks/stripe`.
+No arguments. Runs `node scripts/composeUp.mjs` (writes
+`<outputDir>/docker/.compose.env` from private JSON, then
+`docker compose --env-file <that path> up -d` with cwd
+`tuucho/kernel/back`), then `scripts/devWithStripe.ts`: `tsx watch src/server.ts`
+(API on `http://localhost:3010`, `APP_TARGET=dev`). The Compose env file is
+shop-generated under `paths.outputDir` (default `<clone root>/output`), never
+under `tuucho/`. Local webhook forwarding starts only when this project has a
+real Stripe secret key (`sk_test_…` or `sk_live_…` in the Stripe plugin private
+config or its secret store; the example placeholder does not count). The CLI is
+given that key and does not use a machine-wide `stripe login`. Then it runs
+`stripe listen --all-snapshot --forward-to localhost:<port>/webhooks/stripe`.
 `--all-snapshot` asks for the classic webhook payload this API verifies.
 That wrapper also stores the CLI signing secret in the Stripe plugin secret
 store. The platform checkout has no secret, so dev does not contact Stripe.
@@ -416,15 +419,37 @@ Shipped sketch: `tuucho/factory-backup/config/front.example.json` (copy to
 `front.json` / `front.<env>.json` as needed). Not applied by `config:migrate`
 as a required stamp; shops opt in.
 
+## `npm run setup` / `npm run setup:cli`
+
+Pack scripts (`node tuucho/scripts/install.mjs`). Fresh clones have **no** live
+root `package.json` in pack git, so first run must be the Node entry:
+
+```bash
+node tuucho/scripts/install.mjs --yes \
+  --store-name Shop \
+  --admin-email admin@shop.example \
+  --admin-password 'ShopAdmin1!'
+# wizard: node tuucho/scripts/install.mjs
+```
+
+After the root scaffold exists, `npm run setup` (wizard on :8787) and
+`npm run setup:cli -- --yes …` are the same script. First install copies
+`tuucho/factory-backup/root/` → clone root when `package.json` is missing,
+then runs `config:migrate`, writes private config, starts Postgres, migrates,
+seeds sample data, creates the admin, and writes `installed.lock`. A second
+run is a no-op while that lock exists. Apply never rewrites the live root
+scaffold.
+
 ## `npm run config:migrate`
 
 `--dry-run` optional. Copies `tuucho/factory-backup/config/` → `tuucho-config/`
 on first install (public + examples; private from example). Copies
 `tuucho/factory-backup/plugins/` → `src/plugins/` when that folder is missing.
+Does not materialise the root scaffold (`install.mjs` does that first).
 If `tuucho-config/` exists, applies pending kernel and plugin JSON steps
 (add / rename / drop) and fills missing public keys from factory. Never writes
-plugin DB. Apply never writes `tuucho-config/` or `src/plugins/`. Same at clone
-root: `npm run config:migrate`.
+plugin DB. Apply never writes shop root scaffold, `tuucho-config/`, or
+`src/plugins/`. Same at clone root: `npm run config:migrate`.
 
 ## `npm run config:doctor`
 
@@ -447,33 +472,41 @@ skipped.
 
 ## `npm run factory-sync` / `npm run factory-sync:check`
 
-Pack scripts (`node tuucho/scripts/factory-sync.mjs`). Same idea as `versioning`:
+Pack scripts (`node tuucho/scripts/factory-sync.mjs`). Same idea as `versioning`.
+Fresh clones without a live root `package.json` can still call the Node script
+directly.
 
-- `npm run factory-sync` copies live `tuucho-config/` →
-  `tuucho/factory-backup/config/` and live `src/plugins/` →
-  `tuucho/factory-backup/plugins/`. Skips live secrets
-  (`config.private.json` / `config.private.<env>.json`), maps `plugins.json` →
+- `npm run factory-sync` copies live root scaffold →
+  `tuucho/factory-backup/root/`, live `tuucho-config/` →
+  `tuucho/factory-backup/config/`, and live `src/plugins/` →
+  `tuucho/factory-backup/plugins/`. Root list: `package.json`,
+  `package-lock.json`, `LICENSE`, `AGENTS.md`, `.agents/`, `.prettierrc`,
+  `.prettierignore`, `tsconfig.json` (never `TODO.md`, `README.md`, or
+  `.gitignore`). Skips live secrets (`config.private.json` /
+  `config.private.<env>.json`), maps `plugins.json` →
   `plugins.example.json`. Never touches `factory-backup/migrations/`
   (`config:migrate` steps for publishers; see
   `tuucho/factory-backup/migrations/kernel/.example.json`).
-- `npm run factory-sync:check` (also
-  `npm --prefix tuucho/kernel/back run check:factory-sync`) fails when factory
-  backup drifts. Part of `npm run check`.
+- `npm run factory-sync:check` (and `npm run check:factory-sync` from
+  `tuucho/kernel/back`) fail when factory backup drifts. Part of
+  `npm run check`.
 
-Run `factory-sync` in the same turn you change `tuucho-config/` or
-`src/plugins/` in this product repo. First install still copies factory → live;
-this command is the reverse (live → factory) for publishers.
+Run `factory-sync` in the same turn you change live root scaffold,
+`tuucho-config/`, or `src/plugins/` in this product repo. First install still
+copies factory → live; this command is the reverse (live → factory) for
+publishers.
 
 ## `npm run check:release`
 
 No arguments. Read-only. Part of `npm run check`. Runs
 `node ../../scripts/tuucho-versioning.mjs --check` (from `tuucho/kernel/back`) so
-`tuucho/tuucho-versioning.json` matches the **root** `package.json` version,
-kernel migration names, and every bundled plugin `package.json` under
-`tuucho/plugins/` plus `tuucho/plugins/manifest.json`. `kernel/back`,
-`kernel/front`, and `plugin-sdk` `package.json` must not carry a `version`.
-Drift fails CI. Write the catalog with `node tuucho/scripts/tuucho-versioning.mjs`
-(no `--check`) before tagging. Last-applied stamp is gitignored shop-instance
+`tuucho/tuucho-versioning.json` matches
+`tuucho/factory-backup/root/package.json` version, kernel migration names, and
+every bundled plugin `package.json` under `tuucho/plugins/` plus
+`tuucho/plugins/manifest.json`. `kernel/back`, `kernel/front`, and
+`plugin-sdk` `package.json` must not carry a `version`. Drift fails CI. Write
+the catalog with `node tuucho/scripts/tuucho-versioning.mjs` (no `--check`)
+before tagging. Last-applied stamp is gitignored shop-instance
 `tuucho-versioning.lock.json` (setup / Apply write it locally; missing lock is
 not a boot error). Git tags are `MAJOR.MINOR.PATCH` with no `v`
 prefix. Historical tags may still publish `release.json` or

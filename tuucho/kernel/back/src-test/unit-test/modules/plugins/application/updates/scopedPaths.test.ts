@@ -40,10 +40,9 @@ test('official scopes never include src/plugins or tuucho-config', () => {
     'tuucho/tuucho-versioning.json',
     'tuucho-release.json',
     'release.json',
-    'package.json',
   ]);
-  assert.ok(officialCopyPaths('kernel', manifest).includes('package.json'));
-  assert.ok(officialCopyPaths('all', manifest).includes('package.json'));
+  assert.equal(officialCopyPaths('kernel', manifest).includes('package.json'), false);
+  assert.equal(officialCopyPaths('all', manifest).includes('package.json'), false);
   assert.equal(officialCopyPaths('kernel', manifest).includes('package-lock.json'), false);
   assert.deepEqual(officialCopyPaths('plugins', manifest), ['tuucho/plugins']);
   assert.ok(officialCopyPaths('all', manifest).includes('tuucho/plugins'));
@@ -51,8 +50,8 @@ test('official scopes never include src/plugins or tuucho-config', () => {
   assert.throws(() => assertNotUserTree('tuucho-config/config.dev.json'), /tuucho-config/);
 });
 
-test('official snapshot includes root package.json and never src/plugins', () => {
-  assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('package.json'));
+test('official snapshot includes factory-backup and never shop root package.json or src/plugins', () => {
+  assert.equal(OFFICIAL_SNAPSHOT_PATHS.includes('package.json'), false);
   assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('tuucho/kernel'));
   assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('tuucho/plugins'));
   assert.ok(OFFICIAL_SNAPSHOT_PATHS.includes('tuucho/tuucho-versioning.json'));

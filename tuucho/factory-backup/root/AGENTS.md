@@ -35,9 +35,9 @@ For implementation work, use `.agents/skills/tuucho-backend-change/SKILL.md`
 | Cron schedule, eligibility, state transition, preference, log, or deploy switch      | Update `tuucho/docs/cron/README.md` and the relevant operations API/command documentation.                                                                                                                   |
 | Source ownership, module boundary, compatibility facade, or size rule                | Update `tuucho/docs/architecture/README.md` and `tuucho/kernel/back/scripts/checkArchitecture.mjs` when the enforceable rule changes.                                                                        |
 | Catalogue/courier/voucher import shape                                               | Update operations API and command docs; verify the relevant `tuucho/sample/` (catalog import tree) source contract.                                                                                          |
-| Live `tuucho-config/` or `src/plugins/` in this product repo (both gitignored)       | Run `npm run factory-sync` so `tuucho/factory-backup/` matches (public + examples only). `factory-sync:check` fails on drift when the live trees exist. Pack git ships templates only under `factory-backup/`. |
+| Live root scaffold, `tuucho-config/`, or `src/plugins/` in this product repo (gitignored) | Run `npm run factory-sync` (or `node tuucho/scripts/factory-sync.mjs`) so `tuucho/factory-backup/root|config|plugins` match. `factory-sync:check` fails on drift when live trees exist. Pack git ships templates only under `factory-backup/`. |
 | Environment variable                                                                 | Update the relevant README/command/cron documentation and safe public env examples; never expose private values.                                                                                             |
-| Dependency, SDK, provider API version, or runtime requirement                        | Update `package.json` and its lockfile together; check current official migration/deprecation/security guidance; update affected API/command docs. Do not opportunistically upgrade unrelated packages.      |
+| Dependency, SDK, provider API version, or runtime requirement                        | Update factory `tuucho/factory-backup/root/package.json` and its lockfile together (then factory-sync); check current official migration/deprecation/security guidance; update affected API/command docs. Do not opportunistically upgrade unrelated packages. |
 
 `tuucho/API.md`, `tuucho/SCHEMA.md`, `tuucho/COMMAND.md`, and `tuucho/CRON.md`
 remain index stubs.
@@ -198,14 +198,16 @@ Enforced by `npm --prefix tuucho/kernel/front run check:timings`.
 <!-- policy:factory-backup-sync start -->
 
 **Keep `tuucho/factory-backup/` in sync with the live shop trees.** In this
-product repo, `tuucho-config/` and `src/plugins/` are the editable live copies.
-After changing either, run `npm run factory-sync` in the same turn so
-`tuucho/factory-backup/config/` and `tuucho/factory-backup/plugins/` match
-(public JSON and examples only; never live `config.private*.json`).
+product repo, live root scaffold (`package.json`, lockfile, `LICENSE`,
+`AGENTS.md`, `.agents/`, prettier, `tsconfig.json`), `tuucho-config/`, and
+`src/plugins/` are the editable live copies (gitignored). After changing any
+of them, run `npm run factory-sync` (or `node tuucho/scripts/factory-sync.mjs`)
+in the same turn so `tuucho/factory-backup/root/`, `config/`, and `plugins/`
+match (public JSON and examples only; never live `config.private*.json`).
 `npm run factory-sync:check` fails on drift. First install copies factory →
-live; later updates must not erase live trees. Do not edit factory templates
-alone and leave the live trees behind, and do not ship a tag where factory
-backup lags the live trees you just changed.
+live; later Apply / pack updates must not erase live trees. Do not edit
+factory templates alone and leave the live trees behind, and do not ship a tag
+where factory backup lags the live trees you just changed.
 <!-- policy:factory-backup-sync end -->
 
 ## Authoritative references

@@ -16,13 +16,15 @@ the real shop name at setup.
 
 Needs Node 22+, Docker (Postgres 10 on host port **5434**), and npm.
 
-Clone a **version tag**, not untagged `master`:
+Clone a **version tag**, not untagged `master`. Pack git does **not** ship a
+live root `package.json` (shop-owned after first install), so first run is a
+direct Node command, not `npm run setup`:
 
 ```bash
-git clone --branch 0.0.7 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
+git clone --branch 0.0.9 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
 cd tuucho-ecom
-# setup copies tuucho/factory-backup/config → tuucho-config/ (operator tree, not in git)
-npm run setup:cli -- --yes \
+# copies tuucho/factory-backup/root → clone root (once), then config → tuucho-config/
+node tuucho/scripts/install.mjs --yes \
   --store-name Shop \
   --admin-email admin@shop.example \
   --admin-password 'ShopAdmin1!'
@@ -30,7 +32,10 @@ npm run setup:cli -- --yes \
 npm run dev
 ```
 
-Or open the web wizard: `npm run setup` then visit http://127.0.0.1:8787
+Or open the web wizard: `node tuucho/scripts/install.mjs` then visit
+http://127.0.0.1:8787
+
+After the root scaffold exists, `npm run setup` / `setup:cli` also work.
 
 After install:
 
@@ -40,8 +45,8 @@ After install:
 | Admin | http://localhost:5174/admin |
 | API | http://localhost:3010 |
 
-Sign in with the admin e-mail you chose. A second `npm run setup` is a no-op
-while `installed.lock` exists.
+Sign in with the admin e-mail you chose. A second install is a no-op while
+`installed.lock` exists.
 
 Stripe and Mondial Relay keys are optional at install time. Configure them
 after first Admin login on **Plugins → Configure** (secret store). Do not put
@@ -74,11 +79,14 @@ each key. `npm --prefix tuucho/kernel/back run config:doctor` prints the
 same list plus every known kernel environment.
 
 `paths.outputDir` (env `OUTPUT_DIR`) roots every generated artifact: reports,
-caches, log downloads, coverage, and the dev email preview tree. Unset it
-defaults to `<clone root>/output`; a relative value resolves against the
-clone root. When `paths.publicDir` / `paths.privateDir` / `paths.devDir`
-are unset they fall back to `<outputDir>/public`, `<outputDir>/private` and
-`<outputDir>/dev`; an explicit per-key value always wins.
+caches, log downloads, coverage, the dev email preview tree, and the local
+Docker Compose env (`<outputDir>/docker/.compose.env`, written by
+`composeEnv.mjs` / `composeUp.mjs` from private JSON). Unset it defaults to
+`<clone root>/output`; a relative value resolves against the clone root. When
+`paths.publicDir` / `paths.privateDir` / `paths.devDir` are unset they fall
+back to `<outputDir>/public`, `<outputDir>/private` and `<outputDir>/dev`; an
+explicit per-key value always wins. That Compose env is never written under
+`tuucho/`.
 
 `i18n.default` (env `I18N_DEFAULT_LANG`) is the fallback language for
 `Accept-Language` and stored-preference resolution; `i18n.enabled` (env
@@ -127,30 +135,30 @@ npm --prefix tuucho/kernel/back run config:doctor
 Do **not** copy another env’s private file onto this one. Same steps for any
 name (`staging`, `prod`, …). There is no `README.todo` on this checkout.
 
-Install from a tag: `npm install` only at the **repo root** (npm workspaces, one lockfile). Do not `cd tuucho/kernel/front && npm install`.
+Install from a tag: after first install, `npm install` only at the **repo root**
+(npm workspaces, one lockfile). Do not `cd tuucho/kernel/front && npm install`.
 
 Admin, Plugins, Scan is install (runs schema `up` when the plugin is on).
 **Check for updates** then **Apply** walks every git tag between this shop and
 the latest official tag (`MAJOR.MINOR.PATCH`, never `v0.0.2`, never `master`).
-Plugins “Core” and Check current are the live root `package.json`. Latest is
-the newest official GitHub tag. A checkout newer than that tag is ahead (no
-Apply). Matching tags: nothing to update. Older local: walk every tag.
-`tuucho-versioning.lock.json` is gitignored last-applied Apply state (setup / Apply write it locally), not displayed current.
-The Check/Apply catalog is `tuucho/tuucho-versioning.json` (generate with
-`node tuucho/scripts/tuucho-versioning.mjs` before tagging). Shipped JSON templates
-live in `tuucho/factory-backup/config/`; operator files in `tuucho-config/` survive
-Apply. First install copies factory; later: `npm run config:migrate`.
-Shop examples ship in `tuucho/factory-backup/plugins/` and copy to `src/plugins/`
-on first install only (`src/plugins/` is gitignored). Apply never overwrites
-`tuucho-config/` or `src/plugins/`. In this product repo, after editing live
-`tuucho-config/` or `src/plugins/`, run `npm run factory-sync` so factory backup
-matches (`npm run factory-sync:check` / `check:factory-sync` fails on drift).
+Plugins “Core” and Check current are `tuucho/tuucho-versioning.json` `kernel`
+(updated with Apply under `tuucho/`). Latest is the newest official GitHub tag.
+A checkout newer than that tag is ahead (no Apply). Matching tags: nothing to
+update. Older local: walk every tag. `tuucho-versioning.lock.json` is gitignored
+last-applied Apply state (setup / Apply write it locally), not displayed current.
+Generate the catalog with `node tuucho/scripts/tuucho-versioning.mjs` before
+tagging (reads `tuucho/factory-backup/root/package.json` version).
+Shipped templates live under `tuucho/factory-backup/` (`root/`, `config/`,
+`plugins/`). First install copies them to live shop trees; later:
+`npm run config:migrate` for config steps. Live root scaffold, `tuucho-config/`,
+and `src/plugins/` are gitignored shop-owned trees. Apply never overwrites them.
+In this product repo, after editing those live trees, run `npm run factory-sync`
+(or `node tuucho/scripts/factory-sync.mjs`) so factory backup matches
+(`factory-sync:check` / `check:factory-sync` fails on drift).
 Kernel Apply writes `tuucho/kernel`, `tuucho/plugin-sdk`,
-`tuucho/factory-backup`, `tuucho/docs`, `tuucho/scripts`, `tuucho/sample`, the versioning catalog, and root `package.json`; `all` adds `tuucho/plugins`.
-Apply replaces each scoped tree wholesale but never writes or removes a path
-outside that list: root-level moves between 0.0.5 and 0.0.6 (root `docs/`
-removed, `scripts/` trimmed, root `AGENTS.md` / `.agents/` / `.prettierrc`
-added) require `git pull`. A user plugin
+`tuucho/factory-backup`, `tuucho/docs`, `tuucho/scripts`, `tuucho/sample`, and
+the versioning catalog; `all` adds `tuucho/plugins`. Never shop root
+`package.json`, `tuucho-config/`, or `src/plugins/`. A user plugin
 with `tuucho.repo` / `branch` / `folder` (or npm `repository`) updates from that GitHub repo only. Disable unloads the plugin and keeps its tables.
 Uninstall runs `down` and removes the row. Stripe keys and carrier credentials live in that plugin’s Admin Configure
 (secret store), not kernel JSON.
@@ -189,18 +197,19 @@ tuucho/plugins/        Bundled plugins grouped by kind (id starts with tuucho-; 
 src/plugins/           Shop / demo / zip upload (gitignored; first-install copy; id must not start with tuucho-)
 tuucho/plugin-sdk/     @tuucho/plugin-sdk
 tuucho/docs/           All project documentation (api, schema, command, cron, front, plugins.md)
+tuucho/factory-backup/root/     Shipped shop-root scaffold (package.json, AGENTS, …), first install only
 tuucho/factory-backup/config/   Shipped JSON templates, copied to tuucho-config/ on first install
 tuucho/factory-backup/plugins/  Shipped shop examples, copied to src/plugins/ on first install
 tuucho/factory-backup/migrations/ Optional config:migrate steps (publisher-owned; see .example.json)
 tuucho-config/         Operator public + private JSON (survives Apply)
 tuucho/sample/         Fictional catalog + courier JSON
 tuucho/scripts/        pack scripts (dev, install, versioning, factory-sync)
-output/                Generated artifacts (paths.outputDir; gitignored)
-.agents/               Agent skills (skills-lock.json at root); AGENTS.md at root
-.prettierrc            One formatter config for the repo (root format / format:check)
+output/                Generated artifacts (paths.outputDir; includes docker/.compose.env; gitignored)
+.agents/               Live agent skills (from factory root; gitignored); AGENTS.md live at root
+.prettierrc            Live formatter config (from factory root; gitignored)
 ```
 
-Import aliases (root `tsconfig.json` + `tuucho/kernel/front/importAliases.ts`):
+Import aliases (live root `tsconfig.json` + `tuucho/kernel/front/importAliases.ts`):
 `@kernel/front/*` and `@kernel/back/*` reach kernel sources, `@tuucho/plugin-sdk`
 the SDK entry, `@shop/*` the repo `src/` tree, and `@plugins-bundled` /
 `@plugins-user` the plugin globs.

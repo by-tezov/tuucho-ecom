@@ -158,14 +158,15 @@ Paths below are relative to the clone root (not to `tuucho/kernel/back`):
 | `tuucho/kernel/` | API + shop front |
 | `tuucho/plugins/` | Bundled plugins (`tuucho-*` ids) |
 | `tuucho/plugin-sdk/` | `@tuucho/plugin-sdk` |
-| `tuucho/scripts/` | Pack scripts (setup, dev, versioning, factory-sync) |
+| `tuucho/scripts/` | Pack scripts (install, dev, versioning, factory-sync) |
 | `tuucho/sample/` | Demo catalogue + courier JSON and seed-defaults.env |
+| `tuucho/factory-backup/root/` | Shipped shop-root scaffold → clone root on first install |
 | `tuucho/factory-backup/config/` | Shipped JSON templates → `tuucho-config/` on first install |
 | `tuucho/factory-backup/plugins/` | Shipped shop examples → `src/plugins/` on first install |
 | `tuucho/factory-backup/migrations/` | Optional publisher `config:migrate` steps |
 | `tuucho-config/` | Live shop JSON (survives Apply; never written by Tuucho Apply) |
 | `src/plugins/` | Live user / demo / zip plugins (gitignored; survives Apply) |
 
-In this product repo, after changing live `tuucho-config/` or `src/plugins/`,
-run `npm run factory-sync` so factory backup matches
+In this product repo, after changing live root scaffold, `tuucho-config/`, or
+`src/plugins/`, run `npm run factory-sync` so factory backup matches
 (`factory-sync:check` / `check:factory-sync`).

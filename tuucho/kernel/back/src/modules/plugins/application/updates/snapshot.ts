@@ -3,6 +3,7 @@ import { createReadStream } from 'node:fs';
 import { cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
+import { composeEnvFile } from '../../../../config/composeEnvPath.js';
 import { config } from '../../../../config/env.js';
 import { resetPublicSchema } from '../../../../db/resetPublicSchema.js';
 import { pool } from '../../../../db/pool.js';
@@ -67,12 +68,13 @@ async function dumpDatabase(target: string, root: string): Promise<void> {
   }
   const { user, database } = databaseNameFromUrl(config.databaseUrl);
   const back = join(root, 'tuucho/kernel/back');
+  const envFile = composeEnvFile(root);
   const { stdout } = await execFileAsync(
     'docker',
     [
       'compose',
       '--env-file',
-      '.compose.env',
+      envFile,
       'exec',
       '-T',
       'postgres',
@@ -140,12 +142,13 @@ async function restoreDatabase(dumpPath: string, root: string): Promise<void> {
   } catch {
     const { user, database } = databaseNameFromUrl(config.databaseUrl);
     const back = join(root, 'tuucho/kernel/back');
+    const envFile = composeEnvFile(root);
     await runWithStdinFile(
       'docker',
       [
         'compose',
         '--env-file',
-        '.compose.env',
+        envFile,
         'exec',
         '-T',
         'postgres',

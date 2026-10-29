@@ -447,11 +447,14 @@ function parseArgs(argv: string[]): Args {
 }
 
 function readRootPackageVersion(): string {
-  const { version } = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')) as {
+  const factoryPkg = join(repoRoot, 'tuucho/factory-backup/root/package.json');
+  const livePkg = join(repoRoot, 'package.json');
+  const path = existsSync(factoryPkg) ? factoryPkg : livePkg;
+  const { version } = JSON.parse(readFileSync(path, 'utf8')) as {
     version?: unknown;
   };
   if (typeof version !== 'string' || !/^\d+\.\d+\.\d+$/.test(version)) {
-    throw new Error('Root package.json must contain a MAJOR.MINOR.PATCH version');
+    throw new Error('Product package.json must contain a MAJOR.MINOR.PATCH version');
   }
   return version;
 }
@@ -1337,12 +1340,7 @@ function stopLocalApi(child: ChildProcess): void {
 
 function startLocalApi(): ChildProcess {
   console.log('[deploy] local API is down — starting Postgres + API');
-  run(
-    false,
-    'docker',
-    ['compose', '--env-file', '.compose.env', 'up', '-d'],
-    { cwd: backRoot },
-  );
+  run(false, 'node', ['scripts/composeUp.mjs'], { cwd: backRoot });
   const child = spawn('npx', ['tsx', 'src/server.ts'], {
     cwd: backRoot,
     env: { ...process.env, APP_TARGET: 'dev' },

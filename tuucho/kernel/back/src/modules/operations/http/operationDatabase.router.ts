@@ -31,7 +31,7 @@ const migrationsDir = join(moduleDir, '..', '..', '..', 'db', 'migrations');
  * runs on shared hosting. */
 const DEFAULT_BACKUP_KEEP = 3;
 
-/** Running release version from root `package.json` (or the dist copy that
+/** Running release version from `tuucho/tuucho-versioning.json` (or the dist copy that
  * build injects). Recorded in every archive; reported, never enforced, at
  * restore. */
 function backupContext(): BackupContext {

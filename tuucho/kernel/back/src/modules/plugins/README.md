@@ -67,17 +67,15 @@ _Not a feature-map entry; it is shared by several features._
 - Official updates read git **tags** (`MAJOR.MINOR.PATCH`, no `v`) on
   `by-tezov/tuucho-ecom` only, walk every intermediate tag, and never write
   `plugins/user/`. Kernel Apply writes `tuucho/kernel`, `tuucho/plugin-sdk`,
-  `tuucho/factory-backup`, `tuucho/docs`, `tuucho/scripts`, `tuucho/sample`, the versioning
-  catalog, and the shop root `package.json` so Core stays the published tag;
-  `all` adds `tuucho/plugins`. Each scoped tree is replaced wholesale; a path
-  outside the scope list is never written or removed, so root-level moves
-  between tags need `git pull`. Plugins Core and Check current are live
-  root `package.json`. Latest is the origin’s newest tag. Local ahead of
-  that tag has no Apply. Last applied official tag is gitignored `tuucho-versioning.lock.json`
-  (Apply cursor, not display). User plugins update only from npm
-  `repository` on that plugin `package.json` (HTTPS GitHub). A private
-  repository uses the fine-grained token in `github_repository_access` when
-  that URL matches. No row means a public fetch. Dirty
-  `plugins/` refuses Apply. Failure restores the snapshot.
+  `tuucho/factory-backup`, `tuucho/docs`, `tuucho/scripts`, `tuucho/sample`, and the
+  versioning catalog; `all` adds `tuucho/plugins`. Never shop root scaffold,
+  `tuucho-config/`, or `src/plugins/`. Plugins Core and Check current are
+  `tuucho/tuucho-versioning.json` `kernel`. Latest is the origin’s newest tag.
+  Local ahead of that tag has no Apply. Last applied official tag is gitignored
+  `tuucho-versioning.lock.json` (Apply cursor, not display). User plugins update
+  only from npm `repository` on that plugin `package.json` (HTTPS GitHub). A
+  private repository uses the fine-grained token in `github_repository_access`
+  when that URL matches. No row means a public fetch. Dirty `plugins/` refuses
+  Apply. Failure restores the snapshot.
 
 <!-- invariants:end -->

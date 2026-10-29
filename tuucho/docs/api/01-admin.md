@@ -769,9 +769,9 @@ Installed plugins with manifest (`name`, `description`, `version`, `engines.core
 Admin UI localizes the missing-folder case (`missingFolder` /
 `missingFolderHint`) and does not echo the English API error text for that
 code. Packet prices are not on this payload: they are the courier catalog
-(`courier_edit`). Top-level `coreVersion` is the live root `package.json`
-product version (Plugins “Core”), not `tuucho-versioning.lock.json`. Requires
-`requireAuth` plus `preferences`.
+(`courier_edit`). Top-level `coreVersion` is `tuucho/tuucho-versioning.json`
+`kernel` (Plugins “Core”), not `tuucho-versioning.lock.json` and not the shop
+root `package.json`. Requires `requireAuth` plus `preferences`.
 
 ### `GET /admin/docs`
 
@@ -805,8 +805,8 @@ untagged `master`) on https://github.com/by-tezov/tuucho-ecom and each user
 plugin `repository`. A private repository is read with the fine-grained token saved
 for that URL on Admin, Core (`github_repository_access`). No saved token means
 the request stays unauthenticated, which is enough for a public repository.
-Check `currentTag` is the live root `package.json`
-version, not `tuucho-versioning.lock.json`. Latest is that origin’s newest official tag.
+Check `currentTag` is `tuucho/tuucho-versioning.json` `kernel`,
+not `tuucho-versioning.lock.json` and not the shop root `package.json`. Latest is that origin’s newest official tag.
 Local greater than latest: ahead of the published tag, no Apply. Equal:
 nothing to update. Local less than latest: walk every tag. Returns the tag
 path, kernel/plugin diffs, dirty `tuucho/plugins/` paths, and third-party
@@ -818,15 +818,13 @@ Body `{ "scope": "all"|"kernel"|"plugins"|"plugin", "pluginId"?: string }`.
 Admin Core checks and applies `kernel` only. Admin Plugins checks and applies
 `plugins` or one `plugin`. `all` stays available on this route.
 Starts a snapshot then walks every intermediate tag. Tuucho scopes never write
-`src/plugins/` or `tuucho-config/`. Kernel scope writes `tuucho/kernel`,
-`tuucho/plugin-sdk`, `tuucho/factory-backup`, `tuucho/docs`, `tuucho/scripts`, `tuucho/sample`,
-`tuucho/tuucho-versioning.json`, and the shop root `package.json`; `all` adds
-`tuucho/plugins`. Each scoped tree is replaced wholesale, so files removed
-inside it between tags disappear, but a path outside this list (`AGENTS.md`,
-`.agents/`, `.prettierrc`, a deleted root `docs/`) is never written or cleaned
-up: root-level moves between 0.0.5 and 0.0.6 require `git pull`. A user
-`plugin` scope replaces that folder only under `src/plugins/`. Concurrent Apply
-→ `409 update_busy`. Poll `GET /admin/plugins/updates/status` for the log.
+shop root scaffold, `src/plugins/`, or `tuucho-config/`. Kernel scope writes
+`tuucho/kernel`, `tuucho/plugin-sdk`, `tuucho/factory-backup`, `tuucho/docs`,
+`tuucho/scripts`, `tuucho/sample`, and `tuucho/tuucho-versioning.json`; `all`
+adds `tuucho/plugins`. Each scoped tree is replaced wholesale, so files removed
+inside it between tags disappear. A user `plugin` scope replaces that folder
+only under `src/plugins/`. Concurrent Apply → `409 update_busy`. Poll
+`GET /admin/plugins/updates/status` for the log.
 
 ### `GET /admin/plugins/updates/status`
 

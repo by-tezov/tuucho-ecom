@@ -230,7 +230,7 @@ test('plugin files still migrate when the plugin is not enabled (no DB)', async 
   assert.equal(plugin.tokenTtl, 1);
 });
 
-test('Apply kernel paths include factory-backup and never tuucho-config or src/plugins', () => {
+test('Apply kernel paths include factory-backup and never tuucho-config, src/plugins, or shop root package.json', () => {
   const manifest: ShopReleaseManifest = {
     tag: '0.0.4',
     kernel: '0.0.4',
@@ -240,6 +240,7 @@ test('Apply kernel paths include factory-backup and never tuucho-config or src/p
   };
   const paths = officialCopyPaths('kernel', manifest);
   assert.ok(paths.includes('tuucho/factory-backup'));
+  assert.equal(paths.includes('package.json'), false);
   assert.equal(
     paths.some((path) => path === 'tuucho-config' || path.startsWith('tuucho-config/')),
     false,

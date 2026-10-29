@@ -4,14 +4,19 @@
  *
  *   npm run factory-sync            # write tuucho/factory-backup from live
  *   npm run factory-sync:check      # fail on drift
+ *   node tuucho/scripts/factory-sync.mjs   # same (works before npm scripts exist)
  *
  * Live → factory:
+ *   package.json, package-lock.json, LICENSE, AGENTS.md, .agents/,
+ *   .prettierrc, .prettierignore, tsconfig.json
+ *     → tuucho/factory-backup/root/
  *   tuucho-config/  → tuucho/factory-backup/config/
  *   src/plugins/    → tuucho/factory-backup/plugins/
  *
  * Never copies live secrets (config.private.json / config.private.<env>.json).
  * Maps plugins.json → plugins.example.json. Never touches
  * tuucho/factory-backup/migrations/ when present (optional config:migrate steps).
+ * Never syncs TODO.md, README.md, or .gitignore (clone-root only).
  */
 import { createHash } from 'node:crypto';
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
@@ -23,8 +28,22 @@ const checkOnly = process.argv.includes('--check');
 
 const LIVE_CONFIG = join(root, 'tuucho-config');
 const LIVE_PLUGINS = join(root, 'src/plugins');
+const LIVE_PACKAGE = join(root, 'package.json');
 const FACTORY_CONFIG = join(root, 'tuucho/factory-backup/config');
 const FACTORY_PLUGINS = join(root, 'tuucho/factory-backup/plugins');
+const FACTORY_ROOT = join(root, 'tuucho/factory-backup/root');
+
+/** Clone-root paths that ship under factory-backup/root/ (first-install → live). */
+const ROOT_SCAFFOLD_ENTRIES = [
+  'package.json',
+  'package-lock.json',
+  'LICENSE',
+  'AGENTS.md',
+  '.agents',
+  '.prettierrc',
+  '.prettierignore',
+  'tsconfig.json',
+];
 
 function isLivePrivate(base) {
   return /^config\.private(?:\.[a-z][a-z0-9-]*)?\.json$/.test(base) && !base.includes('example');
@@ -93,6 +112,23 @@ async function collectPluginsPlan() {
   return plan;
 }
 
+async function collectRootPlan() {
+  const plan = new Map();
+  for (const entry of ROOT_SCAFFOLD_ENTRIES) {
+    const livePath = join(root, entry);
+    if (!(await pathExists(livePath))) continue;
+    const st = await stat(livePath);
+    if (st.isDirectory()) {
+      for (const rel of await walkFiles(livePath)) {
+        plan.set(`${entry}/${rel}`, join(livePath, rel));
+      }
+      continue;
+    }
+    if (st.isFile()) plan.set(entry, livePath);
+  }
+  return plan;
+}
+
 async function diffPlan(plan, destRoot, { preservePrefixes = [] } = {}) {
   const missing = [];
   const different = [];
@@ -146,60 +182,88 @@ async function pruneEmptyDirs(dir, { preserveNames = [] } = {}) {
   }
 }
 
+function pushDiffProblems(problems, label, diff) {
+  for (const rel of diff.missing) problems.push(`missing ${label}/${rel}`);
+  for (const rel of diff.different) problems.push(`stale ${label}/${rel}`);
+  for (const rel of diff.unexpected) problems.push(`extra ${label}/${rel}`);
+}
+
 async function main() {
   if (!(await pathExists(FACTORY_CONFIG))) {
     throw new Error(`missing ${relative(root, FACTORY_CONFIG)}`);
   }
-  if (!(await pathExists(LIVE_CONFIG))) {
-    if (checkOnly) {
-      console.log(
-        'factory-sync:check skipped: no local tuucho-config/ (operator tree). Shipped templates are tuucho/factory-backup/config/.',
-      );
-      return;
-    }
-    throw new Error(`missing ${relative(root, LIVE_CONFIG)} (run npm run config:migrate / setup first)`);
-  }
-  if (!(await pathExists(LIVE_PLUGINS))) {
-    if (checkOnly) {
-      console.log(
-        'factory-sync:check skipped: no local src/plugins/ (operator tree). Shipped examples are tuucho/factory-backup/plugins/.',
-      );
-      return;
-    }
-    throw new Error(`missing ${relative(root, LIVE_PLUGINS)} (run npm run config:migrate / setup first)`);
+  if (!(await pathExists(FACTORY_ROOT))) {
+    throw new Error(`missing ${relative(root, FACTORY_ROOT)}`);
   }
 
-  const configPlan = await collectConfigPlan();
-  const pluginsPlan = await collectPluginsPlan();
+  const liveRootReady = await pathExists(LIVE_PACKAGE);
+  const liveConfigReady = await pathExists(LIVE_CONFIG);
+  const livePluginsReady = await pathExists(LIVE_PLUGINS);
+
+  if (!liveRootReady) {
+    if (checkOnly) {
+      console.log(
+        'factory-sync:check skipped root: no local package.json (shop scaffold). Shipped templates are tuucho/factory-backup/root/.',
+      );
+    } else {
+      throw new Error(
+        `missing ${relative(root, LIVE_PACKAGE)} (run node tuucho/scripts/install.mjs first, or copy factory-backup/root/)`,
+      );
+    }
+  }
+  if (!liveConfigReady) {
+    if (checkOnly) {
+      console.log(
+        'factory-sync:check skipped config: no local tuucho-config/ (operator tree). Shipped templates are tuucho/factory-backup/config/.',
+      );
+    } else {
+      throw new Error(`missing ${relative(root, LIVE_CONFIG)} (run npm run config:migrate / setup first)`);
+    }
+  }
+  if (!livePluginsReady) {
+    if (checkOnly) {
+      console.log(
+        'factory-sync:check skipped plugins: no local src/plugins/ (operator tree). Shipped examples are tuucho/factory-backup/plugins/.',
+      );
+    } else {
+      throw new Error(`missing ${relative(root, LIVE_PLUGINS)} (run npm run config:migrate / setup first)`);
+    }
+  }
+
+  if (checkOnly && !liveRootReady && !liveConfigReady && !livePluginsReady) {
+    return;
+  }
+
+  const rootPlan = liveRootReady ? await collectRootPlan() : new Map();
+  const configPlan = liveConfigReady ? await collectConfigPlan() : new Map();
+  const pluginsPlan = livePluginsReady ? await collectPluginsPlan() : new Map();
 
   if (checkOnly) {
-    const configDiff = await diffPlan(configPlan, FACTORY_CONFIG);
-    const pluginsDiff = await diffPlan(pluginsPlan, FACTORY_PLUGINS);
     const problems = [];
-    for (const rel of configDiff.missing) problems.push(`missing config/${rel}`);
-    for (const rel of configDiff.different) problems.push(`stale config/${rel}`);
-    for (const rel of configDiff.unexpected) problems.push(`extra config/${rel}`);
-    for (const rel of pluginsDiff.missing) problems.push(`missing plugins/${rel}`);
-    for (const rel of pluginsDiff.different) problems.push(`stale plugins/${rel}`);
-    for (const rel of pluginsDiff.unexpected) problems.push(`extra plugins/${rel}`);
+    if (liveRootReady) pushDiffProblems(problems, 'root', await diffPlan(rootPlan, FACTORY_ROOT));
+    if (liveConfigReady) pushDiffProblems(problems, 'config', await diffPlan(configPlan, FACTORY_CONFIG));
+    if (livePluginsReady) pushDiffProblems(problems, 'plugins', await diffPlan(pluginsPlan, FACTORY_PLUGINS));
     if (problems.length > 0) {
       console.error(`factory-backup is out of sync (${problems.length}):`);
       for (const line of problems) console.error(`- ${line}`);
-      console.error('Run: npm run factory-sync');
+      console.error('Run: npm run factory-sync   (or node tuucho/scripts/factory-sync.mjs)');
       process.exit(1);
     }
     console.log(
-      `factory-backup in sync (${configPlan.size} config files, ${pluginsPlan.size} plugin files).`,
+      `factory-backup in sync (${rootPlan.size} root files, ${configPlan.size} config files, ${pluginsPlan.size} plugin files).`,
     );
     return;
   }
 
+  await mkdir(FACTORY_ROOT, { recursive: true });
   await mkdir(FACTORY_CONFIG, { recursive: true });
   await mkdir(FACTORY_PLUGINS, { recursive: true });
   const logs = [
+    ...(await writePlan(rootPlan, FACTORY_ROOT)),
     ...(await writePlan(configPlan, FACTORY_CONFIG)),
     ...(await writePlan(pluginsPlan, FACTORY_PLUGINS)),
   ];
+  await pruneEmptyDirs(FACTORY_ROOT);
   await pruneEmptyDirs(FACTORY_CONFIG);
   await pruneEmptyDirs(FACTORY_PLUGINS);
   for (const line of logs) console.log(`[factory-sync] ${line}`);

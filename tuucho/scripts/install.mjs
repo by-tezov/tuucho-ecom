@@ -2,12 +2,16 @@
 /**
  * WordPress-style first-run installer for tuucho-ecom.
  *
- *   npm run setup            # web wizard on :8787
- *   npm run setup:cli -- --yes --store-name Shop --admin-email admin@shop.example --admin-password 'ShopAdmin1!'
+ * Fresh clone has no root package.json (shop-owned scaffold). Always start with:
+ *
+ *   node tuucho/scripts/install.mjs            # web wizard on :8787
+ *   node tuucho/scripts/install.mjs --yes --store-name Shop --admin-email admin@shop.example --admin-password 'ShopAdmin1!'
+ *
+ * After the root scaffold is materialised, npm run setup / setup:cli also work.
  */
 import { createServer } from 'node:http';
 import { randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +21,7 @@ const lockPath = join(root, 'installed.lock');
 const back = join(root, 'tuucho/kernel/back');
 const configRoot = join(root, 'tuucho-config');
 const factoryRoot = join(root, 'tuucho/factory-backup');
+const factoryScaffoldRoot = join(factoryRoot, 'root');
 
 function parseArgs(argv) {
   const out = {
@@ -64,11 +69,23 @@ function doctorPack() {
     join(root, 'tuucho/plugin-sdk'),
     join(root, 'tuucho/plugins'),
     factoryRoot,
+    factoryScaffoldRoot,
   ];
   const missing = required.filter((path) => !existsSync(path));
   if (missing.length > 0) {
     throw new Error(`broken pack, missing: ${missing.join(', ')}`);
   }
+}
+
+/** First-install only: copy factory-backup/root/ → clone root when package.json is absent. */
+function materialiseRootScaffold() {
+  const livePackage = join(root, 'package.json');
+  if (existsSync(livePackage)) return;
+  if (!existsSync(factoryScaffoldRoot)) {
+    throw new Error(`missing ${factoryScaffoldRoot}`);
+  }
+  console.log('[setup] first install: copy tuucho/factory-backup/root/ → clone root');
+  cpSync(factoryScaffoldRoot, root, { recursive: true });
 }
 
 function copyPrivateFromExample(privatePath, examplePath) {
@@ -136,11 +153,25 @@ function writeConfig(options) {
   );
 }
 
-async function waitForPostgres(postgresUser) {
+function writeComposeEnvFile() {
+  const result = spawnSync('node', ['scripts/composeEnv.mjs'], {
+    cwd: back,
+    encoding: 'utf8',
+    env: { ...process.env, APP_TARGET: 'dev' },
+  });
+  if (result.status !== 0) {
+    throw new Error(result.stderr?.trim() || `composeEnv.mjs failed (${result.status})`);
+  }
+  const path = (result.stdout || '').trim().split('\n').filter(Boolean).at(-1);
+  if (!path) throw new Error('composeEnv.mjs did not print the env file path');
+  return path;
+}
+
+async function waitForPostgres(postgresUser, composeEnvPath) {
   for (let i = 0; i < 40; i += 1) {
     const result = spawnSync(
       'docker',
-      ['compose', '--env-file', '.compose.env', 'exec', '-T', 'postgres', 'pg_isready', '-U', postgresUser],
+      ['compose', '--env-file', composeEnvPath, 'exec', '-T', 'postgres', 'pg_isready', '-U', postgresUser],
       { cwd: back, encoding: 'utf8' },
     );
     if (result.status === 0) return;
@@ -155,12 +186,14 @@ async function install(options) {
     return;
   }
   doctorPack();
+  materialiseRootScaffold();
   run('npm', ['run', 'config:migrate'], root);
   materialiseConfig();
   writeConfig(options);
-  run('node', ['scripts/composeEnv.mjs'], back);
-  run('docker', ['compose', '--env-file', '.compose.env', 'up', '-d'], back);
-  await waitForPostgres(options.postgresUser);
+  const composeEnvPath = writeComposeEnvFile();
+  console.log(`[setup] compose env ${composeEnvPath}`);
+  run('docker', ['compose', '--env-file', composeEnvPath, 'up', '-d'], back);
+  await waitForPostgres(options.postgresUser, composeEnvPath);
   run('npm', ['install'], root);
   run('npm', ['run', 'operation', '--', 'database-migrate', '--dev'], back);
   run('npm', ['run', 'library', '--', 'seed', '--dev', '--source', join(root, 'tuucho/sample/product/library')], back);

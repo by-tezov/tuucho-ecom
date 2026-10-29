@@ -39,7 +39,11 @@ const packageScripts = new Set(Object.keys(packageJson.scripts ?? {}));
 // Front scripts are documented in the same tuucho/docs/command/ tree (05-front.md),
 // and repository-root scripts in the root README and tuucho/docs, so a
 // `npm run <script>` mention of either is not an unknown script.
-for (const manifest of ['../front/package.json', '../../../package.json']) {
+for (const manifest of [
+  '../front/package.json',
+  '../../../package.json',
+  '../../../tuucho/factory-backup/root/package.json',
+]) {
   try {
     const sibling = JSON.parse(await readFile(resolve(root, manifest), 'utf8'));
     for (const script of Object.keys(sibling.scripts ?? {})) packageScripts.add(script);

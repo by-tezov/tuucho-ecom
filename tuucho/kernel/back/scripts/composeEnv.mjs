@@ -1,8 +1,15 @@
 #!/usr/bin/env node
-/** Write gitignored `.compose.env` from merged private JSON for Docker Compose. */
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+/**
+ * Write gitignored Compose env (POSTGRES_*) from merged private JSON.
+ * Target: `<outputDir>/docker/.compose.env` (default `<shopRoot>/output/...`),
+ * never under `tuucho/`.
+ *
+ *   node scripts/composeEnv.mjs          # write file, print absolute path
+ *   node scripts/composeEnv.mjs --path   # print path only (no write)
+ */
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const back = join(dirname(fileURLToPath(import.meta.url)), '..');
 const shop = join(back, '../../..');
@@ -11,6 +18,13 @@ const shopConfig = join(shop, 'tuucho-config');
 const kernelTree = existsSync(join(shopConfig, 'kernel', 'config.json'))
   ? join(shopConfig, 'kernel')
   : shopConfig;
+const pathOnly = process.argv.includes('--path');
+
+export function composeEnvFile(shopRoot = shop) {
+  const raw = process.env.OUTPUT_DIR?.trim();
+  const outputDir = raw ? resolve(shopRoot, raw) : join(shopRoot, 'output');
+  return join(outputDir, 'docker', '.compose.env');
+}
 
 function readJson(path) {
   if (!existsSync(path)) return {};
@@ -72,17 +86,33 @@ function resolveEnvPrivate(treeRoot, env) {
   return candidates[0];
 }
 
-const privatePath = resolveEnvPrivate(kernelTree, target);
-const envPrivate = firstExisting(privatePath, exampleSibling(privatePath));
-if (!envPrivate) {
-  console.error(`missing private JSON for APP_TARGET=${target} under tuucho-config/kernel/`);
-  process.exit(1);
+export function writeComposeEnv(shopRoot = shop) {
+  const privatePath = resolveEnvPrivate(kernelTree, target);
+  const envPrivate = firstExisting(privatePath, exampleSibling(privatePath));
+  if (!envPrivate) {
+    throw new Error(`missing private JSON for APP_TARGET=${target} under tuucho-config/kernel/`);
+  }
+  const json = merge(readJson(join(kernelTree, 'config.private.json')), readJson(envPrivate));
+  const user = json.database?.user ?? '';
+  const password = json.database?.password ?? '';
+  const name = json.database?.name ?? '';
+  const dest = composeEnvFile(shopRoot);
+  mkdirSync(dirname(dest), { recursive: true });
+  writeFileSync(dest, `POSTGRES_USER=${user}\nPOSTGRES_PASSWORD=${password}\nPOSTGRES_DB=${name}\n`);
+  return dest;
 }
-const json = merge(readJson(join(kernelTree, 'config.private.json')), readJson(envPrivate));
-const user = json.database?.user ?? '';
-const password = json.database?.password ?? '';
-const name = json.database?.name ?? '';
-writeFileSync(
-  join(back, '.compose.env'),
-  `POSTGRES_USER=${user}\nPOSTGRES_PASSWORD=${password}\nPOSTGRES_DB=${name}\n`,
-);
+
+const isMain = Boolean(process.argv[1]) && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+
+if (isMain) {
+  try {
+    if (pathOnly) {
+      console.log(composeEnvFile());
+    } else {
+      console.log(writeComposeEnv());
+    }
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+}
