@@ -160,6 +160,22 @@ test('TUUCHO_TEST_LOADING_MIN fills the three loading floors only when unset', (
   assert.equal(env.VITE_BOOT_SPLASH_SPEED, '4');
 });
 
+test('forceValues lets TUUCHO_TEST overlays overwrite existing VITE_* targets', () => {
+  const env: NodeJS.ProcessEnv = {
+    VITE_LOADING_MIN: '900',
+    VITE_LOADING_MIN_SHORT: '900',
+    VITE_LOADING_MIN_LONG: '900',
+    VITE_BOOT_SPLASH_SPEED: '1',
+    TUUCHO_TEST_LOADING_MIN: '50',
+    TUUCHO_TEST_BOOT_SPLASH_SPEED: '4',
+  };
+  applyTestEnvOverlays(env, { forceValues: true });
+  assert.equal(env.VITE_LOADING_MIN, '50');
+  assert.equal(env.VITE_LOADING_MIN_SHORT, '50');
+  assert.equal(env.VITE_LOADING_MIN_LONG, '50');
+  assert.equal(env.VITE_BOOT_SPLASH_SPEED, '4');
+});
+
 test('config.role.json is not an environment name', () => {
   const dir = mkdtempSync(join(tmpdir(), 'tuucho-config-'));
   writeTree(dir, {

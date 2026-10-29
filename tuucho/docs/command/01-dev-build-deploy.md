@@ -419,26 +419,24 @@ Shipped sketch: `tuucho/factory-backup/config/front.example.json` (copy to
 `front.json` / `front.<env>.json` as needed). Not applied by `config:migrate`
 as a required stamp; shops opt in.
 
-## `npm run setup` / `npm run setup:cli`
+## First-run install (`node tuucho/scripts/install.mjs`)
 
-Pack scripts (`node tuucho/scripts/install.mjs`). Fresh clones have **no** live
-root `package.json` in pack git, so first run must be the Node entry:
+Not an `npm run` script: pack git has no live root `package.json`, so npm
+cannot start the installer. Always use the Node entry:
 
 ```bash
 node tuucho/scripts/install.mjs --yes \
   --store-name Shop \
   --admin-email admin@shop.example \
   --admin-password 'ShopAdmin1!'
-# wizard: node tuucho/scripts/install.mjs
+# wizard on :8787: node tuucho/scripts/install.mjs
 ```
 
-After the root scaffold exists, `npm run setup` (wizard on :8787) and
-`npm run setup:cli -- --yes …` are the same script. First install copies
-`tuucho/factory-backup/root/` → clone root when `package.json` is missing,
-then runs `config:migrate`, writes private config, starts Postgres, migrates,
-seeds sample data, creates the admin, and writes `installed.lock`. A second
-run is a no-op while that lock exists. Apply never rewrites the live root
-scaffold.
+First install copies `tuucho/factory-backup/root/` → clone root when
+`package.json` is missing, then runs `config:migrate`, writes private config,
+starts Postgres, migrates, seeds sample data, creates the admin, and writes
+`installed.lock`. A second run is a no-op while that lock exists. Apply never
+rewrites the live root scaffold.
 
 ## `npm run config:migrate`
 

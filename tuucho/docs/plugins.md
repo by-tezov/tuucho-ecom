@@ -65,7 +65,7 @@ under `"tuucho": { id, kind, installPath, engines.core, … }`. That
 (skipped by name) or a plain npm package as a plugin. There is no
 `plugin.json` and no stub generator.
 
-Kernel and plugin config files sit side by side in one directory. Public files are `config.json` and `config.<env>.json`. Private files (gitignored) are `config.private.json` and `config.private.<env>.json`. Examples are `config.private.example.json` and `config.private.<env>.example.json`, and only when that layer has keys. A plugin with no secret settings has no private file and no private example. Staff roles are `config.role.json` and `config.role.<env>.json` in the shop config root. Built-in roles `user` and `super-admin` are not listed. Names are not listed: they live in the language files, and English is the default. `config.role.json` is not an environment named `role`.
+Kernel and plugin config files sit side by side in one directory. Public files are `config.json` and `config.<env>.json`. Private files (gitignored) are `config.private.json` and `config.private.<env>.json`. Examples are `config.private.example.json` and `config.private.<env>.example.json`, and only when that layer has keys. A plugin with no secret settings has no private file and no private example. Staff roles are `config.role.json` and `config.role.<env>.json` in the shop config root. Built-in roles `user` and `super-admin` are not listed. Names are not listed: they live in the language files, and English is the default. `config.role.json` is not an environment named `role`. The reserved `environments` map on common `config.json` pins per-env overlay paths; it is config-tree meta (`PLUGIN_CONFIG_META_KEYS`), not a plugin settings field, and pickers do not warn it as an unknown public key.
 
 The plugin host `import()`s `back/register.ts` for every effectively enabled
 plugin. Disk manifests are the catalogue. There is no second shipped list.
@@ -157,19 +157,22 @@ from a locale plugin `register()`. Optional `flagUrl` is an absolute image URL
 for the language switcher; stock draws SVG only for `en` / `fr`, and unknown
 codes without a URL get a neutral badge (never a silent UK flag).
 
-The `i18n` section of `tuucho-config/kernel/config.json` (`default`, `enabled`) is
-served on the bootstrap payload as
-`i18n: { default, enabled, languages }` (`enabled` is intersected with the
-registered language registry; `languages` carries native name / OG / date /
-optional flag metadata for those codes). Vite copies `i18n.enabled` into
-`VITE_ENABLED_LANGUAGES` at build so the front list can include codes that
+The `i18n` section of `tuucho-config/kernel/config.json` (`default`, `enabled`,
+`firstVisit`) is served on the bootstrap payload as
+`i18n: { default, enabled, firstVisit, languages }` (`enabled` is intersected
+with the registered language registry; `languages` carries native name / OG /
+date / optional flag metadata for those codes). `firstVisit` is `navigator`
+(browser locale, then shop default) or `default` (shop `i18n.default` when
+nothing is stored). Stock default is `navigator`. Vite copies `i18n.enabled`
+into `VITE_ENABLED_LANGUAGES` at build so the front list can include codes that
 are not hard-coded in the kernel. On the front, `applyStorefrontBootstrap`
 narrows that build list to the bootstrap intersection (a shop turns a
 language off without a rebuild) and a valid `default` becomes the runtime
 default language (`runtimeDefaultLang()` in
 `kernel/front/src/config/runtimeI18n.ts`). Before bootstrap lands, the
-build-time default `'en'` holds. Config load accepts `^[a-z]{2,3}$` codes;
-boot fails if an enabled code was never registered.
+build-time default `'en'` holds and first-visit stays navigator-first. Config
+load accepts `^[a-z]{2,3}$` codes; boot fails if an enabled code was never
+registered.
 
 - Enable `tuucho-kernel-locale-en` / `tuucho-kernel-locale-fr` to offer that language in the
   switcher and supply kernel chrome, admin, email, and invoice values.
@@ -336,7 +339,7 @@ addFilter('storefront.bootstrap', (payload) => {
 | `checkout.quote`                                        | filter | Extra lines and `quote.plugins[pluginId]`. Kernel totals = merchandise + shipping − rules + extraLines.                                                                                                                                                                                                                                                                      |
 | `checkout.lines`                                        | filter | Priced quote items after `checkout.quote`.                                                                                                                                                                                                                                                                                                                                   |
 | `checkout.totals`                                       | filter | After extraLines; kernel recomputes `quote.total` from extraLines.                                                                                                                                                                                                                                                                                                           |
-| `checkout.prepare`                                      | filter | Pre-price locks (`phase`: lock / afterPrice) and reserve-time hold release (`phase`: release). The priced-cart context may carry `excludeReservationId`, the cart's own covering gift/checkout hold, for stock-aware syncs.                                                                                                                                                  |
+| `checkout.prepare`                                      | filter | Always invoked via `runCheckoutPrepare` (value + ctx). Phases: `price` (authenticated quote before cart lines), `lock` / `afterPrice` (reservation), `release` (hold release). The priced-cart context may carry `excludeReservationId`, the cart's own covering gift/checkout hold, for stock-aware syncs.                                                                 |
 | `checkout.release`                                      | filter | Purpose-agnostic hold release: unpaid reservation, blocked review, `purpose: 'account.delete'`.                                                                                                                                                                                                                                                                              |
 | `checkout.reserve`                                      | filter | After the reservation row exists: plugin holds. Return `{ ok, reason?, priced }`.                                                                                                                                                                                                                                                                                            |
 | `checkout.confirm`                                      | filter | Consume holds, snapshot extras. Return `{ ok, reason? }`.                                                                                                                                                                                                                                                                                                                    |
@@ -424,6 +427,13 @@ Admin, Plugins “Core” and Check current are `tuucho/tuucho-versioning.json` 
 - `PATCH /admin/plugins/:id` `{ "enabled": true }` returns `409 plugin_incompatible` when the kernel is outside `engines.core`, a `dependsOn` plugin is missing, or its version is out of range.
 
 Bump the product by changing `tuucho/factory-backup/root/package.json` `version` (then `npm run factory-sync` so live root matches in this product repo). Official-repo CI (`npm run check:release`) keeps `tuucho/tuucho-versioning.json` and `tuucho/plugins/manifest.json` `kernel` in lockstep with that factory version, and rejects a `version` field on `kernel/back/package.json`, `kernel/front/package.json`, or `plugin-sdk/package.json`. Plugin `engines.core` for this 0.x line is `>=0.0.1 <1.0.0`. A 1.0 kernel needs plugins to raise that range. Git tags are `MAJOR.MINOR.PATCH` with no `v` prefix.
+
+### What 0.0.10 changes for plugin authors
+
+- Plugin common `config.json` may declare reserved meta key `environments` without an "ignored unknown public key" warning (`PLUGIN_CONFIG_META_KEYS`).
+- Vite re-applies `TUUCHO_TEST_*` value overlays after `front.json` (`forceValues`), so disposable loading / splash timings win over production floors in that file.
+- Config / bootstrap `i18n.firstVisit`: `navigator` (stock default) or `default`. When nothing is stored, `default` uses shop `i18n.default` instead of the browser locale. Front `LanguageContext` restores React `lang` whenever it differs from `preferredLanguage()`, including after bootstrap.
+- Authenticated checkout pricing calls `runCheckoutPrepare` with a defined `phase` (`price` / `afterPrice`). Do not call `applyFilters('checkout.prepare', …)` with a single argument; filter `ctx` would be undefined.
 
 ### What 0.0.9 changes for plugin authors
 
@@ -528,7 +538,7 @@ flags stay on Preferences. Do not ALTER kernel courier tables from a plugin.
 tokens: white surfaces and near-black text/buttons in light, the same system
 grayed darker in dark. `document.documentElement` exposes `--color-accent`,
 `--color-bg`, `--color-ink`, plus card, header and hero tokens. A fresh
-`setup:cli` does not overlay hex tokens, so both schemes stay dual.
+A fresh `node tuucho/scripts/install.mjs` does not overlay hex tokens, so both schemes stay dual.
 
 Admin, Plugins, Default theme, Configure. Each colour is a labelled field:
 swatch plus hex, then Save. Changing a swatch applies the CSS variable

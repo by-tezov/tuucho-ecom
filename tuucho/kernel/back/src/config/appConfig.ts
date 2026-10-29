@@ -6,15 +6,18 @@
  */
 export interface AppConfig {
   target: string;
-  /** Supported-language configuration (`i18n.default` / `i18n.enabled` in
-   * public JSON). `defaultLanguage` is the fallback for header/preference
-   * resolution (utils/language.ts); `enabledLanguages` is what the storefront
-   * bootstrap advertises to the front. Codes match `^[a-z]{2,3}$` at config
-   * load; membership in the plugin-sdk language registry is asserted after
-   * plugins load. */
+  /** Supported-language configuration (`i18n.default` / `i18n.enabled` /
+   * `i18n.firstVisit` in public JSON). `defaultLanguage` is the fallback for
+   * header/preference resolution (utils/language.ts); `enabledLanguages` is
+   * what the storefront bootstrap advertises to the front; `firstVisit` is
+   * whether a visitor with no stored language follows the browser locale
+   * (`navigator`) or the shop default (`default`). Codes match `^[a-z]{2,3}$`
+   * at config load; membership in the plugin-sdk language registry is asserted
+   * after plugins load. */
   i18n: {
     defaultLanguage: import('../utils/language.js').Language;
     enabledLanguages: import('../utils/language.js').Language[];
+    firstVisit: 'navigator' | 'default';
   };
   /** false for both 'preprod' and 'prod' — anywhere real visitors or real
    * secrets are involved gets production-grade behavior (locked-down

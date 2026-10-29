@@ -113,11 +113,13 @@ export async function priceCheckout(
   const pickupPoint = address.pickup_points[networkCode] ?? null;
 
   try {
-    await applyFilters('checkout.prepare', {
+    await runCheckoutPrepare({
       client,
       userId,
       cartId,
       syncGiftLines,
+      guest: false,
+      phase: 'price',
     });
   } catch (error) {
     const reason = reasonFromCheckoutFilter(error);
@@ -364,6 +366,8 @@ export async function priceCheckout(
       excludeReservationId,
       pluginRequest: { voucherCode, applyLoyalty },
       countryCode: address.country_code,
+      guest: false,
+      phase: 'afterPrice',
     });
     quote = await applyCheckoutQuoteFilters(quote, {
       client,

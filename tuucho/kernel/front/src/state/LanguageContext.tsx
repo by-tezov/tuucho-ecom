@@ -151,7 +151,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     };
   }, [urlLang, rest, lang, dict]);
 
-  // Loads the stored preference's dictionary and marks `langReady` —
+  // Loads the preferred language dictionary and marks `langReady` —
   // deliberately unconditional on the current path (in particular: it must
   // NOT wait for `location.pathname` to move past `/`). SplashEntry's own
   // exit is gated on `langReady`, so if this effect waited for the splash
@@ -159,28 +159,32 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   // a real deadlock a previous version of this effect had, stuck forever
   // showing the splash's held final frame. The *redirect* decision below is
   // a separate concern that can safely wait; loading the dictionary cannot.
+  //
+  // Compare `lang` to `preferredLanguage()`, not `preferred === defaultLang()`
+  // alone: before bootstrap, `useState` seeds build-time `en`, and after
+  // bootstrap the shop default (or firstVisit policy) may change preferred
+  // without a locale URL. Re-run when bootstrap i18n lands.
+  const bootstrapDefault = bootstrap.i18n?.default;
+  const bootstrapFirstVisit = bootstrap.i18n?.firstVisit;
   useEffect(() => {
     if (urlLang) return; // locale-prefixed URL already drives this (lockstep effect above)
-    const stored = preferredLanguage();
-    if (stored === defaultLang()) {
-      // Default language still needs packs assembled before SplashEntry
-      // reads `t.*`; the assemble effect below marks ready.
+    const preferred = preferredLanguage();
+    if (lang === preferred) {
       if (isRuntimeDictionary(dict)) setLangReady(true);
       return;
     }
-    if (lang === stored) return; // already restored (e.g. via setLang)
-    const cached = getCachedDictionary(stored);
+    const cached = getCachedDictionary(preferred);
     if (cached && isRuntimeDictionary(cached)) {
-      setLangState(stored);
+      setLangState(preferred);
       setDict(cached);
       setLangReady(true);
       return;
     }
     const loadGeneration = ++languageLoadGenerationRef.current;
-    loadDictionary(stored)
+    loadDictionary(preferred)
       .then((loaded) => {
         if (languageLoadGenerationRef.current !== loadGeneration) return;
-        setLangState(stored);
+        setLangState(preferred);
         setDict(loaded);
         setLangReady(true);
       })
@@ -190,18 +194,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return () => {
       if (languageLoadGenerationRef.current === loadGeneration) languageLoadGenerationRef.current += 1;
     };
-  }, [urlLang, lang, dict]);
+  }, [urlLang, lang, dict, bootstrapDefault, bootstrapFirstVisit]);
 
   // Every bare localizable URL goes to `/{lang}/…` (`/gallery` →
   // `/fr/gallery`, `/creations/ab-cd-123` → `/en/creations/ab-cd-123`).
-  // Language is cached `psn-lang`, else the browser/system locale, else
-  // English. `/` is skipped: it is the splash placeholder for a cold deep
-  // link (prepareSplashColdEntry rewrites the real URL to `/` before React
-  // mounts), and prefixing it would send the visitor to `/fr` instead of
-  // the page they opened. Already-prefixed URLs and non-localizable paths
-  // (admin, OAuth) are left alone. This runs on each bare navigation, not
-  // once per load: a single shot was consumed by the first bare URL and
-  // later bare links never received a prefix.
+  // Language is cached `psn-lang`, else `i18n.firstVisit` policy (navigator
+  // or shop default), else the runtime default. `/` is skipped: it is the
+  // splash placeholder for a cold deep link (prepareSplashColdEntry rewrites
+  // the real URL to `/` before React mounts), and prefixing it would send
+  // the visitor to `/fr` instead of the page they opened. Already-prefixed
+  // URLs and non-localizable paths (admin, OAuth) are left alone. This runs
+  // on each bare navigation, not once per load: a single shot was consumed
+  // by the first bare URL and later bare links never received a prefix.
   useEffect(() => {
     if (urlLang || location.pathname === '/') return;
     if (!isLocalizablePath(rest)) return;
@@ -209,7 +213,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (target !== `${location.pathname}${location.search}`) {
       navigate(target, { replace: true });
     }
-  }, [urlLang, rest, location.pathname, location.search, navigate]);
+  }, [urlLang, rest, location.pathname, location.search, navigate, bootstrapDefault, bootstrapFirstVisit]);
 
   // Only mirrors `lang` onto the <html> tag — localStorage is written
   // explicitly wherever the language actually changes (setLang below), never
@@ -236,8 +240,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     // Catalogs start empty; once packs land, mark ready for the default-lang
     // cold boot path that used to flip langReady before `t` existed.
     if (isRuntimeDictionary(assembled) && (!urlLang || nextLang === urlLang)) {
-      const stored = preferredLanguage();
-      if (!urlLang && stored !== defaultLang() && nextLang !== stored) return;
+      const preferred = preferredLanguage();
+      if (!urlLang && nextLang !== preferred) return;
       setLangReady(true);
     }
   }, [lang, availableLanguages, localeEnabled, catalogsRev, urlLang]);

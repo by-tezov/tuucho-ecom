@@ -115,6 +115,7 @@ export const PUBLIC_ENV_MAP: Record<string, string> = {
   'identity.testTokenPrefix': 'IDENTITY_TEST_TOKEN_PREFIX',
   'i18n.default': 'I18N_DEFAULT_LANG',
   'i18n.enabled': 'I18N_ENABLED_LANGS',
+  'i18n.firstVisit': 'I18N_FIRST_VISIT',
 };
 
 export const PRIVATE_ENV_MAP: Record<string, string> = {

@@ -47,6 +47,13 @@ export type ResolvedConfigPaths = {
 const ENV_NAME = /^[a-z][a-z0-9-]*$/;
 const RESERVED_DIR = new Set(['plugins', 'private', 'role', 'kernel']);
 
+/**
+ * Keys that may appear in common `config.json` for path resolution but are
+ * not plugin settings. Plugin pickers skip these before unknown-key warnings.
+ * Extend here when another reserved meta key is added.
+ */
+export const PLUGIN_CONFIG_META_KEYS = new Set(['environments']);
+
 function isObject(value: unknown): value is JsonObject {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }

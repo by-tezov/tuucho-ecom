@@ -35,7 +35,11 @@ const FALLBACK: StorefrontBootstrap = {
     },
   ],
   theme: { tokens: {} },
-  i18n: { default: 'en', enabled: [...(shopConfig.enabledLanguages ?? ['en'])] },
+  i18n: {
+    default: 'en',
+    enabled: [...(shopConfig.enabledLanguages ?? ['en'])],
+    firstVisit: 'navigator',
+  },
   brandAssets: {},
   menus: [
     { key: 'home', pluginId: 'page-home', label: 'Home', visible: true, order: 10, bottomBar: true },

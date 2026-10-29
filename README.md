@@ -17,8 +17,8 @@ the real shop name at setup.
 Needs Node 22+, Docker (Postgres 10 on host port **5434**), and npm.
 
 Clone a **version tag**, not untagged `master`. Pack git does **not** ship a
-live root `package.json` (shop-owned after first install), so first run is a
-direct Node command, not `npm run setup`:
+live root `package.json` (shop-owned after first install), so first run is
+always a direct Node command (there is no `npm run setup`):
 
 ```bash
 git clone --branch 0.0.9 --depth 1 https://github.com/by-tezov/tuucho-ecom.git
@@ -34,8 +34,6 @@ npm run dev
 
 Or open the web wizard: `node tuucho/scripts/install.mjs` then visit
 http://127.0.0.1:8787
-
-After the root scaffold exists, `npm run setup` / `setup:cli` also work.
 
 After install:
 

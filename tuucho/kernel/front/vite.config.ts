@@ -3,7 +3,7 @@ import { cp, mkdir, readdir } from 'node:fs/promises';
 import { join, resolve, sep } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-import { inspectConfig } from '../back/src/config/loadJsonConfig.ts';
+import { applyTestEnvOverlays, inspectConfig } from '../back/src/config/loadJsonConfig.ts';
 import { resolveCssComposeSpecifier, viteResolveAlias } from './importAliases.ts';
 
 const PACK_ROOT = resolve(process.cwd(), '../../..');
@@ -241,6 +241,9 @@ export default defineConfig(({ mode }) => {
   // Build list matches config `i18n.enabled` so shops can enable codes that
   // are not hard-coded in the kernel (locale plugins supply catalogs).
   if (kernelHttp.enabledLanguages) process.env.VITE_ENABLED_LANGUAGES = kernelHttp.enabledLanguages;
+  // After front.json wrote VITE_*, force TUUCHO_TEST_* value overlays (loading
+  // floors, boot splash) so disposable fronts do not keep production timings.
+  applyTestEnvOverlays(process.env, { forceValues: true });
   const testApi = process.env.TUUCHO_TEST_API_BASE?.trim();
   const testSite = process.env.TUUCHO_TEST_SITE_URL?.trim() || process.env.TUUCHO_TEST_FRONTEND_BASE?.trim();
   if (testApi) process.env.VITE_API_BASE_URL = testApi.replace(/\/$/, '');

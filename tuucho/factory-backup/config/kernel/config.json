@@ -39,7 +39,8 @@
     "enabled": [
       "en",
       "fr"
-    ]
+    ],
+    "firstVisit": "navigator"
   },
   "session": {
     "jwtAccessTtl": "15m",

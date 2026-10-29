@@ -19,10 +19,13 @@ vi.mock('@/config/i18nRoutes', () => ({
 }));
 vi.mock('@/state/PrerenderPayload', () => ({ usePrerenderedLanguage: () => null }));
 vi.mock('@/plugins/StorefrontBootstrap', () => ({
-  useStorefrontBootstrap: () => ({ plugins: [
-    { id: 'tuucho-kernel-locale-en', enabled: true },
-    { id: 'tuucho-kernel-locale-fr', enabled: true },
-  ] }),
+  useStorefrontBootstrap: () => ({
+    plugins: [
+      { id: 'tuucho-kernel-locale-en', enabled: true },
+      { id: 'tuucho-kernel-locale-fr', enabled: true },
+    ],
+    i18n: { default: 'en', enabled: ['en', 'fr'], firstVisit: 'navigator' as const },
+  }),
 }));
 vi.mock('@/assets/i18n/languagePreference', () => ({
   preferredLanguage: () => testState.preference,
@@ -90,6 +93,26 @@ describe('LanguageProvider locale enablement', () => {
 
     expect(screen.getByTestId('language')).toHaveTextContent('en');
     expect(renders).toBeLessThan(20);
+  });
+});
+
+describe('LanguageProvider restore vs preferred', () => {
+  it('moves lang onto preferred when preferred equals the shop default', async () => {
+    testState.preference = 'fr';
+    const french = deferred<Strings>();
+    testState.loadDictionary.mockImplementation((lang: Lang) =>
+      lang === 'fr' ? french.promise : Promise.resolve({} as Strings),
+    );
+
+    render(
+      <LanguageProvider>
+        <Probe />
+      </LanguageProvider>,
+    );
+
+    expect(screen.getByTestId('language')).toHaveTextContent('en');
+    await act(async () => french.resolve({} as Strings));
+    expect(screen.getByTestId('language')).toHaveTextContent('fr');
   });
 });
 

@@ -6,8 +6,6 @@
  *
  *   node tuucho/scripts/install.mjs            # web wizard on :8787
  *   node tuucho/scripts/install.mjs --yes --store-name Shop --admin-email admin@shop.example --admin-password 'ShopAdmin1!'
- *
- * After the root scaffold is materialised, npm run setup / setup:cli also work.
  */
 import { createServer } from 'node:http';
 import { randomBytes } from 'node:crypto';

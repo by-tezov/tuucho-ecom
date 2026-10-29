@@ -1594,8 +1594,8 @@
               "type": "steps",
               "items": [
                 "git clone --branch 0.0.2 --depth 1 https://github.com/by-tezov/tuucho-ecom.git",
-                "npm run setup:cli (or npm run setup on :8787)",
-                "npm run dev. Shop on 5174. Setup writes gitignored tuucho-versioning.lock.json next to installed.lock."
+                "node tuucho/scripts/install.mjs --yes (wizard: node tuucho/scripts/install.mjs on :8787)",
+                "npm run dev. Shop on 5174. Install writes gitignored tuucho-versioning.lock.json next to installed.lock."
               ]
             },
             {

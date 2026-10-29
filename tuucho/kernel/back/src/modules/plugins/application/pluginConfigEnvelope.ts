@@ -1,3 +1,4 @@
+import { PLUGIN_CONFIG_META_KEYS } from '../../../config/configTreePaths.js';
 import type { JsonObject } from '../../../config/loadJsonConfig.js';
 import { parseSemver, satisfiesRange } from '../domain/semverRange.js';
 import type { PluginManifest } from '../domain/contracts.js';
@@ -156,6 +157,7 @@ export function pickSchemaValues(
   const { publicKeys, secretKeys } = splitSchemaKeys(schema);
   const allowed = new Set(layer === 'private' ? secretKeys : publicKeys);
   for (const key of Object.keys(values)) {
+    if (PLUGIN_CONFIG_META_KEYS.has(key)) continue;
     if (!allowed.has(key)) warnings.push(`${pluginId}: ignored unknown ${layer} key ${key}.`);
   }
   return { values: picked };

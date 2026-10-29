@@ -210,6 +210,19 @@ function requiredList(value: string | undefined, name: string): string[] {
   return list;
 }
 
+/** First-visit language policy (`i18n.firstVisit`). Unset → `navigator`. */
+function optionalFirstVisit(
+  value: string | undefined,
+  name: string,
+): 'navigator' | 'default' {
+  const raw = (value ?? '').trim().toLowerCase();
+  if (!raw) return 'navigator';
+  if (raw === 'navigator' || raw === 'default') return raw;
+  throw new Error(
+    `Invalid environment variable ${name}: "${value}" (expected navigator or default).`,
+  );
+}
+
 /** A language code (`i18n.default`). Format is validated here; membership in
  * the plugin-sdk registry is asserted after plugins load. */
 function optionalLanguage(value: string | undefined, fallback: Language, name: string): Language {
@@ -248,6 +261,7 @@ function optionalLanguageList(value: string | undefined, name: string): Language
 export {
   durationMsOrNull,
   optionalDurationMs,
+  optionalFirstVisit,
   optionalLanguage,
   optionalLanguageList,
   optionalNonNegativeInteger,

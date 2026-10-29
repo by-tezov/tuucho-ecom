@@ -14,6 +14,7 @@ import { targetFileSuffix } from './envSources.js';
 import { outputRoot, shopRoot } from './shopPaths.js';
 import {
   optionalDurationMs,
+  optionalFirstVisit,
   optionalLanguage,
   optionalLanguageList,
   optionalNonNegativeInteger,
@@ -111,6 +112,7 @@ export const config: AppConfig = {
   i18n: {
     defaultLanguage: optionalLanguage(process.env.I18N_DEFAULT_LANG, FALLBACK_LANGUAGE, 'I18N_DEFAULT_LANG'),
     enabledLanguages: optionalLanguageList(process.env.I18N_ENABLED_LANGS, 'I18N_ENABLED_LANGS'),
+    firstVisit: optionalFirstVisit(process.env.I18N_FIRST_VISIT, 'I18N_FIRST_VISIT'),
   },
   isDevelopment,
   isProduction: targetFileSuffix === 'prod',

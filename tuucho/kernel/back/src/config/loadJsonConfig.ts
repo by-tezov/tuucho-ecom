@@ -245,7 +245,20 @@ export const TUUCHO_TEST_VALUE_OVERLAYS: Record<string, string[]> = {
   TUUCHO_TEST_BOOT_SPLASH_SPEED: ['VITE_BOOT_SPLASH_SPEED'],
 };
 
-export function applyTestEnvOverlays(env: NodeJS.ProcessEnv = process.env): void {
+export type ApplyTestEnvOverlaysOptions = {
+  /**
+   * When true, `TUUCHO_TEST_VALUE_OVERLAYS` overwrite existing targets.
+   * Vite uses this after `front.json` copied `VITE_*` into `process.env`, so
+   * disposable timings still win. Back `applyJsonConfig` keeps the default
+   * (fill only when unset).
+   */
+  forceValues?: boolean;
+};
+
+export function applyTestEnvOverlays(
+  env: NodeJS.ProcessEnv = process.env,
+  options: ApplyTestEnvOverlaysOptions = {},
+): void {
   for (const [overlay, target] of Object.entries(TUUCHO_TEST_ENV_OVERLAYS)) {
     const value = env[overlay];
     if (typeof value === 'string' && value.trim()) env[target] = value.trim().replace(/\/$/, '');
@@ -253,8 +266,9 @@ export function applyTestEnvOverlays(env: NodeJS.ProcessEnv = process.env): void
   for (const [overlay, targets] of Object.entries(TUUCHO_TEST_VALUE_OVERLAYS)) {
     const value = env[overlay];
     if (typeof value !== 'string' || !value.trim()) continue;
+    const trimmed = value.trim();
     for (const target of targets) {
-      if (env[target] === undefined) env[target] = value.trim();
+      if (options.forceValues || env[target] === undefined) env[target] = trimmed;
     }
   }
 }

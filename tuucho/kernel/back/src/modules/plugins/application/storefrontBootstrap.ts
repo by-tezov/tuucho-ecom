@@ -69,6 +69,7 @@ export async function buildStorefrontBootstrap(db: Pool = pool) {
     i18n: {
       default: config.i18n.defaultLanguage,
       enabled: config.i18n.enabledLanguages.filter(isLanguage),
+      firstVisit: config.i18n.firstVisit,
       languages: config.i18n.enabledLanguages
         .map((code) => getRegisteredLanguage(code))
         .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))

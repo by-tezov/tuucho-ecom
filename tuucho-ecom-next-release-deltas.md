@@ -1,53 +1,29 @@
-# tuucho-ecom deltas still required by PamSurin (against 0.0.9)
+# tuucho-ecom deltas still required by pamsurin (against 0.0.10)
 
-Local `pamsurin-shop/tuucho` tracks product **0.0.9**. No kernel / plugin-sdk /
-docs / scripts **source** forks under `tuucho/`. Item **2** below is still
-required on tagged `0.0.9`; item **1** is implemented in the product checkout
-awaiting the next tag.
+PamSurin vendors stock `0.0.10` under `tuucho/` with no committed kernel
+forks. The five gaps below were requested for the next product release; they
+are implemented in the product tree as agnostic openings / contract fixes
+(see `tuucho/docs/plugins.md` "What 0.0.10 changes for plugin authors").
 
-## 1. Docker Compose env file is written inside the product tree
+## Closed in product (pending tag)
 
-**Status:** implemented in the product tree (not yet on tag `0.0.9`).
-`composeEnv.mjs` writes `<outputDir>/docker/.compose.env` (default
-`<clone root>/output/docker/.compose.env`). `composeUp.mjs`, install, deploy
-local Postgres start, and Apply DB snapshot fallbacks use that path. Nothing
-shop-generated for Compose lands under `tuucho/`.
+- §1 Plugin `environments` meta key: `PLUGIN_CONFIG_META_KEYS` skipped in
+  `pickKnown` / `pickSchemaValues`.
+- §2 Front Vite applies `TUUCHO_TEST_VALUE_OVERLAYS` after `front.json` with
+  `forceValues`.
+- §3 Storefront first-visit policy: shop config `i18n.firstVisit`
+  (`navigator` | `default`, stock default `navigator`). Set `"default"` in
+  `tuucho-config` to prefer `i18n.default` over navigator when nothing is
+  stored.
+- §4 `LanguageContext` restores when `lang !== preferredLanguage()` and
+  re-runs after bootstrap i18n lands.
+- §5 `priceAuthenticatedCheckout` uses `runCheckoutPrepare` with `phase`
+  (`price` / `afterPrice`); loyalty guards `ctx?.phase`.
 
-## 2. Kernel Apply overwrites the shop root project manifest
+## Observed, not patched
 
-**Status:** implemented in the product tree (not yet on tag `0.0.9`).
-Root scaffold ships under `tuucho/factory-backup/root/`, copies once on
-`node tuucho/scripts/install.mjs`, Apply no longer writes live
-`package.json`, Core / Check read `tuucho/tuucho-versioning.json` `kernel`.
-
-Stock `0.0.9` still includes live `package.json` in Apply scope; Pam must keep
-restoring shop scripts/name until that tag is applied.
-
-## Closed in product WIP (next tag)
-
-- Compose env outside `tuucho/` → `<outputDir>/docker/.compose.env`.
-- Shop-owned root scaffold + Apply never writes live root `package.json`.
-
-## Closed in 0.0.9
-
-- Front Vite shop JSON (`front.json` / `front.<env>.json`).
-- Dev HTML shell title + public favicon (`shellTitle` +
-  `tuucho-config/front-public/`).
-- Language switcher unlock for any enabled `*-locale-<lang>` pack.
-- Optional `registerLanguage({ flagUrl })` for switcher flags.
-
-## Closed since 0.0.6
-
-- Storefront languages beyond en|fr — `registerLanguage` + `i18n.enabled`.
-- Favicon / OG / lock-probe (runtime) — `brandAssets` keys.
-- Cart `wrapNotifiedAdd` / `notifyCartAdded` on commands context.
-- `paths.publicMediaDir` leading slash under `publicDir`.
-- `/media` mounted before catch-all `/` plugin middleware.
+(none)
 
 ## Not a kernel opening
 
-- FTP host credentials and LWS API token — shop private JSON + shop deploy.
-- Production crontab install ownership — shop `scripts/deploy.mjs`; stock
-  prod always installs cron entries; plugin enable gates gift/loyalty.
-- Product-request SMTP and similar plugin secrets — plugin private /
-  Configure secret store.
+(none)

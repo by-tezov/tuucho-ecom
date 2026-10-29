@@ -105,8 +105,8 @@ const register: PluginRegisterFn = async (api) => {
   );
   api.addFilter(
     CORE_OPENING_FILTERS.checkoutPrepare,
-    async (state: Record<string, unknown>, ctx: Record<string, unknown>) => {
-      if (ctx.phase === 'release' && ctx.userId && !ctx.guest) {
+    async (state: Record<string, unknown>, ctx: Record<string, unknown> | undefined) => {
+      if (ctx?.phase === 'release' && ctx.userId && !ctx.guest) {
         await loyalty.releaseLoyaltyHoldsForUser(
           ctx.client as Parameters<typeof loyalty.releaseLoyaltyHoldsForUser>[0],
           ctx.userId as string,

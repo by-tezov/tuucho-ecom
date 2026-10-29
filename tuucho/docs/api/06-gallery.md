@@ -10,6 +10,9 @@ Public shop chrome payload: `coreVersion`, store identity, tax mode, product axe
 tokens, menus (page plugins that are on, plus the catalog), `i18n`
 (`default`: the configured fallback language from `i18n.default`;
 `enabled`: `i18n.enabled` intersected with registered language codes;
+`firstVisit`: `navigator` | `default` from `i18n.firstVisit` (stock
+`navigator`: browser locale then shop default when nothing is stored;
+`default`: shop `i18n.default` only);
 `languages`: `{ code, nativeName, ogLocale, dateLocale?, flagUrl? }[]` for
 those enabled codes), `brandAssets` (static artwork overrides, key to absolute
 image URL; empty unless a plugin fills it through the

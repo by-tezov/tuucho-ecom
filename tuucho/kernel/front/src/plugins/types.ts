@@ -73,11 +73,13 @@ export interface StorefrontBootstrap {
   theme: { tokens: Record<string, string>; logoText?: string; suffixText?: string };
   /** Runtime language contract: `default` is the shop's configured fallback
    * language, `enabled` narrows the build-time `VITE_ENABLED_LANGUAGES` set
-   * (intersection), `languages` carries native name / OG / date metadata for
-   * enabled codes. Consumed by `applyStorefrontBootstrap` (env.ts). */
+   * (intersection), `firstVisit` is `navigator` | `default` for visitors with
+   * no stored language, `languages` carries native name / OG / date metadata
+   * for enabled codes. Consumed by `applyStorefrontBootstrap` (env.ts). */
   i18n: {
     default: string;
     enabled: string[];
+    firstVisit?: 'navigator' | 'default';
     languages?: Array<{
       code: string;
       nativeName: string;

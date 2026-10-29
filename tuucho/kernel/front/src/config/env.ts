@@ -2,7 +2,13 @@ import type { CapsuleFormKey } from '../data/capsuleForms';
 import type { Lang } from '../assets/i18n/types';
 import { applyLanguageMeta, setLanguageOrder, type LanguageMeta } from '../assets/i18n/languages';
 import { configureGalleryImageGate } from '../utils/galleryImageGate';
-import { narrowEnabledLanguages, resolveRuntimeDefaultLang, setRuntimeDefaultLang } from './runtimeI18n';
+import {
+  narrowEnabledLanguages,
+  resolveRuntimeDefaultLang,
+  resolveRuntimeFirstVisit,
+  setRuntimeDefaultLang,
+  setRuntimeFirstVisit,
+} from './runtimeI18n';
 
 export type ShopPlatformKey = 'vinted';
 export type SocialPlatformKey = 'tiktok' | 'instagram' | 'youtube' | 'facebook';
@@ -443,6 +449,7 @@ export function applyStorefrontBootstrap(bootstrap: {
   i18n?: {
     default: string;
     enabled: string[];
+    firstVisit?: 'navigator' | 'default';
     languages?: LanguageMeta[];
   };
 }): void {
@@ -453,12 +460,14 @@ export function applyStorefrontBootstrap(bootstrap: {
   // Runtime i18n: bootstrap `enabled` narrows the build-time
   // VITE_ENABLED_LANGUAGES set in place (module-level readers keep the same
   // array reference), then a valid `default` becomes the runtime default
-  // language (runtimeDefaultLang).
+  // language (runtimeDefaultLang). `firstVisit` controls preferredLanguage
+  // when nothing is stored.
   if (bootstrap.i18n) {
     const narrowed = narrowEnabledLanguages(shopConfig.enabledLanguages, bootstrap.i18n.enabled);
     shopConfig.enabledLanguages.splice(0, shopConfig.enabledLanguages.length, ...narrowed);
     setLanguageOrder(narrowed);
     setRuntimeDefaultLang(resolveRuntimeDefaultLang(bootstrap.i18n.default, narrowed));
+    setRuntimeFirstVisit(resolveRuntimeFirstVisit(bootstrap.i18n.firstVisit) ?? 'navigator');
     if (Array.isArray(bootstrap.i18n.languages)) {
       applyLanguageMeta(bootstrap.i18n.languages);
     }

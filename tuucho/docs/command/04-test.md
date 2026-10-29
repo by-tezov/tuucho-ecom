@@ -62,17 +62,18 @@ of these ever apply on `APP_TARGET=prod`.
 ### `TUUCHO_TEST_*` overlays
 
 Read after the `tuucho-config/` flatten, so they win over JSON and leftover
-process env. URL overlays always override; the value overlays below only fill
-a target that is unset (an explicit `VITE_*` always wins). They matter when
-the front is served by the dev server spawned from the back env.
+process env. URL overlays always override. Value overlays on the back only
+fill a target that is unset (an explicit `VITE_*` from process env wins).
+Vite applies the same value overlays after `tuucho-config/front.json` with
+`forceValues`, so disposable front timings still win over `front.json`.
 
 | Key | Sets |
 | --- | ---- |
-| `TUUCHO_TEST_API_BASE` | `URL_API_BASE` (trailing slash trimmed) |
-| `TUUCHO_TEST_SITE_URL` / `TUUCHO_TEST_FRONTEND_BASE` | `URL_FRONTEND_BASE` |
+| `TUUCHO_TEST_API_BASE` | `URL_API_BASE` (trailing slash trimmed); Vite also sets `VITE_API_BASE_URL` |
+| `TUUCHO_TEST_SITE_URL` / `TUUCHO_TEST_FRONTEND_BASE` | `URL_FRONTEND_BASE`; Vite also sets `VITE_SITE_URL` |
 | `TUUCHO_TEST_PUBLIC_MEDIA` | `URL_PUBLIC_MEDIA` |
-| `TUUCHO_TEST_LOADING_MIN` | `VITE_LOADING_MIN`, `VITE_LOADING_MIN_SHORT`, `VITE_LOADING_MIN_LONG` when unset |
-| `TUUCHO_TEST_BOOT_SPLASH_SPEED` | `VITE_BOOT_SPLASH_SPEED` when unset |
+| `TUUCHO_TEST_LOADING_MIN` | `VITE_LOADING_MIN`, `VITE_LOADING_MIN_SHORT`, `VITE_LOADING_MIN_LONG` (back: when unset; Vite: forced after `front.json`) |
+| `TUUCHO_TEST_BOOT_SPLASH_SPEED` | `VITE_BOOT_SPLASH_SPEED` (back: when unset; Vite: forced after `front.json`) |
 
 ### Identity test tokens
 

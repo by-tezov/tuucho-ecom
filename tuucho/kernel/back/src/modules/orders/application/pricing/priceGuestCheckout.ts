@@ -410,6 +410,8 @@ export async function priceGuestCheckout(
       pluginRequest: { voucherCode, applyLoyalty: false },
       guestEmail,
       countryCode: address.countryCode,
+      guest: true,
+      phase: 'afterPrice',
     });
     quote = await applyCheckoutQuoteFilters(quote, {
       client,

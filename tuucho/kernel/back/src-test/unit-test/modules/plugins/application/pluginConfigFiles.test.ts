@@ -88,6 +88,33 @@ test('loadPluginConfigFiles merges public then private-or-example', () => {
   assert.equal(loaded.hash, canonicalPluginConfigHash(loaded.public, loaded.private));
 });
 
+test('environments meta key is not warned as unknown public setting', () => {
+  const root = mkdtempSync(join(tmpdir(), 'plugin-cfg-meta-'));
+  writeFileSync(
+    join(root, 'config.json'),
+    JSON.stringify({
+      environments: { dev: { public: 'config.dev.json' } },
+      clientId: 'from-common',
+      stray: true,
+    }),
+  );
+  const loaded = loadPluginConfigFiles({
+    id: 'page-legal',
+    name: 'Legal',
+    version: '1.0.0',
+    kind: 'page',
+    description: 'x',
+    sourceDir: root,
+    settingsSchema: {
+      clientId: { type: 'string', label: 'id', description: 'id' },
+    },
+  });
+  assert.equal(loaded.public.clientId, 'from-common');
+  assert.equal(loaded.public.environments, undefined);
+  assert.ok(!loaded.warnings.some((line) => line.includes('environments')));
+  assert.ok(loaded.warnings.some((line) => line.includes('ignored unknown public key stray')));
+});
+
 test('env public overlay wins over common public', () => {
   const root = mkdtempSync(join(tmpdir(), 'plugin-cfg-env-'));
   writeFileSync(join(root, 'config.json'), JSON.stringify({ clientId: 'common' }));

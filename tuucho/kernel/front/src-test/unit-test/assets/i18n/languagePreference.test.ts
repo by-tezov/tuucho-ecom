@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { preferredLanguage, savePreferredLanguage } from '@/assets/i18n/languagePreference';
-import { runtimeDefaultLang, setRuntimeDefaultLang } from '@/config/runtimeI18n';
+import {
+  runtimeDefaultLang,
+  setRuntimeDefaultLang,
+  setRuntimeFirstVisit,
+} from '@/config/runtimeI18n';
 
 function browserLanguages(languages: string[]): void {
   Object.defineProperty(window.navigator, 'languages', { configurable: true, value: languages });
@@ -12,6 +16,8 @@ function browserLanguages(languages: string[]): void {
 
 afterEach(() => {
   setRuntimeDefaultLang(undefined);
+  setRuntimeFirstVisit(undefined);
+  window.localStorage.clear();
 });
 
 describe('preferredLanguage fallback order', () => {
@@ -40,7 +46,22 @@ describe('preferredLanguage fallback order', () => {
 
   it('falls back to the configured bootstrap default once applied', () => {
     setRuntimeDefaultLang('fr');
+    setRuntimeFirstVisit('navigator');
     browserLanguages(['th-TH']);
     expect(preferredLanguage()).toBe('fr');
+  });
+
+  it('prefers shop default over navigator when firstVisit is default', () => {
+    setRuntimeDefaultLang('fr');
+    setRuntimeFirstVisit('default');
+    browserLanguages(['en-US', 'en']);
+    expect(preferredLanguage()).toBe('fr');
+  });
+
+  it('keeps navigator-first before bootstrap even if firstVisit would be default', () => {
+    setRuntimeFirstVisit(undefined);
+    setRuntimeDefaultLang(undefined);
+    browserLanguages(['en-US']);
+    expect(preferredLanguage()).toBe('en');
   });
 });
